@@ -1,5 +1,5 @@
 export const idlFactory = ({ IDL }) => {
-  const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+  const Result_2 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const Status = IDL.Variant({
     'OG' : IDL.Null,
     'Staff' : IDL.Null,
@@ -63,6 +63,8 @@ export const idlFactory = ({ IDL }) => {
     'ok' : AvatarInformations,
     'err' : IDL.Text,
   });
+  const SubAccount = IDL.Vec(IDL.Nat8);
+  const Result_1 = IDL.Variant({ 'ok' : IDL.Nat64, 'err' : IDL.Text });
   const Result = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
   const Time = IDL.Int;
   const MintingError = IDL.Variant({
@@ -94,26 +96,37 @@ export const idlFactory = ({ IDL }) => {
     'Ok' : BlockIndex,
     'Err' : TransferError,
   });
-  const SubAccount = IDL.Vec(IDL.Nat8);
   return IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
-    'addAdmin' : IDL.Func([IDL.Principal], [Result_1], []),
-    'addUser' : IDL.Func([IDL.Principal, User], [Result_1], []),
+    'addAdmin' : IDL.Func([IDL.Principal], [Result_2], []),
+    'addUser' : IDL.Func([IDL.Principal, User], [Result_2], []),
     'airdrop' : IDL.Func([], [AirdropResponse], []),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'balance' : IDL.Func([], [ICP], []),
     'checkRegistration' : IDL.Func([], [IDL.Bool], ['query']),
+    'confirm' : IDL.Func([IDL.Nat64], [Result_2], []),
     'getInformations' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Principal, User))],
         [],
       ),
     'getRank' : IDL.Func([IDL.Principal], [IDL.Opt(IDL.Nat)], ['query']),
-    'isUserAuthorized' : IDL.Func([], [Result_1], ['query']),
-    'join' : IDL.Func([WhiteListRequest__1, IDL.Vec(IDL.Nat8)], [Result_1], []),
+    'isUserAuthorized' : IDL.Func([], [Result_2], ['query']),
+    'join' : IDL.Func([WhiteListRequest__1, IDL.Vec(IDL.Nat8)], [Result_2], []),
     'mintRequest' : IDL.Func([MintRequest], [AvatarResponse], []),
-    'modifyUser' : IDL.Func([IDL.Principal, User], [Result_1], []),
+    'modifyUser' : IDL.Func([IDL.Principal, User], [Result_2], []),
     'numberUsers' : IDL.Func([], [IDL.Nat], ['query']),
+    'prejoin' : IDL.Func(
+        [
+          IDL.Text,
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          SubAccount,
+        ],
+        [Result_1],
+        [],
+      ),
     'removeUser' : IDL.Func([IDL.Principal], [Result], []),
     'showErrors' : IDL.Func(
         [],

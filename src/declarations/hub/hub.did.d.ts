@@ -33,7 +33,9 @@ export type MintingError = { 'Avatar' : string } |
   { 'Verification' : string };
 export type Result = { 'ok' : string } |
   { 'err' : string };
-export type Result_1 = { 'ok' : null } |
+export type Result_1 = { 'ok' : bigint } |
+  { 'err' : string };
+export type Result_2 = { 'ok' : null } |
   { 'err' : string };
 export type Status = { 'OG' : null } |
   { 'Staff' : null } |
@@ -82,21 +84,29 @@ export interface WhiteListRequest__1 {
 }
 export interface _SERVICE {
   'acceptCycles' : () => Promise<undefined>,
-  'addAdmin' : (arg_0: Principal) => Promise<Result_1>,
-  'addUser' : (arg_0: Principal, arg_1: User) => Promise<Result_1>,
+  'addAdmin' : (arg_0: Principal) => Promise<Result_2>,
+  'addUser' : (arg_0: Principal, arg_1: User) => Promise<Result_2>,
   'airdrop' : () => Promise<AirdropResponse>,
   'availableCycles' : () => Promise<bigint>,
   'balance' : () => Promise<ICP>,
   'checkRegistration' : () => Promise<boolean>,
+  'confirm' : (arg_0: bigint) => Promise<Result_2>,
   'getInformations' : () => Promise<Array<[Principal, User]>>,
   'getRank' : (arg_0: Principal) => Promise<[] | [bigint]>,
-  'isUserAuthorized' : () => Promise<Result_1>,
+  'isUserAuthorized' : () => Promise<Result_2>,
   'join' : (arg_0: WhiteListRequest__1, arg_1: Array<number>) => Promise<
-      Result_1
+      Result_2
     >,
   'mintRequest' : (arg_0: MintRequest) => Promise<AvatarResponse>,
-  'modifyUser' : (arg_0: Principal, arg_1: User) => Promise<Result_1>,
+  'modifyUser' : (arg_0: Principal, arg_1: User) => Promise<Result_2>,
   'numberUsers' : () => Promise<bigint>,
+  'prejoin' : (
+      arg_0: string,
+      arg_1: [] | [string],
+      arg_2: [] | [string],
+      arg_3: [] | [string],
+      arg_4: SubAccount,
+    ) => Promise<Result_1>,
   'removeUser' : (arg_0: Principal) => Promise<Result>,
   'showErrors' : () => Promise<Array<[Time, MintingError]>>,
   'showJoiningErrors' : () => Promise<Array<[Time, JoiningError]>>,

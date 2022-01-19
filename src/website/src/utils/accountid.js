@@ -84,6 +84,7 @@ function buf2hex(buffer) {
 }
 
 export const principalToAccountIdentifier = (p, subaccount_array) => {
+  console.log("subaccount_array", subaccount_array);
   const padding = Buffer("\x0Aaccount-id");
   const array = new Uint8Array([
     ...padding,

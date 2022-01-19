@@ -260,7 +260,7 @@
             hidden
             md:block
           "
-          @click="plugConnection"
+          @click="plug"
         >
           Plug
         </button>
@@ -279,7 +279,7 @@
             mt-8
             cursor-pointer
           "
-          @click="stoicConnection"
+          @click="stoic"
         >
           Stoic
         </button>
@@ -287,7 +287,7 @@
     </div>
   </div>
   <div
-    v-else-if="connected && registered"
+    v-else-if="connected && squad_member"
     class="
       flex flex-col flex-1
       w-full
@@ -376,7 +376,7 @@
       text-white
       justify-center
     "
-    v-if="connected && !submitted"
+    v-if="connected && !squad_member && !joined"
   >
     <h1 class="text-center md:mb-16 mt-8 mb-8 font-marker">Inscription 🔥</h1>
 
@@ -591,7 +591,7 @@
     </div>
   </div>
   <div
-    v-else-if="connected && submitted && !registered"
+    v-else-if="connected && joined && !squad_member"
     class="
       flex flex-col flex-1
       w-full
@@ -674,22 +674,22 @@
 import { computed, ref, watch } from "vue";
 import Captcha from "../components/Captcha.vue";
 import { useStore } from "vuex";
-
-import { SubAccount, WhiteListRequest } from "declarations/hub/hub.did.d";
+import { SubAccount } from "declarations/hub/hub.did.d";
 import { idlFactory as idlFactory_hub } from "declarations/hub/index";
 import { HttpAgent, Actor } from "@dfinity/agent";
 //@ts-ignore
 import { StoicIdentity } from "ic-stoic-identity";
-import { HUB_CANISTER_ID, HOST } from "../utils/const";
-import { pay_plug, pay_stoic } from "../utils/payment";
-//@ts-ignore
+import { createLedgerCanister } from "../utils/ledger";
+import { HUB_CANISTER_ID, HOST, LEDGER_CANISTER_ID } from "../utils/const";
+import { pay_plug, pay_stoic, getRandomSubaccount } from "../utils/payment";
+
 export default {
   inheritAttrs: false,
   setup() {
     const store = useStore();
     const waiting = ref(false);
-    const submitted = ref(false);
-    const registered = ref(false);
+    const joined = ref(false);
+    const squad_member = ref(false);
 
     const message = ref("Join");
 
@@ -702,9 +702,12 @@ export default {
 
     const whitelist = [HUB_CANISTER_ID];
     const emailField = ref(null);
+    const memo = ref<bigint>(BigInt(0));
+    const height = ref<bigint>(BigInt(0));
+    const subaccount = ref<SubAccount>([0]);
 
     //Stoic specifity
-    let identity: any;
+    let ledgerActor: any;
 
     //Captcha
     const captchaText = ref<string>();
@@ -724,7 +727,7 @@ export default {
       return captchaText.value === captchaValid.value;
     }
 
-    const plugConnection = async () => {
+    const plug = async () => {
       const result = await (window as any).ic?.plug?.requestConnect({
         whitelist,
         HOST,
@@ -741,40 +744,45 @@ export default {
         interfaceFactory: idlFactory_hub,
       });
       store.commit("setAuthenticatedActor_hub", actor_hub);
-      principal = await (window as any).ic?.plug?.agent.getPrincipal();
     };
 
-    const stoicConnection = async () => {
+    const stoic = async () => {
       try {
-        identity = await StoicIdentity.load();
-        if (identity === false) {
-          try {
+        StoicIdentity.load().then(async (identity: any) => {
+          if (identity !== false) {
+            //ID is a already connected wallet!
+          } else {
+            //No existing connection, lets make one!
             identity = await StoicIdentity.connect();
-            console.log(identity);
-            if (identity === false) {
-              alert(
-                "Stoic connection failed. Please ensure cookies are enabled (known issue for Brave Browser)."
-              );
-              return;
-            }
+          }
+          try {
+            await identity.sign("a");
           } catch (e) {
-            alert(JSON.stringify(e));
+            alert(
+              "Error logging in with stoic, please ensure cookies are enabled"
+            );
             return;
           }
-        }
+          //Lets display the connected principal!
+          console.log(identity.getPrincipal().toText());
+          let principal = identity.getPrincipal();
+          store.commit("setWallet", "Stoic");
+          store.commit("setPrincipal", principal);
+
+          //Create an actor canister
+          const actor = Actor.createActor(idlFactory_hub, {
+            agent: new HttpAgent({
+              identity,
+            }),
+            canisterId: HUB_CANISTER_ID,
+          });
+          store.commit("setAuthenticatedActor_hub", actor);
+          ledgerActor = createLedgerCanister(new HttpAgent({ identity }));
+        });
       } catch (e) {
-        alert(JSON.stringify(e));
+        alert(e);
         return;
       }
-      store.commit("setWallet", "Stoic");
-      store.commit("setPrincipal", identity.getPrincipal());
-      const agent = new HttpAgent({ identity });
-      //@ts-ignore
-      const actor_hub = Actor.createActor(idlFactory_hub, {
-        canisterId: HUB_CANISTER_ID,
-        agent: agent,
-      });
-      store.commit("setAuthenticatedActor_hub", actor_hub);
     };
 
     function changeCaptcha(captcha: string) {
@@ -800,76 +808,88 @@ export default {
       return;
     };
 
-    const submit = async () => {
-      waiting.value = true;
-      message.value = "Payment...";
-      const wallet = store.getters.getWallet;
-      let subaccount_array: SubAccount = [];
-      let height: number = 0;
+    const payment = async () => {
+      let wallet = store.getters.getWallet;
+      console.log(wallet);
+      let transaction;
+      if (wallet == "Plug") {
+        message.value = "Payment";
+        transaction = await pay_plug(subaccount.value, memo.value);
+      } else if (wallet == "Stoic") {
+        message.value = "Payment";
+        transaction = await pay_stoic(
+          subaccount.value,
+          memo.value,
+          ledgerActor
+        );
+      } else {
+        throw new Error("Wallet not compatible");
+      }
+      if (transaction.height == 0) {
+        alert("Payment failed");
+        message.value = "Error";
+        waiting.value = false;
+        return;
+      } else {
+        height.value = BigInt(transaction.height);
+        message.value = "Wait...";
+        finish();
+      }
+    };
 
+    const finish = async () => {
+      let actor = store.getters.getAuthenticatedActor_hub;
+      let result = await actor.confirm(height.value);
+      if (result.hasOwnProperty("err")) {
+        alert(("Error while confirming your account :" + result.err) as string);
+        waiting.value = false;
+        message.value = "Error";
+        return;
+      } else {
+        message.value = "Success";
+        waiting.value = false;
+        joined.value = true;
+        return;
+      }
+    };
+
+    const submit = async () => {
+      if (waiting.value) {
+        return;
+      }
+      waiting.value = true;
+      message.value = "Sending...";
+      const wallet = store.getters.getWallet;
+      subaccount.value = getRandomSubaccount();
       if (
-        wallet === "Stoic" &&
         !confirm(
-          "You are about to pay 1 ICP to finalize your inscription, do you confirm ?"
+          "You are about to pay 1 ICP to finalize your inscription, do you confirm ?\nDo not refresh during the process!"
         )
       ) {
         return;
       }
 
-      if (wallet === "Plug") {
-        let result_payment = await pay_plug();
-        subaccount_array = result_payment.subaccount;
-        height = result_payment.height;
-      } else if (wallet === "Stoic") {
-        try {
-          let result_payment = await pay_stoic(identity);
-          subaccount_array = result_payment.subaccount;
-          height = result_payment.height;
-        } catch (e) {
-          alert(
-            "Payment failed, please ensure you have cookies enabled, enough funds in your wallet and try again (known issue for Brave users). Your funds were not touched."
-          );
-          message.value = "Error";
-          waiting.value = false;
-          return;
-        }
-      }
-
-      if (height == 0) {
-        alert(
-          "Payment failed. Height cannot be 0. Please contact us on Discord if your payment was successful but you still see this message."
-        );
-        message.value = "Error";
-        waiting.value = false;
-
-        return;
-      }
-
-      // Create the request for joining
-      const request: WhiteListRequest = {
-        email: [email.value],
-        twitter: [twitter.value],
-        height: BigInt(height),
-        discord: [discord.value],
-        wallet: store.getters.getWallet,
-        principal: store.getters.getPrincipal,
-      };
-
-      // Get the actor and send the request
       const actor = store.getters.getAuthenticatedActor_hub;
       message.value = "Joining...";
-      const result_join = await actor.join(request, subaccount_array);
-      if (result_join.hasOwnProperty("ok")) {
-        message.value = "Done";
-        waiting.value = false;
-        submitted.value = true;
-      } else {
-        message.value = "Error";
-        waiting.value = false;
-        alert(result_join.err);
+
+      const result_prejoin = await actor.prejoin(
+        wallet,
+        [email.value],
+        [discord.value],
+        [twitter.value],
+        subaccount.value
+      );
+      if (result_prejoin.hasOwnProperty("err")) {
         alert(
-          "An error happened during your inscription, please contact us on discord so we can process to a refund."
+          "Error while prejoin, no payment was sent : " +
+            JSON.stringify(result_prejoin.err)
         );
+        waiting.value = false;
+        message.value = "Error";
+        return;
+      } else {
+        memo.value = result_prejoin.ok;
+        payment();
       }
     };
 
@@ -879,8 +899,7 @@ export default {
       const registration =
         await store.getters.getAuthenticatedActor_hub.checkRegistration();
       if (registration) {
-        registered.value = true;
-        submitted.value = true;
+        squad_member.value = true;
       }
     }
 
@@ -896,12 +915,12 @@ export default {
 
     return {
       connected,
-      submitted,
-      registered,
+      joined,
+      squad_member,
       waiting,
       message,
-      plugConnection,
-      stoicConnection,
+      plug,
+      stoic,
       email,
       twitter,
       discord,

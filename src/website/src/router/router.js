@@ -7,16 +7,13 @@ import HomeMint from "../pages/Mint/AppHomeCenter.vue";
 import Loading from "../animations/Loading.vue";
 import Accessory from "../pages/Accessory/AccessoryHome.vue";
 import Airdrop from "../pages/Accessory/Airdrop.vue";
-import Preorder from "../pages/Preorder.vue";
+import Preorder from "../pages/Preorder_2.vue";
 
 const routes = [
   { path: "/", component: HomePage },
   { path: "/preorder", component: Preorder },
   { path: "/privacy", component: Privacy },
-  {
-    path: "/accessory",
-    component: Accessory,
-  },
+  { path: "/accessory", component: Accessory },
   { path: "/avatar", component: () => import("../pages/Mint/AppMint.vue") },
   { path: "/airdrop", component: Airdrop },
   { path: "/lottery", component: Lottery },

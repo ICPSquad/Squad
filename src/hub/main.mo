@@ -575,13 +575,92 @@ let this = actor {
     };
 
 
+
+
+    //2nd version 
+    type Infos = Users.Infos;
+    private stable var subaccount_to_check  : [SubAccount] = [];
+    private stable var prejoinEntries : [(Principal, Infos)] = [];
+
+      // Track errors during the joining process. 
+    type PaymentError = Users.PaymentError;
+    private stable var errorsPaymentsEntries : [(Time,PaymentError)] = [];
+    private let errorsPayments : HashMap.HashMap<Time,PaymentError> = HashMap.fromIter(errorsPaymentsEntries.vals(), 0, Int.equal, Int.hash);
+    let prejoins : HashMap.HashMap<Principal, Infos> = HashMap.fromIter(prejoinEntries.vals(), 0, Principal.equal, Principal.hash);
+
+    public shared ({caller}) func prejoin (wallet : Text, email : ?Text, discord : ?Text, twitter : ?Text, subaccount : SubAccount) : async Result.Result<Nat64, Text> {
+        if (Array.equal<Nat8>(sa_zero, subaccount, Nat8.equal)){
+            return #err("Cannot use the subbacount0 as receiver");
+        };
+        if(caller == Principal.fromText("2vxsx-fae")){
+            return #err("Need to be authenticated");
+        };
+        if(Option.isSome(users.get(caller))){
+            return #err("Already joined");
+        };
+        if (wallet != "Plug" and wallet != "Stoic") {
+            return #err("Wallet not compatible");
+        };
+        let memo : Nat64 = Nat64.fromIntWrap(Time.now());
+        let infos = {wallet = wallet; email = email; discord = discord; twitter = twitter; subaccount_to_send = subaccount; memo = memo;};
+        subaccount_to_check := Array.append<SubAccount>(subaccount_to_check, [subaccount]);
+        prejoins.put(caller, infos);
+        return #ok(memo);
+    };
+
+    public shared({caller}) func confirm (height : Nat64) : async Result.Result<(), Text> {
+        if(Principal.fromText("2vxsx-fae") == caller){
+            return #err("Need to be authenticated");
+        };
+        if(Option.isSome(users.get(caller))){
+            return #err("Already joined");
+        };
+        switch(prejoins.get(caller)){
+            case(null) return #err("Need to prejoin before");
+            case(?info) {
+                if(await _checkPayment(info.subaccount_to_send)){
+                    let user = _createNewUser(info, height);
+                    users.put(caller, user);
+                    prejoins.delete(caller);    
+                    ignore(_sendBackFrom(info.subaccount_to_send));
+                    return #ok;
+                } else {
+                    let error : PaymentError = {
+                        caller = caller;
+                        error_message = "No payment found";
+                        request_associated = ?info;
+                    };
+                    errorsPayments.put(Time.now(), error);
+                    return #err("Payment not found")
+                };
+            };
+        };
+    };
+
+    private func _createNewUser (infos : Infos, height : Nat64) : User {
+        let new_user = {
+            wallet = infos.wallet;
+            email = infos.email;
+            discord = infos.discord;
+            twitter = infos.twitter;
+            rank = ?Nat64.fromNat(users.size());
+            height = ?height;
+            avatar = null;
+            airdrop = null;
+            status = #Level1;
+        };
+        return new_user;
+    };
+
+
+
     ////////////
     // USERS //
     ///////////
 
-
+    
     // Get user informations of the specified principal
-    //@atuh : admin
+    //@auth : admin
     public shared query ({caller}) func showUser (p : Principal) : async ?User {
         assert(_isAdmin(caller));
         switch(users.get(p)){

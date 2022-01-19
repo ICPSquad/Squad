@@ -46,10 +46,25 @@ module {
        twitter : ?Text;
    };
 
+   public type Infos = {
+        wallet : Text;
+        email : ?Text;
+        discord : ?Text;
+        twitter : ?Text;
+        subaccount_to_send : [Nat8];
+        memo : Nat64;
+   };
+
    public type JoiningError = {
         caller : Principal;
         error_message : Text;
         request_associated : ?WhiteListRequest;
+   };
+
+   public type PaymentError = {
+       caller : Principal;
+       error_message : Text;
+       request_associated : ?Infos;
    };
 
     public type ResultRequest = Result.Result<Text,Text>; 

@@ -1,11 +1,11 @@
 import { HttpAgent } from "@dfinity/agent";
-import { Principal } from "@dfinity/principal";
 import { createLedgerCanister, SendArgs } from "./ledger";
-import { MEMO, FEE, AMOUNT, RECEIVER } from "./const";
+import { MEMO, FEE, AMOUNT } from "./const";
 import { SubAccount } from "declarations/hub/hub.did.d";
 import { principalToAccountIdentifier } from "./accountid";
+import { stringify } from "postcss";
 
-const getRandomSubaccount = (): number[] => {
+export const getRandomSubaccount = (): number[] => {
   var bs: number[] = [];
   for (var i = 0; i < 32; i++) {
     bs.push(Math.floor(Math.random() * 256));
@@ -13,46 +13,52 @@ const getRandomSubaccount = (): number[] => {
   return bs;
 };
 
-export async function pay_plug(): Promise<{
-  subaccount: SubAccount;
+export async function pay_plug(
+  subaccount: SubAccount,
+  memo: bigint
+): Promise<{
   height: number;
 }> {
-  let subaccount_array = getRandomSubaccount();
   let address_to_pay = principalToAccountIdentifier(
     "p4y2d-yyaaa-aaaaj-qaixa-cai",
-    subaccount_array
+    subaccount
   );
-  console.log("Address to pay: ", address_to_pay);
 
   //@ts-ignore
   const resultTransfer = await window.ic.plug.requestTransfer({
     to: address_to_pay,
     amount: 100000000,
+    memo: String(memo),
   });
-
-  return { subaccount: subaccount_array, height: resultTransfer.height };
+  if (resultTransfer) {
+    return {
+      height: resultTransfer.height,
+    };
+  } else {
+    return {
+      height: 0,
+    };
+  }
 }
 
 export async function pay_stoic(
-  identity: any
-): Promise<{ subaccount: SubAccount; height: number }> {
-  let subaccount_array = getRandomSubaccount();
+  subaccount: SubAccount,
+  memo: bigint,
+  ledgerActor: any
+): Promise<{ height: number }> {
   let address_to_pay = principalToAccountIdentifier(
     "p4y2d-yyaaa-aaaaj-qaixa-cai",
-    subaccount_array
+    subaccount
   );
-
-  let http_agent = new HttpAgent({ identity });
-  let ledger_actor = createLedgerCanister(http_agent);
 
   let send_args: SendArgs = {
     to: address_to_pay,
     fee: FEE,
-    memo: MEMO,
+    memo,
     amount: AMOUNT,
     from_subaccount: [],
     created_at_time: [{ timestamp_nanos: BigInt(Date.now() * 1000000) }],
   };
-  let height = await ledger_actor.send_dfx(send_args);
-  return { subaccount: subaccount_array, height: Number(height) };
+  let height = await ledgerActor.send_dfx(send_args);
+  return { height: Number(height) };
 }

@@ -53,10 +53,15 @@ type Status =
    OG;
    Staff;
  };
-type Result_1 = 
+type Result_2 = 
  variant {
    err: text;
    ok;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: nat64;
  };
 type Result = 
  variant {
@@ -129,22 +134,24 @@ type AirdropObject =
 type AccountIdentifier = text;
 service : {
   acceptCycles: () -> ();
-  addAdmin: (principal) -> (Result_1);
-  addUser: (principal, User) -> (Result_1);
+  addAdmin: (principal) -> (Result_2);
+  addUser: (principal, User) -> (Result_2);
   airdrop: () -> (AirdropResponse);
   availableCycles: () -> (nat) query;
   balance: () -> (ICP);
   checkRegistration: () -> (bool) query;
+  confirm: (nat64) -> (Result_2);
   getInformations: () -> (vec record {
                                 principal;
                                 User;
                               });
   getRank: (principal) -> (opt nat) query;
-  isUserAuthorized: () -> (Result_1) query;
-  join: (WhiteListRequest__1, vec nat8) -> (Result_1);
+  isUserAuthorized: () -> (Result_2) query;
+  join: (WhiteListRequest__1, vec nat8) -> (Result_2);
   mintRequest: (MintRequest) -> (AvatarResponse);
-  modifyUser: (principal, User) -> (Result_1);
+  modifyUser: (principal, User) -> (Result_2);
   numberUsers: () -> (nat) query;
+  prejoin: (text, opt text, opt text, opt text, SubAccount) -> (Result_1);
   removeUser: (principal) -> (Result);
   showErrors: () -> (vec record {
                            Time;
