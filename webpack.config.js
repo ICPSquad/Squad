@@ -106,8 +106,8 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
-      MATERIALS_CANISTER_ID: canisters["materials"],
-      NFT_CANISTER_ID: canisters["nft"],
+      MATERIALS_CANISTER_ID: canisters["accessories"],
+      NFT_CANISTER_ID: canisters["avatar"],
       HUB_CANISTER_ID: canisters["hub"],
     }),
     new webpack.ProvidePlugin({

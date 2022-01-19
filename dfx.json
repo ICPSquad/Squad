@@ -4,13 +4,13 @@
       "type": "motoko",
       "main": "./src/hub/main.mo"
     },
-    "nft": {
+    "avatar": {
       "type": "motoko",
-      "main": "./src/nft/main.mo"
+      "main": "./src/avatar/main.mo"
     },
-    "materials": {
+    "accessories": {
       "type": "motoko",
-      "main": "./src/materials/main.mo"
+      "main": "./src/accessories/main.mo"
     },
     "website": {
       "frontend": {
