@@ -1,6 +1,6 @@
 {
   "canisters": {
-    "event": {
+    "hub": {
       "type": "motoko",
       "main": "./src/hub/main.mo"
     },

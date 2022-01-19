@@ -108,7 +108,7 @@ module.exports = {
       NODE_ENV: "development",
       MATERIALS_CANISTER_ID: canisters["materials"],
       NFT_CANISTER_ID: canisters["nft"],
-      HUB_CANISTER_ID: canisters["event"],
+      HUB_CANISTER_ID: canisters["hub"],
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],
