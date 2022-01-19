@@ -428,6 +428,10 @@ let this = actor {
     private stable var prejoinEntries : [(Principal, Infos)] = [];
     let prejoins : HashMap.HashMap<Principal, Infos> = HashMap.fromIter(prejoinEntries.vals(), 0, Principal.equal, Principal.hash);
 
+    public shared query ({caller}) func showPrejoins () : async [(Principal, Infos)] {
+        return(Iter.toArray(prejoins.entries()));
+    };
+
     public type PaymentError = Users.PaymentError;
     private stable var errorsPaymentsEntries : [(Time,PaymentError)] = [];
     private let errorsPayments : HashMap.HashMap<Time,PaymentError> = HashMap.fromIter(errorsPaymentsEntries.vals(), 0, Int.equal, Int.hash);
@@ -594,12 +598,14 @@ let this = actor {
 
     system func preupgrade() {
         usersEntries := Iter.toArray(users.entries());
+        prejoinEntries := Iter.toArray(prejoins.entries());
         errorsMintingEntries := Iter.toArray(errorsMinting.entries());
         errorsPaymentsEntries := Iter.toArray(errorsPayments.entries());
     };
 
     system func postupgrade() {
        usersEntries := [];
+       prejoinEntries := [];
        errorsMintingEntries := [];
        errorsPaymentsEntries := [];
     };
@@ -692,7 +698,7 @@ let this = actor {
         let new_value_cycles_accessories = await actorItems.availableCycles();
 
         //Remove trap warning 
-        let value : Int = Nat64.toNat(new_value_icps.e8s) : Int - Nat64.toNat(icps.e8s) : Int;
+        let value : Int = (Nat64.toNat(new_value_icps.e8s)) - (Nat64.toNat(icps.e8s));
         let value_converted : Nat64 = Nat64.fromNat(Int.abs(value));
 
         //Create the audit 
