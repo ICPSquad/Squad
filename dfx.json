@@ -1,0 +1,37 @@
+{
+  "canisters": {
+    "event": {
+      "type": "motoko",
+      "main": "./src/hub/main.mo"
+    },
+    "nft": {
+      "type": "motoko",
+      "main": "./src/nft/main.mo"
+    },
+    "materials": {
+      "type": "motoko",
+      "main": "./src/materials/main.mo"
+    },
+    "website": {
+      "frontend": {
+        "entrypoint": "src/website/src/index.html"
+      },
+      "source": ["src/website/assets", "dist/website"],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": "vessel sources"
+    }
+  },
+  "dfx": "0.8.4",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}

@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color_skin: rgb(141, 85, 36);
+  --color_clothes: rgb(201, 100, 133);
+
+  --color_background_r: 125;
+  --color_background_g: 122;
+  --color_background_b: 246;
+  --color_background_a: var(--background_opacity, 0.8);
+
+  --color_eyes_r: 73;
+  --color_eyes_g: 118;
+  --color_eyes_b: 101;
+
+  --color_eyebrows_r: 154;
+  --color_eyebrows_g: 51;
+  --color_eyebrows_b: 0;
+
+  --color_hairs_r: 154;
+  --color_hairs_g: 51;
+  --color_hairs_b: 0;
+
+  --color_eyeliner_r: 207;
+  --color_eyeliner_g: 116;
+  --color_eyeliner_b: 160;
+}
