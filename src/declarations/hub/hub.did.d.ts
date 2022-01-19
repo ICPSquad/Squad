@@ -101,6 +101,6 @@ export interface _SERVICE {
   'showErrors' : () => Promise<Array<[Time, MintingError]>>,
   'showJoiningErrors' : () => Promise<Array<[Time, JoiningError]>>,
   'showUser' : (arg_0: Principal) => Promise<[] | [User]>,
-  'transfer' : (arg_0: ICP, arg_1: string) => Promise<TransferResult>,
+  'transfer' : (arg_0: ICP, arg_1: Principal) => Promise<TransferResult>,
   'verificationPayments' : () => Promise<Array<SubAccount>>,
 }

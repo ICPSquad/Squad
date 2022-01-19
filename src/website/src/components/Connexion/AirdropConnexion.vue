@@ -68,7 +68,7 @@ import { useStore } from "vuex";
 import {
   idlFactory,
   idlFactory as idlFactory_hub,
-} from "declarations/event/index";
+} from "declarations/hub/index";
 
 //@ts-ignore
 import { StoicIdentity } from "ic-stoic-identity";

@@ -675,9 +675,10 @@ import { computed, ref, watch } from "vue";
 import Captcha from "../components/Captcha.vue";
 import { useStore } from "vuex";
 
-import { SubAccount, WhiteListRequest } from "declarations/event/event.did.d";
-import { idlFactory as idlFactory_hub } from "declarations/event/index";
+import { SubAccount, WhiteListRequest } from "declarations/hub/hub.did.d";
+import { idlFactory as idlFactory_hub } from "declarations/hub/index";
 import { HttpAgent, Actor } from "@dfinity/agent";
+//@ts-ignore
 import { StoicIdentity } from "ic-stoic-identity";
 import { HUB_CANISTER_ID, HOST } from "../utils/const";
 import { pay_plug, pay_stoic } from "../utils/payment";

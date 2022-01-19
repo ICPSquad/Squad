@@ -11,6 +11,7 @@
   "scripts": {
     "build": "webpack",
     "prebuild": "npm run copy:types",
+    "prestart": "npm run copy:types",
     "start": "webpack serve --mode development --env development",
     "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/**"
   },
@@ -53,7 +54,6 @@
     "js-sha256": "^0.9.0",
     "svg-captcha-browser": "^1.0.2",
     "vue": "^3.2.11",
-    "vue-class-component": "^8.0.0-0",
     "vue-loader": "^16.5.0",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.2"

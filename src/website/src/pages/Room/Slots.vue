@@ -251,7 +251,7 @@ export default defineComponent({
     function removeSlot(slot: string) {
       let accessory = slots.value[slot];
       let slots_accessory = accessory.slots;
-      slots_accessory.forEach((slot) => {
+      slots_accessory.forEach((slot: string) => {
         store.commit("clearSlot", slot);
       });
     }

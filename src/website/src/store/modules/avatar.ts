@@ -1,6 +1,6 @@
 import { Avatar } from "../../types/avatar";
 import { ComponentList } from "../../types/component";
-import { Color } from "declarations/nft/nft.did.d";
+import { Color } from "declarations/avatar/avatar.did.d";
 import { backgrounds } from "../../utils/list";
 
 const state: Avatar = {

@@ -76,7 +76,7 @@
 <script lang="ts">
 import { computed, defineComponent } from "vue";
 import { useStore } from "vuex";
-import { idlFactory } from "declarations/materials/index";
+import { idlFactory } from "declarations/accessories/index";
 //@ts-ignore
 import { StoicIdentity } from "ic-stoic-identity";
 import { Actor, HttpAgent } from "@dfinity/agent";

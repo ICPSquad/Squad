@@ -2,7 +2,7 @@ import { HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import { createLedgerCanister, SendArgs } from "./ledger";
 import { MEMO, FEE, AMOUNT, RECEIVER } from "./const";
-import { SubAccount } from "declarations/event/event.did.d";
+import { SubAccount } from "declarations/hub/hub.did.d";
 import { principalToAccountIdentifier } from "./accountid";
 
 const getRandomSubaccount = (): number[] => {

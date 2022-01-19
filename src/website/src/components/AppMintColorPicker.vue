@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts">
-import { Color } from "declarations/nft/nft.did";
+import { Color } from "declarations/avatar/avatar.did";
 import { defineComponent, ref, computed } from "vue";
 import { changeCSSVariable, changeColorInStore } from "../types/color";
 import { useStore } from "vuex";
@@ -116,12 +116,12 @@ export default defineComponent({
     };
 
     // To convert rgb values in hexadecimal format to set up the color picker
-    function componentToHex(c) {
+    function componentToHex(c: any) {
       var hex = c.toString(16);
       return hex.length == 1 ? "0" + hex : hex;
     }
 
-    function hexToRgb(hex) {
+    function hexToRgb(hex: any) {
       var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
       return result
         ? {
@@ -132,7 +132,7 @@ export default defineComponent({
         : null;
     }
 
-    const rgbToHex = (r, g, b) => {
+    const rgbToHex = (r: any, g: any, b: any) => {
       return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
     };
 

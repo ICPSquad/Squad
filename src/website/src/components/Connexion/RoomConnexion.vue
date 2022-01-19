@@ -65,9 +65,9 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useStore } from "vuex";
-import { idlFactory as idlFactory_nft } from "declarations/nft/index";
-import { idlFactory as idlFactory_hub } from "declarations/event/index";
-import { idlFactory as idlFactory_material } from "declarations/materials/index";
+import { idlFactory as idlFactory_nft } from "declarations/avatar/index";
+import { idlFactory as idlFactory_hub } from "declarations/hub/index";
+import { idlFactory as idlFactory_material } from "declarations/accessories/index";
 
 //@ts-ignore
 import { StoicIdentity } from "ic-stoic-identity";

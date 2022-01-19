@@ -133,7 +133,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useStore } from "vuex";
-import { idlFactory } from "declarations/event/index";
+import { idlFactory } from "declarations/hub/index";
 //@ts-ignore
 import { StoicIdentity } from "ic-stoic-identity";
 import { Actor, HttpAgent } from "@dfinity/agent";

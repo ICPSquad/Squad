@@ -16,11 +16,11 @@ const mutations = {
       return;
     }
     accessory.slots.forEach((slot) => {
-      state[slot] = accessory;
+      state[slot as keyof Slots] = accessory;
     });
   },
   clearSlot(state: State, slot: string) {
-    state[slot] = null;
+    state[slot as keyof Slots] = null;
   },
 };
 

@@ -68,7 +68,7 @@ export function slotsEqual(slot_1: string[], slot_2: string[]) {
 function getLockedSlots(slots: Slots): string[] {
   const locked: string[] = [];
   for (const slot in slots) {
-    if (slots[slot] != null) {
+    if (slots[slot as keyof Slots] != null) {
       locked.push(slot);
     }
   }

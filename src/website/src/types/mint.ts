@@ -3,7 +3,7 @@ import {
   MintRequest,
   ExtCoreUser,
   AvatarRequest,
-} from "declarations/event/event.did.d";
+} from "declarations/hub/hub.did.d";
 import { buildRequestFromAvatar } from "./avatar";
 import store from "../store";
 

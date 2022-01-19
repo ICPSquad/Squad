@@ -2,7 +2,7 @@
 // This list is different from the actual list of components that is stored in the backend canister.
 // Some component listed here can actually represent multiple layers.
 
-import { Color } from "declarations/nft/nft.did.d";
+import { Color } from "declarations/avatar/avatar.did.d";
 import { Accessory } from "../types/accessories";
 import { ComponentList } from "../types/component";
 

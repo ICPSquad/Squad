@@ -136,8 +136,11 @@ export const redrawSvg = (): string => {
 function slotsToSvg(slots: Slots): Array<SvgLayer> {
   var layers: SvgLayer[] = [];
   for (let slot in slots) {
-    if (slots[slot] != null) {
-      let components = slots[slot].components;
+    if (slots[slot as keyof Slots] != null) {
+      if (slot == null) {
+        throw new Error("Slot is null");
+      }
+      let components = slots[slot as keyof Slots]!.components;
       components.forEach((component) => {
         let content = getContentFromSymbol(component.name);
         layers.push({

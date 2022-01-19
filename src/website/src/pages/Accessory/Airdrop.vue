@@ -168,7 +168,7 @@
 <script lang="ts">
 import { defineComponent, computed, ref, onMounted, watch } from "vue";
 import { useStore } from "vuex";
-import { AirdropObject } from "declarations/event/event.did.d";
+import { AirdropObject } from "declarations/hub/hub.did.d";
 import RewardComponent from "./Reward.vue";
 import AirdropConnexion from "../../components/Connexion/AirdropConnexion.vue";
 

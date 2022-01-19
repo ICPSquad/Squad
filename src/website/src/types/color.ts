@@ -1,4 +1,4 @@
-import { Color } from "declarations/nft/nft.did.d";
+import { Color } from "declarations/avatar/avatar.did";
 import store from "../store";
 
 export type ColorList = {
@@ -104,7 +104,7 @@ export function createColorsAvatarRequest(): Array<{
   let colors: ColorList = store.getters.getColors as ColorList;
   for (let key in colors) {
     result.push({
-      color: colors[key],
+      color: colors[key as keyof ColorList],
       spot: key,
     });
   }

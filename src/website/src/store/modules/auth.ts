@@ -2,7 +2,7 @@ import { Actor } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import { Commit } from "vuex";
 
-import { Inventory } from "declarations/materials/materials.did.d";
+import { Inventory } from "declarations/accessories/accessories.did.d";
 import { Slots } from "vue";
 
 const state: {
@@ -112,7 +112,7 @@ const actions = {
     commit,
     state,
   }: {
-    dispatch;
+    dispatch: any;
     commit: Commit;
     state: State;
   }) {

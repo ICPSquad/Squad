@@ -1,6 +1,6 @@
 import { ComponentList } from "./component";
-import { AvatarRequest, Color } from "declarations/event/event.did.d";
-import { ComponentRequest } from "declarations/nft/nft.did.d";
+import { AvatarRequest, Color } from "declarations/hub/hub.did.d";
+import { ComponentRequest } from "declarations/avatar/avatar.did.d";
 import { ColorList, createColorsAvatarRequest } from "./color";
 
 export type Avatar = {
@@ -19,8 +19,14 @@ export type Avatar = {
 export function buildRequestFromAvatar(avatar: Avatar): AvatarRequest | null {
   let requestFinal: ComponentRequest[] = [];
   for (const key in avatar) {
-    if (!(key === "level" || key === "Colors") && avatar[key] !== null) {
-      let request = buildComponentRequestFromComponentList(avatar[key]);
+    if (
+      !(key === "level" || key === "Colors") &&
+      avatar[key as keyof Avatar] !== null
+    ) {
+      let request = buildComponentRequestFromComponentList(
+        //@ts-ignore
+        avatar[key] as ComponentList
+      );
       //@ts-ignore
       requestFinal = requestFinal.concat(request);
     }

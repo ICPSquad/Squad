@@ -1,7 +1,7 @@
 import {
   Inventory,
   AssetInventoryType,
-} from "declarations/materials/materials.did";
+} from "declarations/accessories/accessories.did";
 // Get number materials
 
 type inventoryObjectForComponent = {

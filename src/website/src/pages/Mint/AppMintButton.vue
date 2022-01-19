@@ -66,7 +66,7 @@
 import { defineComponent, ref } from "vue";
 import { useStore } from "vuex";
 import { createMintRequest } from "../../types/mint";
-import { MintRequest } from "declarations/event/event.did.d";
+import { MintRequest } from "declarations/hub/hub.did.d";
 
 import Warning from "./WarningMint.vue";
 import Loading from "../../animations/Loading.vue";

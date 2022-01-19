@@ -126,7 +126,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'showUser' : IDL.Func([IDL.Principal], [IDL.Opt(User)], ['query']),
-    'transfer' : IDL.Func([ICP, IDL.Text], [TransferResult], []),
+    'transfer' : IDL.Func([ICP, IDL.Principal], [TransferResult], []),
     'verificationPayments' : IDL.Func([], [IDL.Vec(SubAccount)], []),
   });
 };

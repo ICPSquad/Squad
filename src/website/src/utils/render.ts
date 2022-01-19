@@ -1,4 +1,7 @@
-import { AvatarRequest, ComponentRequest } from "declarations/nft/nft.did.d";
+import {
+  AvatarRequest,
+  ComponentRequest,
+} from "declarations/avatar/avatar.did.d";
 import { buildRequestFromAvatar, Avatar } from "../types/avatar";
 
 export function removeAllChildren(element: HTMLElement) {

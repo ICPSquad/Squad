@@ -349,7 +349,7 @@ import { defineComponent, ref } from "vue";
 import Sidebar from "../components/Sidebar.vue";
 import Helmet from "../animations/Helmet.vue";
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { idlFactory } from "declarations/event/index";
+import { idlFactory } from "declarations/hub/index";
 
 export default defineComponent({
   setup() {
