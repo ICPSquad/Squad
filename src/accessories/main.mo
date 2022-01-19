@@ -1299,13 +1299,16 @@ shared({ caller = hub }) actor class Hub() = this {
     // CYCLES//
     ///////////
 
-    public shared({caller}) func wallet_receive() : async () {
-        ignore ExperimentalCycles.accept(ExperimentalCycles.available());
+    public func acceptCycles() : async () {
+        let available = ExperimentalCycles.available();
+        let accepted = ExperimentalCycles.accept(available);
+        assert (accepted == available);
     };
 
-    public query func wallet_available() : async Nat {
+    public query func availableCycles() : async Nat {
         return ExperimentalCycles.balance();
     };
+
 
     //////////////
     // UPGRADE //

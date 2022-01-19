@@ -95,10 +95,10 @@ let this = actor {
     
 
     // Initialize actor for canister responsible of avatars 
-    let actorNFT = actor ("jmuqr-yqaaa-aaaaj-qaicq-cai") : actor {
+    let actorAvatar = actor ("jmuqr-yqaaa-aaaaj-qaicq-cai") : actor {
         mint : shared MintRequest -> async Result.Result<AvatarInformation,Text>;
-        generateAccounts : shared [Principal] -> async ();
-        getAllAvatar : shared () -> async [(TokenIdentifier,?Principal)];
+        supply : shared () -> async Nat;
+        availableCycles : shared () -> async Nat;
     };
 
     // Mint 
@@ -109,7 +109,7 @@ let this = actor {
             case (#ok) {
                 // We prevent users from sending multiples mintRequest and abusing the system causes this function is not atomic by adding a fake token identifier -> _mintVerification will now send an error. 
                 _addAvatar("-1", msg.caller);
-                switch(await actorNFT.mint(request)){
+                switch(await actorAvatar.mint(request)){
                     case(#err(message)) {
                         // Remove the fake token identifier so user can try again. 
                         _removeAvatar(msg.caller);
@@ -255,9 +255,10 @@ let this = actor {
     public type AirdropResponse = Result.Result<AirdropObject, Text>;
     public type Inventory = Inventory.Inventory;
 
-    let actorMaterial = actor ("po6n2-uiaaa-aaaaj-qaiua-cai") : actor {
+    let actorItems = actor ("po6n2-uiaaa-aaaaj-qaiua-cai") : actor {
         airdrop : shared (AirdropObject) -> async Result.Result<(), Text>;
-        getAllInventory : shared ([Principal]) -> async [(Principal,Inventory)];
+        getTotalMinted : shared () -> async Nat;
+        availableCycles : shared () -> async Nat;
     };
 
     //TODO replace 
@@ -290,7 +291,7 @@ let this = actor {
                                 };
                                 users.put(principal, user_temp);
                                 let airdrop_object = AirdropModule.airdropObjectFromRank(Nat64.toNat(rank), principal);
-                                switch(await actorMaterial.airdrop(airdrop_object)){
+                                switch(await actorItems.airdrop(airdrop_object)){
                                     case(#err(message)){
                                         let new_user : User = {
                                             wallet = user.wallet;
@@ -381,7 +382,7 @@ let this = actor {
 
 
     // Balance of this canister subaccount0 using the ledger canister. 
-    public func balance () : async Ledger.ICP {
+    public shared func balance () : async Ledger.ICP {
         await actorLedger.account_balance({
             account = _myAccountIdentifier(null);
         });
@@ -391,10 +392,10 @@ let this = actor {
     // @auth : admin
 
     public shared ({caller}) func transfer (amount : Ledger.ICP, receiver : Principal) : async Ledger.TransferResult {
-        assert(_isAdmin(caller));
+        assert(_isAdmin(caller) or caller == Principal.fromActor(this));
         let account_raw : [Nat8] = AccountIdentifier.fromPrincipal_raw(receiver, null);
         await actorLedger.transfer({
-            memo = 1;
+            memo = 1998;
             amount = amount;
             fee = { e8s = 10_000};
             from_subaccount = null;
@@ -420,173 +421,16 @@ let this = actor {
         };
     };
 
-    // Types and useful 
-    public type WhiteListRequest = Users.WhiteListRequest; 
-    public type JoiningError = Users.JoiningError;
     private let AMOUNT  = {e8s = Nat64.fromNat(100000000)};
     private let sa_zero : [Nat8] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-
-
-    // Track errors during the joining process. 
-    stable var errorsJoiningEntries : [(Time,JoiningError)] = [];
-    let errorsJoining : HashMap.HashMap<Time,JoiningError> = HashMap.fromIter(errorsJoiningEntries.vals(), 0, Int.equal, Int.hash);
-
-    public shared query ({caller}) func showJoiningErrors() : async [(Time,JoiningError)] {
-        assert(_isAdmin(caller));
-        return(Iter.toArray(errorsJoining.entries()));
-    };
-
-    // User send 1 ICP to a random subaccount and sends the corresponding [Nat8] representation 
-    // We then check the balance by asking the ledger canister. This methods prevents using the proxy for the Candid interface and is significantly faster.
-    // For 10 000 ICP we will loose 1 ICP in transfer fees.
-    // ⚠️ Subaccount must be different than 0 (otherwise the check balance would be compromised)
-    public shared ({caller}) func join (request : WhiteListRequest, subaccount : [Nat8]) : async Result.Result<(), Text> {
-        // Check that subaccount is not the subaccount0!
-        if (Array.equal<Nat8>(sa_zero, subaccount, Nat8.equal)){
-            let error : JoiningError = {
-                caller = caller;
-                error_message = "Cannot use the subbacount0 as receiver";
-                request_associated = ?request;
-            };
-            errorsJoining.put(Time.now(), error);
-            return #err("Cannot use the subbacount0 as receiver");
-        };
-
-        // Check payment 
-        if(not (await _checkPayment(subaccount))){
-             let error : JoiningError = {
-                caller = caller;
-                error_message = "No payment found";
-                request_associated = ?request;
-            };
-            errorsJoining.put(Time.now(), error);
-            return #err("No payment found");
-        };
-
-        // Send the ICP back to the main account, do not await so still keep a trace of the subaccount.
-        ignore(_sendBackFrom(subaccount));
-        payments_address := Array.append<SubAccount>(payments_address, [subaccount]);
-        
-        if (caller == Principal.fromText("2vxsx-fae")) {
-            let error : JoiningError = {
-                caller = caller;
-                error_message = "The anonymous principal cannot join";
-                request_associated = ?request;
-            };
-            errorsJoining.put(Time.now(), error);
-            return #err("Cannot register the anonymous principal");
-        };
-
-        if (caller != request.principal){
-            let error : JoiningError = {
-                caller = caller;
-                error_message = "Cannot register for someone else";
-                request_associated = ?request;
-            };
-            errorsJoining.put(Time.now(), error);
-            return #err("Cannot register for someone else");
-        };
-
-        if (request.wallet != "Stoic" and request.wallet != "Plug") {
-            let error : JoiningError = {
-                caller = caller;
-                error_message = "Wallet not supported";
-                request_associated = ?request;
-            };
-            errorsJoining.put(Time.now(), error);
-            return #err("Wallet not supported : " # request.wallet);
-        };
-
-        switch(users.get(caller)){
-            case(?user) { 
-                let error : JoiningError = {
-                    caller = caller;
-                    error_message = "Already an user associated with this principal.";
-                    request_associated = ?request;
-                };
-                errorsJoining.put(Time.now(), error);
-                return #err("There is already an user associated with this principal : " # Principal.toText(caller));
-            };
-            case(null) {
-                let new_user : User = _createUserFromRequest(request);
-                users.put(caller, new_user);
-                return #ok;
-            };
-        };
-    };
-
-    // A list of subaccounts that are supposed to have send their ICPs back to the main account
-    // Because we don't await on the TransferResult of the previous methods we keep track of them to regularly run check on their balance. 👮‍♀️
-    // @auth : admin
-    stable var payments_address : [SubAccount] = [];        
-    public shared ({caller}) func verificationPayments () : async [SubAccount] {
-        assert(_isAdmin(caller));
-        var subaccount_robber : [SubAccount] = [];
-        for (subaccount in payments_address.vals()){
-            let account_to_check = {account = _myAccountIdentifier(?subaccount)};
-            let balance = await actorLedger.account_balance(account_to_check);
-            let amount = balance.e8s;
-            if(amount > 0) {
-                subaccount_robber := Array.append<SubAccount>(subaccount_robber, [subaccount]);
-            };
-        };
-        payments_address := subaccount_robber;
-        return (subaccount_robber);
-    };
- 
-    // This function is used internally everytime a new user join, to send back ICPs from the corresponding subaccount to the main account
-    private func _sendBackFrom (subaccount : SubAccount) : async () { 
-        let result_transfer = await actorLedger.transfer({
-            memo = 1;
-            amount = {e8s =  99990000}; //We need to remove the transfer fee 
-            fee = {e8s = 10_000};
-            from_subaccount = ?subaccount;
-            to = _myAccountIdentifier(null);
-            created_at_time = ?{timestamp_nanos = Nat64.fromIntWrap(Time.now())};
-            });
-        return ();
-    };
-
-
-    // This function check is subaccount are received the 1 ICP as a proof of payment!
-    private func _checkPayment (subaccount : SubAccount) : async Bool {
-        let account_to_check = {account = _myAccountIdentifier(?subaccount)};
-        let balance = await actorLedger.account_balance(account_to_check);
-        if (balance.e8s == 100_000_000) {
-            return true;
-        };
-        return false;
-    };
     
-    // Convert a request to a new user profile. Level_1 only starting from now.
-    private func _createUserFromRequest (request : WhiteListRequest) : User {
-        let new_user = {
-            wallet = request.wallet;
-            email = request.email;
-            discord = request.discord;
-            twitter = request.twitter;
-            rank = ?Nat64.fromNat(users.size());
-            height = ?request.height;
-            avatar = null;
-            airdrop = null;
-            status = #Level1;
-        };
-        return new_user;
-    };
-
-
-
-
-    //2nd version 
     type Infos = Users.Infos;
-    private stable var subaccount_to_check  : [SubAccount] = [];
     private stable var prejoinEntries : [(Principal, Infos)] = [];
+    let prejoins : HashMap.HashMap<Principal, Infos> = HashMap.fromIter(prejoinEntries.vals(), 0, Principal.equal, Principal.hash);
 
-      // Track errors during the joining process. 
-    type PaymentError = Users.PaymentError;
+    public type PaymentError = Users.PaymentError;
     private stable var errorsPaymentsEntries : [(Time,PaymentError)] = [];
     private let errorsPayments : HashMap.HashMap<Time,PaymentError> = HashMap.fromIter(errorsPaymentsEntries.vals(), 0, Int.equal, Int.hash);
-    let prejoins : HashMap.HashMap<Principal, Infos> = HashMap.fromIter(prejoinEntries.vals(), 0, Principal.equal, Principal.hash);
 
     public shared ({caller}) func prejoin (wallet : Text, email : ?Text, discord : ?Text, twitter : ?Text, subaccount : SubAccount) : async Result.Result<Nat64, Text> {
         if (Array.equal<Nat8>(sa_zero, subaccount, Nat8.equal)){
@@ -637,6 +481,37 @@ let this = actor {
         };
     };
 
+   
+    
+
+    public shared query ({caller}) func showPaymentErrors() : async [(Time,PaymentError)] {
+        assert(_isAdmin(caller));
+        return(Iter.toArray(errorsPayments.entries()));
+    };
+
+    // This function is used internally everytime a new user join, to send back ICPs from the corresponding subaccount to the main account
+    private func _sendBackFrom (subaccount : SubAccount) : async () { 
+        let result_transfer = await actorLedger.transfer({
+            memo = 666;
+            amount = {e8s =  99990000}; //We need to remove the transfer fee 
+            fee = {e8s = 10_000};
+            from_subaccount = ?subaccount;
+            to = _myAccountIdentifier(null);
+            created_at_time = ?{timestamp_nanos = Nat64.fromIntWrap(Time.now())};
+            });
+        return ();
+    };
+
+    // This function check is subaccount are received the 1 ICP as a proof of payment!
+    private func _checkPayment (subaccount : SubAccount) : async Bool {
+        let account_to_check = {account = _myAccountIdentifier(?subaccount)};
+        let balance = await actorLedger.account_balance(account_to_check);
+        if (balance.e8s == 100_000_000) {
+            return true;
+        };
+        return false;
+    };
+    
     private func _createNewUser (infos : Infos, height : Nat64) : User {
         let new_user = {
             wallet = infos.wallet;
@@ -651,7 +526,6 @@ let this = actor {
         };
         return new_user;
     };
-
 
 
     ////////////
@@ -721,13 +595,151 @@ let this = actor {
     system func preupgrade() {
         usersEntries := Iter.toArray(users.entries());
         errorsMintingEntries := Iter.toArray(errorsMinting.entries());
-        errorsJoiningEntries := Iter.toArray(errorsJoining.entries());
+        errorsPaymentsEntries := Iter.toArray(errorsPayments.entries());
     };
 
     system func postupgrade() {
        usersEntries := [];
        errorsMintingEntries := [];
-       errorsJoiningEntries := [];
+       errorsPaymentsEntries := [];
+    };
+
+    ///////////////
+    // HEARTBEAT //
+    ///////////////
+
+    // A count represents one second
+    stable var count = 0;
+
+    system func heartbeat () : async () {
+        count += 1;
+        //Every day
+        if(count % 86_400 == 0){
+            await (verification());
+            await (process());
+        };
+        //Every week
+        if(count % 604_800 == 0) {
+            await (audit());
+            await (recipe());
+            count := 0
+        };
+    };
+
+    ///////////////////
+    // VERIFICATION //
+    /////////////////
+
+    // A list of subaccounts that are supposed to have send their ICPs back to the main account : we regularly run check on their balance. 👮‍♀️
+    private stable var subaccount_to_check  : [SubAccount] = [];
+    private stable var subaccounts_robber : [SubAccount] = [];
+
+    //Check all subaccounts to see if their balance is non-null, returns the list of those were the balance is not null!
+    //@auth : canister
+    public shared ({caller}) func verification () : async () {
+        assert(caller == Principal.fromActor(this));
+        var robbers : [SubAccount] = [];
+        for (subaccount in subaccount_to_check.vals()){
+            let account_to_check = {account = _myAccountIdentifier(?subaccount)};
+            let balance = await actorLedger.account_balance(account_to_check);
+            let amount = balance.e8s;
+            if(amount > 0) {
+                subaccounts_robber := Array.append<SubAccount>(subaccounts_robber, [subaccount]);
+            };
+        };
+        subaccount_to_check := [];
+        return ();
+    };
+
+    //Process to the paiement of the concerned subbaccounts
+
+    public shared ({caller}) func process () : async () {
+        assert(caller == Principal.fromActor(this));
+        for (subaccount in subaccounts_robber.vals()){
+            await (_sendBackFrom(subaccount));
+        };
+        subaccounts_robber := [];
+    };
+
+
+    /////////////
+    // AUDITS //
+    ////////////
+
+    public type Audit = {time : Int; new_users : Int; new_icps : Ledger.ICP; new_avatar : Int; new_items : Int; cycles_burned_hub : Int; cycles_burned_avatar : Int; cycles_burned_accessories : Int;};
+    stable var audits : [Audit] = [];
+
+    //Value : 19th of January at 8PM - Paris Time
+    stable var users_nb = users.size();
+    stable var icps = {e8s = 6_699_310_000 : Nat64};
+    stable var avatars = 3_275;
+    stable var items = 5_335;
+    stable var cycles_hub = 3_252_285_677_779;
+    stable var cycles_avatar = 2_224_217_394_145;
+    stable var cycles_accessories = 2_623_946_408_783;
+
+    //Run an internal audits and updates values
+    //@auth : canister
+    public shared ({caller}) func audit () : async () {
+        assert(caller == Principal.fromActor(this));
+        //Get updateted values
+        let new_value_users = users.size();
+        let new_value_icps = await balance();
+        let new_value_avatar = await actorAvatar.supply();
+        let new_value_items = await actorItems.getTotalMinted();
+        let new_value_cycles_hub = Cycles.balance();
+        let new_value_cycles_avatar = await actorAvatar.availableCycles();
+        let new_value_cycles_accessories = await actorItems.availableCycles();
+
+        //Remove trap warning 
+        let value : Int = Nat64.toNat(new_value_icps.e8s) : Int - Nat64.toNat(icps.e8s) : Int;
+        let value_converted : Nat64 = Nat64.fromNat(Int.abs(value));
+
+        //Create the audit 
+        let audit = {
+            time : Int = Time.now(); new_users = (new_value_users : Int - users_nb : Int); 
+            new_icps : Ledger.ICP = {e8s = value_converted};
+            new_avatar : Int = (new_value_avatar - avatars); 
+            new_items : Int = (new_value_items - items);
+            cycles_burned_hub : Int = (new_value_cycles_hub - cycles_hub);
+            cycles_burned_avatar : Int = (new_value_cycles_avatar - cycles_avatar);
+            cycles_burned_accessories : Int = (new_value_cycles_accessories - cycles_accessories);
+        };
+        audits := Array.append<Audit>(audits, [audit]);
+        users_nb := new_value_users;
+        icps := new_value_icps;
+        avatars := new_value_avatar;
+        items := new_value_items;
+        cycles_hub := new_value_cycles_hub;
+        cycles_avatar := new_value_cycles_avatar;
+        cycles_accessories := new_value_cycles_accessories;
+        return;
+    };  
+
+    //Send list of all audits
+    //@auth : admin
+    public shared query ({caller}) func show_audits () : async [Audit] {
+        assert(_isAdmin(caller));
+        audits;
+    };
+    
+    /////////////
+    // RECIPE //
+    ///////////
+    
+    let principal_wallet : Principal = Principal.fromText("rj53v-z27so-pkgug-6rcn4-3axje-ecooy-w26n2-ios6v-wxfrg-knwaj-jae");
+
+    //Send recipe of the week to the wallet
+    //@auth : canister
+    public shared ({caller}) func recipe () : async () {
+        assert(caller == Principal.fromActor(this));
+        let balance : Ledger.ICP = await actorLedger.account_balance({
+            account = _myAccountIdentifier(null);
+        });
+        let amount = balance.e8s;
+        let amount_minus_fee = amount - 10_000;
+        let result = await(transfer({e8s = amount_minus_fee}, principal_wallet));
+        return;
     };
 
 

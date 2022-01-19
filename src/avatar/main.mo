@@ -1045,8 +1045,8 @@ shared (install) actor class erc721_token() = this {
         Iter.toArray(_registry.entries());
     };
     
-    public query func supply(token : TokenIdentifier) : async Result.Result<Balance, CommonError> {
-        #ok(_supply);
+    public query func supply() : async Nat {
+        _supply;
     };
 
     public query func extensions() : async [Extension] {
@@ -1203,6 +1203,20 @@ shared (install) actor class erc721_token() = this {
         styleStorage := [];
         slotsStorage := [];
 
+    };
+
+    ////////////////////////
+    // CYCLES MANAGEMENT //
+    //////////////////////
+
+    public func acceptCycles() : async () {
+        let available = Cycles.available();
+        let accepted = Cycles.accept(available);
+        assert (accepted == available);
+    };
+
+    public query func availableCycles() : async Nat {
+        return Cycles.balance();
     };
 
 
