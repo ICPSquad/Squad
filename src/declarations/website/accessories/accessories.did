@@ -34,11 +34,6 @@ type Value =
    Principal: principal;
    Text: text;
  };
-type User = 
- variant {
-   address: AccountIdentifier__1;
-   "principal": principal;
- };
 type UpdateRequest = 
  record {
    id: text;
@@ -53,18 +48,6 @@ type Update =
  record {
    mode: UpdateMode;
    name: text;
- };
-type TokenIndex = nat32;
-type TokenIdentifier__1 = text;
-type TokenIdentifier = text;
-type Template = 
- variant {
-   Accessory: record {
-                after_wear: text;
-                before_wear: text;
-              };
-   LegendaryAccessory: blob;
-   Material: blob;
  };
 type StreamingStrategy = variant {
                            Callback:
@@ -87,8 +70,8 @@ type StreamingCallback = func (StreamingCallbackToken) ->
                           (StreamingCallbackResponse) query;
 type Result_9 = 
  variant {
-   err: CommonError;
-   ok: Metadata__1;
+   err: text;
+   ok: text;
  };
 type Result_8 = 
  variant {
@@ -125,16 +108,6 @@ type Result_2 =
    err: Error;
    ok: Properties;
  };
-type Result_11 = 
- variant {
-   err: text;
-   ok: text;
- };
-type Result_10 = 
- variant {
-   err: CommonError__1;
-   ok: AccountIdentifier;
- };
 type Result_1 = 
  variant {
    err: text;
@@ -159,7 +132,6 @@ type Request =
    method: text;
    url: text;
  };
-type Recipe = vec text;
 type QueryRequest = 
  record {
    id: text;
@@ -196,17 +168,6 @@ type PayloadResult =
    Chunk: Chunk;
    Complete: blob;
  };
-type Metadata__1 = 
- variant {
-   fungible:
-    record {
-      decimals: nat8;
-      metadata: opt blob;
-      name: text;
-      symbol: text;
-    };
-   nonfungible: record {metadata: opt blob;};
- };
 type Metadata = 
  record {
    contentType: text;
@@ -222,24 +183,20 @@ type Hub =
                     text;
                     Asset;
                     Blueprint;
-                  }) -> (Result_11);
-   addElements: (text, Template, opt Recipe) -> (Result_11);
+                  }) -> (Result_9);
    addListAccessory: (vec record {
                             text;
                             Asset;
                             Blueprint;
-                          }) -> (Result_11);
+                          }) -> (Result_9);
    addListMaterial: (vec record {
                            text;
                            Asset;
-                         }) -> (Result_11);
+                         }) -> (Result_9);
    airdrop: (AirdropObject) -> (Result_1);
    assetRequest: (AssetRequest) -> (Result_3);
    authorize: (AuthorizeRequest) -> (Result_3);
-   balance: (BalanceRequest) -> (BalanceResponse) query;
    balanceOf: (principal) -> (vec text) query;
-   bearer: (TokenIdentifier) -> (Result_10) query;
-   extensions: () -> (vec Extension) query;
    getAllInventory: (vec principal) ->
     (vec record {
            principal;
@@ -251,15 +208,6 @@ type Hub =
    getInventory: () -> (Inventory) query;
    getMaterials: (principal) -> (vec text) query;
    getMetadata: () -> (ContractMetadata) query;
-   getMinter: () -> (vec principal) query;
-   getOwnership: () -> (vec record {
-                              AccountIdentifier;
-                              vec TokenIndex;
-                            }) query;
-   getRegistry: () -> (vec record {
-                             TokenIndex;
-                             AccountIdentifier;
-                           }) query;
    getTotalMinted: () -> (nat) query;
    howMany: (text) -> (nat) query;
    http_request: (Request) -> (Response) query;
@@ -273,7 +221,6 @@ type Hub =
                             text;
                             nat;
                           }) query;
-   metadata: (TokenIdentifier) -> (Result_9) query;
    mint: (text, principal) -> (Result);
    nftStreamingCallback: (StreamingCallbackToken) ->
     (StreamingCallbackResponse) query;
@@ -281,12 +228,11 @@ type Hub =
    queryProperties: (QueryRequest) -> (Result_2) query;
    staticStreamingCallback: (StreamingCallbackToken) ->
     (StreamingCallbackResponse) query;
-   supply: () -> (nat) query;
    tokenByIndex: (text) -> (Result_7);
    tokenChunkByIndex: (text, nat) -> (Result_6);
    tokenMetadataByIndex: (text) -> (Result_5);
    transfer: (principal, text) -> (Result_4);
-   updateAdmins: (principal, bool) -> (Result_3);
+   updateContractOwners: (principal, bool) -> (Result_3);
    updateProperties: (UpdateRequest) -> (Result_2);
    wallet_available: () -> (nat) query;
    wallet_receive: () -> ();
@@ -298,7 +244,6 @@ type HeaderField =
    text;
    text;
  };
-type Extension = text;
 type Error = 
  variant {
    AssetNotFound;
@@ -328,16 +273,6 @@ type ContractInfo =
    nft_payload_size: nat;
    total_minted: nat;
  };
-type CommonError__1 = 
- variant {
-   InvalidToken: TokenIdentifier__1;
-   Other: text;
- };
-type CommonError = 
- variant {
-   InvalidToken: TokenIdentifier__1;
-   Other: text;
- };
 type Chunk = 
  record {
    data: blob;
@@ -346,17 +281,6 @@ type Chunk =
  };
 type Callback = func () -> ();
 type Blueprint = vec text;
-type BalanceResponse = 
- variant {
-   err: CommonError;
-   ok: Balance;
- };
-type BalanceRequest = 
- record {
-   token: TokenIdentifier__1;
-   user: User;
- };
-type Balance = nat;
 type AuthorizeRequest = 
  record {
    id: text;
@@ -404,6 +328,4 @@ type AirdropObject =
    material: text;
    recipient: principal;
  };
-type AccountIdentifier__1 = text;
-type AccountIdentifier = text;
 service : () -> Hub

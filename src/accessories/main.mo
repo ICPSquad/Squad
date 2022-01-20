@@ -16,6 +16,11 @@ import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 
+//EXT
+import ExtAllowance "../dependencies/ext/Allowance";
+import ExtCommon "../dependencies/ext/Common";
+import ExtCore "../dependencies/ext/Core";
+
 // Departure labs
 import ArrayHelper "helper/arrayHelper";
 import Event "types/event";
@@ -40,8 +45,10 @@ import CAPTypes "mo:cap/Types";
 //Entrepot integration
 import Entrepot "../dependencies/entrepot";
 import AID "../dependencies/util/AccountIdentifier";
-import Core "../dependencies/ext/Core"
+import Core "../dependencies/ext/Core";
 
+//Principal from Blob
+import PrincipalImproved "../dependencies/util/Principal";
 
 shared({ caller = hub }) actor class Hub() = this {
 
@@ -49,8 +56,11 @@ shared({ caller = hub }) actor class Hub() = this {
     // MANAGEMENT //
     ///////////////
 
-    stable var INITALIZED : Bool = false;
-    stable var contractOwners : [Principal] = [hub];
+    stable var admins : [Principal] = [hub, Principal.fromText("7djq5-fyci5-b7ktq-gaff6-m4m6b-yfncf-pywb3-r2l23-iv3v4-w2lcl-aqe")];
+
+    public query func showAdmins () :  async [Principal] {
+        return(admins)
+    };
 
     public type ContractMetadata = {
         name   : Text;
@@ -63,33 +73,28 @@ shared({ caller = hub }) actor class Hub() = this {
 
     // Initializes the contract with the given (additional) owners and metadata. Can only be called once.
     // @auth: not INITALIZED
-    public shared({caller}) func init(
-        owners   : [Principal],
-        metadata : ContractMetadata,
-    ) : async () {
+    stable var INITALIZED : Bool = false;
+    public shared({caller}) func init(new_admins   : [Principal], metadata : ContractMetadata) : async () {
         assert(not INITALIZED);
-        contractOwners    := Array.append(contractOwners, owners);
+        admins    := Array.append(admins, new_admins);
         CONTRACT_METADATA := metadata;
         INITALIZED        := true;
     };
 
     // Updates the access rights of one of the contact owners.
     //@auth : isOwner
-    public shared({caller}) func updateContractOwners(
-        user          : Principal, 
-        isAuthorized : Bool,
-    ) : async Result.Result<(), Types.Error> {
+    public shared({caller}) func updateAdmins(user : Principal, isAuthorized : Bool) : async Result.Result<(), Types.Error> {
         if (not _isOwner(caller)) { return #err(#Unauthorized); };
         switch(isAuthorized) {
             case (true) {
-                contractOwners := Array.append(
-                    contractOwners,
+                admins := Array.append(
+                    admins,
                     [user],
                 );
             };
             case (false) {
-                contractOwners := Array.filter<Principal>(
-                    contractOwners, 
+                admins := Array.filter<Principal>(
+                    admins, 
                     func(v) { v != user; },
                 );
             };
@@ -127,12 +132,12 @@ shared({ caller = hub }) actor class Hub() = this {
             nft_payload_size = payloadSize; 
             total_minted     = nfts.getTotalMinted(); 
             cycles           = ExperimentalCycles.balance();
-            authorized_users = contractOwners;
+            authorized_users = admins;
         };
     };
 
     // Returns the total amount of minted NFTs.
-    public query func getTotalMinted() : async Nat {
+    public query func getTotalMinted () : async Nat {
         nfts.getTotalMinted();
     };
 
@@ -402,7 +407,7 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
     private func _isOwner(p : Principal) : Bool {
-        switch(Array.find<Principal>(contractOwners, func(v) {return v == p})) {
+        switch(Array.find<Principal>(admins, func(v) {return v == p})) {
             case (null) { false; };
             case (? v)  { true;  };
         };
@@ -687,7 +692,6 @@ shared({ caller = hub }) actor class Hub() = this {
                 contentType = accessory.1.contentType;
                 payload = #Payload(accessory.1.payload[0]);
                 callback = null;
-                
         });
 
         switch(await staticAssets.handleRequest(asset_request)){
@@ -714,8 +718,6 @@ shared({ caller = hub }) actor class Hub() = this {
         };
         return #ok("All materials have been added.");
     };
-
-
 
     public type Inventory = Inventory.Inventory; 
 
@@ -810,180 +812,6 @@ shared({ caller = hub }) actor class Hub() = this {
         };
         return #ok;
     };
-
-    // public func showToken (from : Principal) : async [Text] {
-    //     let tokens_id_user : [Text] = nfts.tokensOf(from);
-    //     return (tokens_id_user);
-    // };
-
-    // public func showMaterials (from :Principal): async [Text] {
-    //     let tokens_id_user : [Text] = nfts.tokensOf(from);
-    //     let materials : [Text] = Array.map<Text,Text>(tokens_id_user, _idToName);
-    //     return materials;
-    // };
-            
-
-
-    //    // Once the accessory with the specified blueprint has been created we can burn the materials of the user
-    // private func _destroyMaterials (names: [Text], from : Principal) : Result.Result<(),Text> {
-    //     for (name in names.vals()){
-    //         let tokens_id_user : [Text] = nfts.tokensOf(from);
-    //         let materials : [Text] = Array.map<Text,Text>(tokens_id_user, _idToName);
-    //         let f = func (x : Text) : Bool {
-    //             if(x == name) {
-    //                 return true;
-    //             };
-    //             return false;
-    //         };
-    //         switch(Array.find<Text>(materials, f)) {
-    //             case (null) {return #err ("No material found")};
-    //             case (?material) {
-    //                 switch(_nameToId(material, from)) {
-    //                     case (null) {return #err ("No material found (strange)")};
-    //                     case (?id) {
-    //                         switch(nfts.burn(id)){
-    //                             case (#err(e)) {return #err((e))};
-    //                             case (#ok) {};
-    //                         };
-    //                     };
-    //                 };
-    //             };
-    //         };
-    //     };
-    //     return #ok;
-    // };
-
-
-    
-
-
-    // TODO reupdate this methods 
-
-    // public shared(msg) func createMaterial(material : Text, recipient : Principal) : async Result.Result<Text,Text> {
-    //     assert(_isOwner(msg.caller));
-    //     switch(staticAssets.getToken(material)) {
-    //         case(#err(v)) {return (#err ("This material doesn't exist"))};
-    //         case (#ok(v)) {
-    //             if(v.payload.size() > 1) {
-    //                 return #err("This material is too heavy (payload toolarge).");
-    //             };
-    //             let egg : Token.Egg = {
-    //                 payload = #Payload(v.payload[0]);
-    //                 contentType = v.contentType;
-    //                 owner = ?recipient;
-    //                 properties = [];
-    //                 isPrivate = false;
-    //             };
-
-    //             switch (await nfts.mint(Principal.fromActor(this), egg)) {
-    //                 case (#err(e)) { #err((e)); };
-    //                 case (#ok(id, owner)) {
-    //                     // Material event
-    //                     circulation.put(id, material);
-    //                     #ok("The material : " # material # " has been created with id : " #id);
-    //                 };
-    //             };
-    //         };
-    //     };
-    // };
-
-    // public func destroyMaterials (names: [Text], from : Principal) : async Result.Result<(),Text> {
-    //     for (name in names.vals()){
-    //         let tokens_id_user : [Text] = nfts.tokensOf(from);
-    //         let materials : [Text] = Array.map<Text,Text>(tokens_id_user, _idToName);
-    //         let f = func (x : Text) : Bool {
-    //             if(x == name) {
-    //                 return true;
-    //             };
-    //             return false;
-    //         };
-    //         switch(Array.find<Text>(materials, f)) {
-    //             case (null) {return #err ("No material found")};
-    //             case (?material) {
-    //                 switch(_nameToId(material, from)) {
-    //                     case (null) {return #err ("No material found (strange)")};
-    //                     case (?id) {
-    //                         switch(nfts.burn(id)){
-    //                             case (#err(e)) {return #err((e))};
-    //                             case (#ok) {};
-    //                         };
-    //                     };
-    //                 };
-    //             };
-    //         };
-    //     };
-    //     return #ok;
-    // };
-
-     // This function should be called with the name of the accessory and a list of tokens ids to burn (tokens ids should belong to msg.caller)
-    // Example -> createAccessory ("Explore-helmet", ["2", "50", "68"]) 
-    // This function should be atomic ! (To avoid concurrent state issue like selling while creating accessories).
-    // public shared(msg) func createAccessory (name : Text, with : [Text]) : async Result.Result <Text,Text> {
-        
-    //     // Check if some tokens are used twice 
-    //     if((ArrayHelper.isArrayRedundant(with))) {
-    //         return #err ("Trying to use a token twice !")
-    //     };
-
-    //     let tokens_id_user : [Text] = nfts.tokensOf(msg.caller);
-    //     // Check if the specified tokens belong to the caller 
-    //     if(not (ArrayHelper.isSubset(with,tokens_id_user))) {
-    //         return #err ("Trying to use an non-authorized materials !");
-    //     };
-
-    //     let materials : [Text] = Array.map<Text,Text>(with, _idToName);
-    //     switch(infos.get(name)) {
-    //         case (null) return #err ("No blueprint for this accessory!");
-    //         case (?blueprint) {
-    //             if(not (ArrayHelper.isSubset(infos.blueprint, materials))) {
-    //                 return #err ("User don't have the required material for this accesory");
-    //             };
-    //             // Try to mint the accessory 
-    //             switch(_mintAccessory(name, msg.caller)) {
-    //                 case (#err(e)) {#err((e));};
-    //                 case (#ok(e)) {
-    //                     switch(_destroyMaterial(with, msg.caller)){
-    //                         // In the case where we mint an accessory but destroy the material result in an error -> We trap to revert any state change (no commit point previously).
-    //                         case (#err(e)) { assert(false); return #err(e); };
-    //                         case (#ok) {
-
-    //                             return (#ok("Accessory has been created and materials have been removed."));
-    //                         }; 
-    //                     };
-    //                 };
-    //             };
-    //         };
-    //     };
-    // };
-
-    // public shared(msg) func createAccessory2 (name : Text) : async Result.Result<Text,Text> {
-    //     // Does this accessory exists?
-    //     switch(infos.get(name)) {
-    //         case (null) return #err("This accessory doesn't exist");
-    //         case (?infos) {
-    //             let tokens_id : [Text] = nfts.tokensOf(msg.caller);
-    //             let materials : [Text] = Array.map<Text,Text>(tokens_id, _idToName);
-    //             // Does msg.caller have enough materials to create this accessory ?
-    //             if(not (ArrayHelper.isSubset(infos.blueprint,materials))) {
-    //                 return #err ("User doesn't have the required materials for this accessory");
-    //             };
-    //             switch(_mintAccessory(name, msg.caller)) {
-    //                 case (#err(e)) {#err((e));};
-    //                 case (#ok(e)) {
-    //                     switch(_destroyMaterials(infos.blueprint, msg.caller)){
-    //                         // In the case where we mint an accessory but destroy the material result in an error -> We trap to revert any state change (no commit point previously).
-    //                         case (#err(e)) { assert(false); return #err(e); };
-    //                         case (#ok) {
-    //                             return (#ok("Accessory has been created and materials have been removed."));
-    //                         }; 
-    //                     };
-    //                 };
-    //             };
-
-    //         };
-    //     };
-    // };
-
 
 
     /////////
@@ -1321,6 +1149,11 @@ shared({ caller = hub }) actor class Hub() = this {
         staticAssetsEntries := Iter.toArray(staticAssets.entries());
         circulationEntries := Iter.toArray(circulation.entries());
         blueprintsEntries := Iter.toArray(blueprints.entries());
+        _registryEntries := Iter.toArray(_registry.entries());
+        _itemsEntries := Iter.toArray(_items.entries());
+        _templateEntries := Iter.toArray(_templates.entries());
+        _svgsEntries := Iter.toArray(_svgs.entries());
+        _blobsEntries := Iter.toArray(_blobs.entries());
     };
 
     system func postupgrade() {
@@ -1330,6 +1163,356 @@ shared({ caller = hub }) actor class Hub() = this {
         staticAssetsEntries := [];
         circulationEntries := [];
         blueprintsEntries := [];
+        _itemsEntries := [];
+        _templateEntries := [];
+        _svgsEntries := [];
+        _blobsEntries := [];
+        _registryEntries := [];
     };
+
+
+    ////////////
+    // ITEMS //
+    //////////
+
+
+
+
+
+    ////////////////
+    // Elements  //
+    ///////////////
+
+    public type Item = {
+        #Material : Text; 
+        #Accessory : Accessory; 
+        #LegendaryAccessory : LegendaryAccessory;
+    };
+    public type Accessory = {
+        name : Text;
+        wear : Nat8;
+        equipped : Bool;
+    };
+
+    public type LegendaryAccessory = {
+        name : Text;
+        date_creation : Int;
+    };
+
+    private stable var _itemsEntries : [(Text, Item)] = [];
+    private var _items : HashMap.HashMap<Text, Item> = HashMap.fromIter(_itemsEntries.vals(), _itemsEntries.size(), Text.equal, Text.hash);
+
+    public type Template = {
+        #Material : Blob;
+        #Accessory : {before_wear : Text; after_wear : Text;};
+        #LegendaryAccessory : Blob;
+    };
+    private stable var _templateEntries : [(Text, Template)] = [];
+    private var _templates : HashMap.HashMap<Text, Template> = HashMap.fromIter(_templateEntries.vals(),_templateEntries.size(), Text.equal, Text.hash);
+
+    public type Recipe = [Text];
+    private stable var _recipeEntries : [(Text, [Text])] = [];
+    private var recipes : HashMap.HashMap<Text, [Text]> = HashMap.fromIter(_recipeEntries.vals(), _recipeEntries.size(), Text.equal, Text.hash);
+    
+    //Allow us to add a template  for items (materials/accessories/legendary) & recipe for accessory
+    // Items and legendary just need the name and a Blob
+    // Accessories are treated differently as they need to be dynamically updated for the wear-out-mechanism
+    //@auth : owner
+    public shared ({caller}) func addElements (name : Text, content : Template, recipe : ?Recipe) : async Result.Result<Text, Text> {
+        assert(_isOwner(caller));
+        switch(_templates.get(name)){
+            case(?template) return #err("A template already exists for : " #name);
+            case(null) {
+                switch(content){
+                    case(#Accessory({before_wear; after_wear;})) {
+                        switch(recipe){
+                            case(null) return #err("Need to specifiy a recipe when adding an accessory!");
+                            case(?recipe) {
+                                if(not(_verifyRecipe(recipe))){
+                                    return #err("Something wrong with the recipe");
+                                } else {
+                                    //TODO
+                                    return #ok(name # " has been added");
+                                }
+                            };
+                        };
+                    };
+                    case(_) {
+                        _templates.put(name, content);
+                        return #ok(name # " has been added");
+                    };
+                };
+            };
+        };
+    };
+
+    // Check if all the ingredients of the recipe do exists in store as materials
+    private func _verifyRecipe (recipe : Recipe) : Bool {
+        for(ingredient in recipe.vals()){
+            switch(_items.get(ingredient)){
+                case(null) return false;
+                case(?item){
+                    switch(item){
+                        case(#Material(text)){};
+                        case(_) return false;
+                    };
+                };
+            };
+        };
+        return true
+    };
+    
+
+    //Only for accessories
+    private stable var _svgsEntries : [(Text, Text)] = [];
+    private var _svgs : HashMap.HashMap<Text,Text> = HashMap.fromIter(_svgsEntries.vals(), _svgsEntries.size(), Text.equal, Text.hash);
+    private stable var _blobsEntries : [(Text,Blob) ]= [];
+    private var _blobs : HashMap.HashMap<Text,Blob> = HashMap.fromIter(_blobsEntries.vals(), _blobsEntries.size(), Text.equal, Text.hash);
+
+  
+
+    ///////////////////
+    // EXT - ERC721 //
+    /////////////////
+
+    type AccountIdentifier = ExtCore.AccountIdentifier;
+    type SubAccount = ExtCore.SubAccount;
+    type User = ExtCore.User;
+    type Balance = ExtCore.Balance;
+    type TokenIdentifier = ExtCore.TokenIdentifier;
+    type TokenIndex  = ExtCore.TokenIndex ;
+    type Extension = ExtCore.Extension;
+    type CommonError = ExtCore.CommonError;
+    type BalanceRequest = ExtCore.BalanceRequest;
+    type BalanceResponse = ExtCore.BalanceResponse;
+    type TransferRequest = ExtCore.TransferRequest;
+    type TransferResponse = ExtCore.TransferResponse;
+
+    private let EXTENSIONS : [Extension] = [];
+    private stable var _supply : Balance  = 0;
+    private stable var _minter : [Principal]  = [];
+    private stable var _nextTokenId : TokenIndex  = 0;
+
+    private stable var _registryEntries : [(TokenIndex, AccountIdentifier)] = [];
+    private var _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.fromIter(_registryEntries.vals(), 0, ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
+
+    //Increase storage usage but reduce cycle consumptions
+    private stable var _ownershipsEntries : [(AccountIdentifier, [TokenIndex])] = [];
+    private var _ownerships : HashMap.HashMap<AccountIdentifier, [TokenIndex]> = HashMap.fromIter(_ownershipsEntries.vals(), _ownershipsEntries.size(), Text.equal, Text.hash);
+
+    //Allow to easily update the _ownersToNfts hashmap. If new_account is null token is simply remove
+    private func _transferTokenOwnership(old_account : AccountIdentifier, new_account : ?AccountIdentifier, token_index : TokenIndex) : Result.Result<(), Text> { 
+        //Remove from old_account
+        switch(_ownerships.get(old_account)){
+            case(null) return #err("This account doesn't own this token");
+            case(?tokens){
+                let new_tokens = Array.filter<TokenIndex>(tokens, func (x) {x!=token_index;});
+                _ownerships.put(old_account, new_tokens);
+                switch(new_account){
+                    case(null) return #ok; //Burn
+                    case(?new_account){
+                        switch(_ownerships.get(new_account)){
+                            case(null) {
+                                _ownerships.put(new_account, [token_index]);
+                                return #ok;
+                            };
+                            case(?tokens){
+                                let new_tokens = Array.append<TokenIndex>(tokens, [token_index]);
+                                _ownerships.put(new_account, new_tokens);
+                                return #ok;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+
+    // public shared(msg) func transfer(request: TransferRequest) : async TransferResponse {
+    //     if (request.amount != 1) {
+    //             return #err(#Other("Must use amount of 1"));
+    //     };
+    //     if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
+    //         return #err(#InvalidToken(request.token));
+    //     };
+
+    //     let token = ExtCore.TokenIdentifier.getIndex(request.token);
+    //     let owner = ExtCore.User.toAID(request.from);
+    //     let spender = AID.fromPrincipal(msg.caller, request.subaccount);
+    //     let receiver = ExtCore.User.toAID(request.to);
+            
+    //     switch (_registry.get(token)) {
+    //         case (?token_owner) {
+    //                     if(AID.equal(owner, token_owner) == false) {
+    //                         return #err(#Unauthorized(owner));
+    //                     };
+    //                     if (AID.equal(owner, spender) == false) {
+    //                             return #err(#Unauthorized(spender));
+    //                     };
+    //                     switch(_transferTokenOwnership(owner, ?receiver, token)){
+    //                         case(#err(message)) return #err(#Other(message));
+    //                         case(#ok){
+    //                             _registry.put(token, receiver);
+    //                             return #ok(request.amount);
+    //                         };
+    //                     };
+    //         };
+    //         case (_) {
+    //             return #err(#InvalidToken(request.token));
+    //         };
+    //     };
+    // };
+
+    ////////////////
+    // Ext-query //
+    //////////////
+
+    public query func getMinter() : async [Principal] {
+        _minter;
+    };
+
+    public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
+        Iter.toArray(_registry.entries());
+    };
+
+    public query func getOwnership() : async [(AccountIdentifier, [TokenIndex])] {
+        Iter.toArray(_ownerships.entries());
+    };
+    
+    public query func supply() : async Nat {
+        _supply;
+    };
+
+    public query func extensions() : async [Extension] {
+        EXTENSIONS;
+    };
+      
+    public query func metadata(token : TokenIdentifier): async Result.Result<ExtCommon.Metadata, ExtCore.CommonError> {
+        switch(_blobs.get(token)){
+            case(null) {
+                return #err(#InvalidToken(token));
+            };
+            case(?blob){
+                let a = #nonfungible({metadata  = ?blob});
+                return #ok(a);
+            };
+        };
+    };
+
+    //  public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
+    //     let tokens = _generateTokensExt(account);
+    //     if (tokens.size() == 0) {
+    //         return #err(#Other ("No token detected for this user."));
+    //     } else {
+    //         let answer = #ok(tokens);
+    //         return answer;
+    //     }
+    // };
+    
+    // private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?Listing, ?Blob)] {
+    //     var tokens = Buffer.Buffer<(TokenIndex, ?Listing, ?Blob)>(0);
+    //     for ((index,account) in _registry.entries()){
+    //         if(a == account) {
+    //             let new_element = (index, null, null);
+    //             tokens.add(new_element);
+    //         };
+    //     };
+    //     let array = tokens.toArray();
+    //     return array;
+    // };
+
+    public query func balance(request : BalanceRequest) : async BalanceResponse {
+            if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
+                return #err(#InvalidToken(request.token));
+            };
+            let token = ExtCore.TokenIdentifier.getIndex(request.token);
+            let aid = ExtCore.User.toAID(request.user);
+            switch (_registry.get(token)) {
+            case (?token_owner) {
+                        if (AID.equal(aid, token_owner) == true) {
+                            return #ok(1);
+                        } else {					
+                            return #ok(0);
+                        };
+            };
+            case (_) {
+                return #err(#InvalidToken(request.token));
+            };
+        };
+    };
+    
+    public query func bearer(token : TokenIdentifier) : async Result.Result<AccountIdentifier, CommonError> {
+        if (ExtCore.TokenIdentifier.isPrincipal(token, Principal.fromActor(this)) == false) {
+            return #err(#InvalidToken(token));
+        };
+        let tokenind = ExtCore.TokenIdentifier.getIndex(token);
+        switch (_registry.get(tokenind)) {
+            case (?token_owner) {
+                        return #ok(token_owner);
+            };
+            case (_) {
+                return #err(#InvalidToken(token));
+            };
+        };
+    };
+
+
+    ///////////////////////////////////
+    // TOKEN ID <-> TOKEN IDENTIFIER //
+    //////////////////////////////////
+    //TODO : Can be cleaned and moduled
+
+    // Get TokenIdentifier from TokenIndex by assemblid 'tid' + Principal(canister) + Nat32(TokenIndex) 
+    private func _getTokenIdentifier (nat : TokenIndex) : Text {
+        let padding : [Nat8] = [10, 116, 105, 100];
+        let principalBlob : [Nat8] = Blob.toArray(Principal.toBlob(Principal.fromActor(this)));
+        let index : [Nat8] = nat32tobytes(nat);
+        var array : [Nat8] = Array.append<Nat8>(padding, principalBlob);
+        array := Array.append<Nat8>(array, index);
+        let p : Principal = _fromBlob(Blob.fromArray(array));
+        let text : Text = Principal.toText(p);
+        return text;
+    };
+
+    // Converts a Nat32 to a [Nat8] of size 4 containing the 4 bytes
+    private func nat32tobytes(n : Nat32) : [Nat8] {
+      if (n < 256) {
+        return [0,0,0, Nat8.fromNat(Nat32.toNat(n))];
+      } else if (n < 65536) {
+        return [
+          0,
+          0,
+          Nat8.fromNat(Nat32.toNat((n >> 8) & 0xFF)), 
+          Nat8.fromNat(Nat32.toNat((n) & 0xFF))
+        ];
+      } else if (n < 16777216) {
+        return [
+          0,
+          Nat8.fromNat(Nat32.toNat((n >> 16) & 0xFF)), 
+          Nat8.fromNat(Nat32.toNat((n >> 8) & 0xFF)), 
+          Nat8.fromNat(Nat32.toNat((n) & 0xFF))
+        ];
+      } else {
+        return [
+          Nat8.fromNat(Nat32.toNat((n >> 24) & 0xFF)), 
+          Nat8.fromNat(Nat32.toNat((n >> 16) & 0xFF)), 
+          Nat8.fromNat(Nat32.toNat((n >> 8) & 0xFF)), 
+          Nat8.fromNat(Nat32.toNat((n) & 0xFF))
+        ];
+      };
+    };
+
+    // Creates a Principal from a Blob : extension of the base Module
+    private func _fromBlob(b : Blob) : Principal {
+        return(PrincipalImproved.fromBlob(b));
+    };
+
+
+
+
+    
+
+
+
 
 };
