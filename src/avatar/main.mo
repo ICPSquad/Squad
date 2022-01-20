@@ -1209,13 +1209,13 @@ shared (install) actor class erc721_token() = this {
     // CYCLES MANAGEMENT //
     //////////////////////
 
-    public func acceptCycles() : async () {
+    public func wallet_receive() : async () {
         let available = Cycles.available();
         let accepted = Cycles.accept(available);
         assert (accepted == available);
     };
 
-    public query func availableCycles() : async Nat {
+    public query func wallet_available() : async Nat {
         return Cycles.balance();
     };
 
