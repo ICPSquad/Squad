@@ -1,3 +1,21 @@
+type WhiteListRequest__1 = 
+ record {
+   discord: opt text;
+   email: opt text;
+   height: nat64;
+   "principal": principal;
+   twitter: opt text;
+   wallet: text;
+ };
+type WhiteListRequest = 
+ record {
+   discord: opt text;
+   email: opt text;
+   height: nat64;
+   "principal": principal;
+   twitter: opt text;
+   wallet: text;
+ };
 type User = 
  record {
    airdrop: opt vec text;
@@ -45,12 +63,6 @@ type Result =
    err: text;
    ok: text;
  };
-type PaymentError = 
- record {
-   caller: principal;
-   error_message: text;
-   request_associated: opt Infos__1;
- };
 type MintingError = 
  variant {
    Avatar: text;
@@ -61,23 +73,11 @@ type MintRequest =
    metadata: AvatarRequest;
    to: ExtCoreUser;
  };
-type Infos__1 = 
+type JoiningError = 
  record {
-   discord: opt text;
-   email: opt text;
-   memo: nat64;
-   subaccount_to_send: vec nat8;
-   twitter: opt text;
-   wallet: text;
- };
-type Infos = 
- record {
-   discord: opt text;
-   email: opt text;
-   memo: nat64;
-   subaccount_to_send: vec nat8;
-   twitter: opt text;
-   wallet: text;
+   caller: principal;
+   error_message: text;
+   request_associated: opt WhiteListRequest;
  };
 type ICP = record {e8s: nat64;};
 type ExtCoreUser = 
@@ -114,17 +114,6 @@ type AvatarInformations =
    svg: text;
    tokenIdentifier: text;
  };
-type Audit = 
- record {
-   cycles_burned_accessories: int;
-   cycles_burned_avatar: int;
-   cycles_burned_hub: int;
-   new_avatar: int;
-   new_icps: ICP;
-   new_items: int;
-   new_users: int;
-   time: int;
- };
 type AirdropResponse = 
  variant {
    err: text;
@@ -139,16 +128,11 @@ type AirdropObject =
  };
 type AccountIdentifier = text;
 service : {
-<<<<<<< Updated upstream
-  addAdmin: (principal) -> (Result_2);
-  addUser: (principal, User) -> (Result_2);
-  airdrop: () -> (AirdropResponse);
-  audit: () -> ();
-=======
+  acceptCycles: () -> ();
   addAdmin: (principal) -> (Result_1);
   addUser: (principal, User) -> (Result_1);
   airdrop: () -> (AirdropResponse);
->>>>>>> Stashed changes
+  availableCycles: () -> (nat) query;
   balance: () -> (ICP);
   checkRegistration: () -> (bool) query;
   getInformations: () -> (vec record {
@@ -156,42 +140,21 @@ service : {
                                 User;
                               });
   getRank: (principal) -> (opt nat) query;
-<<<<<<< Updated upstream
-  isUserAuthorized: () -> (Result_2) query;
-=======
   isUserAuthorized: () -> (Result_1) query;
   join: (WhiteListRequest__1, vec nat8) -> (Result_1);
->>>>>>> Stashed changes
   mintRequest: (MintRequest) -> (AvatarResponse);
   modifyUser: (principal, User) -> (Result_1);
   numberUsers: () -> (nat) query;
-<<<<<<< Updated upstream
-  prejoin: (text, opt text, opt text, opt text, SubAccount) -> (Result_1);
-  process: () -> ();
-  recipe: () -> ();
-=======
->>>>>>> Stashed changes
   removeUser: (principal) -> (Result);
   showErrors: () -> (vec record {
                            Time;
                            MintingError;
                          }) query;
-  showPaymentErrors: () -> (vec record {
+  showJoiningErrors: () -> (vec record {
                                   Time;
-                                  PaymentError;
+                                  JoiningError;
                                 }) query;
-  showPrejoins: () -> (vec record {
-                             principal;
-                             Infos;
-                           }) query;
   showUser: (principal) -> (opt User) query;
-  show_audits: () -> (vec Audit) query;
   transfer: (ICP, principal) -> (TransferResult);
-<<<<<<< Updated upstream
-  verification: () -> ();
-=======
   verificationPayments: () -> (vec SubAccount);
->>>>>>> Stashed changes
-  wallet_available: () -> (nat) query;
-  wallet_receive: () -> ();
 }

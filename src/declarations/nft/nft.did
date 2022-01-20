@@ -1,0 +1,326 @@
+type erc721_token = 
+ service {
+   addAdmin: (principal) -> (Result);
+   addLegendary: (text, text) -> (Result_4);
+   addListAccessory: (vec Accessory) -> (Result_4);
+   addListComponent: (vec record {
+                            text;
+                            Component;
+                          }) -> (Result_4);
+   allPayments: () -> (vec record {
+                             principal;
+                             vec SubAccount__1;
+                           }) query;
+   allSettlements: () -> (vec record {
+                                TokenIndex;
+                                Settlement;
+                              }) query;
+   balance: (BalanceRequest) -> (BalanceResponse) query;
+   bearer: (TokenIdentifier) -> (Result_8) query;
+   burn: (TokenIdentifier) -> (Result_3);
+   clearPayments: (principal, vec SubAccount__1) -> ();
+   draw: (TokenIdentifier) -> (Result);
+   extensions: () -> (vec Extension) query;
+   getAllComponents: () -> (vec record {
+                                  text;
+                                  Component;
+                                }) query;
+   getAvatarInfos: () -> (Result_7) query;
+   getMinter: () -> (vec principal) query;
+   getRegistry: () -> (vec record {
+                             TokenIndex;
+                             AccountIdentifier__2;
+                           }) query;
+   http_request: (HttpRequest) -> (HttpResponse) query;
+   list: (ListRequest) -> (Result_3);
+   listings: () -> (vec record {
+                          TokenIndex;
+                          Listing;
+                          Metadata__1;
+                        }) query;
+   lock: (TokenIdentifier, nat64, AccountIdentifier__2, SubAccount__1) ->
+    (Result_3);
+   metadata: (TokenIdentifier) -> (Result_6) query;
+   mint: (MintRequest) -> (Result_5);
+   mintLegendary: (text, AccountIdentifier__2) -> (Result_4);
+   modify_style: (text) -> (text);
+   payments: () -> (opt vec SubAccount__1) query;
+   removeMouth: (TokenIdentifier) -> (Result);
+   settle: (TokenIdentifier) -> (Result_3);
+   settlements: () ->
+    (vec record {
+           TokenIndex;
+           AccountIdentifier__2;
+           nat64;
+         }) query;
+   showFullSvg: (TokenIdentifier) -> (opt text) query;
+   showListAccessory: () -> (vec record {
+                                   text;
+                                   Accessory;
+                                 }) query;
+   showSvg: (TokenIdentifier) -> (opt text) query;
+   supply: (TokenIdentifier) -> (Result_2) query;
+   tokenIdentifier: (TokenIndex) -> (TokenIdentifier) query;
+   tokens_ext: (AccountIdentifier__2) -> (Result_1) query;
+   transactions: () -> (vec Transaction) query;
+   transfer: (TransferRequest) -> (TransferResponse);
+   wearAccessory: (TokenIdentifier, text, principal) -> (Result);
+ };
+type User = 
+ variant {
+   address: AccountIdentifier;
+   "principal": principal;
+ };
+type TransferResponse = 
+ variant {
+   err:
+    variant {
+      CannotNotify: AccountIdentifier;
+      InsufficientBalance;
+      InvalidToken: TokenIdentifier__1;
+      Other: text;
+      Rejected;
+      Unauthorized: AccountIdentifier;
+    };
+   ok: Balance;
+ };
+type TransferRequest = 
+ record {
+   amount: Balance;
+   from: User;
+   memo: Memo;
+   notify: bool;
+   subaccount: opt SubAccount;
+   to: User;
+   token: TokenIdentifier__1;
+ };
+type Transaction = 
+ record {
+   buyer: AccountIdentifier__1;
+   price: nat64;
+   seller: principal;
+   time: Time;
+   token: TokenIdentifier__2;
+ };
+type TokenIndex = nat32;
+type TokenIdentifier__3 = text;
+type TokenIdentifier__2 = text;
+type TokenIdentifier__1 = text;
+type TokenIdentifier = text;
+type Time = int;
+type SubAccount__2 = vec nat8;
+type SubAccount__1 = vec nat8;
+type SubAccount = vec nat8;
+type StreamingCallbackToken = 
+ record {
+   content_encoding: text;
+   index: nat;
+   key: text;
+ };
+type StreamingCallbackResponse = 
+ record {
+   body: blob;
+   token: opt StreamingCallbackToken;
+ };
+type StreamingCallback = func (StreamingCallbackToken) ->
+                          (StreamingCallbackResponse) query;
+type Slots = 
+ record {
+   Body: opt text;
+   Eyes: opt text;
+   Face: opt text;
+   Hat: opt text;
+   Misc: opt text;
+ };
+type Settlement = 
+ record {
+   buyer: AccountIdentifier__1;
+   price: nat64;
+   seller: principal;
+   subaccount: SubAccount__2;
+ };
+type Result_8 = 
+ variant {
+   err: CommonError;
+   ok: AccountIdentifier__2;
+ };
+type Result_7 = 
+ variant {
+   err: text;
+   ok: AvatarPreview;
+ };
+type Result_6 = 
+ variant {
+   err: CommonError__1;
+   ok: Metadata;
+ };
+type Result_5 = 
+ variant {
+   err: text;
+   ok: AvatarInformations;
+ };
+type Result_4 = 
+ variant {
+   err: text;
+   ok: text;
+ };
+type Result_3 = 
+ variant {
+   err: CommonError;
+   ok;
+ };
+type Result_2 = 
+ variant {
+   err: CommonError;
+   ok: Balance__1;
+ };
+type Result_1 = 
+ variant {
+   err: CommonError;
+   ok: vec record {
+             TokenIndex;
+             opt Listing;
+             opt blob;
+           };
+ };
+type Result = 
+ variant {
+   err: text;
+   ok;
+ };
+type MintRequest = 
+ record {
+   metadata: AvatarRequest;
+   to: User;
+ };
+type Metadata__1 = 
+ variant {
+   fungible:
+    record {
+      decimals: nat8;
+      metadata: opt blob;
+      name: text;
+      symbol: text;
+    };
+   nonfungible: record {metadata: opt blob;};
+ };
+type Metadata = 
+ variant {
+   fungible:
+    record {
+      decimals: nat8;
+      metadata: opt blob;
+      name: text;
+      symbol: text;
+    };
+   nonfungible: record {metadata: opt blob;};
+ };
+type Memo = blob;
+type Listing = 
+ record {
+   locked: opt Time;
+   price: nat64;
+   seller: principal;
+ };
+type ListRequest = 
+ record {
+   from_subaccount: opt SubAccount__2;
+   price: opt nat64;
+   token: TokenIdentifier__2;
+ };
+type HttpStreamingStrategy = variant {
+                               Callback:
+                                record {
+                                  callback: StreamingCallback;
+                                  token: StreamingCallbackToken;
+                                };};
+type HttpResponse = 
+ record {
+   body: vec nat8;
+   headers: vec HeaderField;
+   status_code: nat16;
+   streaming_strategy: opt HttpStreamingStrategy;
+ };
+type HttpRequest = 
+ record {
+   body: vec nat8;
+   headers: vec HeaderField;
+   method: text;
+   url: text;
+ };
+type HeaderField = 
+ record {
+   text;
+   text;
+ };
+type Extension = text;
+type ComponentRequest = 
+ record {
+   layer: nat8;
+   name: text;
+ };
+type Component = 
+ record {
+   content: text;
+   layer: nat8;
+   name: text;
+ };
+type CommonError__1 = 
+ variant {
+   InvalidToken: TokenIdentifier__1;
+   Other: text;
+ };
+type CommonError = 
+ variant {
+   InvalidToken: TokenIdentifier__1;
+   Other: text;
+ };
+type Color = 
+ record {
+   nat8;
+   nat8;
+   nat8;
+   nat8;
+ };
+type Balance__1 = nat;
+type BalanceResponse = 
+ variant {
+   err: CommonError__1;
+   ok: Balance;
+ };
+type BalanceRequest = 
+ record {
+   token: TokenIdentifier__1;
+   user: User;
+ };
+type Balance = nat;
+type AvatarRequest = 
+ record {
+   colors: vec record {
+                 color: Color;
+                 spot: text;
+               };
+   components: vec ComponentRequest;
+ };
+type AvatarPreview = 
+ record {
+   avatar_svg: text;
+   slots: Slots;
+   token_identifier: TokenIdentifier__3;
+ };
+type AvatarInformations = 
+ record {
+   svg: text;
+   tokenIdentifier: text;
+ };
+type AccountIdentifier__2 = text;
+type AccountIdentifier__1 = text;
+type AccountIdentifier = text;
+type Accessory = 
+ record {
+   content: text;
+   layer: nat8;
+   name: text;
+   slot: text;
+ };
+service : () -> erc721_token
