@@ -185,7 +185,7 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
     // Transfers one of your own NFTs to another principal.
-    //TODO : add CAP 
+    //TODO : Change parameters
     public shared ({caller}) func transfer(to : Principal, id : Text) : async Result.Result<Nat64, Types.Error> {
         let owner = switch (_canChange(caller, id)) {
             case (#err(e)) { return #err(e); };
@@ -894,7 +894,7 @@ shared({ caller = hub }) actor class Hub() = this {
         // New 
         _registryEntries := [];
         _ownershipsEntries := [];
-        // _templateEntries := [];
+        _templateEntries := [];
         _itemsEntries := [];
         _blobsEntries := [];
     };
@@ -918,7 +918,7 @@ shared({ caller = hub }) actor class Hub() = this {
     public type Accessory = {
         name : Text;
         wear : Nat8;
-        equipped : Bool;
+        equipped : ?TokenIdentifier; //Token_identifier of the avatar they are equipped on. 
     };
 
     public type LegendaryAccessory = {
@@ -935,38 +935,110 @@ shared({ caller = hub }) actor class Hub() = this {
         for ((token_index, item) in _items.entries()){
             switch(item){
                 case(#Accessory(accessory)){
-                    let new_wear_value : Nat8 = accessory.wear - 1;
-                    if(new_wear_value == 0) {
-                        //Burn the accessory
-                    } else  {
-                        //Redraw the accessory with updated value
-                    };
+                    if(Option.isSome(accessory.equipped)) {
+                        let new_wear_value : Nat8 = accessory.wear - 1; 
+                        if(new_wear_value == 0) {
+                            //Burn the accessory
+                        } else  {
+                            let new_item = #Accessory({name = accessory.name; wear = new_wear_value; equipped = accessory.equipped;});
+                            _items.put(token_index, new_item);
+                            _drawAccessory(token_index);
+                        };
+                    } else {};
                 };
                 case(_){};
             };
         };
     };
 
+    public shared ({caller}) func updateAccessory(token_identifier : Text) : async () {
+        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+        switch(_items.get(token_index)){
+            case(?#Accessory(accessory)){
+                let new_wear_value : Nat8 = accessory.wear - 1; 
+                if(new_wear_value == 0) {
+                    //Burn the accessory
+                } else  {
+                    let new_item = #Accessory{name = accessory.name; wear = new_wear_value; equipped = accessory.equipped;};
+                    _items.put(token_index, new_item);
+                    _drawAccessory(token_index);
+                    };
+            };
+            case(_){};
+        };
+    };
 
-    // private func burnAccessory (token_index : TokenIndex ) : async () {
-    //     _blobs.delete(token_index);
-    //     _items.delete(token_index);
-    //     let owner : ?AccountIdentifier = _registry.remove(token_index);
-    //     switch(owner) {
-    //         case(null)(assert(false));
-    //         case(?owner) {
-    //             switch(_ownerships.get(owner)){
-    //                 case(null)(assert(false));
-    //                 case(?list){
-    //                     let list_filtered = Array.filter<TokenIndex>(list, func(x) {x != token_index});
-    //                     _ownerships.put(owner, list_filtered);
-    //                 }
-    //             };
-    //         };
-    //     };
-    //     //Cap
-    //     let event : IndefiniteEvent 
-    // };
+    public shared ({caller}) func _burn (token_index : TokenIndex ) : async Result.Result<Nat64,Types.Error> {
+        assert(_isAdmin(caller))
+        let token_identifiier = _getTokenIdentifier(token_index);
+        var name : Text = "";
+        let item : ?Item = _items.get(token_index);
+        let owner : ?AccountIdentifier = _registry.get(token_index);
+        //Get the name of the accessory to add details to CAP
+        switch(item){
+            case(?#Accessory(item)){ name := item.name};
+            case(_){assert(false)};
+        };
+        let event : IndefiniteEvent = {
+            operation = "burn";
+            details = [("name", #Text(name)),("identifier", #Text(token_identifier)),("from", #Text(Option.get(owner, "unknown"))];
+            caller = caller;
+        };
+        switch(await cap.insert(event)) {
+            case(#err(e))return #err(e);
+            case(#ok(id)){
+                switch(owner) {
+                    case(null)(assert(false));
+                    case(?owner) {
+                        switch(_ownerships.get(owner)){
+                            case(null)(assert(false));
+                            case(?list){
+                                let list_filtered = Array.filter<TokenIndex>(list, func(x) {x != token_index});
+                                _ownerships.put(owner, list_filtered);
+                                _blobs.delete(token_index);
+                                _registry.delete(token_index);
+                                _items.delete(token_index);
+                                return #ok(id);
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+
+    private func _drawAccessory (token_index : TokenIndex) : () {
+        switch(_items.get(token_index)){
+            case(?#Accessory(item)){
+                switch(_templates.get(item.name)){
+                        case(?#Accessory(template)){
+                            let concatenated_svg = template.before_wear # "<text x=\"190.763px\" y=\"439.84px\" style=\"font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white\">" # Nat.toText(Nat8.toNat(item.wear)) # "</text>" # template.after_wear;
+                            let blob = Text.encodeUtf8(concatenated_svg);
+                            _blobs.put(token_index, blob);
+                        };
+                        case(_) assert(false);
+                    };
+            };
+            case(_){assert(false)};
+        };
+    };
+
+    public func drawAccessory (token_identifier : TokenIdentifier) : async () {
+        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+        switch(_items.get(token_index)){
+            case(?#Accessory(item)){
+                switch(_templates.get(item.name)){
+                        case(?#Accessory(template)){
+                            let concatenated_svg = template.before_wear # "<text x=\"190.763px\" y=\"439.84px\" style=\"font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white\">" # Nat.toText(Nat8.toNat(item.wear)) # "</text>" # template.after_wear;
+                            let blob = Text.encodeUtf8(concatenated_svg);
+                            _blobs.put(token_index, blob);
+                        };
+                        case(_) assert(false);
+                    };
+            };
+            case(_){assert(false)};
+        };
+    };
 
     let materials = ["Cloth", "Wood", "Glass", "Metal", "Circuit", "Dfinity-stone"];
     public func circulationToItem () : async () {
@@ -979,7 +1051,7 @@ shared({ caller = hub }) actor class Hub() = this {
                 let new_accessory : Item = #Accessory({
                     name = name;
                     wear = 100;
-                    equipped = false;
+                    equipped = null;
                 });
                 _items.put(token_index, new_accessory);
             };
