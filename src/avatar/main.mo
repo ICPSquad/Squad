@@ -1139,6 +1139,11 @@ shared (install) actor class erc721_token() = this {
         };
     };
 
+    public query func tokenIdentifier (tindex : TokenIndex) : async TokenIdentifier {
+        let token_identifier = _getTokenIdentifier(tindex);
+        return token_identifier;
+    };
+
 
     /////////////
     // UPGRADE //

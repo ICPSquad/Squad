@@ -31,6 +31,14 @@ export const idlFactory = ({ IDL }) => {
     'err' : IDL.Text,
   });
   const ICP = IDL.Record({ 'e8s' : IDL.Nat64 });
+  const WhiteListRequest__1 = IDL.Record({
+    'height' : IDL.Nat64,
+    'principal' : IDL.Principal,
+    'twitter' : IDL.Opt(IDL.Text),
+    'email' : IDL.Opt(IDL.Text),
+    'discord' : IDL.Opt(IDL.Text),
+    'wallet' : IDL.Text,
+  });
   const AccountIdentifier = IDL.Text;
   const ExtCoreUser = IDL.Variant({
     'principal' : IDL.Principal,
@@ -61,36 +69,18 @@ export const idlFactory = ({ IDL }) => {
     'Avatar' : IDL.Text,
     'Verification' : IDL.Text,
   });
-  const Infos__1 = IDL.Record({
-    'subaccount_to_send' : IDL.Vec(IDL.Nat8),
+  const WhiteListRequest = IDL.Record({
+    'height' : IDL.Nat64,
+    'principal' : IDL.Principal,
     'twitter' : IDL.Opt(IDL.Text),
-    'memo' : IDL.Nat64,
     'email' : IDL.Opt(IDL.Text),
     'discord' : IDL.Opt(IDL.Text),
     'wallet' : IDL.Text,
   });
-  const PaymentError = IDL.Record({
-    'request_associated' : IDL.Opt(Infos__1),
+  const JoiningError = IDL.Record({
+    'request_associated' : IDL.Opt(WhiteListRequest),
     'error_message' : IDL.Text,
     'caller' : IDL.Principal,
-  });
-  const Infos = IDL.Record({
-    'subaccount_to_send' : IDL.Vec(IDL.Nat8),
-    'twitter' : IDL.Opt(IDL.Text),
-    'memo' : IDL.Nat64,
-    'email' : IDL.Opt(IDL.Text),
-    'discord' : IDL.Opt(IDL.Text),
-    'wallet' : IDL.Text,
-  });
-  const Audit = IDL.Record({
-    'cycles_burned_accessories' : IDL.Int,
-    'new_users' : IDL.Int,
-    'new_items' : IDL.Int,
-    'time' : IDL.Int,
-    'new_icps' : ICP,
-    'cycles_burned_avatar' : IDL.Int,
-    'new_avatar' : IDL.Int,
-    'cycles_burned_hub' : IDL.Int,
   });
   const BlockIndex = IDL.Nat64;
   const TransferError = IDL.Variant({
@@ -106,16 +96,9 @@ export const idlFactory = ({ IDL }) => {
   });
   const SubAccount = IDL.Vec(IDL.Nat8);
   return IDL.Service({
-<<<<<<< Updated upstream
-    'addAdmin' : IDL.Func([IDL.Principal], [Result_2], []),
-    'addUser' : IDL.Func([IDL.Principal, User], [Result_2], []),
-    'airdrop' : IDL.Func([], [AirdropResponse], []),
-    'audit' : IDL.Func([], [], []),
-=======
     'addAdmin' : IDL.Func([IDL.Principal], [Result_1], []),
     'addUser' : IDL.Func([IDL.Principal, User], [Result_1], []),
     'airdrop' : IDL.Func([], [AirdropResponse], []),
->>>>>>> Stashed changes
     'balance' : IDL.Func([], [ICP], []),
     'checkRegistration' : IDL.Func([], [IDL.Bool], ['query']),
     'getInformations' : IDL.Func(
@@ -124,55 +107,25 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'getRank' : IDL.Func([IDL.Principal], [IDL.Opt(IDL.Nat)], ['query']),
-<<<<<<< Updated upstream
-    'isUserAuthorized' : IDL.Func([], [Result_2], ['query']),
-=======
     'isUserAuthorized' : IDL.Func([], [Result_1], ['query']),
     'join' : IDL.Func([WhiteListRequest__1, IDL.Vec(IDL.Nat8)], [Result_1], []),
->>>>>>> Stashed changes
     'mintRequest' : IDL.Func([MintRequest], [AvatarResponse], []),
     'modifyUser' : IDL.Func([IDL.Principal, User], [Result_1], []),
     'numberUsers' : IDL.Func([], [IDL.Nat], ['query']),
-<<<<<<< Updated upstream
-    'prejoin' : IDL.Func(
-        [
-          IDL.Text,
-          IDL.Opt(IDL.Text),
-          IDL.Opt(IDL.Text),
-          IDL.Opt(IDL.Text),
-          SubAccount,
-        ],
-        [Result_1],
-        [],
-      ),
-    'process' : IDL.Func([], [], []),
-    'recipe' : IDL.Func([], [], []),
-=======
->>>>>>> Stashed changes
     'removeUser' : IDL.Func([IDL.Principal], [Result], []),
     'showErrors' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(Time, MintingError))],
         ['query'],
       ),
-    'showPaymentErrors' : IDL.Func(
+    'showJoiningErrors' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(Time, PaymentError))],
-        ['query'],
-      ),
-    'showPrejoins' : IDL.Func(
-        [],
-        [IDL.Vec(IDL.Tuple(IDL.Principal, Infos))],
+        [IDL.Vec(IDL.Tuple(Time, JoiningError))],
         ['query'],
       ),
     'showUser' : IDL.Func([IDL.Principal], [IDL.Opt(User)], ['query']),
-    'show_audits' : IDL.Func([], [IDL.Vec(Audit)], ['query']),
     'transfer' : IDL.Func([ICP, IDL.Principal], [TransferResult], []),
-<<<<<<< Updated upstream
-    'verification' : IDL.Func([], [], []),
-=======
     'verificationPayments' : IDL.Func([], [IDL.Vec(SubAccount)], []),
->>>>>>> Stashed changes
     'wallet_available' : IDL.Func([], [IDL.Nat], ['query']),
     'wallet_receive' : IDL.Func([], [], []),
   });
