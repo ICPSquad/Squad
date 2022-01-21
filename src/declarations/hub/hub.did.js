@@ -1,5 +1,5 @@
 export const idlFactory = ({ IDL }) => {
-  const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+  const Result_2 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const Status = IDL.Variant({
     'OG' : IDL.Null,
     'Staff' : IDL.Null,
@@ -55,6 +55,8 @@ export const idlFactory = ({ IDL }) => {
     'ok' : AvatarInformations,
     'err' : IDL.Text,
   });
+  const SubAccount = IDL.Vec(IDL.Nat8);
+  const Result_1 = IDL.Variant({ 'ok' : IDL.Nat64, 'err' : IDL.Text });
   const Result = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
   const Time = IDL.Int;
   const MintingError = IDL.Variant({
@@ -104,36 +106,24 @@ export const idlFactory = ({ IDL }) => {
     'Ok' : BlockIndex,
     'Err' : TransferError,
   });
-  const SubAccount = IDL.Vec(IDL.Nat8);
   return IDL.Service({
-<<<<<<< Updated upstream
     'addAdmin' : IDL.Func([IDL.Principal], [Result_2], []),
     'addUser' : IDL.Func([IDL.Principal, User], [Result_2], []),
     'airdrop' : IDL.Func([], [AirdropResponse], []),
     'audit' : IDL.Func([], [], []),
-=======
-    'addAdmin' : IDL.Func([IDL.Principal], [Result_1], []),
-    'addUser' : IDL.Func([IDL.Principal, User], [Result_1], []),
-    'airdrop' : IDL.Func([], [AirdropResponse], []),
->>>>>>> Stashed changes
     'balance' : IDL.Func([], [ICP], []),
     'checkRegistration' : IDL.Func([], [IDL.Bool], ['query']),
+    'confirm' : IDL.Func([IDL.Nat64], [Result_2], []),
     'getInformations' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Principal, User))],
         [],
       ),
     'getRank' : IDL.Func([IDL.Principal], [IDL.Opt(IDL.Nat)], ['query']),
-<<<<<<< Updated upstream
     'isUserAuthorized' : IDL.Func([], [Result_2], ['query']),
-=======
-    'isUserAuthorized' : IDL.Func([], [Result_1], ['query']),
-    'join' : IDL.Func([WhiteListRequest__1, IDL.Vec(IDL.Nat8)], [Result_1], []),
->>>>>>> Stashed changes
     'mintRequest' : IDL.Func([MintRequest], [AvatarResponse], []),
-    'modifyUser' : IDL.Func([IDL.Principal, User], [Result_1], []),
+    'modifyUser' : IDL.Func([IDL.Principal, User], [Result_2], []),
     'numberUsers' : IDL.Func([], [IDL.Nat], ['query']),
-<<<<<<< Updated upstream
     'prejoin' : IDL.Func(
         [
           IDL.Text,
@@ -147,8 +137,6 @@ export const idlFactory = ({ IDL }) => {
       ),
     'process' : IDL.Func([], [], []),
     'recipe' : IDL.Func([], [], []),
-=======
->>>>>>> Stashed changes
     'removeUser' : IDL.Func([IDL.Principal], [Result], []),
     'showErrors' : IDL.Func(
         [],
@@ -168,11 +156,7 @@ export const idlFactory = ({ IDL }) => {
     'showUser' : IDL.Func([IDL.Principal], [IDL.Opt(User)], ['query']),
     'show_audits' : IDL.Func([], [IDL.Vec(Audit)], ['query']),
     'transfer' : IDL.Func([ICP, IDL.Principal], [TransferResult], []),
-<<<<<<< Updated upstream
     'verification' : IDL.Func([], [], []),
-=======
-    'verificationPayments' : IDL.Func([], [IDL.Vec(SubAccount)], []),
->>>>>>> Stashed changes
     'wallet_available' : IDL.Func([], [IDL.Nat], ['query']),
     'wallet_receive' : IDL.Func([], [], []),
   });

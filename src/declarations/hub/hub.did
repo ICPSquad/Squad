@@ -35,10 +35,15 @@ type Status =
    OG;
    Staff;
  };
-type Result_1 = 
+type Result_2 = 
  variant {
    err: text;
    ok;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: nat64;
  };
 type Result = 
  variant {
@@ -139,38 +144,25 @@ type AirdropObject =
  };
 type AccountIdentifier = text;
 service : {
-<<<<<<< Updated upstream
   addAdmin: (principal) -> (Result_2);
   addUser: (principal, User) -> (Result_2);
   airdrop: () -> (AirdropResponse);
   audit: () -> ();
-=======
-  addAdmin: (principal) -> (Result_1);
-  addUser: (principal, User) -> (Result_1);
-  airdrop: () -> (AirdropResponse);
->>>>>>> Stashed changes
   balance: () -> (ICP);
   checkRegistration: () -> (bool) query;
+  confirm: (nat64) -> (Result_2);
   getInformations: () -> (vec record {
                                 principal;
                                 User;
                               });
   getRank: (principal) -> (opt nat) query;
-<<<<<<< Updated upstream
   isUserAuthorized: () -> (Result_2) query;
-=======
-  isUserAuthorized: () -> (Result_1) query;
-  join: (WhiteListRequest__1, vec nat8) -> (Result_1);
->>>>>>> Stashed changes
   mintRequest: (MintRequest) -> (AvatarResponse);
-  modifyUser: (principal, User) -> (Result_1);
+  modifyUser: (principal, User) -> (Result_2);
   numberUsers: () -> (nat) query;
-<<<<<<< Updated upstream
   prejoin: (text, opt text, opt text, opt text, SubAccount) -> (Result_1);
   process: () -> ();
   recipe: () -> ();
-=======
->>>>>>> Stashed changes
   removeUser: (principal) -> (Result);
   showErrors: () -> (vec record {
                            Time;
@@ -187,11 +179,7 @@ service : {
   showUser: (principal) -> (opt User) query;
   show_audits: () -> (vec Audit) query;
   transfer: (ICP, principal) -> (TransferResult);
-<<<<<<< Updated upstream
   verification: () -> ();
-=======
-  verificationPayments: () -> (vec SubAccount);
->>>>>>> Stashed changes
   wallet_available: () -> (nat) query;
   wallet_receive: () -> ();
 }

@@ -7,6 +7,7 @@ module {
     public type AssetInventoryType = {
         #Accessory;
         #Material;
+        #LegendaryAccessory;
     };
 
     public type AssetInventory = {

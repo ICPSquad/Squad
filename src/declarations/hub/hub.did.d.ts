@@ -59,7 +59,9 @@ export interface PaymentError {
 }
 export type Result = { 'ok' : string } |
   { 'err' : string };
-export type Result_1 = { 'ok' : null } |
+export type Result_1 = { 'ok' : bigint } |
+  { 'err' : string };
+export type Result_2 = { 'ok' : null } |
   { 'err' : string };
 export type Status = { 'OG' : null } |
   { 'Staff' : null } |
@@ -91,32 +93,19 @@ export interface User {
   'avatar' : [] | [TokenIdentifier],
 }
 export interface _SERVICE {
-<<<<<<< Updated upstream
   'addAdmin' : (arg_0: Principal) => Promise<Result_2>,
   'addUser' : (arg_0: Principal, arg_1: User) => Promise<Result_2>,
   'airdrop' : () => Promise<AirdropResponse>,
   'audit' : () => Promise<undefined>,
-=======
-  'addAdmin' : (arg_0: Principal) => Promise<Result_1>,
-  'addUser' : (arg_0: Principal, arg_1: User) => Promise<Result_1>,
-  'airdrop' : () => Promise<AirdropResponse>,
->>>>>>> Stashed changes
   'balance' : () => Promise<ICP>,
   'checkRegistration' : () => Promise<boolean>,
+  'confirm' : (arg_0: bigint) => Promise<Result_2>,
   'getInformations' : () => Promise<Array<[Principal, User]>>,
   'getRank' : (arg_0: Principal) => Promise<[] | [bigint]>,
-<<<<<<< Updated upstream
   'isUserAuthorized' : () => Promise<Result_2>,
-=======
-  'isUserAuthorized' : () => Promise<Result_1>,
-  'join' : (arg_0: WhiteListRequest__1, arg_1: Array<number>) => Promise<
-      Result_1
-    >,
->>>>>>> Stashed changes
   'mintRequest' : (arg_0: MintRequest) => Promise<AvatarResponse>,
-  'modifyUser' : (arg_0: Principal, arg_1: User) => Promise<Result_1>,
+  'modifyUser' : (arg_0: Principal, arg_1: User) => Promise<Result_2>,
   'numberUsers' : () => Promise<bigint>,
-<<<<<<< Updated upstream
   'prejoin' : (
       arg_0: string,
       arg_1: [] | [string],
@@ -126,8 +115,6 @@ export interface _SERVICE {
     ) => Promise<Result_1>,
   'process' : () => Promise<undefined>,
   'recipe' : () => Promise<undefined>,
-=======
->>>>>>> Stashed changes
   'removeUser' : (arg_0: Principal) => Promise<Result>,
   'showErrors' : () => Promise<Array<[Time, MintingError]>>,
   'showPaymentErrors' : () => Promise<Array<[Time, PaymentError]>>,
@@ -135,11 +122,7 @@ export interface _SERVICE {
   'showUser' : (arg_0: Principal) => Promise<[] | [User]>,
   'show_audits' : () => Promise<Array<Audit>>,
   'transfer' : (arg_0: ICP, arg_1: Principal) => Promise<TransferResult>,
-<<<<<<< Updated upstream
   'verification' : () => Promise<undefined>,
-=======
-  'verificationPayments' : () => Promise<Array<SubAccount>>,
->>>>>>> Stashed changes
   'wallet_available' : () => Promise<bigint>,
   'wallet_receive' : () => Promise<undefined>,
 }

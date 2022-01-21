@@ -5,9 +5,8 @@ import Array "mo:base/Array";
 import ArrayHelper "helper/arrayHelper";
 import Blob "mo:base/Blob";
 import CAPTypes "mo:cap/Types";
-import Char "mo:base/Char";
 import Cap "mo:cap/Cap";
-import Core "../dependencies/ext/Core";
+import Char "mo:base/Char";
 import Entrepot "../dependencies/entrepot";
 import Event "types/event";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
@@ -37,8 +36,8 @@ import Static "types/static";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Token "types/token";
+import TokenIndex "mo:base/Blob";
 import Types "types/types";
-import _items "mo:base/Iter";
 
 shared({ caller = hub }) actor class Hub() = this {
 
@@ -89,7 +88,6 @@ shared({ caller = hub }) actor class Hub() = this {
         CONTRACT_METADATA := metadata;
         INITALIZED        := true;
     };
-
 
 
     ////////////
@@ -170,7 +168,6 @@ shared({ caller = hub }) actor class Hub() = this {
     )] = [];
     let staticAssets = Static.Assets(staticAssetsEntries);
     
-
 
     //////////
     // NFT //
@@ -264,89 +261,32 @@ shared({ caller = hub }) actor class Hub() = this {
     //////////
 
     public query func http_request(request : Http.Request) : async Http.Response {
-        let path = Iter.toArray(Text.tokens(request.url, #text("/")));
-        if (path.size() != 0 and path[0] == "nft") {
-            if (path.size() != 2) {
-                return Http.BAD_REQUEST();
-            };
-            return nfts.get(path[1], nftStreamingCallback);
-        };
-        return staticAssets.get(request.url, staticStreamingCallback);
-    };
-
-    public query func http_request_streaming_callback(
-        tk : Http.StreamingCallbackToken
-    ) : async Http.StreamingCallbackResponse {
-        if (Text.startsWith(tk.key, #text("nft/"))) {
-            switch (nfts.getToken(tk.key)) {
-                case (#err(_)) { };
-                case (#ok(v))  {
-                    return Http.streamContent(
-                        tk.key, 
-                        tk.index, 
-                        v.payload,
-                    );
-                };
-            };
-        } else {
-            switch (staticAssets.getToken(tk.key)) {
-                case (#err(_)) { };
-                case (#ok(v))  {
-                    return Http.streamContent(
-                        tk.key, 
-                        tk.index, 
-                        v.payload,
-                    );
-                };
-            };
-        };
-        return {
-            body  = Blob.fromArray([]); 
-            token = null;
+        let iterator = Text.split(request.url, #text("tokenid="));
+        let array = Iter.toArray(iterator);
+        let token_identifier = array[array.size() - 1];
+        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+        switch(_items.get(token_index)){
+            case(null) {{body = Blob.fromArray([0]); headers = [("Content-Type", "text/html; charset=UTF-8")];  streaming_strategy = null; status_code = 404;}};
+            case(?#Material(name)) {_streamStaticAsset(name)};
+            case(?#LegendaryAccessory(legendary)) {_streamStaticAsset(legendary.name)};
+            case(?#Accessory(accessory)) {_streamAccessory(token_index)};
         };
     };
 
-    // A streaming callback based on static assets.
-    // Returns {[], null} if the asset can not be found.
-    public query func staticStreamingCallback(tk : Http.StreamingCallbackToken) : async Http.StreamingCallbackResponse {
-        switch(staticAssets.getToken(tk.key)) {
-            case (#err(_)) { };
-            case (#ok(v))  {
-                return Http.streamContent(
-                    tk.key,
-                    tk.index,
-                    v.payload,
-                );
-            };
-        };
-        {
-            body = Blob.fromArray([]);
-            token = null;
-        };
-    };
+    private func _streamStaticAsset(name : Text) : Http.Response {
+        switch(_templates.get(name)){
+            case(null) {{body = (Text.encodeUtf8("Template not found. (critical error)")); headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200;}};
+            case(?#Material(blob)){{body = blob; headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200;}}; //TODO check content type
+            case(?#LegendaryAccessory(blob)){{body = blob; headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200;}};
+            case(_) {{body = (Text.encodeUtf8("Error unreacheable")); headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200;}};
+        }
+    };  
 
-    // A streaming callback based on NFTs. Returns {[], null} if the token can not be found.
-    // Expects a key of the following pattern: "nft/{key}".
-    public query func nftStreamingCallback(tk : Http.StreamingCallbackToken) : async Http.StreamingCallbackResponse {
-        let path = Iter.toArray(Text.tokens(tk.key, #text("/")));
-         if (path.size() == 2 and path[0] == "nft") {
-            switch (nfts.getToken(path[1])) {
-                case (#err(e)) {};
-                case (#ok(v))  {
-                    if (not v.isPrivate) {
-                        return Http.streamContent(
-                            "nft/" # tk.key,
-                            tk.index,
-                            v.payload,
-                        );
-                    };
-                };
-            };
-        };
-        {
-            body  = Blob.fromArray([]);
-            token = null;
-        };
+    private func _streamAccessory(token_index : TokenIndex) : Http.Response {
+        switch(_blobs.get(token_index)){
+            case(null) {{body = (Text.encodeUtf8("Accessory not found. (critical error)")); headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200;}};
+            case(?blob) {{body = blob; headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200; }}
+        }
     };
 
 
@@ -367,7 +307,6 @@ shared({ caller = hub }) actor class Hub() = this {
     type Blueprint = Accessory.Blueprint;
     stable var blueprintsEntries : [(Text,Blueprint)] = [];
     let blueprints : HashMap.HashMap<Text,Blueprint> = HashMap.fromIter(blueprintsEntries.vals(),0,Text.equal,Text.hash);
-
 
 
     private func _idToName (id : Text) : Text {
@@ -464,7 +403,6 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
     // Airdrop 
-
     public type AirdropObject = {
         recipient: Principal;
         material : Text;
@@ -534,27 +472,26 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    // To help clean up
 
-    public shared query ({caller}) func getAllInventory (users:  [Principal]) : async [(Principal, Inventory)] {
-        assert(caller == Principal.fromText("p4y2d-yyaaa-aaaaj-qaixa-cai"));
-        var array : [(Principal,Inventory)] = [];
-        for (principal in users.vals()){
-            let token_list : [Text] = nfts.tokensOf(principal);
-            if(token_list.size() == 0) {
-                array := Array.append<(Principal,Inventory)>(array, [(principal, [])]);
-            };
-            let asset_name : [Text] = Array.map<Text,Text>(token_list, _idToName);
-            switch(Inventory.buildInventory(token_list, asset_name)){
-                case (#err(message)) {
-                    array := Array.append<(Principal,Inventory)>(array, [(principal, [])]);
-                };
-                case (#ok(inventory)) {
-                    array := Array.append<(Principal,Inventory)>(array, [(principal, inventory)]);
-                };
+    public type AssetInventory = Inventory.AssetInventory;
+
+    public shared query func getHisInventory_new (principal : Principal) : async Inventory {
+        let account_identifier = AID.fromPrincipal(principal, null);
+        switch(_ownerships.get(account_identifier)){
+            case(null) return [];
+            case(?list) {
+                Array.mapFilter<TokenIndex, AssetInventory>(list, _indexToAssetInventory);
             };
         };
-        return array;
+    };
+
+    private func _indexToAssetInventory(token_index : TokenIndex) : ?AssetInventory {
+        switch(_items.get(token_index)){
+            case(?#Material(name)) {?{category = #Material; name = name; token_identifier = _getTokenIdentifier(token_index)}};
+            case(?#Accessory(accessory)) {?{category = #Accessory ; name = accessory.name; token_identifier = _getTokenIdentifier(token_index)}};
+            case(?#LegendaryAccessory(legendary)) {?{category = #Accessory ; name = legendary.name; token_identifier = _getTokenIdentifier(token_index)}};
+            case(null) {null}; 
+        };
     };
 
 
@@ -937,10 +874,12 @@ shared({ caller = hub }) actor class Hub() = this {
         staticAssetsEntries := Iter.toArray(staticAssets.entries());
         circulationEntries := Iter.toArray(circulation.entries());
         blueprintsEntries := Iter.toArray(blueprints.entries());
+
+        //New
         _registryEntries := Iter.toArray(_registry.entries());
+        _ownershipsEntries := Iter.toArray(_ownerships.entries());
         _itemsEntries := Iter.toArray(_items.entries());
         _templateEntries := Iter.toArray(_templates.entries());
-        _svgsEntries := Iter.toArray(_svgs.entries());
         _blobsEntries := Iter.toArray(_blobs.entries());
     };
 
@@ -951,11 +890,13 @@ shared({ caller = hub }) actor class Hub() = this {
         staticAssetsEntries := [];
         circulationEntries := [];
         blueprintsEntries := [];
-        _itemsEntries := [];
-        _templateEntries := [];
-        _svgsEntries := [];
-        _blobsEntries := [];
+
+        // New 
         _registryEntries := [];
+        _ownershipsEntries := [];
+        // _templateEntries := [];
+        _itemsEntries := [];
+        _blobsEntries := [];
     };
 
 
@@ -973,6 +914,7 @@ shared({ caller = hub }) actor class Hub() = this {
         #Accessory : Accessory; 
         #LegendaryAccessory : LegendaryAccessory;
     };
+
     public type Accessory = {
         name : Text;
         wear : Nat8;
@@ -984,24 +926,62 @@ shared({ caller = hub }) actor class Hub() = this {
         date_creation : Int;
     };
 
-    private stable var _itemsEntries : [(Text, Item)] = [];
-    private var _items : HashMap.HashMap<Text, Item> = HashMap.fromIter(_itemsEntries.vals(), _itemsEntries.size(), Text.equal, Text.hash);
+    private stable var _itemsEntries : [(TokenIndex, Item)] = [];
+    private var _items : HashMap.HashMap<TokenIndex, Item> = HashMap.fromIter(_itemsEntries.vals(), _itemsEntries.size(), ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
+
+
+    public shared ({caller}) func updateAccessories() : async () {
+        assert((caller == Principal.fromActor(this)));
+        for ((token_index, item) in _items.entries()){
+            switch(item){
+                case(#Accessory(accessory)){
+                    let new_wear_value : Nat8 = accessory.wear - 1;
+                    if(new_wear_value == 0) {
+                        //Burn the accessory
+                    } else  {
+                        //Redraw the accessory with updated value
+                    };
+                };
+                case(_){};
+            };
+        };
+    };
+
+
+    // private func burnAccessory (token_index : TokenIndex ) : async () {
+    //     _blobs.delete(token_index);
+    //     _items.delete(token_index);
+    //     let owner : ?AccountIdentifier = _registry.remove(token_index);
+    //     switch(owner) {
+    //         case(null)(assert(false));
+    //         case(?owner) {
+    //             switch(_ownerships.get(owner)){
+    //                 case(null)(assert(false));
+    //                 case(?list){
+    //                     let list_filtered = Array.filter<TokenIndex>(list, func(x) {x != token_index});
+    //                     _ownerships.put(owner, list_filtered);
+    //                 }
+    //             };
+    //         };
+    //     };
+    //     //Cap
+    //     let event : IndefiniteEvent 
+    // };
 
     let materials = ["Cloth", "Wood", "Glass", "Metal", "Circuit", "Dfinity-stone"];
     public func circulationToItem () : async () {
         for((id,name) in circulation.entries()){
+            let token_index = _textToNat32(id);
             if(Option.isSome(Array.find<Text>(materials, func(x) {x == name}))){
-                //It is a material
                 let new_material : Item = #Material(name);
-                _items.delete(name);
+                _items.put(token_index, new_material);
             } else {
-                //It is an accessory
                 let new_accessory : Item = #Accessory({
                     name = name;
                     wear = 100;
                     equipped = false;
                 });
-                _items.delete(name);
+                _items.put(token_index, new_accessory);
             };
         };
     };
@@ -1023,13 +1003,24 @@ shared({ caller = hub }) actor class Hub() = this {
         properties : Property.Properties = [];
         isPrivate = false; 
     };
-    // public func departureToExt () : async () {
-    //     let nftToOwner = nfts.getNftToOwner(); //Registry
-    //     let ownerToNft = nfts.getOwnerToNft(); //Owner to NFT
 
-    // };
+    public func departureToExt () : async () {
+        let nftToOwner = nfts.getNftToOwner(); //Registry
+        let ownerToNft = nfts.getOwnerToNft(); //Owner to NFT
+        for((text, principal) in nftToOwner.entries()){
+            let token_index = _textToNat32(text);
+            let account_identifier = AID.fromPrincipal(principal, null);
+            _registry.put(token_index, account_identifier);
+        };
+        for ((principal, list) in ownerToNft.entries()){
+            let account_identifier = AID.fromPrincipal(principal, null);
+            let new_list = Array.map<Text,TokenIndex>(list, _textToNat32);
+            _ownerships.put(account_identifier, new_list);
+        };
+    };
 
-    public func textToNat32( txt : Text) : async Nat32 {
+    //To get a TokenIndex from a Text 
+    private func _textToNat32( txt : Text) : Nat32 {
         assert(txt.size() > 0);
         let chars = txt.chars();
 
@@ -1041,40 +1032,35 @@ shared({ caller = hub }) actor class Hub() = this {
         };
         num;
     };
-
+    // Contains all informations needed to create items 
+    // Material and legendary are stored as Blob (less memory consumption)
+    // Template for accssories are stored as Text to modify the wear value programatically, they also integrate a recipe.
+    public type Recipe = [Text];
     public type Template = {
-        #Material : Blob;
-        #Accessory : {before_wear : Text; after_wear : Text;};
+        #Material : Blob; 
+        #Accessory : {before_wear : Text; after_wear : Text; recipe : Recipe};
         #LegendaryAccessory : Blob;
     };
     private stable var _templateEntries : [(Text, Template)] = [];
     private var _templates : HashMap.HashMap<Text, Template> = HashMap.fromIter(_templateEntries.vals(),_templateEntries.size(), Text.equal, Text.hash);
 
-    public type Recipe = [Text];
-    private stable var _recipeEntries : [(Text, [Text])] = [];
-    private var recipes : HashMap.HashMap<Text, [Text]> = HashMap.fromIter(_recipeEntries.vals(), _recipeEntries.size(), Text.equal, Text.hash);
     
     //Allow us to add a template  for items (materials/accessories/legendary) & recipe for accessory
     // Items and legendary just need the name and a Blob
-    // Accessories are treated differently as they need to be dynamically updated for the wear-out-mechanism
+    // Accessories are treated differently as they need to be dynamically updated for the wear-out-mechanism and integrate a recipe.
     //@auth : owner
-    public shared ({caller}) func addElements (name : Text, content : Template, recipe : ?Recipe) : async Result.Result<Text, Text> {
+    public shared ({caller}) func addElements (name : Text, content : Template) : async Result.Result<Text, Text> {
         assert(_isAdmin(caller));
         switch(_templates.get(name)){
             case(?template) return #err("A template already exists for : " #name);
             case(null) {
                 switch(content){
-                    case(#Accessory({before_wear; after_wear;})) {
-                        switch(recipe){
-                            case(null) return #err("Need to specifiy a recipe when adding an accessory!");
-                            case(?recipe) {
-                                if(not(_verifyRecipe(recipe))){
-                                    return #err("Something wrong with the recipe");
-                                } else {
-                                    //TODO
-                                    return #ok(name # " has been added");
-                                }
-                            };
+                    case(#Accessory(infos)) {
+                        if(not(_verifyRecipe(infos.recipe))){
+                            return #err("Recipe is not correct");
+                        } else {
+                            _templates.put(name, content);
+                            return #ok(name # " has been added");
                         };
                     };
                     case(_) {
@@ -1089,11 +1075,11 @@ shared({ caller = hub }) actor class Hub() = this {
     // Check if all the ingredients of the recipe do exists in store as materials
     private func _verifyRecipe (recipe : Recipe) : Bool {
         for(ingredient in recipe.vals()){
-            switch(_items.get(ingredient)){
+            switch(_templates.get(ingredient)){
                 case(null) return false;
                 case(?item){
                     switch(item){
-                        case(#Material(text)){};
+                        case(#Material(_)){};
                         case(_) return false;
                     };
                 };
@@ -1103,11 +1089,9 @@ shared({ caller = hub }) actor class Hub() = this {
     };
     
 
-    //Only for accessories
-    private stable var _svgsEntries : [(Text, Text)] = [];
-    private var _svgs : HashMap.HashMap<Text,Text> = HashMap.fromIter(_svgsEntries.vals(), _svgsEntries.size(), Text.equal, Text.hash);
-    private stable var _blobsEntries : [(Text,Blob) ]= [];
-    private var _blobs : HashMap.HashMap<Text,Blob> = HashMap.fromIter(_blobsEntries.vals(), _blobsEntries.size(), Text.equal, Text.hash);
+    //For accessories 
+    private stable var _blobsEntries : [(TokenIndex,Blob) ]= [];
+    private var _blobs : HashMap.HashMap<TokenIndex,Blob> = HashMap.fromIter(_blobsEntries.vals(), _blobsEntries.size(), ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
 
   
 
@@ -1228,7 +1212,8 @@ shared({ caller = hub }) actor class Hub() = this {
     };
       
     public query func metadata(token : TokenIdentifier): async Result.Result<ExtCommon.Metadata, ExtCore.CommonError> {
-        switch(_blobs.get(token)){
+        let token_index = ExtCore.TokenIdentifier.getIndex(token);
+        switch(_blobs.get(token_index)){
             case(null) {
                 return #err(#InvalidToken(token));
             };

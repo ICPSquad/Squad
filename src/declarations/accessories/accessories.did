@@ -1,28 +1,3 @@
-type WriteNFT = 
- variant {
-   Chunk: record {
-            callback: opt Callback;
-            chunk: blob;
-            id: text;
-          };
-   Init: record {
-           callback: opt Callback;
-           size: nat;
-         };
- };
-type WriteAsset = 
- variant {
-   Chunk: record {
-            callback: opt Callback;
-            chunk: blob;
-            id: text;
-          };
-   Init: record {
-           callback: opt Callback;
-           id: text;
-           size: nat;
-         };
- };
 type Value = 
  variant {
    Bool: bool;
@@ -39,21 +14,6 @@ type User =
    address: AccountIdentifier__1;
    "principal": principal;
  };
-type UpdateRequest = 
- record {
-   id: text;
-   update: vec Update;
- };
-type UpdateMode = 
- variant {
-   Next: vec Update;
-   Set: Value;
- };
-type Update = 
- record {
-   mode: UpdateMode;
-   name: text;
- };
 type TokenIndex = nat32;
 type TokenIdentifier__1 = text;
 type TokenIdentifier = text;
@@ -62,6 +22,7 @@ type Template =
    Accessory: record {
                 after_wear: text;
                 before_wear: text;
+                recipe: Recipe;
               };
    LegendaryAccessory: blob;
    Material: blob;
@@ -85,65 +46,50 @@ type StreamingCallbackResponse =
  };
 type StreamingCallback = func (StreamingCallbackToken) ->
                           (StreamingCallbackResponse) query;
-type Result_9 = 
- variant {
-   err: CommonError;
-   ok: Metadata__1;
- };
 type Result_8 = 
- variant {
-   err: Error;
-   ok: principal;
- };
-type Result_7 = 
- variant {
-   err: Error;
-   ok: PublicToken;
- };
-type Result_6 = 
- variant {
-   err: Error;
-   ok: Chunk;
- };
-type Result_5 = 
- variant {
-   err: Error;
-   ok: Metadata;
- };
-type Result_4 = 
- variant {
-   err: Error;
-   ok: nat64;
- };
-type Result_3 = 
- variant {
-   err: Error;
-   ok;
- };
-type Result_2 = 
- variant {
-   err: Error;
-   ok: Properties;
- };
-type Result_11 = 
  variant {
    err: text;
    ok: text;
  };
-type Result_10 = 
+type Result_7 = 
  variant {
    err: CommonError__1;
    ok: AccountIdentifier;
  };
+type Result_6 = 
+ variant {
+   err: CommonError;
+   ok: Metadata;
+ };
+type Result_5 = 
+ variant {
+   err: Error;
+   ok: text;
+ };
+type Result_4 = 
+ variant {
+   err: Error;
+   ok: principal;
+ };
+type Result_3 = 
+ variant {
+   err: Error;
+   ok: PublicToken;
+ };
+type Result_2 = 
+ variant {
+   err: Error;
+   ok: nat64;
+ };
 type Result_1 = 
  variant {
-   err: text;
+   err: Error;
    ok;
  };
 type Result = 
  variant {
-   err: Error;
-   ok: text;
+   err: text;
+   ok;
  };
 type Response = 
  record {
@@ -160,21 +106,6 @@ type Request =
    url: text;
  };
 type Recipe = vec text;
-type QueryRequest = 
- record {
-   id: text;
-   mode: QueryMode;
- };
-type QueryMode = 
- variant {
-   All;
-   Some: vec Query;
- };
-type Query = 
- record {
-   name: text;
-   next: vec Query;
- };
 type PublicToken = 
  record {
    contentType: text;
@@ -196,7 +127,7 @@ type PayloadResult =
    Chunk: Chunk;
    Complete: blob;
  };
-type Metadata__1 = 
+type Metadata = 
  variant {
    fungible:
     record {
@@ -207,47 +138,20 @@ type Metadata__1 =
     };
    nonfungible: record {metadata: opt blob;};
  };
-type Metadata = 
- record {
-   contentType: text;
-   createdAt: int;
-   id: text;
-   owner: principal;
-   properties: Properties;
- };
 type Inventory = vec AssetInventory;
 type Hub = 
  service {
-   addAccessory: (record {
-                    text;
-                    Asset;
-                    Blueprint;
-                  }) -> (Result_11);
-   addElements: (text, Template, opt Recipe) -> (Result_11);
-   addListAccessory: (vec record {
-                            text;
-                            Asset;
-                            Blueprint;
-                          }) -> (Result_11);
-   addListMaterial: (vec record {
-                           text;
-                           Asset;
-                         }) -> (Result_11);
-   airdrop: (AirdropObject) -> (Result_1);
-   assetRequest: (AssetRequest) -> (Result_3);
-   authorize: (AuthorizeRequest) -> (Result_3);
+   addElements: (text, Template) -> (Result_8);
+   airdrop: (AirdropObject) -> (Result);
    balance: (BalanceRequest) -> (BalanceResponse) query;
    balanceOf: (principal) -> (vec text) query;
-   bearer: (TokenIdentifier) -> (Result_10) query;
+   bearer: (TokenIdentifier) -> (Result_7) query;
+   circulationToItem: () -> ();
+   departureToExt: () -> ();
    extensions: () -> (vec Extension) query;
-   getAllInventory: (vec principal) ->
-    (vec record {
-           principal;
-           Inventory;
-         }) query;
-   getAuthorized: (text) -> (vec principal) query;
    getContractInfo: () -> (ContractInfo);
    getHisInventory: (principal) -> (Inventory) query;
+   getHisInventory_new: (principal) -> (Inventory) query;
    getInventory: () -> (Inventory) query;
    getMaterials: (principal) -> (vec text) query;
    getMetadata: () -> (ContractMetadata) query;
@@ -263,35 +167,21 @@ type Hub =
    getTotalMinted: () -> (nat) query;
    howMany: (text) -> (nat) query;
    http_request: (Request) -> (Response) query;
-   http_request_streaming_callback: (StreamingCallbackToken) ->
-    (StreamingCallbackResponse) query;
    init: (vec principal, ContractMetadata) -> ();
-   init_cap: () -> (Result_1);
-   isAuthorized: (text, principal) -> (bool) query;
-   listAssets: () -> (vec record {
-                            text;
-                            text;
-                            nat;
-                          }) query;
-   metadata: (TokenIdentifier) -> (Result_9) query;
-   mint: (text, principal) -> (Result);
-   nftStreamingCallback: (StreamingCallbackToken) ->
-    (StreamingCallbackResponse) query;
-   ownerOf: (text) -> (Result_8) query;
-   queryProperties: (QueryRequest) -> (Result_2) query;
-   staticStreamingCallback: (StreamingCallbackToken) ->
-    (StreamingCallbackResponse) query;
+   init_cap: () -> (Result);
+   metadata: (TokenIdentifier) -> (Result_6) query;
+   mint: (text, principal) -> (Result_5);
+   ownerOf: (text) -> (Result_4) query;
+   showAdmins: () -> (vec principal) query;
+   sizes: () -> (nat, nat) query;
    supply: () -> (nat) query;
-   tokenByIndex: (text) -> (Result_7);
-   tokenChunkByIndex: (text, nat) -> (Result_6);
-   tokenMetadataByIndex: (text) -> (Result_5);
-   transfer: (principal, text) -> (Result_4);
-   updateAdmins: (principal, bool) -> (Result_3);
-   updateProperties: (UpdateRequest) -> (Result_2);
+   tokenByIndex: (text) -> (Result_3);
+   transfer: (principal, text) -> (Result_2);
+   updateAccessories: () -> ();
+   updateAdmins: (principal, bool) -> (Result_1);
    wallet_available: () -> (nat) query;
    wallet_receive: () -> ();
-   wearAccessory: (text, text) -> (Result_1);
-   writeStaged: (WriteNFT) -> (Result);
+   wearAccessory: (text, text) -> (Result);
  };
 type HeaderField = 
  record {
@@ -344,8 +234,6 @@ type Chunk =
    nextPage: opt nat;
    totalPages: nat;
  };
-type Callback = func () -> ();
-type Blueprint = vec text;
 type BalanceResponse = 
  variant {
    err: CommonError;
@@ -357,33 +245,10 @@ type BalanceRequest =
    user: User;
  };
 type Balance = nat;
-type AuthorizeRequest = 
- record {
-   id: text;
-   isAuthorized: bool;
-   p: principal;
- };
-type AssetRequest = 
- variant {
-   Put:
-    record {
-      callback: opt Callback;
-      contentType: text;
-      key: text;
-      payload: variant {
-                 Payload: blob;
-                 StagedData;
-               };
-    };
-   Remove: record {
-             callback: opt Callback;
-             key: text;
-           };
-   StagedWrite: WriteAsset;
- };
 type AssetInventoryType = 
  variant {
    Accessory;
+   LegendaryAccessory;
    Material;
  };
 type AssetInventory = 
@@ -391,11 +256,6 @@ type AssetInventory =
    category: AssetInventoryType;
    name: text;
    token_identifier: text;
- };
-type Asset = 
- record {
-   contentType: text;
-   payload: vec blob;
  };
 type AirdropObject = 
  record {
