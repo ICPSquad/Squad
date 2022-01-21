@@ -1,54 +1,44 @@
 //Base modules
+import AID "../dependencies/util/AccountIdentifier";
+import Accessory "types/accessory";
 import Array "mo:base/Array";
+import ArrayHelper "helper/arrayHelper";
 import Blob "mo:base/Blob";
+import CAPTypes "mo:cap/Types";
+import Char "mo:base/Char";
+import Cap "mo:cap/Cap";
+import Core "../dependencies/ext/Core";
+import Entrepot "../dependencies/entrepot";
+import Event "types/event";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
-import Iter "mo:base/Iter";
-import HashMap "mo:base/HashMap";
-import Hash "mo:base/Hash";
-import Nat8 "mo:base/Nat8";
-import Nat32 "mo:base/Nat32";
-import Nat64 "mo:base/Nat64";
-import Nat "mo:base/Nat";
-import Option "mo:base/Option";
-import Prim "mo:⛔";
-import Principal "mo:base/Principal";
-import Result "mo:base/Result";
-import Text "mo:base/Text";
-import Time "mo:base/Time";
-
-//EXT
 import ExtAllowance "../dependencies/ext/Allowance";
 import ExtCommon "../dependencies/ext/Common";
 import ExtCore "../dependencies/ext/Core";
-
-// Departure labs
-import ArrayHelper "helper/arrayHelper";
-import Event "types/event";
+import Hash "mo:base/Hash";
+import HashMap "mo:base/HashMap";
 import Http "types/http";
-import MapHelper "helper/mapHelper";
-import Property "types/property";
-import Staged "types/staged";
-import Static "types/static";
-import Token "types/token";
-import Types "types/types";
-
-//Custom
-import Accessory "types/accessory";
 import Inventory "types/inventory";
-
-//Cap integration
-import Cap "mo:cap/Cap";
+import Iter "mo:base/Iter";
+import MapHelper "helper/mapHelper";
+import Nat "mo:base/Nat";
+import Nat32 "mo:base/Nat32";
+import Nat64 "mo:base/Nat64";
+import Nat8 "mo:base/Nat8";
+import Option "mo:base/Option";
+import Prim "mo:⛔";
+import Principal "mo:base/Principal";
+import PrincipalImproved "../dependencies/util/Principal";
+import Property "types/property";
+import Result "mo:base/Result";
 import Root "mo:cap/Root";
 import Router "mo:cap/Router";
-import CAPTypes "mo:cap/Types";
-
-//Entrepot integration
-import Entrepot "../dependencies/entrepot";
-import AID "../dependencies/util/AccountIdentifier";
-import Core "../dependencies/ext/Core";
-
-//Principal from Blob
-import PrincipalImproved "../dependencies/util/Principal";
+import Staged "types/staged";
+import Static "types/static";
+import Text "mo:base/Text";
+import Time "mo:base/Time";
+import Token "types/token";
+import Types "types/types";
+import _items "mo:base/Iter";
 
 shared({ caller = hub }) actor class Hub() = this {
 
@@ -62,29 +52,10 @@ shared({ caller = hub }) actor class Hub() = this {
         return(admins)
     };
 
-    public type ContractMetadata = {
-        name   : Text;
-        symbol : Text;
-    };
-    stable var CONTRACT_METADATA : ContractMetadata = {
-        name   = "none"; 
-        symbol = "none";
-    };
-
-    // Initializes the contract with the given (additional) owners and metadata. Can only be called once.
-    // @auth: not INITALIZED
-    stable var INITALIZED : Bool = false;
-    public shared({caller}) func init(new_admins   : [Principal], metadata : ContractMetadata) : async () {
-        assert(not INITALIZED);
-        admins    := Array.append(admins, new_admins);
-        CONTRACT_METADATA := metadata;
-        INITALIZED        := true;
-    };
-
     // Updates the access rights of one of the contact owners.
-    //@auth : isOwner
+    //@auth : isAdmin
     public shared({caller}) func updateAdmins(user : Principal, isAuthorized : Bool) : async Result.Result<(), Types.Error> {
-        if (not _isOwner(caller)) { return #err(#Unauthorized); };
+        assert(_isAdmin(caller));
         switch(isAuthorized) {
             case (true) {
                 admins := Array.append(
@@ -102,9 +73,38 @@ shared({ caller = hub }) actor class Hub() = this {
         #ok();
     };
 
+    private func _isAdmin(p : Principal) : Bool {
+        switch(Array.find<Principal>(admins, func(v) {return v == p})) {
+            case (null) { false; };
+            case (? v)  { true;  };
+        };
+    };
+
+    // Initializes the contract with the given (additional) owners and metadata. Can only be called once.
+    // @auth: not INITALIZED
+    stable var INITALIZED : Bool = false;
+    public shared({caller}) func init(new_admins   : [Principal], metadata : ContractMetadata) : async () {
+        assert(not INITALIZED);
+        admins    := Array.append(admins, new_admins);
+        CONTRACT_METADATA := metadata;
+        INITALIZED        := true;
+    };
+
+
+
     ////////////
     // INFOS //
     ///////////
+
+    public type ContractMetadata = {
+        name   : Text;
+        symbol : Text;
+    };
+    
+    stable var CONTRACT_METADATA : ContractMetadata = {
+        name   = "none"; 
+        symbol = "none";
+    };
 
     // Returns the contract metadata.
     public query func getMetadata() : async ContractMetadata {
@@ -124,7 +124,7 @@ shared({ caller = hub }) actor class Hub() = this {
     // Returns the contract info.
     // @auth: isOwner
     public shared ({caller}) func getContractInfo() : async ContractInfo {
-        assert(_isOwner(caller));
+        assert(_isAdmin(caller));
         return {
             heap_size        = Prim.rts_heap_size();
             memory_size      = Prim.rts_memory_size();
@@ -177,34 +177,6 @@ shared({ caller = hub }) actor class Hub() = this {
     /////////
 
 
-
-    // Writes a part of an NFT to the staged data. 
-    // Initializing another NFT will destruct the data in the buffer.
-    public shared({caller}) func writeStaged(data : Staged.WriteNFT) : async Result.Result<Text, Types.Error> {
-        assert(_isOwner(caller));
-        switch (await nfts.writeStaged(data)) {
-            case (#ok(id)) { #ok(id); };
-            case (#err(e)) { #err(#FailedToWrite(e)); };
-        };
-    };
-
-    // List all static assets.
-    // @pre: isOwner
-    public query ({caller}) func listAssets() : async [(Text, Text, Nat)] {
-        // assert(_isOwner(caller));
-        staticAssets.list();
-    };
-
-    // Allows you to replace delete and stage NFTs.
-    // Putting and initializing staged data will overwrite the present data.
-    public shared ({caller}) func assetRequest(data : Static.AssetRequest) : async Result.Result<(), Types.Error> {
-        assert(_isOwner(caller));
-        switch (await staticAssets.handleRequest(data)) {
-            case (#ok())   { #ok(); };
-            case (#err(e)) { #err(#FailedToWrite(e)); };
-        };
-    };
-
     // Returns the tokens of the given principal.
     public query func balanceOf(p : Principal) : async [Text] {
         nfts.tokensOf(p);
@@ -234,28 +206,15 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    // Allows the caller to authorize another principal to act on its behalf.
-    // TODO : add CAP 
-    public shared ({caller}) func authorize(req : Token.AuthorizeRequest) : async Result.Result<(), Types.Error> {
-        switch (_canChange(caller, req.id)) {
-            case (#err(e)) { return #err(e); };
-            case (#ok(v))  { };
-        };
-        if (not nfts.authorize(req)) {
-            return #err(#AuthorizedPrincipalLimitReached(Token.AUTHORIZED_LIMIT))
-        };
-        #ok();
-    };
-
     private func _canChange(caller : Principal, id : Text) : Result.Result<Principal, Types.Error> {
         let owner = switch (nfts.ownerOf(id)) {
             case (#err(e)) {
-                if (not _isOwner(caller)) return #err(e);
+                if (not _isAdmin(caller)) return #err(e);
                 Principal.fromActor(this);
             };
             case (#ok(v))  {
                 // The owner not is the caller.
-                if (not _isOwner(caller) and v != caller) {
+                if (not _isAdmin(caller) and v != caller) {
                     // Check whether the caller is authorized.
                     if (not nfts.isAuthorized(caller, id)) return #err(#Unauthorized);
                 };
@@ -265,23 +224,13 @@ shared({ caller = hub }) actor class Hub() = this {
         #ok(owner);
     };
 
-    // Returns whether the given principal is authorized to change to NFT with the given identifier.
-    public query func isAuthorized(id : Text, p : Principal) : async Bool {
-        nfts.isAuthorized(p, id);
-    };
-
-    // Returns which principals are authorized to change the NFT with the given identifier.
-    public query func getAuthorized(id : Text) : async [Principal] {
-        nfts.getAuthorized(id);
-    };
-
     // Gets the token with the given identifier.
     public shared({caller}) func tokenByIndex(id : Text) : async Result.Result<Token.PublicToken, Types.Error> {
         switch(nfts.getToken(id)) {
             case (#err(e)) { return #err(e); };
             case (#ok(v))  {
                 if (v.isPrivate) {
-                    if (not nfts.isAuthorized(caller, id) and not _isOwner(caller)) {
+                    if (not nfts.isAuthorized(caller, id) and not _isAdmin(caller)) {
                         return #err(#Unauthorized);
                     };
                 };
@@ -309,112 +258,6 @@ shared({ caller = hub }) actor class Hub() = this {
         }
     };
     
-    // Gets the token chuck with the given identifier and page number.
-    // Not used has payload is never big enough to make usage of this functionnality
-    public shared({caller}) func tokenChunkByIndex(id : Text, page : Nat) : async Result.Result<Token.Chunk, Types.Error> {
-        switch (nfts.getToken(id)) {
-            case (#err(e)) { return #err(e); };
-            case (#ok(v)) {
-                if (v.isPrivate) {
-                    if (not nfts.isAuthorized(caller, id) and not _isOwner(caller)) {
-                        return #err(#Unauthorized);
-                    };
-                };
-                let totalPages = v.payload.size();
-                if (page > totalPages) {
-                    return #err(#InvalidRequest);
-                };
-                var nextPage : ?Nat = null;
-                if (totalPages > page + 1) {
-                    nextPage := ?(page + 1);
-                };
-                #ok({
-                    data       = v.payload[page];
-                    nextPage   = nextPage;
-                    totalPages = totalPages;
-                });
-            };
-        };
-    };
-
-    // Returns the token metadata of an NFT based on the given identifier.
-    public shared ({caller}) func tokenMetadataByIndex(id : Text) : async Result.Result<Token.Metadata, Types.Error> {
-        switch (nfts.getToken(id)) {
-            case (#err(e)) { return #err(e); };
-            case (#ok(v)) {
-                if (v.isPrivate) {
-                    if (not nfts.isAuthorized(caller, id) and not _isOwner(caller)) {
-                        return #err(#Unauthorized);
-                    };
-                };
-                #ok({
-                    contentType = v.contentType;
-                    createdAt   = v.createdAt;
-                    id          = id;
-                    owner       = switch (nfts.ownerOf(id)) {
-                        case (#err(_)) { hub; };
-                        case (#ok(v))  { v;   };
-                    };
-                    properties  = v.properties;
-                });
-            };
-        };
-    };
-
-    // Returns the attributes of an NFT based on the given query.
-    public query ({caller}) func queryProperties(
-        q : Property.QueryRequest,
-    ) : async Result.Result<Property.Properties, Types.Error> {
-        switch(nfts.getToken(q.id)) {
-            case (#err(e)) { #err(e); };
-            case (#ok(v))  {
-                if (v.isPrivate) {
-                    if (not nfts.isAuthorized(caller, q.id) and not _isOwner(caller)) {
-                        return #err(#Unauthorized);
-                    };
-                };
-                switch (q.mode) {
-                    case (#All)      { #ok(v.properties); };
-                    case (#Some(qs)) { Property.get(v.properties, qs); };
-                };
-            };
-        };
-    };
-
-    // Updates the attributes of an NFT and returns the resulting (updated) attributes.
-    public shared ({caller}) func updateProperties(
-        u : Property.UpdateRequest,
-    ) : async Result.Result<Property.Properties, Types.Error> {
-        switch(nfts.getToken(u.id)) {
-            case (#err(e)) { #err(e); };
-            case (#ok(v))  {
-                if (v.isPrivate) {
-                    if (not nfts.isAuthorized(caller, u.id) and not _isOwner(caller)) {
-                        return #err(#Unauthorized);
-                    };
-                };
-                switch (Property.update(v.properties, u.update)) {
-                    case (#err(e)) { #err(e); };
-                    case (#ok(ps)) {
-                        switch (nfts.updateProperties(u.id, ps)) {
-                            case (#err(e)) { #err(e); };
-                            case (#ok())   { #ok(ps); };
-                        };
-                    };
-                };
-            };
-        };
-    };
-
-    private func _isOwner(p : Principal) : Bool {
-        switch(Array.find<Principal>(admins, func(v) {return v == p})) {
-            case (null) { false; };
-            case (? v)  { true;  };
-        };
-    };
-
-   
-
 
     //////////
     // HTTP //
@@ -664,61 +507,6 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
 
-    public shared(msg) func addListAccessory (list : [(Text, Static.Asset, Blueprint)]) : async Result.Result<Text,Text> {
-        assert(_isOwner(msg.caller));
-        for (accessory in list.vals()){
-            // Add asset with the corresponding name assuming payload is light enough.
-            let asset_request : Static.AssetRequest = #Put({
-                key = accessory.0;
-                contentType = accessory.1.contentType;
-                payload = #Payload(accessory.1.payload[0]);
-                callback = null;
-            });
-            switch(await staticAssets.handleRequest(asset_request)){
-                case(#err(message)) return #err(message);
-                case (#ok) {};
-            };
-
-            // Add blueprint with the corresponding name
-            blueprints.put(accessory.0, accessory.2);
-        };
-        return #ok("All accessories have been added.");
-    };
-
-    public shared(msg) func addAccessory (accessory : (Text,Static.Asset,Blueprint)) : async Result.Result<Text,Text> {
-        assert(_isOwner(msg.caller));
-        let asset_request : Static.AssetRequest = #Put({
-                key = accessory.0;
-                contentType = accessory.1.contentType;
-                payload = #Payload(accessory.1.payload[0]);
-                callback = null;
-        });
-
-        switch(await staticAssets.handleRequest(asset_request)){
-                case(#err(message)) return #err(message);
-                case (#ok) {};
-        };
-        blueprints.put(accessory.0, accessory.2);
-        return #ok("Accessory has been added : " # accessory.0);
-    };
-
-    public shared(msg) func addListMaterial (list : [(Text,Static.Asset)]) : async Result.Result<Text,Text> {
-        assert(_isOwner(msg.caller));
-        for (material in list.vals()){
-            let asset_request : Static.AssetRequest = #Put({
-                key = material.0;
-                contentType = material.1.contentType;
-                payload = #Payload(material.1.payload[0]);
-                callback = null;
-            });
-             switch(await staticAssets.handleRequest(asset_request)){
-                case(#err(message)) return #err(message);
-                case (#ok()) {};
-            };
-        };
-        return #ok("All materials have been added.");
-    };
-
     public type Inventory = Inventory.Inventory; 
 
     public shared query (msg) func getInventory () : async Inventory {
@@ -833,7 +621,7 @@ shared({ caller = hub }) actor class Hub() = this {
     // Call the handshake function on CAP which will ask the Router canister to create a new Root canister specifically for this token smart contract.
     // @auth : owner
     public shared ({caller}) func init_cap() : async Result.Result<(), Text> {
-        assert(_isOwner(caller));
+        assert(_isAdmin(caller));
         let tokenContractId = Principal.toText(Principal.fromActor(this));
         try {
             let handshake = await cap.handshake(
@@ -1176,9 +964,6 @@ shared({ caller = hub }) actor class Hub() = this {
     //////////
 
 
-
-
-
     ////////////////
     // Elements  //
     ///////////////
@@ -1202,6 +987,61 @@ shared({ caller = hub }) actor class Hub() = this {
     private stable var _itemsEntries : [(Text, Item)] = [];
     private var _items : HashMap.HashMap<Text, Item> = HashMap.fromIter(_itemsEntries.vals(), _itemsEntries.size(), Text.equal, Text.hash);
 
+    let materials = ["Cloth", "Wood", "Glass", "Metal", "Circuit", "Dfinity-stone"];
+    public func circulationToItem () : async () {
+        for((id,name) in circulation.entries()){
+            if(Option.isSome(Array.find<Text>(materials, func(x) {x == name}))){
+                //It is a material
+                let new_material : Item = #Material(name);
+                _items.delete(name);
+            } else {
+                //It is an accessory
+                let new_accessory : Item = #Accessory({
+                    name = name;
+                    wear = 100;
+                    equipped = false;
+                });
+                _items.delete(name);
+            };
+        };
+    };
+
+    public query func sizes () : async (Nat,Nat) {
+        return(_items.size(), circulation.size());
+    };
+    public type Token = {
+        payload     : [Blob];
+        contentType : Text;
+        createdAt   : Int;
+        properties  : Property.Properties;
+        isPrivate   : Bool;
+    };
+    let false_token = {
+        payload = [Blob.fromArray([0])];
+        contentType = "";
+        createdAt : Int = Time.now();
+        properties : Property.Properties = [];
+        isPrivate = false; 
+    };
+    // public func departureToExt () : async () {
+    //     let nftToOwner = nfts.getNftToOwner(); //Registry
+    //     let ownerToNft = nfts.getOwnerToNft(); //Owner to NFT
+
+    // };
+
+    public func textToNat32( txt : Text) : async Nat32 {
+        assert(txt.size() > 0);
+        let chars = txt.chars();
+
+        var num : Nat32 = 0;
+        for (v in chars){
+            let charToNum = (Char.toNat32(v)-48);
+            assert(charToNum >= 0 and charToNum <= 9);
+            num := num * 10 +  charToNum;          
+        };
+        num;
+    };
+
     public type Template = {
         #Material : Blob;
         #Accessory : {before_wear : Text; after_wear : Text;};
@@ -1219,7 +1059,7 @@ shared({ caller = hub }) actor class Hub() = this {
     // Accessories are treated differently as they need to be dynamically updated for the wear-out-mechanism
     //@auth : owner
     public shared ({caller}) func addElements (name : Text, content : Template, recipe : ?Recipe) : async Result.Result<Text, Text> {
-        assert(_isOwner(caller));
+        assert(_isAdmin(caller));
         switch(_templates.get(name)){
             case(?template) return #err("A template already exists for : " #name);
             case(null) {

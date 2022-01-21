@@ -114,6 +114,14 @@ module Token {
             Principal.equal,
             Principal.hash,
         );
+
+        public func getNftToOwner() : HashMap.HashMap<Text, Principal> {
+            nftToOwner;
+        };
+        public func getOwnerToNft() :  HashMap.HashMap<Principal, [Text]> {
+            ownerToNFT;
+        };
+
         for ((t, (p, ps), nft) in Iter.fromArray(nftEntries)) {
             nfts.put(t, nft);
             if (ps.size() != 0) {
