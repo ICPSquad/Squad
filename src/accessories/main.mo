@@ -134,127 +134,58 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    // Returns the total amount of minted NFTs.
-    public query func getTotalMinted () : async Nat {
-        nfts.getTotalMinted();
-    };
 
-    var MAX_RESULT_SIZE_BYTES     = 1_000_000; // 1MB Default
-    var HTTP_STREAMING_SIZE_BYTES = 1_900_000;
-
-
-    // stable var BROKER_CALL_LIMIT        = 25;
-    // stable var BROKER_FAILED_CALL_LIMIT = 25;
-
-    stable var id          = 0;
-    stable var payloadSize = 0;
-    stable var nftEntries : [(
-        Text, // Token Identifier.
-        (
-            ?Principal, // Owner of the token.
-            [Principal] // Authorized principals.
-        ),
-        Token.Token, // NFT data.
-    )] = [];
-    let nfts = Token.NFTs(
-        id, 
-        payloadSize, 
-        nftEntries,
-    );
-
-    stable var staticAssetsEntries : [(
-        Text,        // Asset Identifier (path).
-        Static.Asset // Asset data.
-    )] = [];
-    let staticAssets = Static.Assets(staticAssetsEntries);
-    
 
     //////////
     // NFT //
     /////////
 
 
-    // Returns the tokens of the given principal.
-    public query func balanceOf(p : Principal) : async [Text] {
-        nfts.tokensOf(p);
-    };
+   
+    public type TransferRequest = ExtCore.TransferRequest;
+    public type TransferResponse = ExtCore.TransferResponse;
 
-    // Returns the owner of the NFT with given identifier.
-    public query func ownerOf(id : Text) : async Result.Result<Principal, Types.Error> {
-        nfts.ownerOf(id);
-    };
-
-    // Transfers one of your own NFTs to another principal.
-    //TODO : Change parameters
-    public shared ({caller}) func transfer(to : Principal, id : Text) : async Result.Result<Nat64, Types.Error> {
-        let owner = switch (_canChange(caller, id)) {
-            case (#err(e)) { return #err(e); };
-            case (#ok(v))  { v; };
+    public shared({caller}) func transfer_new (request : TransferRequest) ; async TransferResponse {
+        if (request.amount != 1) {
+                return #err(#Other("Must use amount of 1"));
         };
-        let res = await nfts.transfer(to, id);
-        let event : IndefiniteEvent = {
-            operation = "transfer";
-            details = [("item", #Text(id)),("from", #Principal(caller)),("to", #Principal(to))];
-            caller = caller;
+        if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
+            return #err(#InvalidToken(request.token));
         };
-        switch(await cap.insert(event)){
-            case(#err(e)) return #err(e);
-            case(#ok(id)) return #ok(id);
-        };
-    };
-
-    private func _canChange(caller : Principal, id : Text) : Result.Result<Principal, Types.Error> {
-        let owner = switch (nfts.ownerOf(id)) {
-            case (#err(e)) {
-                if (not _isAdmin(caller)) return #err(e);
-                Principal.fromActor(this);
-            };
-            case (#ok(v))  {
-                // The owner not is the caller.
-                if (not _isAdmin(caller) and v != caller) {
-                    // Check whether the caller is authorized.
-                    if (not nfts.isAuthorized(caller, id)) return #err(#Unauthorized);
+        let token_index = ExtCore.TokenIdentifier.getIndex(request.token);
+        let owner = ExtCore.User.toAID(request.from);
+        let spender = AID.fromPrincipal(msg.caller, request.subaccount);
+        let receiver = ExtCore.User.toAID(request.to);
+        switch (_registry.get(token)) {
+            case (?token_owner) {
+                if(AID.equal(owner, token_owner) == false) {
+                    return #err(#Unauthorized(owner));
                 };
-                v;
+                if (AID.equal(owner, spender) == false) {
+                    return #err(#Unauthorized(spender));
+                };
+                //Internal state
+                _registry.put(token_index, receiver);
+                _transferTokenOwnership(owner, ?receiver, token_index);
+                // CAP 
+                let event : IndefiniteEvent = {
+                    operation = "transfer";
+                    details = [("item", #Text(request.token)),("from", #Text(owner)),("to", #Text(receiver))];
+                    caller = caller;
+                };
+                switch(cap.insert(event)){
+                    case(#err(e)) return #err(#Other("Error when reporting event to CAP."));
+                    case(#ok(id)) return #ok(request.amount);
+                };
+            };
+            case (_) {
+                return #err(#InvalidToken(request.token));
             };
         };
-        #ok(owner);
+
     };
 
-    // Gets the token with the given identifier.
-    public shared({caller}) func tokenByIndex(id : Text) : async Result.Result<Token.PublicToken, Types.Error> {
-        switch(nfts.getToken(id)) {
-            case (#err(e)) { return #err(e); };
-            case (#ok(v))  {
-                if (v.isPrivate) {
-                    if (not nfts.isAuthorized(caller, id) and not _isAdmin(caller)) {
-                        return #err(#Unauthorized);
-                    };
-                };
-                var payloadResult : Token.PayloadResult = #Complete(v.payload[0]);
-                if (v.payload.size() > 1) {
-                    payloadResult := #Chunk({
-                        data       = v.payload[0]; 
-                        totalPages = v.payload.size(); 
-                        nextPage   = ?1;
-                    });
-                };
-                let owner = switch (nfts.ownerOf(id)) {
-                    case (#err(_)) { Principal.fromActor(this); };
-                    case (#ok(v))  { v;                         }; 
-                };
-                return #ok({
-                    contentType = v.contentType;
-                    createdAt = v.createdAt;
-                    id = id;
-                    owner = owner;
-                    payload = payloadResult;
-                    properties = v.properties;
-                });
-            }
-        }
-    };
-    
+
 
     //////////
     // HTTP //
@@ -299,91 +230,48 @@ shared({ caller = hub }) actor class Hub() = this {
     // Those entries are deleted for materials when an accessory is created.
     // Those entries are deleted for accesories when they are wear.
 
-    stable var circulationEntries : [(Text,Text)] = [];
-    let circulation : HashMap.HashMap<Text,Text> = HashMap.fromIter(circulationEntries.vals(),0,Text.equal,Text.hash);
-
-
-    // This hashmap store for each accessory the associated blueprint used when creating a new accessory from materials. 
-    type Blueprint = Accessory.Blueprint;
-    stable var blueprintsEntries : [(Text,Blueprint)] = [];
-    let blueprints : HashMap.HashMap<Text,Blueprint> = HashMap.fromIter(blueprintsEntries.vals(),0,Text.equal,Text.hash);
-
-
-    private func _idToName (id : Text) : Text {
-        switch(circulation.get(id)) {
-            case (null) return ("Null");
-            case (?name) return (name);
-        };
-    };
-
-    // Returns optional first id value for which name matchs
-    private func nameToId (name : Text) : ?Text {
-        for ((k,v) in circulation.entries()) {
-            if (v == name) {
-                return ?k;
+   
+    private func _mint_new (item : Text, recipient : AccountIdentifier) : Result.Result<Text, Text> {
+        switch(_templates.get(item)){
+            case(#Material(blob)){
+                _registry.put(_nextTokenId, recipient);
+                _addOwnership(_nextTokenId, recipient);
+                _items.put(_nextTokenId, #Material(item));
             };
-        };
-        return null;
-    };
-
-    // Returns optional first id value for which name matchs and belongs to user 
-    private func _nameToId (name : Text, from : Principal) : ?Text {
-        let tokens  : [Text] = nfts.tokensOf(from);
-        for (token in tokens.vals()) {
-            if(_idToName(token) == name) {
-                return ?token;
-            }
-        };
-        return null;
-    };
-
-    // To query the number of material in circulation, only active units. 
-    public query func howMany(name : Text) : async Nat {
-        var count = 0;
-        for(vals in circulation.vals()) {
-            if(vals == name) {
-                count += 1
+            case(#LegendaryAccessory(blob)){
+                _registry.put(_nextTokenId, recipient);
+                _addOwnership(_nextTokenId, recipient);
+                _items.put(_nextTokenId, #LegendaryAccessory({name = item; date_creation = Time.now()}));
             };
+            case(#Accessory(template)){
+                _registry.put(_nextTokenId, recipient);
+                _addOwnership(_nextTokenId, recipient),
+                _items.put(_nextTokenId, #Accessory({name = item; wear = 100; equipped = null}));
+            };
+            case(null) return #err("There is no item called : " #item);
         };
-        return count;
+        _supply += 1;
+        _nextTokenId += 1;
+        return #ok(name # " has been created with id : " #id);
     };
 
-    public query func getMaterials (p : Principal) : async [Text] {
-        let tokens_id_user : [Text] = nfts.tokensOf(p);
-        let materials : [Text] = Array.map<Text,Text>(tokens_id_user,_idToName);
-        return materials;
-    };
-
-    
-    private func _mint (name : Text, recipient : Principal) : Result.Result<Text, Types.Error> {
-        switch (staticAssets.getToken(name)) {
-            case (#err(v)) return #err (#AssetNotFound);
-            case (#ok(v)) {
-                if (v.payload.size() > 1) {
-                    return #err(#AssetTooHeavy);
-                };
-                let egg : Token.Egg = {
-                    payload = #Payload(v.payload[0]);
-                    contentType = v.contentType;
-                    owner = ?recipient;
-                    properties = [];
-                    isPrivate = false;
-                };
-                switch(nfts.mintSynchro(Principal.fromActor(this), egg)) {
-                    case (#err(e)) { #err((#ErrorMinting)); };
-                    case (#ok(id, owner)) {
-                        circulation.put(id, name);
-                        #ok(name # " has been created with id : " #id);
-                    };
-                };
+    private func _addOwnership (token_id : TokenIndex, owner : AccountIdentifier) : () {
+        switch(_ownerships.get(owner)){
+            case(?list){
+                let new_list = Array.append<TokenIndex>(list, [token_id]);
+                _ownerships.put(owner, new_list);
+            };
+            case(?null){
+                _ownerships.put(owner, [token_id]);
             };
         };
     };
     
 
-    public shared ({caller}) func mint (name : Text, recipient : Principal) : async Result.Result<Text,Types.Error> {
-        assert(caller == Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae"));
-        switch(_mint(name, recipient)){
+    public shared ({caller}) func mint (name : Text, recipient : AccountIdentifier) : async Result.Result<Text,Types.Error> {
+        assert(_isAdmin(caller));
+        //TODO switch when name is changed
+        switch(_mint_new(name, recipient)){
             case(#err(error)) return #err(error);
             case(#ok(msg)){
                 let event : IndefiniteEvent = {
@@ -402,77 +290,9 @@ shared({ caller = hub }) actor class Hub() = this {
         }
     };
 
-    // Airdrop 
-    public type AirdropObject = {
-        recipient: Principal;
-        material : Text;
-        accessory1 : ?Text;
-        accessory2 : ?Text;
-    };
+ 
 
-    public shared(msg) func airdrop (airdrop : AirdropObject) : async Result.Result<(), Text> {
-        assert(msg.caller == Principal.fromText("p4y2d-yyaaa-aaaaj-qaixa-cai")); // Only the hub canister can authorize an airdrop.
-        let token_list : [Text] = nfts.tokensOf(airdrop.recipient);
-        if (token_list.size() > 0) {
-            return #err ("Already airdropped");
-        };
-        switch(_mint(airdrop.material, airdrop.recipient)){
-            case(#err(message)) return #err("Unknown error");
-            case(#ok(v)){
-                switch(airdrop.accessory1){
-                    case(null) return #ok;
-                    case(?accessory1){
-                        switch(_mint(accessory1, airdrop.recipient)){
-                            case(#err(message)) return #err("Unknown error");
-                            case(#ok(v)){
-                                switch(airdrop.accessory2){
-                                    case(null) return #ok;
-                                    case(?accessory2){
-                                        switch(_mint(accessory2, airdrop.recipient)){
-                                            case(#err(message)) return #err("Unknown error");
-                                            case(#ok(v)){
-                                                return #ok;
-                                            };
-                                        };
-                                    };
-                                };
-                            };
-                        };
-                    };
-                };
-            }; 
-        };
-    };
-
-
-    public type Inventory = Inventory.Inventory; 
-
-    public shared query (msg) func getInventory () : async Inventory {
-        let principal = msg.caller;
-        let token_list : [Text] = nfts.tokensOf(principal);
-        if (token_list.size() == 0){
-            return [];
-        };
-        let asset_name : [Text] = Array.map<Text,Text>(token_list, _idToName);
-        switch(Inventory.buildInventory(token_list, asset_name)){
-            case (#err(message)) return [];
-            case (#ok(inventory)) return inventory;
-        };
-    };
-
-    public shared query func getHisInventory (principal : Principal) : async Inventory {
-        let token_list : [Text] = nfts.tokensOf(principal);
-        if (token_list.size() == 0){
-            return [];
-        };
-        let asset_name : [Text] = Array.map<Text,Text>(token_list, _idToName);
-        switch(Inventory.buildInventory(token_list, asset_name)){
-            case (#err(message)) return [];
-            case (#ok(inventory)) return inventory;
-        };
-    };
-
-
+   
     public type AssetInventory = Inventory.AssetInventory;
 
     public shared query func getHisInventory_new (principal : Principal) : async Inventory {
@@ -496,48 +316,7 @@ shared({ caller = hub }) actor class Hub() = this {
 
 
 
-    // Wear Accesory
-
-    let nftActor = actor("jmuqr-yqaaa-aaaaj-qaicq-cai") : actor {
-        wearAccessory : shared (Text, Text, Principal) -> async Result.Result<(),Text>;
-    };
-    
-    // TODO : Find a way to "freeze" accessories (so they cannot be sold or wear again during the wait cause this function is not atomic...)
-    public shared(msg) func wearAccessory (token_accessory : Text, token_avatar : Text) : async Result.Result<(),Text> {
-        let principal = msg.caller;
-        //  Check if this token is owned by msg.caller
-        let listId : [Text] = nfts.tokensOf(principal);
-        if(not (ArrayHelper.contains<Text>(listId, token_accessory, Text.equal))) {
-            return #err ("You don't own this accessory : " #token_accessory);
-        };
-
-        //  Get the name associated for this token id
-        let accessory_name : Text = _idToName(token_accessory);
-        if (accessory_name == "Null") {
-            return #err ("This token " #token_accessory # " is not an accessory nor a material.");
-        };
-        
-        switch(await nftActor.wearAccessory(token_avatar, accessory_name , principal)){
-            case(#ok) {
-                switch(_removeAccessory(token_accessory, principal)){
-                    case(#err(message)) return #err ("Accessory was successfully wear but can't destroy it.");
-                    case (#ok) return #ok;
-                };
-            };
-            case(#err(message)){
-                return #err(message);
-            };
-        };
-    };
-
-    private func _removeAccessory (token : Text, from : Principal) : Result.Result<(),Text> {
-        switch(nfts.burn(token)) {
-            case (#err(e)) {return(#err(e))};
-            case (#ok) {};
-        };
-        return #ok;
-    };
-
+  
 
     /////////
     // CAP //
@@ -938,7 +717,7 @@ shared({ caller = hub }) actor class Hub() = this {
                     if(Option.isSome(accessory.equipped)) {
                         let new_wear_value : Nat8 = accessory.wear - 1; 
                         if(new_wear_value == 0) {
-                            //Burn the accessory
+                            _burn(token_index);
                         } else  {
                             let new_item = #Accessory({name = accessory.name; wear = new_wear_value; equipped = accessory.equipped;});
                             _items.put(token_index, new_item);
@@ -951,21 +730,26 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    public shared ({caller}) func updateAccessory(token_identifier : Text) : async () {
+    public shared ({caller}) func updateAccessory(token_identifier : Text) : async Result.Result<(), Text> {
         let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
         switch(_items.get(token_index)){
             case(?#Accessory(accessory)){
                 let new_wear_value : Nat8 = accessory.wear - 1; 
                 if(new_wear_value == 0) {
-                    //Burn the accessory
+                    switch(await _burn(token_index)){
+                        case(#err(message)){
+                            return #err("Error when burning the accessory");
+                        }
+                    }
                 } else  {
                     let new_item = #Accessory{name = accessory.name; wear = new_wear_value; equipped = accessory.equipped;};
                     _items.put(token_index, new_item);
                     _drawAccessory(token_index);
                     };
             };
-            case(_){};
+            case(_) return #err("This item is not an accessory.");
         };
+        return #ok;
     };
 
     public shared ({caller}) func _burn (token_index : TokenIndex ) : async Result.Result<Nat64,Types.Error> {
@@ -1224,40 +1008,6 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    // public shared(msg) func transfer(request: TransferRequest) : async TransferResponse {
-    //     if (request.amount != 1) {
-    //             return #err(#Other("Must use amount of 1"));
-    //     };
-    //     if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
-    //         return #err(#InvalidToken(request.token));
-    //     };
-
-    //     let token = ExtCore.TokenIdentifier.getIndex(request.token);
-    //     let owner = ExtCore.User.toAID(request.from);
-    //     let spender = AID.fromPrincipal(msg.caller, request.subaccount);
-    //     let receiver = ExtCore.User.toAID(request.to);
-            
-    //     switch (_registry.get(token)) {
-    //         case (?token_owner) {
-    //                     if(AID.equal(owner, token_owner) == false) {
-    //                         return #err(#Unauthorized(owner));
-    //                     };
-    //                     if (AID.equal(owner, spender) == false) {
-    //                             return #err(#Unauthorized(spender));
-    //                     };
-    //                     switch(_transferTokenOwnership(owner, ?receiver, token)){
-    //                         case(#err(message)) return #err(#Other(message));
-    //                         case(#ok){
-    //                             _registry.put(token, receiver);
-    //                             return #ok(request.amount);
-    //                         };
-    //                     };
-    //         };
-    //         case (_) {
-    //             return #err(#InvalidToken(request.token));
-    //         };
-    //     };
-    // };
 
     ////////////////
     // Ext-query //
@@ -1403,6 +1153,351 @@ shared({ caller = hub }) actor class Hub() = this {
     private func _fromBlob(b : Blob) : Principal {
         return(PrincipalImproved.fromBlob(b));
     };
+
+
+    /////////////////////////////////
+    // OLD DEPARTURE LABS METHODS //
+    ////////////////////////////////
+
+    // Returns the total amount of minted NFTs.
+    public query func getTotalMinted () : async Nat {
+        nfts.getTotalMinted();
+    };
+
+    var MAX_RESULT_SIZE_BYTES     = 1_000_000; // 1MB Default
+    var HTTP_STREAMING_SIZE_BYTES = 1_900_000;
+
+
+    // stable var BROKER_CALL_LIMIT        = 25;
+    // stable var BROKER_FAILED_CALL_LIMIT = 25;
+
+    stable var id          = 0;
+    stable var payloadSize = 0;
+    stable var nftEntries : [(
+        Text, // Token Identifier.
+        (
+            ?Principal, // Owner of the token.
+            [Principal] // Authorized principals.
+        ),
+        Token.Token, // NFT data.
+    )] = [];
+    let nfts = Token.NFTs(
+        id, 
+        payloadSize, 
+        nftEntries,
+    );
+
+    stable var staticAssetsEntries : [(
+        Text,        // Asset Identifier (path).
+        Static.Asset // Asset data.
+    )] = [];
+    let staticAssets = Static.Assets(staticAssetsEntries);
+    
+     // Returns the tokens of the given principal.
+    public query func balanceOf(p : Principal) : async [Text] {
+        nfts.tokensOf(p);
+    };
+
+    // Returns the owner of the NFT with given identifier.
+    public query func ownerOf(id : Text) : async Result.Result<Principal, Types.Error> {
+        nfts.ownerOf(id);
+    };
+
+    // Transfers one of your own NFTs to another principal.
+    //TODO : Change parameters
+    public shared ({caller}) func transfer(to : Principal, id : Text) : async Result.Result<Nat64, Types.Error> {
+        let owner = switch (_canChange(caller, id)) {
+            case (#err(e)) { return #err(e); };
+            case (#ok(v))  { v; };
+        };
+        let res = await nfts.transfer(to, id);
+        let event : IndefiniteEvent = {
+            operation = "transfer";
+            details = [("item", #Text(id)),("from", #Principal(caller)),("to", #Principal(to))];
+            caller = caller;
+        };
+        switch(await cap.insert(event)){
+            case(#err(e)) return #err(e);
+            case(#ok(id)) return #ok(id);
+        };
+    };
+
+    private func _canChange(caller : Principal, id : Text) : Result.Result<Principal, Types.Error> {
+        let owner = switch (nfts.ownerOf(id)) {
+            case (#err(e)) {
+                if (not _isAdmin(caller)) return #err(e);
+                Principal.fromActor(this);
+            };
+            case (#ok(v))  {
+                // The owner not is the caller.
+                if (not _isAdmin(caller) and v != caller) {
+                    // Check whether the caller is authorized.
+                    if (not nfts.isAuthorized(caller, id)) return #err(#Unauthorized);
+                };
+                v;
+            };
+        };
+        #ok(owner);
+    };
+
+     stable var circulationEntries : [(Text,Text)] = [];
+    let circulation : HashMap.HashMap<Text,Text> = HashMap.fromIter(circulationEntries.vals(),0,Text.equal,Text.hash);
+
+
+    // This hashmap store for each accessory the associated blueprint used when creating a new accessory from materials. 
+    type Blueprint = Accessory.Blueprint;
+    stable var blueprintsEntries : [(Text,Blueprint)] = [];
+    let blueprints : HashMap.HashMap<Text,Blueprint> = HashMap.fromIter(blueprintsEntries.vals(),0,Text.equal,Text.hash);
+
+
+    private func _idToName (id : Text) : Text {
+        switch(circulation.get(id)) {
+            case (null) return ("Null");
+            case (?name) return (name);
+        };
+    };
+
+    // Returns optional first id value for which name matchs
+    private func nameToId (name : Text) : ?Text {
+        for ((k,v) in circulation.entries()) {
+            if (v == name) {
+                return ?k;
+            };
+        };
+        return null;
+    };
+
+    // Returns optional first id value for which name matchs and belongs to user 
+    private func _nameToId (name : Text, from : Principal) : ?Text {
+        let tokens  : [Text] = nfts.tokensOf(from);
+        for (token in tokens.vals()) {
+            if(_idToName(token) == name) {
+                return ?token;
+            }
+        };
+        return null;
+    };
+
+    // To query the number of material in circulation, only active units. 
+    public query func howMany(name : Text) : async Nat {
+        var count = 0;
+        for(vals in circulation.vals()) {
+            if(vals == name) {
+                count += 1
+            };
+        };
+        return count;
+    };
+
+    public query func getMaterials (p : Principal) : async [Text] {
+        let tokens_id_user : [Text] = nfts.tokensOf(p);
+        let materials : [Text] = Array.map<Text,Text>(tokens_id_user,_idToName);
+        return materials;
+    };
+
+    
+    private func _mint (name : Text, recipient : Principal) : Result.Result<Text, Types.Error> {
+        switch (staticAssets.getToken(name)) {
+            case (#err(v)) return #err (#AssetNotFound);
+            case (#ok(v)) {
+                if (v.payload.size() > 1) {
+                    return #err(#AssetTooHeavy);
+                };
+                let egg : Token.Egg = {
+                    payload = #Payload(v.payload[0]);
+                    contentType = v.contentType;
+                    owner = ?recipient;
+                    properties = [];
+                    isPrivate = false;
+                };
+                switch(nfts.mintSynchro(Principal.fromActor(this), egg)) {
+                    case (#err(e)) { #err((#ErrorMinting)); };
+                    case (#ok(id, owner)) {
+                        circulation.put(id, name);
+                        #ok(name # " has been created with id : " #id);
+                    };
+                };
+            };
+        };
+    };
+
+       // Airdrop 
+    public type AirdropObject = {
+        recipient: Principal;
+        material : Text;
+        accessory1 : ?Text;
+        accessory2 : ?Text;
+    };
+
+    public shared(msg) func airdrop (airdrop : AirdropObject) : async Result.Result<(), Text> {
+        assert(msg.caller == Principal.fromText("p4y2d-yyaaa-aaaaj-qaixa-cai")); // Only the hub canister can authorize an airdrop.
+        let token_list : [Text] = nfts.tokensOf(airdrop.recipient);
+        if (token_list.size() > 0) {
+            return #err ("Already airdropped");
+        };
+        switch(_mint(airdrop.material, airdrop.recipient)){
+            case(#err(message)) return #err("Unknown error");
+            case(#ok(v)){
+                switch(airdrop.accessory1){
+                    case(null) return #ok;
+                    case(?accessory1){
+                        switch(_mint(accessory1, airdrop.recipient)){
+                            case(#err(message)) return #err("Unknown error");
+                            case(#ok(v)){
+                                switch(airdrop.accessory2){
+                                    case(null) return #ok;
+                                    case(?accessory2){
+                                        switch(_mint(accessory2, airdrop.recipient)){
+                                            case(#err(message)) return #err("Unknown error");
+                                            case(#ok(v)){
+                                                return #ok;
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            }; 
+        };
+    };
+
+    public shared({caller}) func airdrop_new(airdrop : AirdropObject) : async Result.Result<(), Text >{
+        assert(msg.caller == Principal.fromText("p4y2d-yyaaa-aaaaj-qaixa-cai")); // Hub canister
+        switch(_ownerships.get(AID.fromPrincipal(caller, null))){
+            case(?list) return  #err ("Already airdropped");
+            case(null) {};
+        };
+        switch(_mint_new(airdrop.material, AID.fromPrincipal(airdrop.recipient, null))){
+            case(#ok(v)) {};
+            case(#err(message)) return #err(message);
+        };
+        switch(airdrop.accessory1){
+            case(null) return #ok;
+            case(?accessory1){
+                switch(_mint_new(accessory1, AID.fromPrincipal(airdrop.recipient, null))){
+                    case(#err(message)) return #err(message);
+                    case(#ok(v)){};
+                };
+            };
+        };
+        switch(airdrop.accessory2){
+            case(null) return #ok;
+            case(?accessory2){
+                switch(_mint_new(accessory2, AID.fromPrincipal(airdrop.recipient, null))){
+                    case(#err(message)) return #err(message);
+                    case(#ok(v)){};
+                };
+            };
+        };
+        return #ok;
+    };
+
+
+    public type Inventory = Inventory.Inventory; 
+
+    public shared query (msg) func getInventory () : async Inventory {
+        let principal = msg.caller;
+        let token_list : [Text] = nfts.tokensOf(principal);
+        if (token_list.size() == 0){
+            return [];
+        };
+        let asset_name : [Text] = Array.map<Text,Text>(token_list, _idToName);
+        switch(Inventory.buildInventory(token_list, asset_name)){
+            case (#err(message)) return [];
+            case (#ok(inventory)) return inventory;
+        };
+    };
+
+    public shared query func getHisInventory (principal : Principal) : async Inventory {
+        let token_list : [Text] = nfts.tokensOf(principal);
+        if (token_list.size() == 0){
+            return [];
+        };
+        let asset_name : [Text] = Array.map<Text,Text>(token_list, _idToName);
+        switch(Inventory.buildInventory(token_list, asset_name)){
+            case (#err(message)) return [];
+            case (#ok(inventory)) return inventory;
+        };
+    };
+
+
+      // Wear Accesory
+
+    let nftActor = actor("jmuqr-yqaaa-aaaaj-qaicq-cai") : actor {
+        wearAccessory : shared (Text, Text, Principal) -> async Result.Result<(),Text>;
+    };
+    
+    // TODO : Find a way to "freeze" accessories (so they cannot be sold or wear again during the wait cause this function is not atomic...)
+    public shared(msg) func wearAccessory (token_accessory : Text, token_avatar : Text) : async Result.Result<(),Text> {
+        let principal = msg.caller;
+        //  Check if this token is owned by msg.caller
+        let listId : [Text] = nfts.tokensOf(principal);
+        if(not (ArrayHelper.contains<Text>(listId, token_accessory, Text.equal))) {
+            return #err ("You don't own this accessory : " #token_accessory);
+        };
+
+        //  Get the name associated for this token id
+        let accessory_name : Text = _idToName(token_accessory);
+        if (accessory_name == "Null") {
+            return #err ("This token " #token_accessory # " is not an accessory nor a material.");
+        };
+        
+        switch(await nftActor.wearAccessory(token_avatar, accessory_name , principal)){
+            case(#ok) {
+                switch(_removeAccessory(token_accessory, principal)){
+                    case(#err(message)) return #err ("Accessory was successfully wear but can't destroy it.");
+                    case (#ok) return #ok;
+                };
+            };
+            case(#err(message)){
+                return #err(message);
+            };
+        };
+    };
+
+    public shared({caller}) func equipAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text) : async Result.Result<(), Text> {
+        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);
+        switch(_registry.get(token_index)){
+            case(null) return #err("This token identifier doesn't exist!");
+            case(?owner){
+                if(AID.fromPrincipal(caller, null) != owner){
+                    return #err("Unauthorized");
+                };
+            };
+        };
+        switch(_items.get(token_index)){
+            case(#Accessory(item)){
+                let wear_value = item.wear;
+                if(wear_value == 1){
+                    return #err("Cannot equip this accessory; wear value is too low.")
+                };
+                switch(await nftActor.wearAccessory(token_accessory, caller)){
+                    case(#err(message)) return #err(message);
+                    case(#ok){
+                        let item = #Accessory({name = item.name; wear = (item.wear - 1); equipped = ?token_identifier_avatar;});
+                        _items.put(token_index, item);
+                        return #ok;
+                    };
+                };
+            };
+            case(_) return #err("Not an accessory.");
+        }:
+    };
+
+    private func _removeAccessory (token : Text, from : Principal) : Result.Result<(),Text> {
+        switch(nfts.burn(token)) {
+            case (#err(e)) {return(#err(e))};
+            case (#ok) {};
+        };
+        return #ok;
+    };
+
+
+
+
+    
 
 
 
