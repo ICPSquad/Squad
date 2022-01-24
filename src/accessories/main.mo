@@ -779,7 +779,7 @@ shared({ caller = hub }) actor class Hub() = this {
                 if(wear_value == 1){
                     return #err("Cannot equip this accessory; wear value is too low.")
                 };
-                switch(await nftActor.wearAccessory(token_identifier_accessory, item.name, caller)){
+                switch(await nftActor.wearAccessory(token_identifier_avatar, item.name, caller)){
                     case(#err(message)) return #err(message);
                     case(#ok){
                         //Decrease the wear value by one! 
@@ -810,7 +810,7 @@ shared({ caller = hub }) actor class Hub() = this {
                     return #err("Cannot equip this accessory; wear value is too low.")
                 };
                 //TODO -> nftActor.removeAccessory 
-                switch(await nftActor.wearAccessory(token_identifier_accessory, item.name, caller)){
+                switch(await nftActor.wearAccessory(token_identifier_avatar, item.name, caller)){
                     case(#err(message)) return #err(message);
                     case(#ok){
                         //Decrease the wear value by one! 
@@ -897,22 +897,22 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
     let materials = ["Cloth", "Wood", "Glass", "Metal", "Circuit", "Dfinity-stone"];
-    public func circulationToItem () : async () {
-        for((id,name) in circulation.entries()){
-            let token_index = _textToNat32(id);
-            if(Option.isSome(Array.find<Text>(materials, func(x) {x == name}))){
-                let new_material : Item = #Material(name);
-                _items.put(token_index, new_material);
-            } else {
-                let new_accessory : Item = #Accessory({
-                    name = name;
-                    wear = 100;
-                    equipped = null;
-                });
-                _items.put(token_index, new_accessory);
-            };
-        };
-    };
+    // public func circulationToItem () : async () {
+    //     for((id,name) in circulation.entries()){
+    //         let token_index = _textToNat32(id);
+    //         if(Option.isSome(Array.find<Text>(materials, func(x) {x == name}))){
+    //             let new_material : Item = #Material(name);
+    //             _items.put(token_index, new_material);
+    //         } else {
+    //             let new_accessory : Item = #Accessory({
+    //                 name = name;
+    //                 wear = 100;
+    //                 equipped = null;
+    //             });
+    //             _items.put(token_index, new_accessory);
+    //         };
+    //     };
+    // };
 
     public query func sizes () : async (Nat,Nat) {
         return(_items.size(), circulation.size());
@@ -932,20 +932,20 @@ shared({ caller = hub }) actor class Hub() = this {
         isPrivate = false; 
     };
 
-    public func departureToExt () : async () {
-        let nftToOwner = nfts.getNftToOwner(); //Registry
-        let ownerToNft = nfts.getOwnerToNft(); //Owner to NFT
-        for((text, principal) in nftToOwner.entries()){
-            let token_index = _textToNat32(text);
-            let account_identifier = AID.fromPrincipal(principal, null);
-            _registry.put(token_index, account_identifier);
-        };
-        for ((principal, list) in ownerToNft.entries()){
-            let account_identifier = AID.fromPrincipal(principal, null);
-            let new_list = Array.map<Text,TokenIndex>(list, _textToNat32);
-            _ownerships.put(account_identifier, new_list);
-        };
-    };
+    // public func departureToExt () : async () {
+    //     let nftToOwner = nfts.getNftToOwner(); //Registry
+    //     let ownerToNft = nfts.getOwnerToNft(); //Owner to NFT
+    //     for((text, principal) in nftToOwner.entries()){
+    //         let token_index = _textToNat32(text);
+    //         let account_identifier = AID.fromPrincipal(principal, null);
+    //         _registry.put(token_index, account_identifier);
+    //     };
+    //     for ((principal, list) in ownerToNft.entries()){
+    //         let account_identifier = AID.fromPrincipal(principal, null);
+    //         let new_list = Array.map<Text,TokenIndex>(list, _textToNat32);
+    //         _ownerships.put(account_identifier, new_list);
+    //     };
+    // };
 
     //To get a TokenIndex from a Text 
     private func _textToNat32( txt : Text) : Nat32 {
@@ -1044,6 +1044,12 @@ shared({ caller = hub }) actor class Hub() = this {
     private stable var _supply : Balance  = 0;
     private stable var _minter : [Principal]  = [];
     private stable var _nextTokenId : TokenIndex  = 0;
+
+    public func updateToken () : async TokenIndex {
+        _nextTokenId := Nat32.fromNat(_registry.size());
+        _supply:= _registry.size();
+        return _nextTokenId;
+    };
 
     private stable var _registryEntries : [(TokenIndex, AccountIdentifier)] = [];
     private var _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.fromIter(_registryEntries.vals(), 0, ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
@@ -1458,6 +1464,18 @@ shared({ caller = hub }) actor class Hub() = this {
     //     };
     //     return #ok;
     // };
+     public type Asset = {
+        contentType : Text;
+        payload     : [Blob];
+    };
+
+    public query func showAssets () : async [Text] {
+        var array : [Text] = [];
+        for (asset in staticAssets.entries()){
+            array := Array.append<Text>(array, [asset.0]);
+        };
+        return array
+    };
 
 
 
