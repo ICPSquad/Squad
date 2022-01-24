@@ -1,5 +1,6 @@
 export const idlFactory = ({ IDL }) => {
-  const Property = IDL.Rec();
+  const TokenIndex = IDL.Nat32;
+  const Result_5 = IDL.Variant({ 'ok' : IDL.Nat64, 'err' : IDL.Text });
   const Recipe = IDL.Vec(IDL.Text);
   const Template = IDL.Variant({
     'Accessory' : IDL.Record({
@@ -10,7 +11,7 @@ export const idlFactory = ({ IDL }) => {
     'LegendaryAccessory' : IDL.Vec(IDL.Nat8),
     'Material' : IDL.Vec(IDL.Nat8),
   });
-  const Result_8 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
+  const Result_2 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
   const AirdropObject = IDL.Record({
     'recipient' : IDL.Principal,
     'accessory1' : IDL.Opt(IDL.Text),
@@ -18,30 +19,30 @@ export const idlFactory = ({ IDL }) => {
     'material' : IDL.Text,
   });
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
-  const TokenIdentifier__1 = IDL.Text;
-  const AccountIdentifier__1 = IDL.Text;
+  const TokenIdentifier = IDL.Text;
+  const AccountIdentifier = IDL.Text;
   const User = IDL.Variant({
     'principal' : IDL.Principal,
-    'address' : AccountIdentifier__1,
+    'address' : AccountIdentifier,
   });
   const BalanceRequest = IDL.Record({
-    'token' : TokenIdentifier__1,
+    'token' : TokenIdentifier,
     'user' : User,
   });
   const Balance = IDL.Nat;
   const CommonError = IDL.Variant({
-    'InvalidToken' : TokenIdentifier__1,
+    'InvalidToken' : TokenIdentifier,
     'Other' : IDL.Text,
   });
   const BalanceResponse = IDL.Variant({ 'ok' : Balance, 'err' : CommonError });
-  const TokenIdentifier = IDL.Text;
-  const AccountIdentifier = IDL.Text;
+  const TokenIdentifier__1 = IDL.Text;
+  const AccountIdentifier__1 = IDL.Text;
   const CommonError__1 = IDL.Variant({
-    'InvalidToken' : TokenIdentifier__1,
+    'InvalidToken' : TokenIdentifier,
     'Other' : IDL.Text,
   });
-  const Result_7 = IDL.Variant({
-    'ok' : AccountIdentifier,
+  const Result_4 = IDL.Variant({
+    'ok' : AccountIdentifier__1,
     'err' : CommonError__1,
   });
   const Extension = IDL.Text;
@@ -69,7 +70,6 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
     'symbol' : IDL.Text,
   });
-  const TokenIndex = IDL.Nat32;
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
   const Request = IDL.Record({
     'url' : IDL.Text,
@@ -112,7 +112,29 @@ export const idlFactory = ({ IDL }) => {
     }),
     'nonfungible' : IDL.Record({ 'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)) }),
   });
-  const Result_6 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError });
+  const Result_3 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError });
+  const Memo = IDL.Vec(IDL.Nat8);
+  const SubAccount = IDL.Vec(IDL.Nat8);
+  const TransferRequest = IDL.Record({
+    'to' : User,
+    'token' : TokenIdentifier,
+    'notify' : IDL.Bool,
+    'from' : User,
+    'memo' : Memo,
+    'subaccount' : IDL.Opt(SubAccount),
+    'amount' : Balance,
+  });
+  const TransferResponse = IDL.Variant({
+    'ok' : Balance,
+    'err' : IDL.Variant({
+      'CannotNotify' : AccountIdentifier,
+      'InsufficientBalance' : IDL.Null,
+      'InvalidToken' : TokenIdentifier,
+      'Rejected' : IDL.Null,
+      'Unauthorized' : AccountIdentifier,
+      'Other' : IDL.Text,
+    }),
+  });
   const Error = IDL.Variant({
     'AssetNotFound' : IDL.Null,
     'Immutable' : IDL.Null,
@@ -126,83 +148,44 @@ export const idlFactory = ({ IDL }) => {
     'AuthorizedPrincipalLimitReached' : IDL.Nat,
     'FailedToWrite' : IDL.Text,
   });
-  const Result_5 = IDL.Variant({ 'ok' : IDL.Text, 'err' : Error });
-  const Result_4 = IDL.Variant({ 'ok' : IDL.Principal, 'err' : Error });
-  const Value = IDL.Variant({
-    'Int' : IDL.Int,
-    'Nat' : IDL.Nat,
-    'Empty' : IDL.Null,
-    'Bool' : IDL.Bool,
-    'Text' : IDL.Text,
-    'Float' : IDL.Float64,
-    'Principal' : IDL.Principal,
-    'Class' : IDL.Vec(Property),
-  });
-  Property.fill(
-    IDL.Record({ 'value' : Value, 'name' : IDL.Text, 'immutable' : IDL.Bool })
-  );
-  const Properties = IDL.Vec(Property);
-  const Chunk = IDL.Record({
-    'data' : IDL.Vec(IDL.Nat8),
-    'totalPages' : IDL.Nat,
-    'nextPage' : IDL.Opt(IDL.Nat),
-  });
-  const PayloadResult = IDL.Variant({
-    'Complete' : IDL.Vec(IDL.Nat8),
-    'Chunk' : Chunk,
-  });
-  const PublicToken = IDL.Record({
-    'id' : IDL.Text,
-    'contentType' : IDL.Text,
-    'owner' : IDL.Principal,
-    'createdAt' : IDL.Int,
-    'properties' : Properties,
-    'payload' : PayloadResult,
-  });
-  const Result_3 = IDL.Variant({ 'ok' : PublicToken, 'err' : Error });
-  const Result_2 = IDL.Variant({ 'ok' : IDL.Nat64, 'err' : Error });
   const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
   const Hub = IDL.Service({
-    'addElements' : IDL.Func([IDL.Text, Template], [Result_8], []),
+    '_burn' : IDL.Func([TokenIndex], [Result_5], []),
+    'addElements' : IDL.Func([IDL.Text, Template], [Result_2], []),
     'airdrop' : IDL.Func([AirdropObject], [Result], []),
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
-    'balanceOf' : IDL.Func([IDL.Principal], [IDL.Vec(IDL.Text)], ['query']),
-    'bearer' : IDL.Func([TokenIdentifier], [Result_7], ['query']),
-    'circulationToItem' : IDL.Func([], [], []),
-    'departureToExt' : IDL.Func([], [], []),
+    'bearer' : IDL.Func([TokenIdentifier__1], [Result_4], ['query']),
+    'drawAccessory' : IDL.Func([TokenIdentifier__1], [], []),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
     'getContractInfo' : IDL.Func([], [ContractInfo], []),
     'getHisInventory' : IDL.Func([IDL.Principal], [Inventory], ['query']),
-    'getHisInventory_new' : IDL.Func([IDL.Principal], [Inventory], ['query']),
     'getInventory' : IDL.Func([], [Inventory], ['query']),
-    'getMaterials' : IDL.Func([IDL.Principal], [IDL.Vec(IDL.Text)], ['query']),
     'getMetadata' : IDL.Func([], [ContractMetadata], ['query']),
     'getMinter' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'getOwnership' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(AccountIdentifier, IDL.Vec(TokenIndex)))],
+        [IDL.Vec(IDL.Tuple(AccountIdentifier__1, IDL.Vec(TokenIndex)))],
         ['query'],
       ),
     'getRegistry' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier))],
+        [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier__1))],
         ['query'],
       ),
-    'getTotalMinted' : IDL.Func([], [IDL.Nat], ['query']),
-    'howMany' : IDL.Func([IDL.Text], [IDL.Nat], ['query']),
     'http_request' : IDL.Func([Request], [Response], ['query']),
     'init' : IDL.Func([IDL.Vec(IDL.Principal), ContractMetadata], [], []),
     'init_cap' : IDL.Func([], [Result], []),
-    'metadata' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
-    'mint' : IDL.Func([IDL.Text, IDL.Principal], [Result_5], []),
-    'ownerOf' : IDL.Func([IDL.Text], [Result_4], ['query']),
+    'metadata' : IDL.Func([TokenIdentifier__1], [Result_3], ['query']),
+    'mint' : IDL.Func([IDL.Text, AccountIdentifier__1], [Result_2], []),
+    'removeAccessory' : IDL.Func([IDL.Text, IDL.Text], [Result], []),
     'showAdmins' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
+    'showAssets' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'sizes' : IDL.Func([], [IDL.Nat, IDL.Nat], ['query']),
     'supply' : IDL.Func([], [IDL.Nat], ['query']),
-    'tokenByIndex' : IDL.Func([IDL.Text], [Result_3], []),
-    'transfer' : IDL.Func([IDL.Principal, IDL.Text], [Result_2], []),
+    'transfer' : IDL.Func([TransferRequest], [TransferResponse], []),
     'updateAccessories' : IDL.Func([], [], []),
     'updateAdmins' : IDL.Func([IDL.Principal, IDL.Bool], [Result_1], []),
+    'updateToken' : IDL.Func([], [TokenIndex], []),
     'wallet_available' : IDL.Func([], [IDL.Nat], ['query']),
     'wallet_receive' : IDL.Func([], [], []),
     'wearAccessory' : IDL.Func([IDL.Text, IDL.Text], [Result], []),
