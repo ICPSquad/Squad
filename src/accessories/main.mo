@@ -156,12 +156,6 @@ shared({ caller = hub }) actor class Hub() = this {
     private stable var _minter : [Principal]  = [];
     private stable var _nextTokenId : TokenIndex  = 0;
 
-    // public func updateToken () : async TokenIndex {
-    //     _nextTokenId := Nat32.fromNat(_registry.size());
-    //     _supply:= _registry.size();
-    //     return _nextTokenId;
-    // };
-
     private stable var _registryEntries : [(TokenIndex, AccountIdentifier)] = [];
     private var _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.fromIter(_registryEntries.vals(), 0, ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
 
@@ -229,6 +223,97 @@ shared({ caller = hub }) actor class Hub() = this {
             }
         }
     };
+
+    public query func getMinter() : async [Principal] {
+        _minter;
+    };
+
+    public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
+        Iter.toArray(_registry.entries());
+    };
+
+    public query func getOwnership() : async [(AccountIdentifier, [TokenIndex])] {
+        Iter.toArray(_ownerships.entries());
+    };
+    
+    public query func supply() : async Nat {
+        _supply;
+    };
+
+    public query func extensions() : async [Extension] {
+        EXTENSIONS;
+    };
+      
+    public query func metadata(token : TokenIdentifier): async Result.Result<ExtCommon.Metadata, ExtCore.CommonError> {
+        let token_index = ExtCore.TokenIdentifier.getIndex(token);
+        switch(_blobs.get(token_index)){
+            case(null) {
+                return #err(#InvalidToken(token));
+            };
+            case(?blob){
+                let a = #nonfungible({metadata  = ?blob});
+                return #ok(a);
+            };
+        };
+    };
+
+    //  public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
+    //     let tokens = _generateTokensExt(account);
+    //     if (tokens.size() == 0) {
+    //         return #err(#Other ("No token detected for this user."));
+    //     } else {
+    //         let answer = #ok(tokens);
+    //         return answer;
+    //     }
+    // };
+    
+    // private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?Listing, ?Blob)] {
+    //     var tokens = Buffer.Buffer<(TokenIndex, ?Listing, ?Blob)>(0);
+    //     for ((index,account) in _registry.entries()){
+    //         if(a == account) {
+    //             let new_element = (index, null, null);
+    //             tokens.add(new_element);
+    //         };
+    //     };
+    //     let array = tokens.toArray();
+    //     return array;
+    // };
+
+    public query func balance(request : BalanceRequest) : async BalanceResponse {
+            if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
+                return #err(#InvalidToken(request.token));
+            };
+            let token = ExtCore.TokenIdentifier.getIndex(request.token);
+            let aid = ExtCore.User.toAID(request.user);
+            switch (_registry.get(token)) {
+            case (?token_owner) {
+                        if (AID.equal(aid, token_owner) == true) {
+                            return #ok(1);
+                        } else {					
+                            return #ok(0);
+                        };
+            };
+            case (_) {
+                return #err(#InvalidToken(request.token));
+            };
+        };
+    };
+    
+    public query func bearer(token : TokenIdentifier) : async Result.Result<AccountIdentifier, CommonError> {
+        if (ExtCore.TokenIdentifier.isPrincipal(token, Principal.fromActor(this)) == false) {
+            return #err(#InvalidToken(token));
+        };
+        let tokenind = ExtCore.TokenIdentifier.getIndex(token);
+        switch (_registry.get(tokenind)) {
+            case (?token_owner) {
+                        return #ok(token_owner);
+            };
+            case (_) {
+                return #err(#InvalidToken(token));
+            };
+        };
+    };
+
 
     //////////////////
     // NFT-helpers //
@@ -300,7 +385,6 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
 
-
     //////////
     // HTTP //
     //////////
@@ -335,9 +419,9 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
 
-    ///////////////////////////////
-    /// Materials & Accessories //
-    /////////////////////////////
+    /////////////////
+    /// INVENTORY //
+    ///////////////
    
     public type Inventory = Inventory.Inventory;
     public type AssetInventory = Inventory.AssetInventory;
@@ -351,17 +435,6 @@ shared({ caller = hub }) actor class Hub() = this {
             };
         };
     };
-
-    // public shared query ({caller}) func getHisInventory (p : Principal) : async Inventory {
-    //     assert(_isAdmin(caller));
-    //     let account_identifier = AID.fromPrincipal(p, null);
-    //     switch(_ownerships.get(account_identifier)){
-    //         case(null) return [];
-    //         case(?list) {
-    //             Array.mapFilter<TokenIndex, AssetInventory>(list, _indexToAssetInventory);
-    //         };
-    //     };
-    // };
 
     private func _indexToAssetInventory(token_index : TokenIndex) : ?AssetInventory {
         switch(_items.get(token_index)){
@@ -687,34 +760,95 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
 
-    /////////////////////////////////////
-    // ITEMS : Materials & Acessories //
-    ///////////////////////////////////
+    //////////////////////////////////////
+    // ITEMS : MATERIALS & ACCESSORIES //
+    ////////////////////////////////////
 
     let nftActor = actor("jmuqr-yqaaa-aaaaj-qaicq-cai") : actor {
         wearAccessory : shared (Text, Text, Principal) -> async Result.Result<(),Text>;
     };
+    let materials = ["Cloth", "Wood", "Glass", "Metal", "Circuit", "Dfinity-stone"];
 
-    public type Item = {
-        #Material : Text; 
-        #Accessory : Accessory; 
-        #LegendaryAccessory : LegendaryAccessory;
+    public type Item = Accessory.Item;
+    public type Accessory = Accessory.Accessory;
+    public type LegendaryAccessory = Accessory.LegendaryAccessory;
+    public type Recipe = Accessory.Recipe;
+    public type Template = Accessory.Template;
+
+
+    //  Contains informations needed to create items. 
+    //  Material and legendary are stored as Blob (less memory consumption)
+    //  Template for accssories are stored as Text to modify the wear value programatically, they also integrate a recipe.
+    private stable var _templateEntries : [(Text, Template)] = [];
+    private var _templates : HashMap.HashMap<Text, Template> = HashMap.fromIter(_templateEntries.vals(),_templateEntries.size(), Text.equal, Text.hash);
+
+    //  Allow us to add a template  for items (materials/accessories/legendary) & recipe for accessory.
+    //  Items and legendary just need the name and a Blob.
+    //  Accessories are treated differently as they need to be dynamically updated for the wear-out-mechanism and integrate a recipe.
+    //  @auth : owner
+    public shared ({caller}) func addElements (name : Text, content : Template) : async Result.Result<Text, Text> {
+        assert(_isAdmin(caller));
+        switch(_templates.get(name)){
+            case(?template) return #err("A template already exists for : " #name);
+            case(null) {
+                switch(content){
+                    case(#Accessory(infos)) {
+                        if(not(_verifyRecipe(infos.recipe))){
+                            return #err("Recipe is not correct");
+                        } else {
+                            _templates.put(name, content);
+                            return #ok(name # " has been added");
+                        };
+                    };
+                    case(_) {
+                        _templates.put(name, content);
+                        return #ok(name # " has been added");
+                    };
+                };
+            };
+        };
     };
 
-    public type Accessory = {
-        name : Text;
-        wear : Nat8;
-        equipped : ?TokenIdentifier; //Token_identifier of the avatar they are equipped on. 
+    // Check if all the ingredients of the recipe do exists in store as materials
+    private func _verifyRecipe (recipe : Recipe) : Bool {
+        for(ingredient in recipe.vals()){
+            switch(_templates.get(ingredient)){
+                case(null) return false;
+                case(?item){
+                    switch(item){
+                        case(#Material(_)){};
+                        case(_) return false;
+                    };
+                };
+            };
+        };
+        return true
     };
 
-    public type LegendaryAccessory = {
-        name : Text;
-        date_creation : Int;
-    };
-
+    //  Make the link between TokenIndex and the actual Item it represents.
     private stable var _itemsEntries : [(TokenIndex, Item)] = [];
     private var _items : HashMap.HashMap<TokenIndex, Item> = HashMap.fromIter(_itemsEntries.vals(), _itemsEntries.size(), ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
 
+    //   Accessories stored as Blob after being drawn.
+    private stable var _blobsEntries : [(TokenIndex,Blob) ]= [];
+    private var _blobs : HashMap.HashMap<TokenIndex,Blob> = HashMap.fromIter(_blobsEntries.vals(), _blobsEntries.size(), ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
+
+    //  Draw the accessory corresponding to the TokenIndex with an updated wear_value and updates the corresponding blob.
+    private func _drawAccessory (token_index : TokenIndex) : () {
+        switch(_items.get(token_index)){
+            case(?#Accessory(item)){
+                switch(_templates.get(item.name)){
+                        case(?#Accessory(template)){
+                            let concatenated_svg = template.before_wear # "<text x=\"190.763px\" y=\"439.84px\" style=\"font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white\">" # Nat.toText(Nat8.toNat(item.wear)) # "</text>" # template.after_wear;
+                            let blob = Text.encodeUtf8(concatenated_svg);
+                            _blobs.put(token_index, blob);
+                        };
+                        case(_) assert(false);
+                    };
+            };
+            case(_){assert(false)};
+        };
+    };
 
     public shared ({caller}) func updateAccessories() : async () {
         assert((caller == Principal.fromActor(this)));
@@ -736,29 +870,6 @@ shared({ caller = hub }) actor class Hub() = this {
             };
         };
     };
-
-    // public shared ({caller}) func updateAccessory(token_identifier : Text) : async Result.Result<(), Text> {
-    //     let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
-    //     switch(_items.get(token_index)){
-    //         case(?#Accessory(accessory)){
-    //             let new_wear_value : Nat8 = accessory.wear - 1; 
-    //             if(new_wear_value == 0) {
-    //                 switch(await _burn(token_index)){
-    //                     case(#err(message)){
-    //                         return #err("Error when burning the accessory");
-    //                     };
-    //                     case(#ok(id)){};
-    //                 }
-    //             } else  {
-    //                 let new_item = #Accessory{name = accessory.name; wear = new_wear_value; equipped = accessory.equipped;};
-    //                 _items.put(token_index, new_item);
-    //                 _drawAccessory(token_index);
-    //                 };
-    //         };
-    //         case(_) return #err("This item is not an accessory.");
-    //     };
-    //     return #ok;
-    // };
 
     public shared({caller}) func wearAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text) : async Result.Result<(), Text> {
         let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);
@@ -897,224 +1008,6 @@ shared({ caller = hub }) actor class Hub() = this {
             };
         };
         return #ok;
-    };
-
-    private func _drawAccessory (token_index : TokenIndex) : () {
-        switch(_items.get(token_index)){
-            case(?#Accessory(item)){
-                switch(_templates.get(item.name)){
-                        case(?#Accessory(template)){
-                            let concatenated_svg = template.before_wear # "<text x=\"190.763px\" y=\"439.84px\" style=\"font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white\">" # Nat.toText(Nat8.toNat(item.wear)) # "</text>" # template.after_wear;
-                            let blob = Text.encodeUtf8(concatenated_svg);
-                            _blobs.put(token_index, blob);
-                        };
-                        case(_) assert(false);
-                    };
-            };
-            case(_){assert(false)};
-        };
-    };
-
-    public func drawAccessory (token_identifier : TokenIdentifier) : async () {
-        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
-        switch(_items.get(token_index)){
-            case(?#Accessory(item)){
-                switch(_templates.get(item.name)){
-                        case(?#Accessory(template)){
-                            let concatenated_svg = template.before_wear # "<text x=\"190.763px\" y=\"439.84px\" style=\"font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white\">" # Nat.toText(Nat8.toNat(item.wear)) # "</text>" # template.after_wear;
-                            let blob = Text.encodeUtf8(concatenated_svg);
-                            _blobs.put(token_index, blob);
-                        };
-                        case(_) assert(false);
-                    };
-            };
-            case(_){assert(false)};
-        };
-    };
-
-    let materials = ["Cloth", "Wood", "Glass", "Metal", "Circuit", "Dfinity-stone"];
-
-
-    public query func sizes () : async (Nat,Nat) {
-        return(_items.size(), circulation.size());
-    };
-
-
-
-    //To get a TokenIndex from a Text 
-    private func _textToNat32( txt : Text) : Nat32 {
-        assert(txt.size() > 0);
-        let chars = txt.chars();
-
-        var num : Nat32 = 0;
-        for (v in chars){
-            let charToNum = (Char.toNat32(v)-48);
-            assert(charToNum >= 0 and charToNum <= 9);
-            num := num * 10 +  charToNum;          
-        };
-        num;
-    };
-    // Contains all informations needed to create items 
-    // Material and legendary are stored as Blob (less memory consumption)
-    // Template for accssories are stored as Text to modify the wear value programatically, they also integrate a recipe.
-    public type Recipe = [Text];
-    public type Template = {
-        #Material : Blob; 
-        #Accessory : {before_wear : Text; after_wear : Text; recipe : Recipe};
-        #LegendaryAccessory : Blob;
-    };
-    private stable var _templateEntries : [(Text, Template)] = [];
-    private var _templates : HashMap.HashMap<Text, Template> = HashMap.fromIter(_templateEntries.vals(),_templateEntries.size(), Text.equal, Text.hash);
-
-    
-    //Allow us to add a template  for items (materials/accessories/legendary) & recipe for accessory
-    // Items and legendary just need the name and a Blob
-    // Accessories are treated differently as they need to be dynamically updated for the wear-out-mechanism and integrate a recipe.
-    //@auth : owner
-    public shared ({caller}) func addElements (name : Text, content : Template) : async Result.Result<Text, Text> {
-        assert(_isAdmin(caller));
-        switch(_templates.get(name)){
-            case(?template) return #err("A template already exists for : " #name);
-            case(null) {
-                switch(content){
-                    case(#Accessory(infos)) {
-                        if(not(_verifyRecipe(infos.recipe))){
-                            return #err("Recipe is not correct");
-                        } else {
-                            _templates.put(name, content);
-                            return #ok(name # " has been added");
-                        };
-                    };
-                    case(_) {
-                        _templates.put(name, content);
-                        return #ok(name # " has been added");
-                    };
-                };
-            };
-        };
-    };
-
-    // Check if all the ingredients of the recipe do exists in store as materials
-    private func _verifyRecipe (recipe : Recipe) : Bool {
-        for(ingredient in recipe.vals()){
-            switch(_templates.get(ingredient)){
-                case(null) return false;
-                case(?item){
-                    switch(item){
-                        case(#Material(_)){};
-                        case(_) return false;
-                    };
-                };
-            };
-        };
-        return true
-    };
-    
-
-    //For accessories 
-    private stable var _blobsEntries : [(TokenIndex,Blob) ]= [];
-    private var _blobs : HashMap.HashMap<TokenIndex,Blob> = HashMap.fromIter(_blobsEntries.vals(), _blobsEntries.size(), ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
-
-  
-
-    ///////////////////
-    // EXT - ERC721 //
-    /////////////////
-
-
-
-    ////////////////
-    // Ext-query //
-    //////////////
-
-    public query func getMinter() : async [Principal] {
-        _minter;
-    };
-
-    public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
-        Iter.toArray(_registry.entries());
-    };
-
-    public query func getOwnership() : async [(AccountIdentifier, [TokenIndex])] {
-        Iter.toArray(_ownerships.entries());
-    };
-    
-    public query func supply() : async Nat {
-        _supply;
-    };
-
-    public query func extensions() : async [Extension] {
-        EXTENSIONS;
-    };
-      
-    public query func metadata(token : TokenIdentifier): async Result.Result<ExtCommon.Metadata, ExtCore.CommonError> {
-        let token_index = ExtCore.TokenIdentifier.getIndex(token);
-        switch(_blobs.get(token_index)){
-            case(null) {
-                return #err(#InvalidToken(token));
-            };
-            case(?blob){
-                let a = #nonfungible({metadata  = ?blob});
-                return #ok(a);
-            };
-        };
-    };
-
-    //  public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
-    //     let tokens = _generateTokensExt(account);
-    //     if (tokens.size() == 0) {
-    //         return #err(#Other ("No token detected for this user."));
-    //     } else {
-    //         let answer = #ok(tokens);
-    //         return answer;
-    //     }
-    // };
-    
-    // private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?Listing, ?Blob)] {
-    //     var tokens = Buffer.Buffer<(TokenIndex, ?Listing, ?Blob)>(0);
-    //     for ((index,account) in _registry.entries()){
-    //         if(a == account) {
-    //             let new_element = (index, null, null);
-    //             tokens.add(new_element);
-    //         };
-    //     };
-    //     let array = tokens.toArray();
-    //     return array;
-    // };
-
-    public query func balance(request : BalanceRequest) : async BalanceResponse {
-            if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
-                return #err(#InvalidToken(request.token));
-            };
-            let token = ExtCore.TokenIdentifier.getIndex(request.token);
-            let aid = ExtCore.User.toAID(request.user);
-            switch (_registry.get(token)) {
-            case (?token_owner) {
-                        if (AID.equal(aid, token_owner) == true) {
-                            return #ok(1);
-                        } else {					
-                            return #ok(0);
-                        };
-            };
-            case (_) {
-                return #err(#InvalidToken(request.token));
-            };
-        };
-    };
-    
-    public query func bearer(token : TokenIdentifier) : async Result.Result<AccountIdentifier, CommonError> {
-        if (ExtCore.TokenIdentifier.isPrincipal(token, Principal.fromActor(this)) == false) {
-            return #err(#InvalidToken(token));
-        };
-        let tokenind = ExtCore.TokenIdentifier.getIndex(token);
-        switch (_registry.get(tokenind)) {
-            case (?token_owner) {
-                        return #ok(token_owner);
-            };
-            case (_) {
-                return #err(#InvalidToken(token));
-            };
-        };
     };
 
 
