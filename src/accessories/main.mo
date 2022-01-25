@@ -212,7 +212,7 @@ shared({ caller = hub }) actor class Hub() = this {
             case(#ok(msg)){
                 let event : IndefiniteEvent = {
                     operation = "mint";
-                    details = [("item", #Text(name)),("from", #Principal(caller)),("to", #Text(recipient))];
+                    details = [("name", #Text(name)),("to", #Text(recipient))];
                     caller = caller;
                 };
                 switch(await cap.insert(event)){
@@ -349,7 +349,7 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    private func _mint (item : Text, recipient : AccountIdentifier) : Result.Result<Text, Text> {
+    private func _mint(item : Text, recipient : AccountIdentifier) : Result.Result<TokenIdentifier,Text> {
         switch(_templates.get(item)){
             case(?#Material(blob)){
                 _registry.put(_nextTokenId, recipient);
@@ -371,7 +371,8 @@ shared({ caller = hub }) actor class Hub() = this {
         };
         _supply += 1;
         _nextTokenId += 1;
-        return #ok(item # " has been created");
+        let token_identifier = _getTokenIdentifier(_nextTokenId - 1);
+        return #ok(token_identifier);
     };
 
     private func _addOwnership (token_id : TokenIndex, owner : AccountIdentifier) : () {
@@ -934,8 +935,7 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    public shared ({caller}) func _burn (token_index : TokenIndex ) : async Result.Result<Nat64,Text> {
-        assert(_isAdmin(caller));
+    private func _burn (token_index : TokenIndex ) :  Result.Result<(),Text> {
         let token_identifier = _getTokenIdentifier(token_index);
         var name : Text = "";
         let item : ?Item = _items.get(token_index);
@@ -945,28 +945,18 @@ shared({ caller = hub }) actor class Hub() = this {
             case(?#Accessory(item)){ name := item.name};
             case(_){assert(false)};
         };
-        let event : IndefiniteEvent = {
-            operation = "burn";
-            details = [("item", #Text(token_identifier)),("from", #Text(Option.get(owner, "unknown")))];
-            caller = caller;
-        };
-        switch(await cap.insert(event)) {
-            case(#err(e))return #err("Error when reporting event to CAP");
-            case(#ok(id)){
-                switch(owner) {
-                    case(null)(#err("No owner found for this token"));
-                    case(?owner) {
-                        switch(_ownerships.get(owner)){
-                            case(null)(#err("No list of NFTs found for this owner"));
-                            case(?list){
-                                let list_filtered = Array.filter<TokenIndex>(list, func(x) {x != token_index});
-                                _ownerships.put(owner, list_filtered);
-                                _blobs.delete(token_index);
-                                _registry.delete(token_index);
-                                _items.delete(token_index);
-                                return #ok(id);
-                            };
-                        };
+        switch(owner) {
+            case(null)(#err("No owner found for this token"));
+            case(?owner) {
+                switch(_ownerships.get(owner)){
+                    case(null)(#err("No list of NFTs found for this owner"));
+                    case(?list){
+                        let list_filtered = Array.filter<TokenIndex>(list, func(x) {x != token_index});
+                        _ownerships.put(owner, list_filtered);
+                        _blobs.delete(token_index);
+                        _registry.delete(token_index);
+                        _items.delete(token_index);
+                        return #ok();
                     };
                 };
             };
@@ -1139,6 +1129,7 @@ shared({ caller = hub }) actor class Hub() = this {
         //  Check ownership of materials
         let materials_tindex = Array.map<TokenIdentifier, TokenIndex>(materials, ExtCore.TokenIdentifier.getIndex);
         for(token_index in materials_tindex.vals()){
+            //Check if one material is locked! 
             switch(_registry.get(token_index)){
                 case(null) return #err("This token doesn't exist." # _getTokenIdentifier(token_index));
                 case(?account){
@@ -1154,14 +1145,46 @@ shared({ caller = hub }) actor class Hub() = this {
                 if(not _verifyMaterials(materials, recipe)){
                     return #err("Materials doesn't fit the recipe.");
                 };
-                //PROCESS
-                //Burn materials
-
-                //Mint accessory
-                _mint(name, AID.fromPrincipal(caller,null));
-                //Report to CAP
-
-                //Report to CAP 
+                //  Burn materials
+                for (token_identifier in materials.vals()){
+                    let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+                    //  Check that the material is not close to being sold!
+                    if(_isLocked(token_index)){
+                        assert(false);
+                        return #err("Material with token identifier : " # token_identifier # "is locked.");
+                    };
+                    switch(_burn(token_index)){
+                        case(#err(e)) {assert(false); return #err(e)};
+                        case(#ok){};
+                    };
+                    let event : IndefiniteEvent = {
+                        operation = "burn";
+                        details = [("item", #Text(token_identifier)), ("from", #Text(AID.fromPrincipal(caller, null)))];
+                        caller = caller;
+                    };
+                    switch(await cap.insert(event)){
+                        case(#err(e)) return #err("Error when insering event in CAP for token with identifier : " # token_identifier);
+                        case(#ok(id)){};
+                    };
+                };
+                //  Mint accessory
+                var token_identifier_accessory : Text = "";
+                switch(_mint(name, AID.fromPrincipal(caller,null))){
+                    case(#err(e)) return #err(e);
+                    case(#ok(identifier)){
+                        token_identifier_accessory := identifier;
+                    };
+                };
+                let event : IndefiniteEvent = {
+                    operation = "mint";
+                    details = [("name", #Text(name)), ("to", #Text(AID.fromPrincipal(caller, null)))];
+                    caller = caller;
+                };
+                switch(await cap.insert(event)){
+                    case(#err(e)) return #err("Error when insering event in CAP for token with identifier : " # token_identifier_accessory);
+                    case(#ok(id)){};
+                };
+                return #ok(token_identifier_accessory);
             };
             case(_) return #err(name # "is not an accessory");
         };
