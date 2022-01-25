@@ -638,6 +638,7 @@ let this = actor {
 
     // A list of subaccounts that are supposed to have send their ICPs back to the main account : we regularly run check on their balance. 👮‍♀️
     private stable var subaccount_to_check  : [SubAccount] = [];
+    private stable var subaccounts_robber : [SubAccount] = [];
 
     //Check all subaccounts to see if their balance is non-null, returns the list of those were the balance is not null!
     //@auth : canister

@@ -1221,6 +1221,31 @@ shared({ caller = hub }) actor class Hub() = this {
     private stable var subaccount_to_check  : [SubAccount] = [];
     private stable var subaccounts_robber : [SubAccount] = [];
 
+    public shared ({caller}) func verification () : async () {
+        assert(caller == Principal.fromActor(this));
+        var robbers : [SubAccount] = [];
+        for (subaccount in subaccount_to_check.vals()){
+            let account_to_check = {account = _myAccountIdentifier(?subaccount)};
+            let balance = await actorLedger.account_balance(account_to_check);
+            let amount = balance.e8s;
+            if(amount > 0) {
+                subaccounts_robber := Array.append<SubAccount>(subaccounts_robber, [subaccount]);
+            };
+        };
+        subaccount_to_check := [];
+        return ();
+    };
+
+    public shared ({caller}) func process () : async () {
+        assert(caller == Principal.fromActor(this));
+        for (subaccount in subaccounts_robber.vals()){
+            await (_sendBackFrom(subaccount));
+        };
+        subaccounts_robber := [];
+    };
+
+
+
 
 
     
