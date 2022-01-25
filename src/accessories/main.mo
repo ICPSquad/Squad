@@ -1110,6 +1110,95 @@ shared({ caller = hub }) actor class Hub() = this {
         return (false);
     };
 
+    // This function is used internally everytime a new user join, to send back ICPs from the corresponding subaccount to the main account.
+    private func _sendBackFrom (subaccount : SubAccount) : async () { 
+        let result_transfer = await actorLedger.transfer({
+            memo = 666;
+            amount = {e8s =  9_999_000}; //Remove the transfer fee 
+            fee = {e8s = 10_000};
+            from_subaccount = ?subaccount;
+            to = _myAccountIdentifier(null);
+            created_at_time = ?{timestamp_nanos = Nat64.fromIntWrap(Time.now())};
+            });
+        return ();
+    };
+
+    type Option = Bool;
+    public shared ({caller}) func createAccessory (name : Text, materials : [TokenIdentifier], subaccount : [Nat8], option : ?Option) : async Result.Result<TokenIdentifier, Text> {
+        //  Check subaccount is valid (not among the firsts to prevent cheating
+        if(_isSubaccountIncorrect(subaccount)){
+            return #err("Subaccount incorrect.");
+        };
+        //  Check 0.1 ICP fee has been paid
+        if(not(await _checkPayment(subaccount,10_000_000))){
+            return #err("Fee has not been paid.");
+        };
+        //  Send back money to the main account and keep track of the subaccount
+        subaccount_to_check := Array.append<SubAccount>(subaccount_to_check, [subaccount]);
+        ignore(_sendBackFrom(subaccount));
+        //  Check ownership of materials
+        let materials_tindex = Array.map<TokenIdentifier, TokenIndex>(materials, ExtCore.TokenIdentifier.getIndex);
+        for(token_index in materials_tindex.vals()){
+            switch(_registry.get(token_index)){
+                case(null) return #err("This token doesn't exist." # _getTokenIdentifier(token_index));
+                case(?account){
+                    if(AID.fromPrincipal(caller, null) != account){
+                        return #err("Unauthorized : " # _getTokenIdentifier(token_index));
+                    } else {};
+                };
+            };
+        };
+        switch(_templates.get(name)){
+            case(?#Accessory(template)){
+                let recipe : Recipe = template.recipe;
+                if(not _verifyMaterials(materials, recipe)){
+                    return #err("Materials doesn't fit the recipe.");
+                };
+                //PROCESS
+                //Burn materials
+
+                //Mint accessory
+                _mint(name, AID.fromPrincipal(caller,null));
+                //Report to CAP
+
+                //Report to CAP 
+            };
+            case(_) return #err(name # "is not an accessory");
+        };
+    };
+
+    //  Check that the list of materials corresponds to the recipe 
+    private func _verifyMaterials(materials : [TokenIdentifier], recipe : Recipe) : Bool {
+        //Helper function to use in Map Filter to convert a TokenIdentifier to a optional Text.
+        let f = func (token_identifier : TokenIdentifier) : ?Text {
+            let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+            switch(_items.get(token_index)){
+                case(?#Material(name)) return (?name);
+                case(_) return null;
+            };
+        };
+
+        let ingredients = Array.mapFilter<TokenIdentifier,Text>(materials, f);
+        if(ingredients.size() != recipe.size()) {
+            return (false);
+        };
+        let ingredients_sorted = Array.sort<Text>(ingredients, Text.compare);
+        let recipe_sorted = Array.sort<Text>(recipe, Text.compare);
+        let result = Array.equal<Text>(ingredients_sorted, recipe_sorted, Text.equal);
+
+        return(result);
+    };
+
+
+    ///////////////////
+    // VERIFICATION //
+    /////////////////
+
+    // A list of subaccounts that are supposed to have send their ICPs back to the main account : we regularly run check on their balance. 👮‍♀️
+    private stable var subaccount_to_check  : [SubAccount] = [];
+    private stable var subaccounts_robber : [SubAccount] = [];
+
+
 
     
 
