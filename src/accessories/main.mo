@@ -31,6 +31,8 @@ import Result "mo:base/Result";
 import Root "mo:cap/Root";
 import Router "mo:cap/Router";
 import Staged "types/staged";
+import Ledger "../dependencies/Ledger/ledger";
+import LedgerCandid "../dependencies/Ledger/ledgerCandid";
 import Static "types/static";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
@@ -778,7 +780,7 @@ shared({ caller = hub }) actor class Hub() = this {
 
     //  Contains informations needed to create items. 
     //  Material and legendary are stored as Blob (less memory consumption)
-    //  Template for accssories are stored as Text to modify the wear value programatically, they also integrate a recipe.
+    //  Template for accessories are stored as Text to modify the wear value programatically, they also integrate a recipe.
     private stable var _templateEntries : [(Text, Template)] = [];
     private var _templates : HashMap.HashMap<Text, Template> = HashMap.fromIter(_templateEntries.vals(),_templateEntries.size(), Text.equal, Text.hash);
 
@@ -1060,6 +1062,57 @@ shared({ caller = hub }) actor class Hub() = this {
     private func _fromBlob(b : Blob) : Principal {
         return(PrincipalImproved.fromBlob(b));
     };
+
+
+    ////////////////
+    // PAIEMENTS //
+    //////////////
+
+    // This canister is used to convert the protobuff interface of the ledger canister to a candid interface which can be used with Motoko.
+    let actorCandidLedger : LedgerCandid.Interface = actor("uexzq-gqaaa-aaaaj-qabua-cai");
+    let actorLedger : Ledger.Interface = actor ("ryjl3-tyaaa-aaaaa-aaaba-cai");
+
+    // Generate AccountIdentifier as 32-byte array from corresponding subbacount of this canister.
+    // The first 4-bytes is a big-endian encoding of CRC32 checksum of the last 28-bytes. 
+    private func _myAccountIdentifier(subaccount : ?SubAccount) : [Nat8] {
+        return((AID.fromPrincipal_raw(Principal.fromActor(this), subaccount)));
+    };
+
+    // Balance of this canister subaccount0 using the ledger canister. 
+    public shared func balance_ledger() : async Ledger.ICP {
+        await actorLedger.account_balance({
+            account = _myAccountIdentifier(null);
+        });
+    };
+
+    // Transfer amount of ICP from this canister subaccount0 to the specified Principal (as text) subaccount0.
+    // @auth : admin
+    public shared ({caller}) func transfer_ledger(amount : Ledger.ICP, receiver : Principal) : async Ledger.TransferResult {
+        assert(_isAdmin(caller) or caller == Principal.fromActor(this));
+        let account_raw : [Nat8] = AID.fromPrincipal_raw(receiver, null);
+        await actorLedger.transfer({
+            memo = 1998;
+            amount = amount;
+            fee = { e8s = 10_000};
+            from_subaccount = null;
+            to = account_raw;
+            created_at_time = ?{timestamp_nanos = Nat64.fromIntWrap(Time.now())};
+        });
+    };
+
+    //This function check if subaccount has received the amount of ICPs as a proof of payment!
+    private func _checkPayment (subaccount : SubAccount, amount : Nat64) : async Bool {
+        let account_to_check = {account = _myAccountIdentifier(?subaccount)};
+        let balance = await actorLedger.account_balance(account_to_check);
+        if (balance.e8s == amount) {
+            return (true);
+        }; 
+        return (false);
+    };
+
+
+    
+
 
 
     //////////////////////////////////
