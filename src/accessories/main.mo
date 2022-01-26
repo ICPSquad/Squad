@@ -812,6 +812,20 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
+    //  Returns a list of all accessories associated with their recipe.
+    public query func showAccessories() : async [(Text,Recipe)] {
+        var array : [(Text, Recipe)] = [];
+        for(template in _templates.vals()){
+            switch(template){
+                case(#Accessory(template)){
+                    let svg_complete = template.before_wear # template.after_wear;
+                    array := Array.append<(Text,Recipe)>(array, [(svg_complete, template.recipe)]);
+                };
+                case(_){};
+            };
+        };
+        array;
+    };
     // Check if all the ingredients of the recipe do exists in store as materials
     private func _verifyRecipe (recipe : Recipe) : Bool {
         for(ingredient in recipe.vals()){
