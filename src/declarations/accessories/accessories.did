@@ -3,6 +3,11 @@ type User =
    address: AccountIdentifier;
    "principal": principal;
  };
+type TransferResult = 
+ variant {
+   Err: TransferError;
+   Ok: BlockIndex;
+ };
 type TransferResponse = 
  variant {
    err:
@@ -26,19 +31,39 @@ type TransferRequest =
    to: User;
    token: TokenIdentifier;
  };
+type TransferError = 
+ variant {
+   BadFee: record {expected_fee: ICP;};
+   InsufficientFunds: record {balance: ICP;};
+   TxCreatedInFuture;
+   TxDuplicate: record {duplicate_of: BlockIndex;};
+   TxTooOld: record {allowed_window_nanos: nat64;};
+ };
+type Transaction = 
+ record {
+   buyer: AccountIdentifier__1;
+   price: nat64;
+   seller: principal;
+   time: Time;
+   token: TokenIdentifier__1;
+ };
 type TokenIndex = nat32;
+type TokenIdentifier__2 = text;
 type TokenIdentifier__1 = text;
 type TokenIdentifier = text;
+type Time = int;
 type Template = 
  variant {
    Accessory: record {
                 after_wear: text;
                 before_wear: text;
-                recipe: Recipe;
+                recipe: Recipe__1;
               };
    LegendaryAccessory: blob;
    Material: blob;
  };
+type SubAccount__2 = vec nat8;
+type SubAccount__1 = vec nat8;
 type SubAccount = vec nat8;
 type StreamingStrategy = variant {
                            Callback:
@@ -59,25 +84,37 @@ type StreamingCallbackResponse =
  };
 type StreamingCallback = func (StreamingCallbackToken) ->
                           (StreamingCallbackResponse) query;
-type Result_5 = 
+type Settlement = 
+ record {
+   buyer: AccountIdentifier__1;
+   price: nat64;
+   seller: principal;
+   subaccount: SubAccount__2;
+ };
+type Result_6 = 
  variant {
    err: text;
-   ok: nat64;
+   ok: TokenIdentifier__2;
+ };
+type Result_5 = 
+ variant {
+   err: CommonError;
+   ok: AccountIdentifier__2;
  };
 type Result_4 = 
  variant {
    err: CommonError__1;
-   ok: AccountIdentifier__1;
+   ok: Metadata;
  };
 type Result_3 = 
  variant {
-   err: CommonError;
-   ok: Metadata;
+   err: text;
+   ok: text;
  };
 type Result_2 = 
  variant {
-   err: text;
-   ok: text;
+   err: CommonError;
+   ok;
  };
 type Result_1 = 
  variant {
@@ -103,7 +140,20 @@ type Request =
    method: text;
    url: text;
  };
+type Recipe__1 = vec text;
 type Recipe = vec text;
+type Option = bool;
+type Metadata__1 = 
+ variant {
+   fungible:
+    record {
+      decimals: nat8;
+      metadata: opt blob;
+      name: text;
+      symbol: text;
+    };
+   nonfungible: record {metadata: opt blob;};
+ };
 type Metadata = 
  variant {
    fungible:
@@ -116,44 +166,86 @@ type Metadata =
    nonfungible: record {metadata: opt blob;};
  };
 type Memo = blob;
+type Listing = 
+ record {
+   locked: opt Time;
+   price: nat64;
+   seller: principal;
+ };
+type ListRequest = 
+ record {
+   from_subaccount: opt SubAccount__2;
+   price: opt nat64;
+   token: TokenIdentifier__1;
+ };
 type Inventory = vec AssetInventory;
+type ICP = record {e8s: nat64;};
 type Hub = 
  service {
-   _burn: (TokenIndex) -> (Result_5);
-   addElements: (text, Template) -> (Result_2);
+   addElements: (text, Template) -> (Result_3);
    airdrop: (AirdropObject) -> (Result);
+   allPayments: () -> (vec record {
+                             principal;
+                             vec SubAccount__1;
+                           }) query;
+   allSettlements: () -> (vec record {
+                                TokenIndex;
+                                Settlement;
+                              }) query;
    balance: (BalanceRequest) -> (BalanceResponse) query;
-   bearer: (TokenIdentifier__1) -> (Result_4) query;
-   drawAccessory: (TokenIdentifier__1) -> ();
+   balance_ledger: () -> (ICP);
+   bearer: (TokenIdentifier__2) -> (Result_5) query;
+   clearPayments: (principal, vec SubAccount__1) -> ();
+   createAccessory: (text, vec TokenIdentifier__2, vec nat8, opt Option) ->
+    (Result_6);
    extensions: () -> (vec Extension) query;
    getContractInfo: () -> (ContractInfo);
-   getHisInventory: (principal) -> (Inventory) query;
    getInventory: () -> (Inventory) query;
    getMetadata: () -> (ContractMetadata) query;
    getMinter: () -> (vec principal) query;
    getOwnership: () ->
     (vec record {
-           AccountIdentifier__1;
+           AccountIdentifier__2;
            vec TokenIndex;
          }) query;
    getRegistry: () -> (vec record {
                              TokenIndex;
-                             AccountIdentifier__1;
+                             AccountIdentifier__2;
                            }) query;
    http_request: (Request) -> (Response) query;
    init: (vec principal, ContractMetadata) -> ();
    init_cap: () -> (Result);
-   metadata: (TokenIdentifier__1) -> (Result_3) query;
-   mint: (text, AccountIdentifier__1) -> (Result_2);
+   list: (ListRequest) -> (Result_2);
+   listings: () -> (vec record {
+                          TokenIndex;
+                          Listing;
+                          Metadata__1;
+                        }) query;
+   lock: (text, nat64, AccountIdentifier__2, SubAccount__1) -> (Result_5);
+   metadata: (TokenIdentifier__2) -> (Result_4) query;
+   mint: (text, AccountIdentifier__2) -> (Result_3);
+   payments: () -> (opt vec SubAccount__1) query;
+   process: () -> ();
    removeAccessory: (text, text) -> (Result);
+   settle: (text) -> (Result_2);
+   settlements: () ->
+    (vec record {
+           TokenIndex;
+           AccountIdentifier__2;
+           nat64;
+         }) query;
+   showAccessories: () -> (vec record {
+                                 text;
+                                 Recipe;
+                               }) query;
    showAdmins: () -> (vec principal) query;
-   showAssets: () -> (vec text) query;
-   sizes: () -> (nat, nat) query;
    supply: () -> (nat) query;
+   transactions: () -> (vec Transaction) query;
    transfer: (TransferRequest) -> (TransferResponse);
+   transfer_ledger: (ICP, principal) -> (TransferResult);
    updateAccessories: () -> ();
    updateAdmins: (principal, bool) -> (Result_1);
-   updateToken: () -> (TokenIndex);
+   verification: () -> ();
    wallet_available: () -> (nat) query;
    wallet_receive: () -> ();
    wearAccessory: (text, text) -> (Result);
@@ -203,9 +295,10 @@ type CommonError =
    InvalidToken: TokenIdentifier;
    Other: text;
  };
+type BlockIndex = nat64;
 type BalanceResponse = 
  variant {
-   err: CommonError;
+   err: CommonError__1;
    ok: Balance;
  };
 type BalanceRequest = 
@@ -233,6 +326,7 @@ type AirdropObject =
    material: text;
    recipient: principal;
  };
+type AccountIdentifier__2 = text;
 type AccountIdentifier__1 = text;
 type AccountIdentifier = text;
 service : () -> Hub

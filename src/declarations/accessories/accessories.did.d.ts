@@ -1,6 +1,7 @@
 import type { Principal } from '@dfinity/principal';
 export type AccountIdentifier = string;
 export type AccountIdentifier__1 = string;
+export type AccountIdentifier__2 = string;
 export interface AirdropObject {
   'recipient' : Principal,
   'accessory1' : [] | [string],
@@ -18,7 +19,8 @@ export type AssetInventoryType = { 'Accessory' : null } |
 export type Balance = bigint;
 export interface BalanceRequest { 'token' : TokenIdentifier, 'user' : User }
 export type BalanceResponse = { 'ok' : Balance } |
-  { 'err' : CommonError };
+  { 'err' : CommonError__1 };
+export type BlockIndex = bigint;
 export type CommonError = { 'InvalidToken' : TokenIdentifier } |
   { 'Other' : string };
 export type CommonError__1 = { 'InvalidToken' : TokenIdentifier } |
@@ -47,43 +49,78 @@ export type Error = { 'AssetNotFound' : null } |
 export type Extension = string;
 export type HeaderField = [string, string];
 export interface Hub {
-  '_burn' : (arg_0: TokenIndex) => Promise<Result_5>,
-  'addElements' : (arg_0: string, arg_1: Template) => Promise<Result_2>,
+  'addElements' : (arg_0: string, arg_1: Template) => Promise<Result_3>,
   'airdrop' : (arg_0: AirdropObject) => Promise<Result>,
+  'allPayments' : () => Promise<Array<[Principal, Array<SubAccount__1>]>>,
+  'allSettlements' : () => Promise<Array<[TokenIndex, Settlement]>>,
   'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
-  'bearer' : (arg_0: TokenIdentifier__1) => Promise<Result_4>,
-  'drawAccessory' : (arg_0: TokenIdentifier__1) => Promise<undefined>,
+  'balance_ledger' : () => Promise<ICP>,
+  'bearer' : (arg_0: TokenIdentifier__2) => Promise<Result_5>,
+  'clearPayments' : (arg_0: Principal, arg_1: Array<SubAccount__1>) => Promise<
+      undefined
+    >,
+  'createAccessory' : (
+      arg_0: string,
+      arg_1: Array<TokenIdentifier__2>,
+      arg_2: Array<number>,
+      arg_3: [] | [Option],
+    ) => Promise<Result_6>,
   'extensions' : () => Promise<Array<Extension>>,
   'getContractInfo' : () => Promise<ContractInfo>,
-  'getHisInventory' : (arg_0: Principal) => Promise<Inventory>,
   'getInventory' : () => Promise<Inventory>,
   'getMetadata' : () => Promise<ContractMetadata>,
   'getMinter' : () => Promise<Array<Principal>>,
   'getOwnership' : () => Promise<
-      Array<[AccountIdentifier__1, Array<TokenIndex>]>
+      Array<[AccountIdentifier__2, Array<TokenIndex>]>
     >,
-  'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__1]>>,
+  'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__2]>>,
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init' : (arg_0: Array<Principal>, arg_1: ContractMetadata) => Promise<
       undefined
     >,
   'init_cap' : () => Promise<Result>,
-  'metadata' : (arg_0: TokenIdentifier__1) => Promise<Result_3>,
-  'mint' : (arg_0: string, arg_1: AccountIdentifier__1) => Promise<Result_2>,
+  'list' : (arg_0: ListRequest) => Promise<Result_2>,
+  'listings' : () => Promise<Array<[TokenIndex, Listing, Metadata__1]>>,
+  'lock' : (
+      arg_0: string,
+      arg_1: bigint,
+      arg_2: AccountIdentifier__2,
+      arg_3: SubAccount__1,
+    ) => Promise<Result_5>,
+  'metadata' : (arg_0: TokenIdentifier__2) => Promise<Result_4>,
+  'mint' : (arg_0: string, arg_1: AccountIdentifier__2) => Promise<Result_3>,
+  'payments' : () => Promise<[] | [Array<SubAccount__1>]>,
+  'process' : () => Promise<undefined>,
   'removeAccessory' : (arg_0: string, arg_1: string) => Promise<Result>,
+  'settle' : (arg_0: string) => Promise<Result_2>,
+  'settlements' : () => Promise<
+      Array<[TokenIndex, AccountIdentifier__2, bigint]>
+    >,
+  'showAccessories' : () => Promise<Array<[string, Recipe]>>,
   'showAdmins' : () => Promise<Array<Principal>>,
-  'showAssets' : () => Promise<Array<string>>,
-  'sizes' : () => Promise<[bigint, bigint]>,
   'supply' : () => Promise<bigint>,
+  'transactions' : () => Promise<Array<Transaction>>,
   'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
+  'transfer_ledger' : (arg_0: ICP, arg_1: Principal) => Promise<TransferResult>,
   'updateAccessories' : () => Promise<undefined>,
   'updateAdmins' : (arg_0: Principal, arg_1: boolean) => Promise<Result_1>,
-  'updateToken' : () => Promise<TokenIndex>,
+  'verification' : () => Promise<undefined>,
   'wallet_available' : () => Promise<bigint>,
   'wallet_receive' : () => Promise<undefined>,
   'wearAccessory' : (arg_0: string, arg_1: string) => Promise<Result>,
 }
+export interface ICP { 'e8s' : bigint }
 export type Inventory = Array<AssetInventory>;
+export interface ListRequest {
+  'token' : TokenIdentifier__1,
+  'from_subaccount' : [] | [SubAccount__2],
+  'price' : [] | [bigint],
+}
+export interface Listing {
+  'locked' : [] | [Time],
+  'seller' : Principal,
+  'price' : bigint,
+}
 export type Memo = Array<number>;
 export type Metadata = {
     'fungible' : {
@@ -94,7 +131,18 @@ export type Metadata = {
     }
   } |
   { 'nonfungible' : { 'metadata' : [] | [Array<number>] } };
+export type Metadata__1 = {
+    'fungible' : {
+      'decimals' : number,
+      'metadata' : [] | [Array<number>],
+      'name' : string,
+      'symbol' : string,
+    }
+  } |
+  { 'nonfungible' : { 'metadata' : [] | [Array<number>] } };
+export type Option = boolean;
 export type Recipe = Array<string>;
+export type Recipe__1 = Array<string>;
 export interface Request {
   'url' : string,
   'method' : string,
@@ -111,14 +159,22 @@ export type Result = { 'ok' : null } |
   { 'err' : string };
 export type Result_1 = { 'ok' : null } |
   { 'err' : Error };
-export type Result_2 = { 'ok' : string } |
-  { 'err' : string };
-export type Result_3 = { 'ok' : Metadata } |
+export type Result_2 = { 'ok' : null } |
   { 'err' : CommonError };
-export type Result_4 = { 'ok' : AccountIdentifier__1 } |
-  { 'err' : CommonError__1 };
-export type Result_5 = { 'ok' : bigint } |
+export type Result_3 = { 'ok' : string } |
   { 'err' : string };
+export type Result_4 = { 'ok' : Metadata } |
+  { 'err' : CommonError__1 };
+export type Result_5 = { 'ok' : AccountIdentifier__2 } |
+  { 'err' : CommonError };
+export type Result_6 = { 'ok' : TokenIdentifier__2 } |
+  { 'err' : string };
+export interface Settlement {
+  'subaccount' : SubAccount__2,
+  'seller' : Principal,
+  'buyer' : AccountIdentifier__1,
+  'price' : bigint,
+}
 export type StreamingCallback = (arg_0: StreamingCallbackToken) => Promise<
     StreamingCallbackResponse
   >;
@@ -138,18 +194,36 @@ export type StreamingStrategy = {
     }
   };
 export type SubAccount = Array<number>;
+export type SubAccount__1 = Array<number>;
+export type SubAccount__2 = Array<number>;
 export type Template = {
     'Accessory' : {
       'after_wear' : string,
       'before_wear' : string,
-      'recipe' : Recipe,
+      'recipe' : Recipe__1,
     }
   } |
   { 'LegendaryAccessory' : Array<number> } |
   { 'Material' : Array<number> };
+export type Time = bigint;
 export type TokenIdentifier = string;
 export type TokenIdentifier__1 = string;
+export type TokenIdentifier__2 = string;
 export type TokenIndex = number;
+export interface Transaction {
+  'token' : TokenIdentifier__1,
+  'time' : Time,
+  'seller' : Principal,
+  'buyer' : AccountIdentifier__1,
+  'price' : bigint,
+}
+export type TransferError = {
+    'TxTooOld' : { 'allowed_window_nanos' : bigint }
+  } |
+  { 'BadFee' : { 'expected_fee' : ICP } } |
+  { 'TxDuplicate' : { 'duplicate_of' : BlockIndex } } |
+  { 'TxCreatedInFuture' : null } |
+  { 'InsufficientFunds' : { 'balance' : ICP } };
 export interface TransferRequest {
   'to' : User,
   'token' : TokenIdentifier,
@@ -168,6 +242,8 @@ export type TransferResponse = { 'ok' : Balance } |
       { 'Unauthorized' : AccountIdentifier } |
       { 'Other' : string }
   };
+export type TransferResult = { 'Ok' : BlockIndex } |
+  { 'Err' : TransferError };
 export type User = { 'principal' : Principal } |
   { 'address' : AccountIdentifier };
 export interface _SERVICE extends Hub {}

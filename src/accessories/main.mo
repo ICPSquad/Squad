@@ -812,14 +812,14 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    //  Returns a list of all accessories associated with their recipe.
-    public query func showAccessories() : async [(Text,Recipe)] {
-        var array : [(Text, Recipe)] = [];
-        for(template in _templates.vals()){
+    //  Returns a list of all accessories as svg associated with their name & recipe.
+    public query func showAccessories() : async [(Text,Text,Recipe)] {
+        var array : [(Text,Text, Recipe)] = [];
+        for((name,template) in _templates.entries()){
             switch(template){
                 case(#Accessory(template)){
                     let svg_complete = template.before_wear # template.after_wear;
-                    array := Array.append<(Text,Recipe)>(array, [(svg_complete, template.recipe)]);
+                    array := Array.append<(Text,Text,Recipe)>(array, [(name, svg_complete, template.recipe)]);
                 };
                 case(_){};
             };
