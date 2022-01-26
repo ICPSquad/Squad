@@ -73,6 +73,7 @@ export interface Hub {
   'getOwnership' : () => Promise<
       Array<[AccountIdentifier__2, Array<TokenIndex>]>
     >,
+  'getRecipes' : () => Promise<Array<[string, Recipe]>>,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__2]>>,
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init' : (arg_0: Array<Principal>, arg_1: ContractMetadata) => Promise<
@@ -96,7 +97,6 @@ export interface Hub {
   'settlements' : () => Promise<
       Array<[TokenIndex, AccountIdentifier__2, bigint]>
     >,
-  'showAccessories' : () => Promise<Array<[string, Recipe]>>,
   'showAdmins' : () => Promise<Array<Principal>>,
   'supply' : () => Promise<bigint>,
   'transactions' : () => Promise<Array<Transaction>>,

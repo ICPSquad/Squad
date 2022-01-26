@@ -84,6 +84,7 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
     'symbol' : IDL.Text,
   });
+  const Recipe = IDL.Vec(IDL.Text);
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
   const Request = IDL.Record({
     'url' : IDL.Text,
@@ -149,7 +150,6 @@ export const idlFactory = ({ IDL }) => {
     'nonfungible' : IDL.Record({ 'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)) }),
   });
   const Result_4 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError__1 });
-  const Recipe = IDL.Vec(IDL.Text);
   const Transaction = IDL.Record({
     'token' : TokenIdentifier__1,
     'time' : Time,
@@ -242,6 +242,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(AccountIdentifier__2, IDL.Vec(TokenIndex)))],
         ['query'],
       ),
+    'getRecipes' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, Recipe))],
+        ['query'],
+      ),
     'getRegistry' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier__2))],
@@ -270,11 +275,6 @@ export const idlFactory = ({ IDL }) => {
     'settlements' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier__2, IDL.Nat64))],
-        ['query'],
-      ),
-    'showAccessories' : IDL.Func(
-        [],
-        [IDL.Vec(IDL.Tuple(IDL.Text, Recipe))],
         ['query'],
       ),
     'showAdmins' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),

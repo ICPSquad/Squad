@@ -208,6 +208,10 @@ type Hub =
            AccountIdentifier__2;
            vec TokenIndex;
          }) query;
+   getRecipes: () -> (vec record {
+                            text;
+                            Recipe;
+                          }) query;
    getRegistry: () -> (vec record {
                              TokenIndex;
                              AccountIdentifier__2;
@@ -234,10 +238,6 @@ type Hub =
            AccountIdentifier__2;
            nat64;
          }) query;
-   showAccessories: () -> (vec record {
-                                 text;
-                                 Recipe;
-                               }) query;
    showAdmins: () -> (vec principal) query;
    supply: () -> (nat) query;
    transactions: () -> (vec Transaction) query;

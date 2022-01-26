@@ -812,20 +812,33 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    //  Returns a list of all accessories as svg associated with their name & recipe.
-    public query func showAccessories() : async [(Text,Text,Recipe)] {
-        var array : [(Text,Text, Recipe)] = [];
+    //  Returns an array of all recipes : (name, recipe)
+    public query func getRecipes() : async [(Text,Recipe)] {
+        var array : [(Text, Recipe)] = [];
         for((name,template) in _templates.entries()){
             switch(template){
                 case(#Accessory(template)){
-                    let svg_complete = template.before_wear # template.after_wear;
-                    array := Array.append<(Text,Text,Recipe)>(array, [(name, svg_complete, template.recipe)]);
+                    array := Array.append<(Text,Recipe)>(array, [(name, template.recipe)]);
                 };
                 case(_){};
             };
         };
         array;
     };
+
+    public shared ({caller}) func modifyRecipe(name : Text, recipe : Recipe) : async Result.Result<(),Text> {
+        assert(_isAdmin(caller));
+        switch(_templates.get(name)){
+            case(?#Accessory(template)){
+                let new_template = #Accessory({before_wear = template.before_wear; after_wear = template.after_wear; recipe = recipe;});
+                _templates.put(name, new_template);
+                return #ok;
+            };
+            case(null) return #err ("No template found for : " #name);
+            case(_) return #err("This doesn't correspond to an accessory : " #name);
+        };
+    };
+
     // Check if all the ingredients of the recipe do exists in store as materials
     private func _verifyRecipe (recipe : Recipe) : Bool {
         for(ingredient in recipe.vals()){
