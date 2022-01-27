@@ -90,6 +90,7 @@ export interface Hub {
     ) => Promise<Result_5>,
   'metadata' : (arg_0: TokenIdentifier__2) => Promise<Result_4>,
   'mint' : (arg_0: string, arg_1: AccountIdentifier__2) => Promise<Result_3>,
+  'modifyRecipe' : (arg_0: string, arg_1: Recipe) => Promise<Result>,
   'payments' : () => Promise<[] | [Array<SubAccount__1>]>,
   'process' : () => Promise<undefined>,
   'removeAccessory' : (arg_0: string, arg_1: string) => Promise<Result>,

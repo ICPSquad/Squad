@@ -268,6 +268,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'metadata' : IDL.Func([TokenIdentifier__2], [Result_4], ['query']),
     'mint' : IDL.Func([IDL.Text, AccountIdentifier__2], [Result_3], []),
+    'modifyRecipe' : IDL.Func([IDL.Text, Recipe], [Result], []),
     'payments' : IDL.Func([], [IDL.Opt(IDL.Vec(SubAccount__1))], ['query']),
     'process' : IDL.Func([], [], []),
     'removeAccessory' : IDL.Func([IDL.Text, IDL.Text], [Result], []),

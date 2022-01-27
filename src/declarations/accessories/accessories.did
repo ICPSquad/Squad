@@ -228,6 +228,7 @@ type Hub =
    lock: (text, nat64, AccountIdentifier__2, SubAccount__1) -> (Result_5);
    metadata: (TokenIdentifier__2) -> (Result_4) query;
    mint: (text, AccountIdentifier__2) -> (Result_3);
+   modifyRecipe: (text, Recipe) -> (Result);
    payments: () -> (opt vec SubAccount__1) query;
    process: () -> ();
    removeAccessory: (text, text) -> (Result);
