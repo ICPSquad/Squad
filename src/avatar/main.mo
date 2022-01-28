@@ -823,7 +823,7 @@ shared (install) actor class erc721_token() = this {
         };
     };
 
-    public shared (msg) func lock (tokenid : TokenIdentifier, price : Nat64, address : AccountIdentifier, subaccount : SubAccount) : async Result.Result<(), CommonError> {
+    public shared (msg) func lock (tokenid : TokenIdentifier, price : Nat64, address : AccountIdentifier, subaccount : SubAccount) : async Result.Result<AccountIdentifier, CommonError> {
         if (ExtCore.TokenIdentifier.isPrincipal(tokenid, Principal.fromActor(this)) == false) {
 			return #err(#InvalidToken(tokenid));
 		};
@@ -864,7 +864,7 @@ shared (install) actor class erc721_token() = this {
                     };
                     _usedPaymentAddressess := Array.append<(AccountIdentifier, Principal, SubAccount)>(_usedPaymentAddressess, [(paymentAddress, listing.seller, subaccount)]);
                     _tokenSettlement.put(token, {seller = listing.seller; price = listing.price; subaccount = subaccount; buyer = address;});
-                    return #ok();
+                    return #ok(paymentAddress);
                 };
             };
         };
