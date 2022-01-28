@@ -915,14 +915,14 @@ shared({ caller = hub }) actor class Hub() = this {
                         if(new_wear_value == 0) {
                             switch(_burn(token_index)){
                                 case(#err(e)) {};
-                                case(#ok(){
+                                case(#ok){
                                     let event : IndefiniteEvent = {
                                         operation = "burn";
                                         details = [("item", #Text(_getTokenIdentifier(token_index))),("from", #Text(Option.get(owner, "unknown")))];
                                         caller = Principal.fromActor(this);
                                     };
-                                    await(cap.insert(event)){
-                                        case(#err(e)){}:
+                                    switch(await(cap.insert(event))){
+                                        case(#err(e)){};
                                         case(#ok(id)){};
                                     };
                                 };
@@ -1065,18 +1065,6 @@ shared({ caller = hub }) actor class Hub() = this {
         };
         return #ok;
     };
-
-
-    public shared ({caller}) func mintAccessory(name : Text, materials : [Token_identifier]) : async Result.Result<(), Text> {
-        //Check the fee has been paid
-        //Check the materials corresponds and are not locked
-        //Check the recipe corresponds
-        //Burn the materials
-        //Mint the accessory 
-        //Report to CAP 
-    };
-
-    
 
 
     ///////////////////////////////////
