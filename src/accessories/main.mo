@@ -39,9 +39,30 @@ import Time "mo:base/Time";
 import Token "types/token";
 import TokenIndex "mo:base/Blob";
 import Types "types/types";
+import Canistergeek "../dependencies/canistergeek/canistergeek";
 
 shared({ caller = hub }) actor class Hub() = this {
 
+    //////////////
+    // METRICS //
+    ////////////
+
+    private let canistergeekMonitor = Canistergeek.Monitor();
+    stable var _canistergeekMonitorUD: ? Canistergeek.UpgradeData = null;
+
+    //  Returns collected data based on passed parameters. Called from browser.
+    public query ({caller}) func getCanisterMetrics(parameters: Canistergeek.GetMetricsParameters): async ?Canistergeek.CanisterMetrics {
+        assert(_isAdmin(caller));
+        canistergeekMonitor.getMetrics(parameters);
+    };
+
+    //  Force collecting the data at current time. Called from browser or by heartbeat.
+    public shared ({caller}) func collectCanisterMetrics(): async () {
+        assert(_isAdmin(caller));
+        canistergeekMonitor.collectMetrics();
+    };
+
+    
     ////////////////
     // MANAGEMENT //
     ///////////////
@@ -94,6 +115,10 @@ shared({ caller = hub }) actor class Hub() = this {
     ////////////
     // INFOS //
     ///////////
+
+    public query func whoami() : async Principal {
+        return(Principal.fromActor(this));
+    };
 
     public type ContractMetadata = {
         name   : Text;
@@ -879,7 +904,7 @@ shared({ caller = hub }) actor class Hub() = this {
             case(_){assert(false)};
         };
     };
-
+    //TODO : Keep track of errors when reporting with CAP
     public shared ({caller}) func updateAccessories() : async () {
         assert((caller == Principal.fromActor(this)));
         for ((token_index, item) in _items.entries()){
@@ -888,7 +913,20 @@ shared({ caller = hub }) actor class Hub() = this {
                     if(Option.isSome(accessory.equipped)) {
                         let new_wear_value : Nat8 = accessory.wear - 1; 
                         if(new_wear_value == 0) {
-                           ignore(_burn(token_index));
+                            switch(_burn(token_index)){
+                                case(#err(e)) {};
+                                case(#ok(){
+                                    let event : IndefiniteEvent = {
+                                        operation = "burn";
+                                        details = [("item", #Text(_getTokenIdentifier(token_index))),("from", #Text(Option.get(owner, "unknown")))];
+                                        caller = Principal.fromActor(this);
+                                    };
+                                    await(cap.insert(event)){
+                                        case(#err(e)){}:
+                                        case(#ok(id)){};
+                                    };
+                                };
+                            };
                         } else  {
                             let new_item = #Accessory({name = accessory.name; wear = new_wear_value; equipped = accessory.equipped;});
                             _items.put(token_index, new_item);
@@ -900,7 +938,7 @@ shared({ caller = hub }) actor class Hub() = this {
             };
         };
     };
-
+    //TODO Check that the corresponding accessory is not locked ! 
     public shared({caller}) func wearAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text) : async Result.Result<(), Text> {
         let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);
         switch(_registry.get(token_index)){
@@ -967,7 +1005,6 @@ shared({ caller = hub }) actor class Hub() = this {
         var name : Text = "";
         let item : ?Item = _items.get(token_index);
         let owner : ?AccountIdentifier = _registry.get(token_index);
-        //Get the name of the accessory to add details to CAP
         switch(item){
             case(?#Accessory(item)){ name := item.name};
             case(_){assert(false)};
@@ -1030,6 +1067,18 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
 
+    public shared ({caller}) func mintAccessory(name : Text, materials : [Token_identifier]) : async Result.Result<(), Text> {
+        //Check the fee has been paid
+        //Check the materials corresponds and are not locked
+        //Check the recipe corresponds
+        //Burn the materials
+        //Mint the accessory 
+        //Report to CAP 
+    };
+
+    
+
+
     ///////////////////////////////////
     // TOKEN ID <-> TOKEN IDENTIFIER //
     //////////////////////////////////
@@ -1078,6 +1127,21 @@ shared({ caller = hub }) actor class Hub() = this {
     // Creates a Principal from a Blob : extension of the base Module
     private func _fromBlob(b : Blob) : Principal {
         return(PrincipalImproved.fromBlob(b));
+    };
+
+    ///////////////
+    // HEARTBEAT //
+    ///////////////
+
+    // A count represents approximately one second
+    stable var count = 0;
+
+    system func heartbeat () : async () {
+        count += 1;
+        //  Every 5 minutes 
+        if( count % 300 == 0){
+            collectCanisterMetrics();
+        };
     };
 
 
@@ -1329,6 +1393,7 @@ shared({ caller = hub }) actor class Hub() = this {
         _itemsEntries := Iter.toArray(_items.entries());
         _templateEntries := Iter.toArray(_templates.entries());
         _blobsEntries := Iter.toArray(_blobs.entries());
+        _canistergeekMonitorUD := ? canistergeekMonitor.preupgrade();
     };
 
     system func postupgrade() {
@@ -1345,23 +1410,8 @@ shared({ caller = hub }) actor class Hub() = this {
         _templateEntries := [];
         _itemsEntries := [];
         _blobsEntries := [];
+        canistergeekMonitor.postupgrade(_canistergeekMonitorUD);
+        _canistergeekMonitorUD := null;
     };
-
-
-    
-
-
-
-
-
-    
-
-
-
-
-    
-
-
-
 
 };
