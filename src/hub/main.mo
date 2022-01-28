@@ -307,7 +307,7 @@ let this = actor {
 
     let actorItems = actor ("po6n2-uiaaa-aaaaj-qaiua-cai") : actor {
         airdrop : shared (AirdropObject) -> async Result.Result<(), Text>;
-        getTotalMinted : shared () -> async Nat;
+        supply: shared () -> async Nat;
         availableCycles : shared () -> async Nat;
     };
 
@@ -726,32 +726,26 @@ let this = actor {
     // AUDITS //
     ////////////
 
-    public type Audit = {time : Int; new_users : Int; new_icps : Ledger.ICP; new_avatar : Int; new_items : Int; cycles_burned_hub : Int; cycles_burned_avatar : Int; cycles_burned_accessories : Int;};
+    public type Audit = {time : Int; new_users : Int; new_icps : Ledger.ICP; new_avatar : Int; new_items : Int};
     stable var audits : [Audit] = [];
 
     //Value : 19th of January at 8PM - Paris Time
     stable var users_nb = users.size();
-    stable var icps = {e8s = 6_699_310_000 : Nat64};
-    stable var avatars = 3_275;
-    stable var items = 5_335;
-    stable var cycles_hub = 3_252_285_677_779;
-    stable var cycles_avatar = 2_224_217_394_145;
-    stable var cycles_accessories = 2_623_946_408_783;
+    stable var icps = {e8s = 3_499_650_000 : Nat64};
+    stable var avatars = 3_368;
+    stable var items = 5_419;
 
     //Run an internal audits and updates values
     //@auth : canister
     public shared ({caller}) func audit () : async () {
         assert(caller == Principal.fromActor(this));
-        //Get updateted values
+        //Get updated values
         let new_value_users = users.size();
         let new_value_icps = await balance();
         let new_value_avatar = await actorAvatar.supply();
-        let new_value_items = await actorItems.getTotalMinted();
-        let new_value_cycles_hub = Cycles.balance();
-        let new_value_cycles_avatar = await actorAvatar.availableCycles();
-        let new_value_cycles_accessories = await actorItems.availableCycles();
+        let new_value_items = await actorItems.supply();
 
-        //Remove trap warning 
+        //Remove trap warning for ICPs
         let value : Int = (Nat64.toNat(new_value_icps.e8s)) - (Nat64.toNat(icps.e8s));
         let value_converted : Nat64 = Nat64.fromNat(Int.abs(value));
 
@@ -761,18 +755,12 @@ let this = actor {
             new_icps : Ledger.ICP = {e8s = value_converted};
             new_avatar : Int = (new_value_avatar - avatars); 
             new_items : Int = (new_value_items - items);
-            cycles_burned_hub : Int = (new_value_cycles_hub - cycles_hub);
-            cycles_burned_avatar : Int = (new_value_cycles_avatar - cycles_avatar);
-            cycles_burned_accessories : Int = (new_value_cycles_accessories - cycles_accessories);
         };
         audits := Array.append<Audit>(audits, [audit]);
         users_nb := new_value_users;
         icps := new_value_icps;
         avatars := new_value_avatar;
         items := new_value_items;
-        cycles_hub := new_value_cycles_hub;
-        cycles_avatar := new_value_cycles_avatar;
-        cycles_accessories := new_value_cycles_accessories;
         return;
     };  
 
