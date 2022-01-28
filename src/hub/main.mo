@@ -22,9 +22,59 @@ import Utils "utils";
 import AvatarModule "types/avatar";
 import AirdropModule "types/airdrop";
 import Inventory "types/inventory";
-
+import Canistergeek "../dependencies/canistergeek/canistergeek";
 
 let this = actor {
+
+
+    //////////////
+    // METRICS //
+    ////////////
+
+    private let canistergeekMonitor = Canistergeek.Monitor();
+    stable var _canistergeekMonitorUD: ? Canistergeek.UpgradeData = null;
+    stable var adminsData : [Principal] = [Principal.fromText("whzaw-wqyku-y3ssi-nvyzq-m6iaq-aqh7x-v4a4e-ijlft-x4jjg-ymism-oae")];
+
+    private func _isAdminData(p : Principal) : Bool {
+        switch(Array.find<Principal>(adminsData, func(v) {return v == p})) {
+            case (null) { false; };
+            case (? v)  { true; };
+        };
+    };
+
+    // Updates the access rights of one of the admin data.
+    //@auth : admin
+    public shared({caller}) func updateAdminsData(user : Principal, isAuthorized : Bool) : async Result.Result<(), Text> {
+        assert(_isAdmin(caller));
+        switch(isAuthorized) {
+            case (true) {
+                adminsData := Array.append(
+                    adminsData,
+                    [user],
+                );
+            };
+            case (false) {
+                adminsData := Array.filter<Principal>(
+                    adminsData, 
+                    func(v) { v != user; },
+                );
+            };
+        };
+        #ok();
+    };
+
+    //  Returns collected data based on passed parameters. Called from browser.
+    public query ({caller}) func getCanisterMetrics(parameters: Canistergeek.GetMetricsParameters): async ?Canistergeek.CanisterMetrics {
+        assert(_isAdminData(caller));
+        canistergeekMonitor.getMetrics(parameters);
+    };
+
+    //  Force collecting the data at current time. Called from browser or by heartbeat.
+    public shared ({caller}) func collectCanisterMetrics(): async () {
+        assert(_isAdminData(caller));
+        canistergeekMonitor.collectMetrics();
+    };
+
 
     type Time = Time.Time;
     public type User = Users.User;
@@ -619,12 +669,16 @@ let this = actor {
 
     system func heartbeat () : async () {
         count += 1;
-        //Every day
+        //  Every 5min
+        if( count % 300 == 0){
+            await collectCanisterMetrics();
+        };
+        //  Every day
         if(count % 86_400 == 0){
             await (verification());
             await (process());
         };
-        //Every week
+        //  Every week
         if(count % 604_800 == 0) {
             await (audit());
             await (recipe());

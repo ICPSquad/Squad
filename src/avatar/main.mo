@@ -27,10 +27,62 @@ import Utils "../dependencies/helpers/Array";
 
 // Entrepot integration
 import Entrepot "../dependencies/entrepot";
+//Canister geek
+import Canistergeek "../dependencies/canistergeek/canistergeek";
 
 
 shared (install) actor class erc721_token() = this {
-  
+
+
+    //////////////
+    // METRICS //
+    ////////////
+
+    private let canistergeekMonitor = Canistergeek.Monitor();
+    stable var _canistergeekMonitorUD: ? Canistergeek.UpgradeData = null;
+    stable var adminsData : [Principal] = [Principal.fromText("whzaw-wqyku-y3ssi-nvyzq-m6iaq-aqh7x-v4a4e-ijlft-x4jjg-ymism-oae")];
+
+    private func _isAdminData(p : Principal) : Bool {
+        switch(Array.find<Principal>(adminsData, func(v) {return v == p})) {
+            case (null) { false; };
+            case (? v)  { true; };
+        };
+    };
+
+    // Updates the access rights of one of the admin data.
+    //@auth : admin
+    public shared({caller}) func updateAdminsData(user : Principal, isAuthorized : Bool) : async Result.Result<(), Text> {
+        assert(_isAdmin(caller));
+        switch(isAuthorized) {
+            case (true) {
+                adminsData := Array.append(
+                    adminsData,
+                    [user],
+                );
+            };
+            case (false) {
+                adminsData := Array.filter<Principal>(
+                    adminsData, 
+                    func(v) { v != user; },
+                );
+            };
+        };
+        #ok();
+    };
+
+    //  Returns collected data based on passed parameters. Called from browser.
+    public query ({caller}) func getCanisterMetrics(parameters: Canistergeek.GetMetricsParameters): async ?Canistergeek.CanisterMetrics {
+        assert(_isAdminData(caller));
+        canistergeekMonitor.getMetrics(parameters);
+    };
+
+    //  Force collecting the data at current time. Called from browser or by heartbeat.
+    public shared ({caller}) func collectCanisterMetrics(): async () {
+        assert(_isAdminData(caller));
+        canistergeekMonitor.collectMetrics();
+    };
+
+
     ///////////
     // ADMIN //
     ///////////
@@ -56,9 +108,9 @@ shared (install) actor class erc721_token() = this {
 
     };
 
-    ///////////////////
-    // AVATAR /////////
-    ///////////////////
+    ///////////////
+    // AVATAR ////
+    /////////////
 
     ////////////////
     // Component //
@@ -706,7 +758,7 @@ shared (install) actor class erc721_token() = this {
     //////////////
     // ENTREPOT //
     //////////////
-
+    
     type Time = Time.Time;
     type ListRequest = Entrepot.ListRequest;
     type Listing = Entrepot.Listing;
@@ -730,7 +782,6 @@ shared (install) actor class erc721_token() = this {
 	private stable var _transactions : [Transaction] = [];
     private var ESCROWDELAY : Time = 10 * 60 * 1_000_000_000;
     let LEDGER_CANISTER = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor { account_balance_dfx : shared query AccountBalanceArgs -> async ICPTs };
-
 
     public shared(msg) func list (request : ListRequest) : async Result.Result<(), CommonError> {
         if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
@@ -1145,6 +1196,21 @@ shared (install) actor class erc721_token() = this {
     };
 
 
+    ///////////////
+    // HEARTBEAT //
+    ///////////////
+
+    // A count represents approximately one second
+    stable var count = 0;
+
+    system func heartbeat () : async () {
+        count += 1;
+        //  Every 5 minutes 
+        if( count % 300 == 0){
+            await collectCanisterMetrics();
+        };
+    };
+
     /////////////
     // UPGRADE //
     /////////////
@@ -1214,13 +1280,13 @@ shared (install) actor class erc721_token() = this {
     // CYCLES MANAGEMENT //
     //////////////////////
 
-    public func wallet_receive() : async () {
+    public func acceptCycles() : async () {
         let available = Cycles.available();
         let accepted = Cycles.accept(available);
         assert (accepted == available);
     };
 
-    public query func wallet_available() : async Nat {
+    public query func availableCycles() : async Nat {
         return Cycles.balance();
     };
 

@@ -49,16 +49,45 @@ shared({ caller = hub }) actor class Hub() = this {
 
     private let canistergeekMonitor = Canistergeek.Monitor();
     stable var _canistergeekMonitorUD: ? Canistergeek.UpgradeData = null;
+    stable var adminsData : [Principal] = [Principal.fromText("whzaw-wqyku-y3ssi-nvyzq-m6iaq-aqh7x-v4a4e-ijlft-x4jjg-ymism-oae")];
+
+    private func _isAdminData(p : Principal) : Bool {
+        switch(Array.find<Principal>(adminsData, func(v) {return v == p})) {
+            case (null) { false; };
+            case (? v)  { true; };
+        };
+    };
+
+    // Updates the access rights of one of the admin data.
+    //@auth : admin
+    public shared({caller}) func updateAdminsData(user : Principal, isAuthorized : Bool) : async Result.Result<(), Types.Error> {
+        assert(_isAdmin(caller));
+        switch(isAuthorized) {
+            case (true) {
+                adminsData := Array.append(
+                    adminsData,
+                    [user],
+                );
+            };
+            case (false) {
+                adminsData := Array.filter<Principal>(
+                    adminsData, 
+                    func(v) { v != user; },
+                );
+            };
+        };
+        #ok();
+    };
 
     //  Returns collected data based on passed parameters. Called from browser.
     public query ({caller}) func getCanisterMetrics(parameters: Canistergeek.GetMetricsParameters): async ?Canistergeek.CanisterMetrics {
-        assert(_isAdmin(caller));
+        assert(_isAdminData(caller));
         canistergeekMonitor.getMetrics(parameters);
     };
 
     //  Force collecting the data at current time. Called from browser or by heartbeat.
     public shared ({caller}) func collectCanisterMetrics(): async () {
-        assert(_isAdmin(caller));
+        assert(_isAdminData(caller));
         canistergeekMonitor.collectMetrics();
     };
 
@@ -74,7 +103,7 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
     // Updates the access rights of one of the contact owners.
-    //@auth : isAdmin
+    //@auth : admin
     public shared({caller}) func updateAdmins(user : Principal, isAuthorized : Bool) : async Result.Result<(), Types.Error> {
         assert(_isAdmin(caller));
         switch(isAuthorized) {
@@ -915,10 +944,10 @@ shared({ caller = hub }) actor class Hub() = this {
                         if(new_wear_value == 0) {
                             switch(_burn(token_index)){
                                 case(#err(e)) {};
-                                case(#ok){
+                                case(#ok(owner)){
                                     let event : IndefiniteEvent = {
                                         operation = "burn";
-                                        details = [("item", #Text(_getTokenIdentifier(token_index))),("from", #Text(Option.get(owner, "unknown")))];
+                                        details = [("item", #Text(_getTokenIdentifier(token_index))),("from", #Text(owner))];
                                         caller = Principal.fromActor(this);
                                     };
                                     switch(await(cap.insert(event))){
@@ -1000,7 +1029,7 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    private func _burn (token_index : TokenIndex ) :  Result.Result<(),Text> {
+    private func _burn (token_index : TokenIndex ) :  Result.Result<AccountIdentifier,Text> {
         let token_identifier = _getTokenIdentifier(token_index);
         var name : Text = "";
         let item : ?Item = _items.get(token_index);
@@ -1020,7 +1049,7 @@ shared({ caller = hub }) actor class Hub() = this {
                         _blobs.delete(token_index);
                         _registry.delete(token_index);
                         _items.delete(token_index);
-                        return #ok();
+                        return #ok(owner);
                     };
                 };
             };
@@ -1117,22 +1146,7 @@ shared({ caller = hub }) actor class Hub() = this {
         return(PrincipalImproved.fromBlob(b));
     };
 
-    ///////////////
-    // HEARTBEAT //
-    ///////////////
-
-    // A count represents approximately one second
-    stable var count = 0;
-
-    system func heartbeat () : async () {
-        count += 1;
-        //  Every 5 minutes 
-        if( count % 300 == 0){
-            collectCanisterMetrics();
-        };
-    };
-
-
+   
     ////////////////
     // PAIEMENTS //
     //////////////
@@ -1234,7 +1248,7 @@ shared({ caller = hub }) actor class Hub() = this {
                     };
                     switch(_burn(token_index)){
                         case(#err(e)) {assert(false); return #err(e)};
-                        case(#ok){};
+                        case(#ok(owner)){};
                     };
                     let event : IndefiniteEvent = {
                         operation = "burn";
@@ -1325,12 +1339,6 @@ shared({ caller = hub }) actor class Hub() = this {
 
 
 
-
-
-    
-
-
-
     //////////////////////////////////
     // OLD DEPARTURE LABS STANDARD //
     ////////////////////////////////
@@ -1361,6 +1369,22 @@ shared({ caller = hub }) actor class Hub() = this {
     
     stable var circulationEntries : [(Text,Text)] = [];
     let circulation : HashMap.HashMap<Text,Text> = HashMap.fromIter(circulationEntries.vals(),0,Text.equal,Text.hash);
+
+
+    ///////////////
+    // HEARTBEAT //
+    ///////////////
+
+    // A count represents approximately one second
+    stable var count = 0;
+
+    system func heartbeat () : async () {
+        count += 1;
+        //  Every 5 minutes 
+        if( count % 300 == 0){
+            await collectCanisterMetrics();
+        };
+    };
 
 
     //////////////
