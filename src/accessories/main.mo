@@ -4,7 +4,9 @@ import Accessory "types/accessory";
 import Array "mo:base/Array";
 import ArrayHelper "helper/arrayHelper";
 import Blob "mo:base/Blob";
+import Buffer "mo:base/Buffer";
 import CAPTypes "mo:cap/Types";
+import Canistergeek "../dependencies/canistergeek/canistergeek";
 import Cap "mo:cap/Cap";
 import Char "mo:base/Char";
 import Entrepot "../dependencies/entrepot";
@@ -17,6 +19,8 @@ import HashMap "mo:base/HashMap";
 import Http "types/http";
 import Inventory "types/inventory";
 import Iter "mo:base/Iter";
+import Ledger "../dependencies/Ledger/ledger";
+import LedgerCandid "../dependencies/Ledger/ledgerCandid";
 import MapHelper "helper/mapHelper";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
@@ -31,15 +35,12 @@ import Result "mo:base/Result";
 import Root "mo:cap/Root";
 import Router "mo:cap/Router";
 import Staged "types/staged";
-import Ledger "../dependencies/Ledger/ledger";
-import LedgerCandid "../dependencies/Ledger/ledgerCandid";
 import Static "types/static";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Token "types/token";
 import TokenIndex "mo:base/Blob";
 import Types "types/types";
-import Canistergeek "../dependencies/canistergeek/canistergeek";
 
 shared({ caller = hub }) actor class Hub() = this {
 
@@ -1384,6 +1385,28 @@ shared({ caller = hub }) actor class Hub() = this {
         if( count % 300 == 0){
             await collectCanisterMetrics();
         };
+    };
+
+
+    ////////////////
+    // STATISTICS //
+    ///////////////
+
+    public shared query ({caller}) func getStats() : async [Text]{
+        assert(_isAdmin(caller));
+        let buffer = Buffer.Buffer<Text>(0);
+        for (token_index in _registry.keys()){
+            switch(_items.get(token_index)){
+                case(?#Material(name)){
+                    buffer.add(name);
+                };
+                case(?#Accessory(accessory)){
+                    buffer.add(accessory.name);
+                };
+                case(_){};
+            };
+        };
+        return(buffer.toArray());
     };
 
 
