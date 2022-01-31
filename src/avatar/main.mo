@@ -221,6 +221,10 @@ shared (install) actor class erc721_token() = this {
           return;  
         };
 
+        public func changeSlots(slots : Slots) : () {
+            slots_in_memory := slots;
+        };
+
         public func getSlots () : Slots  {
             return slots_in_memory;
         };
@@ -1351,4 +1355,72 @@ shared (install) actor class erc721_token() = this {
         };
     return count;
     };
+
+    stable var storageData : [(TokenIdentifier, Text)] = [];
+    public shared ({caller}) func reset() : async Nat {
+        assert(_isAdmin(caller));
+        for ((tokenidentifier , avatar) in avatars.entries()){
+            let slot = avatar.getSlots();
+            if(_slotToNat(slot) != 0) {
+                switch(_desequipAccessory(slot)){
+                    case(null) {assert(false)};
+                    case(?(name, new_slot)) {
+                        avatar.changeSlots(new_slot);
+                        storageData := Array.append<(TokenIdentifier, Text)>(storageData, [(tokenidentifier, name)]);
+                    };
+                };
+            };
+        };
+        return (storageData.size());
+    }; 
+
+    private func _desequipAccessory(slot : Slots) : ?(Text, Slots) {
+        switch(slot.Hat) {
+            case(null) {};
+            case(?text) {
+                switch(AvatarModule.removeFromSlot("Hat", slot)){
+                    case(#err(message)) return null;
+                    case(#ok(new_slot)) return ?(text, new_slot); 
+                }
+            }
+        };
+        switch(slot.Eyes) {
+            case(null) {};
+            case(?text) {
+                switch(AvatarModule.removeFromSlot("Eyes", slot)){
+                    case(#err(message)) return null;
+                    case(#ok(new_slot)) return ?(text, new_slot); 
+                }
+            }
+        };
+        switch(slot.Face) {
+            case(null) {};
+            case(?text) {
+                switch(AvatarModule.removeFromSlot("Face", slot)){
+                    case(#err(message)) return null;
+                    case(#ok(new_slot)) return ?(text, new_slot); 
+                }
+            }
+        };
+        switch(slot.Body) {
+            case(null) {};
+            case(?text) {
+                switch(AvatarModule.removeFromSlot("Body", slot)){
+                    case(#err(message)) return null;
+                    case(#ok(new_slot)) return ?(text, new_slot); 
+                }
+            }
+        };
+        switch(slot.Misc) {
+            case(null) return null;
+            case(?text) {
+                switch(AvatarModule.removeFromSlot("Misc", slot)){
+                    case(#err(message)) return null;
+                    case(#ok(new_slot)) return ?(text, new_slot); 
+                };
+            };
+        };
+    };
+
+    
 };

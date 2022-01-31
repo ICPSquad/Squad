@@ -870,7 +870,6 @@ shared({ caller = hub }) actor class Hub() = this {
     let nftActor = actor("jmuqr-yqaaa-aaaaj-qaicq-cai") : actor {
         wearAccessory : shared (Text, Text, Principal) -> async Result.Result<(),Text>;
     };
-    let materials = ["Cloth", "Wood", "Glass", "Metal", "Circuit", "Dfinity-stone"];
 
     public type Item = Accessory.Item;
     public type Accessory = Accessory.Accessory;
@@ -1588,7 +1587,60 @@ shared({ caller = hub }) actor class Hub() = this {
         return storageData;
     };
 
-    public 
+
+    //  TokenIndex from Text 
+    private func _textToNat32( txt : Text) : Nat32 {
+        assert(txt.size() > 0);
+        let chars = txt.chars();
+
+        var num : Nat32 = 0;
+        for (v in chars){
+            let charToNum = (Char.toNat32(v)-48);
+            assert(charToNum >= 0 and charToNum <= 9);
+            num := num * 10 +  charToNum;          
+        };
+        num;
+    };
+
+    public shared ({caller}) func departureToExt() : async () {
+        assert(_isAdmin(caller));
+        let nftToOwner = nfts.getNftToOwner();
+        let ownerToNft = nfts.getOwnerToNft(); 
+        for((text, principal) in nftToOwner.entries()){
+            let token_index = _textToNat32(text);
+            let account_identifier = AID.fromPrincipal(principal, null);
+            _registry.put(token_index, account_identifier);
+        };
+        for ((principal, list) in ownerToNft.entries()){
+            let account_identifier = AID.fromPrincipal(principal, null);
+            let new_list = Array.map<Text,TokenIndex>(list, _textToNat32);
+            _ownerships.put(account_identifier, new_list);
+        };
+    };
+
+
+    let materials = ["Cloth", "Wood", "Glass", "Metal", "Circuit", "Dfinity-stone"];
+    public shared ({caller}) func circulationToItem () : async () {
+        assert(_isAdmin(caller));
+        for((id,name) in circulation.entries()){
+            let token_index = _textToNat32(id);
+            if(Option.isSome(Array.find<Text>(materials, func(x) {x == name}))){
+                let new_material : Item = #Material(name);
+                _items.put(token_index, new_material);
+            } else {
+                let new_accessory : Item = #Accessory({
+                    name = name;
+                    wear = 100;
+                    equipped = null;
+                });
+                _items.put(token_index, new_accessory);
+            };
+        };
+    };
+
+    // public shared ({caller}) func recreateAccessories (list : [(AccountIdentifier, Text)]) : async () {
+
+    // };
    
 
 };
