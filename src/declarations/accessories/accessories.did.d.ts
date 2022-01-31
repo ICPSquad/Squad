@@ -21,6 +21,12 @@ export interface BalanceRequest { 'token' : TokenIdentifier, 'user' : User }
 export type BalanceResponse = { 'ok' : Balance } |
   { 'err' : CommonError__1 };
 export type BlockIndex = bigint;
+export type CanisterCyclesAggregatedData = Array<bigint>;
+export type CanisterHeapMemoryAggregatedData = Array<bigint>;
+export type CanisterMemoryAggregatedData = Array<bigint>;
+export interface CanisterMetrics { 'data' : CanisterMetricsData }
+export type CanisterMetricsData = { 'hourly' : Array<HourlyMetricsData> } |
+  { 'daily' : Array<DailyMetricsData> };
 export type CommonError = { 'InvalidToken' : TokenIdentifier } |
   { 'Other' : string };
 export type CommonError__1 = { 'InvalidToken' : TokenIdentifier } |
@@ -35,6 +41,13 @@ export interface ContractInfo {
   'authorized_users' : Array<Principal>,
 }
 export interface ContractMetadata { 'name' : string, 'symbol' : string }
+export interface DailyMetricsData {
+  'updateCalls' : bigint,
+  'canisterHeapMemorySize' : NumericEntity,
+  'canisterCycles' : NumericEntity,
+  'canisterMemorySize' : NumericEntity,
+  'timeMillis' : bigint,
+}
 export type Error = { 'AssetNotFound' : null } |
   { 'Immutable' : null } |
   { 'unsupportedResponse' : null } |
@@ -47,7 +60,19 @@ export type Error = { 'AssetNotFound' : null } |
   { 'AuthorizedPrincipalLimitReached' : bigint } |
   { 'FailedToWrite' : string };
 export type Extension = string;
+export interface GetMetricsParameters {
+  'dateToMillis' : bigint,
+  'granularity' : MetricsGranularity,
+  'dateFromMillis' : bigint,
+}
 export type HeaderField = [string, string];
+export interface HourlyMetricsData {
+  'updateCalls' : UpdateCallsAggregatedData,
+  'canisterHeapMemorySize' : CanisterHeapMemoryAggregatedData,
+  'canisterCycles' : CanisterCyclesAggregatedData,
+  'canisterMemorySize' : CanisterMemoryAggregatedData,
+  'timeMillis' : bigint,
+}
 export interface Hub {
   'addElements' : (arg_0: string, arg_1: Template) => Promise<Result_3>,
   'airdrop' : (arg_0: AirdropObject) => Promise<Result>,
@@ -59,6 +84,7 @@ export interface Hub {
   'clearPayments' : (arg_0: Principal, arg_1: Array<SubAccount__1>) => Promise<
       undefined
     >,
+  'collectCanisterMetrics' : () => Promise<undefined>,
   'createAccessory' : (
       arg_0: string,
       arg_1: Array<TokenIdentifier__2>,
@@ -66,6 +92,9 @@ export interface Hub {
       arg_3: [] | [Option],
     ) => Promise<Result_6>,
   'extensions' : () => Promise<Array<Extension>>,
+  'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
+      [] | [CanisterMetrics]
+    >,
   'getContractInfo' : () => Promise<ContractInfo>,
   'getInventory' : () => Promise<Inventory>,
   'getMetadata' : () => Promise<ContractMetadata>,
@@ -75,6 +104,7 @@ export interface Hub {
     >,
   'getRecipes' : () => Promise<Array<[string, Recipe]>>,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__2]>>,
+  'getStats' : () => Promise<Array<string>>,
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init' : (arg_0: Array<Principal>, arg_1: ContractMetadata) => Promise<
       undefined
@@ -105,10 +135,12 @@ export interface Hub {
   'transfer_ledger' : (arg_0: ICP, arg_1: Principal) => Promise<TransferResult>,
   'updateAccessories' : () => Promise<undefined>,
   'updateAdmins' : (arg_0: Principal, arg_1: boolean) => Promise<Result_1>,
+  'updateAdminsData' : (arg_0: Principal, arg_1: boolean) => Promise<Result_1>,
   'verification' : () => Promise<undefined>,
   'wallet_available' : () => Promise<bigint>,
   'wallet_receive' : () => Promise<undefined>,
   'wearAccessory' : (arg_0: string, arg_1: string) => Promise<Result>,
+  'whoami' : () => Promise<Principal>,
 }
 export interface ICP { 'e8s' : bigint }
 export type Inventory = Array<AssetInventory>;
@@ -141,6 +173,15 @@ export type Metadata__1 = {
     }
   } |
   { 'nonfungible' : { 'metadata' : [] | [Array<number>] } };
+export type MetricsGranularity = { 'hourly' : null } |
+  { 'daily' : null };
+export interface NumericEntity {
+  'avg' : bigint,
+  'max' : bigint,
+  'min' : bigint,
+  'first' : bigint,
+  'last' : bigint,
+}
 export type Option = boolean;
 export type Recipe = Array<string>;
 export type Recipe__1 = Array<string>;
@@ -245,6 +286,7 @@ export type TransferResponse = { 'ok' : Balance } |
   };
 export type TransferResult = { 'Ok' : BlockIndex } |
   { 'Err' : TransferError };
+export type UpdateCallsAggregatedData = Array<bigint>;
 export type User = { 'principal' : Principal } |
   { 'address' : AccountIdentifier };
 export interface _SERVICE extends Hub {}

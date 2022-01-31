@@ -1,13 +1,12 @@
 type erc721_token = 
  service {
-   acceptCycles: () -> ();
    addAdmin: (principal) -> (Result);
-   addLegendary: (text, text) -> (Result_3);
-   addListAccessory: (vec Accessory) -> (Result_3);
+   addLegendary: (text, text) -> (Result_4);
+   addListAccessory: (vec Accessory) -> (Result_4);
    addListComponent: (vec record {
                             text;
                             Component;
-                          }) -> (Result_3);
+                          }) -> (Result_4);
    allPayments: () -> (vec record {
                              principal;
                              vec SubAccount__1;
@@ -16,11 +15,10 @@ type erc721_token =
                                 TokenIndex;
                                 Settlement;
                               }) query;
-   availableCycles: () -> (nat) query;
    balance: (BalanceRequest) -> (BalanceResponse) query;
-   bearer: (TokenIdentifier) -> (Result_6) query;
+   bearer: (TokenIdentifier) -> (Result_8) query;
+   burn: (TokenIdentifier) -> (Result_3);
    clearPayments: (principal, vec SubAccount__1) -> ();
-   collectCanisterMetrics: () -> ();
    draw: (TokenIdentifier) -> (Result);
    extensions: () -> (vec Extension) query;
    getAllComponents: () -> (vec record {
@@ -28,28 +26,27 @@ type erc721_token =
                                   Component;
                                 }) query;
    getAvatarInfos: () -> (Result_7) query;
-   getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
    getMinter: () -> (vec principal) query;
    getRegistry: () -> (vec record {
                              TokenIndex;
                              AccountIdentifier__2;
                            }) query;
    http_request: (HttpRequest) -> (HttpResponse) query;
-   list: (ListRequest) -> (Result_2);
+   list: (ListRequest) -> (Result_3);
    listings: () -> (vec record {
                           TokenIndex;
                           Listing;
                           Metadata__1;
                         }) query;
    lock: (TokenIdentifier, nat64, AccountIdentifier__2, SubAccount__1) ->
-    (Result_6);
-   metadata: (TokenIdentifier) -> (Result_5) query;
-   mint: (MintRequest) -> (Result_4);
-   mintLegendary: (text, AccountIdentifier__2) -> (Result_3);
+    (Result_3);
+   metadata: (TokenIdentifier) -> (Result_6) query;
+   mint: (MintRequest) -> (Result_5);
+   mintLegendary: (text, AccountIdentifier__2) -> (Result_4);
    modify_style: (text) -> (text);
    payments: () -> (opt vec SubAccount__1) query;
    removeMouth: (TokenIdentifier) -> (Result);
-   settle: (TokenIdentifier) -> (Result_2);
+   settle: (TokenIdentifier) -> (Result_3);
    settlements: () ->
     (vec record {
            TokenIndex;
@@ -62,12 +59,11 @@ type erc721_token =
                                    Accessory;
                                  }) query;
    showSvg: (TokenIdentifier) -> (opt text) query;
-   supply: () -> (nat) query;
+   supply: (TokenIdentifier) -> (Result_2) query;
    tokenIdentifier: (TokenIndex) -> (TokenIdentifier) query;
    tokens_ext: (AccountIdentifier__2) -> (Result_1) query;
    transactions: () -> (vec Transaction) query;
    transfer: (TransferRequest) -> (TransferResponse);
-   updateAdminsData: (principal, bool) -> (Result);
    wearAccessory: (TokenIdentifier, text, principal) -> (Result);
  };
 type User = 
@@ -75,7 +71,6 @@ type User =
    address: AccountIdentifier;
    "principal": principal;
  };
-type UpdateCallsAggregatedData = vec nat64;
 type TransferResponse = 
  variant {
    err:
@@ -144,6 +139,11 @@ type Settlement =
    seller: principal;
    subaccount: SubAccount__2;
  };
+type Result_8 = 
+ variant {
+   err: CommonError;
+   ok: AccountIdentifier__2;
+ };
 type Result_7 = 
  variant {
    err: text;
@@ -151,28 +151,28 @@ type Result_7 =
  };
 type Result_6 = 
  variant {
-   err: CommonError;
-   ok: AccountIdentifier__2;
- };
-type Result_5 = 
- variant {
    err: CommonError__1;
    ok: Metadata;
  };
-type Result_4 = 
+type Result_5 = 
  variant {
    err: text;
    ok: AvatarInformations;
  };
-type Result_3 = 
+type Result_4 = 
  variant {
    err: text;
    ok: text;
  };
-type Result_2 = 
+type Result_3 = 
  variant {
    err: CommonError;
    ok;
+ };
+type Result_2 = 
+ variant {
+   err: CommonError;
+   ok: Balance__1;
  };
 type Result_1 = 
  variant {
@@ -188,23 +188,10 @@ type Result =
    err: text;
    ok;
  };
-type NumericEntity = 
- record {
-   avg: nat64;
-   first: nat64;
-   last: nat64;
-   max: nat64;
-   min: nat64;
- };
 type MintRequest = 
  record {
    metadata: AvatarRequest;
    to: User;
- };
-type MetricsGranularity = 
- variant {
-   daily;
-   hourly;
  };
 type Metadata__1 = 
  variant {
@@ -261,34 +248,12 @@ type HttpRequest =
    method: text;
    url: text;
  };
-type HourlyMetricsData = 
- record {
-   canisterCycles: CanisterCyclesAggregatedData;
-   canisterHeapMemorySize: CanisterHeapMemoryAggregatedData;
-   canisterMemorySize: CanisterMemoryAggregatedData;
-   timeMillis: int;
-   updateCalls: UpdateCallsAggregatedData;
- };
 type HeaderField = 
  record {
    text;
    text;
  };
-type GetMetricsParameters = 
- record {
-   dateFromMillis: nat;
-   dateToMillis: nat;
-   granularity: MetricsGranularity;
- };
 type Extension = text;
-type DailyMetricsData = 
- record {
-   canisterCycles: NumericEntity;
-   canisterHeapMemorySize: NumericEntity;
-   canisterMemorySize: NumericEntity;
-   timeMillis: int;
-   updateCalls: nat64;
- };
 type ComponentRequest = 
  record {
    layer: nat8;
@@ -317,15 +282,7 @@ type Color =
    nat8;
    nat8;
  };
-type CanisterMetricsData = 
- variant {
-   daily: vec DailyMetricsData;
-   hourly: vec HourlyMetricsData;
- };
-type CanisterMetrics = record {data: CanisterMetricsData;};
-type CanisterMemoryAggregatedData = vec nat64;
-type CanisterHeapMemoryAggregatedData = vec nat64;
-type CanisterCyclesAggregatedData = vec nat64;
+type Balance__1 = nat;
 type BalanceResponse = 
  variant {
    err: CommonError__1;

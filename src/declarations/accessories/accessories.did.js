@@ -60,6 +60,45 @@ export const idlFactory = ({ IDL }) => {
   const Option = IDL.Bool;
   const Result_6 = IDL.Variant({ 'ok' : TokenIdentifier__2, 'err' : IDL.Text });
   const Extension = IDL.Text;
+  const MetricsGranularity = IDL.Variant({
+    'hourly' : IDL.Null,
+    'daily' : IDL.Null,
+  });
+  const GetMetricsParameters = IDL.Record({
+    'dateToMillis' : IDL.Nat,
+    'granularity' : MetricsGranularity,
+    'dateFromMillis' : IDL.Nat,
+  });
+  const UpdateCallsAggregatedData = IDL.Vec(IDL.Nat64);
+  const CanisterHeapMemoryAggregatedData = IDL.Vec(IDL.Nat64);
+  const CanisterCyclesAggregatedData = IDL.Vec(IDL.Nat64);
+  const CanisterMemoryAggregatedData = IDL.Vec(IDL.Nat64);
+  const HourlyMetricsData = IDL.Record({
+    'updateCalls' : UpdateCallsAggregatedData,
+    'canisterHeapMemorySize' : CanisterHeapMemoryAggregatedData,
+    'canisterCycles' : CanisterCyclesAggregatedData,
+    'canisterMemorySize' : CanisterMemoryAggregatedData,
+    'timeMillis' : IDL.Int,
+  });
+  const NumericEntity = IDL.Record({
+    'avg' : IDL.Nat64,
+    'max' : IDL.Nat64,
+    'min' : IDL.Nat64,
+    'first' : IDL.Nat64,
+    'last' : IDL.Nat64,
+  });
+  const DailyMetricsData = IDL.Record({
+    'updateCalls' : IDL.Nat64,
+    'canisterHeapMemorySize' : NumericEntity,
+    'canisterCycles' : NumericEntity,
+    'canisterMemorySize' : NumericEntity,
+    'timeMillis' : IDL.Int,
+  });
+  const CanisterMetricsData = IDL.Variant({
+    'hourly' : IDL.Vec(HourlyMetricsData),
+    'daily' : IDL.Vec(DailyMetricsData),
+  });
+  const CanisterMetrics = IDL.Record({ 'data' : CanisterMetricsData });
   const ContractInfo = IDL.Record({
     'nft_payload_size' : IDL.Nat,
     'memory_size' : IDL.Nat,
@@ -222,6 +261,7 @@ export const idlFactory = ({ IDL }) => {
     'balance_ledger' : IDL.Func([], [ICP], []),
     'bearer' : IDL.Func([TokenIdentifier__2], [Result_5], ['query']),
     'clearPayments' : IDL.Func([IDL.Principal, IDL.Vec(SubAccount__1)], [], []),
+    'collectCanisterMetrics' : IDL.Func([], [], []),
     'createAccessory' : IDL.Func(
         [
           IDL.Text,
@@ -233,6 +273,11 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
+    'getCanisterMetrics' : IDL.Func(
+        [GetMetricsParameters],
+        [IDL.Opt(CanisterMetrics)],
+        ['query'],
+      ),
     'getContractInfo' : IDL.Func([], [ContractInfo], []),
     'getInventory' : IDL.Func([], [Inventory], ['query']),
     'getMetadata' : IDL.Func([], [ContractMetadata], ['query']),
@@ -252,6 +297,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier__2))],
         ['query'],
       ),
+    'getStats' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'http_request' : IDL.Func([Request], [Response], ['query']),
     'init' : IDL.Func([IDL.Vec(IDL.Principal), ContractMetadata], [], []),
     'init_cap' : IDL.Func([], [Result], []),
@@ -285,10 +331,12 @@ export const idlFactory = ({ IDL }) => {
     'transfer_ledger' : IDL.Func([ICP, IDL.Principal], [TransferResult], []),
     'updateAccessories' : IDL.Func([], [], []),
     'updateAdmins' : IDL.Func([IDL.Principal, IDL.Bool], [Result_1], []),
+    'updateAdminsData' : IDL.Func([IDL.Principal, IDL.Bool], [Result_1], []),
     'verification' : IDL.Func([], [], []),
     'wallet_available' : IDL.Func([], [IDL.Nat], ['query']),
     'wallet_receive' : IDL.Func([], [], []),
     'wearAccessory' : IDL.Func([IDL.Text, IDL.Text], [Result], []),
+    'whoami' : IDL.Func([], [IDL.Principal], ['query']),
   });
   return Hub;
 };

@@ -1,3 +1,21 @@
+type WhiteListRequest__1 = 
+ record {
+   discord: opt text;
+   email: opt text;
+   height: nat64;
+   "principal": principal;
+   twitter: opt text;
+   wallet: text;
+ };
+type WhiteListRequest = 
+ record {
+   discord: opt text;
+   email: opt text;
+   height: nat64;
+   "principal": principal;
+   twitter: opt text;
+   wallet: text;
+ };
 type User = 
  record {
    airdrop: opt vec text;
@@ -10,7 +28,6 @@ type User =
    twitter: opt text;
    wallet: text;
  };
-type UpdateCallsAggregatedData = vec nat64;
 type TransferResult = 
  variant {
    Err: TransferError;
@@ -36,34 +53,15 @@ type Status =
    OG;
    Staff;
  };
-type Result_2 = 
- variant {
-   err: text;
-   ok: nat64;
- };
 type Result_1 = 
- variant {
-   err: text;
-   ok: text;
- };
-type Result = 
  variant {
    err: text;
    ok;
  };
-type PaymentError = 
- record {
-   caller: principal;
-   error_message: text;
-   request_associated: opt Infos__1;
- };
-type NumericEntity = 
- record {
-   avg: nat64;
-   first: nat64;
-   last: nat64;
-   max: nat64;
-   min: nat64;
+type Result = 
+ variant {
+   err: text;
+   ok: text;
  };
 type MintingError = 
  variant {
@@ -75,56 +73,17 @@ type MintRequest =
    metadata: AvatarRequest;
    to: ExtCoreUser;
  };
-type MetricsGranularity = 
- variant {
-   daily;
-   hourly;
- };
-type Infos__1 = 
+type JoiningError = 
  record {
-   discord: opt text;
-   email: opt text;
-   memo: nat64;
-   subaccount_to_send: vec nat8;
-   twitter: opt text;
-   wallet: text;
- };
-type Infos = 
- record {
-   discord: opt text;
-   email: opt text;
-   memo: nat64;
-   subaccount_to_send: vec nat8;
-   twitter: opt text;
-   wallet: text;
+   caller: principal;
+   error_message: text;
+   request_associated: opt WhiteListRequest;
  };
 type ICP = record {e8s: nat64;};
-type HourlyMetricsData = 
- record {
-   canisterCycles: CanisterCyclesAggregatedData;
-   canisterHeapMemorySize: CanisterHeapMemoryAggregatedData;
-   canisterMemorySize: CanisterMemoryAggregatedData;
-   timeMillis: int;
-   updateCalls: UpdateCallsAggregatedData;
- };
-type GetMetricsParameters = 
- record {
-   dateFromMillis: nat;
-   dateToMillis: nat;
-   granularity: MetricsGranularity;
- };
 type ExtCoreUser = 
  variant {
    address: AccountIdentifier;
    "principal": principal;
- };
-type DailyMetricsData = 
- record {
-   canisterCycles: NumericEntity;
-   canisterHeapMemorySize: NumericEntity;
-   canisterMemorySize: NumericEntity;
-   timeMillis: int;
-   updateCalls: nat64;
  };
 type Color = 
  record {
@@ -133,15 +92,6 @@ type Color =
    nat8;
    nat8;
  };
-type CanisterMetricsData = 
- variant {
-   daily: vec DailyMetricsData;
-   hourly: vec HourlyMetricsData;
- };
-type CanisterMetrics = record {data: CanisterMetricsData;};
-type CanisterMemoryAggregatedData = vec nat64;
-type CanisterHeapMemoryAggregatedData = vec nat64;
-type CanisterCyclesAggregatedData = vec nat64;
 type BlockIndex = nat64;
 type AvatarResponse = 
  variant {
@@ -164,14 +114,6 @@ type AvatarInformations =
    svg: text;
    tokenIdentifier: text;
  };
-type Audit = 
- record {
-   new_avatar: int;
-   new_icps: ICP;
-   new_items: int;
-   new_users: int;
-   time: int;
- };
 type AirdropResponse = 
  variant {
    err: text;
@@ -186,45 +128,33 @@ type AirdropObject =
  };
 type AccountIdentifier = text;
 service : {
-  addAdmin: (principal) -> (Result);
-  addUser: (principal, User) -> (Result);
+  addAdmin: (principal) -> (Result_1);
+  addUser: (principal, User) -> (Result_1);
   airdrop: () -> (AirdropResponse);
-  audit: () -> ();
   balance: () -> (ICP);
   checkRegistration: () -> (bool) query;
-  collectCanisterMetrics: () -> ();
-  confirm: (nat64) -> (Result);
-  getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
   getInformations: () -> (vec record {
                                 principal;
                                 User;
                               });
   getRank: (principal) -> (opt nat) query;
-  isUserAuthorized: () -> (Result) query;
+  isUserAuthorized: () -> (Result_1) query;
+  join: (WhiteListRequest__1, vec nat8) -> (Result_1);
   mintRequest: (MintRequest) -> (AvatarResponse);
-  modifyUser: (principal, User) -> (Result);
+  modifyUser: (principal, User) -> (Result_1);
   numberUsers: () -> (nat) query;
-  prejoin: (text, opt text, opt text, opt text, SubAccount) -> (Result_2);
-  process: () -> ();
-  recipe: () -> ();
-  removeUser: (principal) -> (Result_1);
+  removeUser: (principal) -> (Result);
   showErrors: () -> (vec record {
                            Time;
                            MintingError;
                          }) query;
-  showPaymentErrors: () -> (vec record {
+  showJoiningErrors: () -> (vec record {
                                   Time;
-                                  PaymentError;
+                                  JoiningError;
                                 }) query;
-  showPrejoins: () -> (vec record {
-                             principal;
-                             Infos;
-                           }) query;
   showUser: (principal) -> (opt User) query;
-  show_audits: () -> (vec Audit) query;
   transfer: (ICP, principal) -> (TransferResult);
-  updateAdminsData: (principal, bool) -> (Result);
-  verification: () -> ();
+  verificationPayments: () -> (vec SubAccount);
   wallet_available: () -> (nat) query;
   wallet_receive: () -> ();
 }

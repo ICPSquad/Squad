@@ -3,6 +3,7 @@ type User =
    address: AccountIdentifier;
    "principal": principal;
  };
+type UpdateCallsAggregatedData = vec nat64;
 type TransferResult = 
  variant {
    Err: TransferError;
@@ -143,6 +144,19 @@ type Request =
 type Recipe__1 = vec text;
 type Recipe = vec text;
 type Option = bool;
+type NumericEntity = 
+ record {
+   avg: nat64;
+   first: nat64;
+   last: nat64;
+   max: nat64;
+   min: nat64;
+ };
+type MetricsGranularity = 
+ variant {
+   daily;
+   hourly;
+ };
 type Metadata__1 = 
  variant {
    fungible:
@@ -196,9 +210,11 @@ type Hub =
    balance_ledger: () -> (ICP);
    bearer: (TokenIdentifier__2) -> (Result_5) query;
    clearPayments: (principal, vec SubAccount__1) -> ();
+   collectCanisterMetrics: () -> ();
    createAccessory: (text, vec TokenIdentifier__2, vec nat8, opt Option) ->
     (Result_6);
    extensions: () -> (vec Extension) query;
+   getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
    getContractInfo: () -> (ContractInfo);
    getInventory: () -> (Inventory) query;
    getMetadata: () -> (ContractMetadata) query;
@@ -216,6 +232,7 @@ type Hub =
                              TokenIndex;
                              AccountIdentifier__2;
                            }) query;
+   getStats: () -> (vec text) query;
    http_request: (Request) -> (Response) query;
    init: (vec principal, ContractMetadata) -> ();
    init_cap: () -> (Result);
@@ -246,15 +263,31 @@ type Hub =
    transfer_ledger: (ICP, principal) -> (TransferResult);
    updateAccessories: () -> ();
    updateAdmins: (principal, bool) -> (Result_1);
+   updateAdminsData: (principal, bool) -> (Result_1);
    verification: () -> ();
    wallet_available: () -> (nat) query;
    wallet_receive: () -> ();
    wearAccessory: (text, text) -> (Result);
+   whoami: () -> (principal) query;
+ };
+type HourlyMetricsData = 
+ record {
+   canisterCycles: CanisterCyclesAggregatedData;
+   canisterHeapMemorySize: CanisterHeapMemoryAggregatedData;
+   canisterMemorySize: CanisterMemoryAggregatedData;
+   timeMillis: int;
+   updateCalls: UpdateCallsAggregatedData;
  };
 type HeaderField = 
  record {
    text;
    text;
+ };
+type GetMetricsParameters = 
+ record {
+   dateFromMillis: nat;
+   dateToMillis: nat;
+   granularity: MetricsGranularity;
  };
 type Extension = text;
 type Error = 
@@ -270,6 +303,14 @@ type Error =
    Unauthorized;
    invalidTransaction;
    unsupportedResponse;
+ };
+type DailyMetricsData = 
+ record {
+   canisterCycles: NumericEntity;
+   canisterHeapMemorySize: NumericEntity;
+   canisterMemorySize: NumericEntity;
+   timeMillis: int;
+   updateCalls: nat64;
  };
 type ContractMetadata = 
  record {
@@ -296,6 +337,15 @@ type CommonError =
    InvalidToken: TokenIdentifier;
    Other: text;
  };
+type CanisterMetricsData = 
+ variant {
+   daily: vec DailyMetricsData;
+   hourly: vec HourlyMetricsData;
+ };
+type CanisterMetrics = record {data: CanisterMetricsData;};
+type CanisterMemoryAggregatedData = vec nat64;
+type CanisterHeapMemoryAggregatedData = vec nat64;
+type CanisterCyclesAggregatedData = vec nat64;
 type BlockIndex = nat64;
 type BalanceResponse = 
  variant {

@@ -1,5 +1,5 @@
 export const idlFactory = ({ IDL }) => {
-  const Result_2 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const Status = IDL.Variant({
     'OG' : IDL.Null,
     'Staff' : IDL.Null,
@@ -31,6 +31,45 @@ export const idlFactory = ({ IDL }) => {
     'err' : IDL.Text,
   });
   const ICP = IDL.Record({ 'e8s' : IDL.Nat64 });
+  const MetricsGranularity = IDL.Variant({
+    'hourly' : IDL.Null,
+    'daily' : IDL.Null,
+  });
+  const GetMetricsParameters = IDL.Record({
+    'dateToMillis' : IDL.Nat,
+    'granularity' : MetricsGranularity,
+    'dateFromMillis' : IDL.Nat,
+  });
+  const UpdateCallsAggregatedData = IDL.Vec(IDL.Nat64);
+  const CanisterHeapMemoryAggregatedData = IDL.Vec(IDL.Nat64);
+  const CanisterCyclesAggregatedData = IDL.Vec(IDL.Nat64);
+  const CanisterMemoryAggregatedData = IDL.Vec(IDL.Nat64);
+  const HourlyMetricsData = IDL.Record({
+    'updateCalls' : UpdateCallsAggregatedData,
+    'canisterHeapMemorySize' : CanisterHeapMemoryAggregatedData,
+    'canisterCycles' : CanisterCyclesAggregatedData,
+    'canisterMemorySize' : CanisterMemoryAggregatedData,
+    'timeMillis' : IDL.Int,
+  });
+  const NumericEntity = IDL.Record({
+    'avg' : IDL.Nat64,
+    'max' : IDL.Nat64,
+    'min' : IDL.Nat64,
+    'first' : IDL.Nat64,
+    'last' : IDL.Nat64,
+  });
+  const DailyMetricsData = IDL.Record({
+    'updateCalls' : IDL.Nat64,
+    'canisterHeapMemorySize' : NumericEntity,
+    'canisterCycles' : NumericEntity,
+    'canisterMemorySize' : NumericEntity,
+    'timeMillis' : IDL.Int,
+  });
+  const CanisterMetricsData = IDL.Variant({
+    'hourly' : IDL.Vec(HourlyMetricsData),
+    'daily' : IDL.Vec(DailyMetricsData),
+  });
+  const CanisterMetrics = IDL.Record({ 'data' : CanisterMetricsData });
   const AccountIdentifier = IDL.Text;
   const ExtCoreUser = IDL.Variant({
     'principal' : IDL.Principal,
@@ -56,8 +95,8 @@ export const idlFactory = ({ IDL }) => {
     'err' : IDL.Text,
   });
   const SubAccount = IDL.Vec(IDL.Nat8);
-  const Result_1 = IDL.Variant({ 'ok' : IDL.Nat64, 'err' : IDL.Text });
-  const Result = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
+  const Result_2 = IDL.Variant({ 'ok' : IDL.Nat64, 'err' : IDL.Text });
+  const Result_1 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
   const Time = IDL.Int;
   const MintingError = IDL.Variant({
     'Avatar' : IDL.Text,
@@ -85,14 +124,11 @@ export const idlFactory = ({ IDL }) => {
     'wallet' : IDL.Text,
   });
   const Audit = IDL.Record({
-    'cycles_burned_accessories' : IDL.Int,
     'new_users' : IDL.Int,
     'new_items' : IDL.Int,
     'time' : IDL.Int,
     'new_icps' : ICP,
-    'cycles_burned_avatar' : IDL.Int,
     'new_avatar' : IDL.Int,
-    'cycles_burned_hub' : IDL.Int,
   });
   const BlockIndex = IDL.Nat64;
   const TransferError = IDL.Variant({
@@ -107,22 +143,28 @@ export const idlFactory = ({ IDL }) => {
     'Err' : TransferError,
   });
   return IDL.Service({
-    'addAdmin' : IDL.Func([IDL.Principal], [Result_2], []),
-    'addUser' : IDL.Func([IDL.Principal, User], [Result_2], []),
+    'addAdmin' : IDL.Func([IDL.Principal], [Result], []),
+    'addUser' : IDL.Func([IDL.Principal, User], [Result], []),
     'airdrop' : IDL.Func([], [AirdropResponse], []),
     'audit' : IDL.Func([], [], []),
     'balance' : IDL.Func([], [ICP], []),
     'checkRegistration' : IDL.Func([], [IDL.Bool], ['query']),
-    'confirm' : IDL.Func([IDL.Nat64], [Result_2], []),
+    'collectCanisterMetrics' : IDL.Func([], [], []),
+    'confirm' : IDL.Func([IDL.Nat64], [Result], []),
+    'getCanisterMetrics' : IDL.Func(
+        [GetMetricsParameters],
+        [IDL.Opt(CanisterMetrics)],
+        ['query'],
+      ),
     'getInformations' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Principal, User))],
         [],
       ),
     'getRank' : IDL.Func([IDL.Principal], [IDL.Opt(IDL.Nat)], ['query']),
-    'isUserAuthorized' : IDL.Func([], [Result_2], ['query']),
+    'isUserAuthorized' : IDL.Func([], [Result], ['query']),
     'mintRequest' : IDL.Func([MintRequest], [AvatarResponse], []),
-    'modifyUser' : IDL.Func([IDL.Principal, User], [Result_2], []),
+    'modifyUser' : IDL.Func([IDL.Principal, User], [Result], []),
     'numberUsers' : IDL.Func([], [IDL.Nat], ['query']),
     'prejoin' : IDL.Func(
         [
@@ -132,12 +174,12 @@ export const idlFactory = ({ IDL }) => {
           IDL.Opt(IDL.Text),
           SubAccount,
         ],
-        [Result_1],
+        [Result_2],
         [],
       ),
     'process' : IDL.Func([], [], []),
     'recipe' : IDL.Func([], [], []),
-    'removeUser' : IDL.Func([IDL.Principal], [Result], []),
+    'removeUser' : IDL.Func([IDL.Principal], [Result_1], []),
     'showErrors' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(Time, MintingError))],
@@ -156,6 +198,7 @@ export const idlFactory = ({ IDL }) => {
     'showUser' : IDL.Func([IDL.Principal], [IDL.Opt(User)], ['query']),
     'show_audits' : IDL.Func([], [IDL.Vec(Audit)], ['query']),
     'transfer' : IDL.Func([ICP, IDL.Principal], [TransferResult], []),
+    'updateAdminsData' : IDL.Func([IDL.Principal, IDL.Bool], [Result], []),
     'verification' : IDL.Func([], [], []),
     'wallet_available' : IDL.Func([], [IDL.Nat], ['query']),
     'wallet_receive' : IDL.Func([], [], []),

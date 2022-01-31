@@ -9,14 +9,11 @@ export interface AirdropObject {
 export type AirdropResponse = { 'ok' : AirdropObject } |
   { 'err' : string };
 export interface Audit {
-  'cycles_burned_accessories' : bigint,
   'new_users' : bigint,
   'new_items' : bigint,
   'time' : bigint,
   'new_icps' : ICP,
-  'cycles_burned_avatar' : bigint,
   'new_avatar' : bigint,
-  'cycles_burned_hub' : bigint,
 }
 export interface AvatarInformations {
   'svg' : string,
@@ -29,9 +26,34 @@ export interface AvatarRequest {
 export type AvatarResponse = { 'ok' : AvatarInformations } |
   { 'err' : string };
 export type BlockIndex = bigint;
+export type CanisterCyclesAggregatedData = Array<bigint>;
+export type CanisterHeapMemoryAggregatedData = Array<bigint>;
+export type CanisterMemoryAggregatedData = Array<bigint>;
+export interface CanisterMetrics { 'data' : CanisterMetricsData }
+export type CanisterMetricsData = { 'hourly' : Array<HourlyMetricsData> } |
+  { 'daily' : Array<DailyMetricsData> };
 export type Color = [number, number, number, number];
+export interface DailyMetricsData {
+  'updateCalls' : bigint,
+  'canisterHeapMemorySize' : NumericEntity,
+  'canisterCycles' : NumericEntity,
+  'canisterMemorySize' : NumericEntity,
+  'timeMillis' : bigint,
+}
 export type ExtCoreUser = { 'principal' : Principal } |
   { 'address' : AccountIdentifier };
+export interface GetMetricsParameters {
+  'dateToMillis' : bigint,
+  'granularity' : MetricsGranularity,
+  'dateFromMillis' : bigint,
+}
+export interface HourlyMetricsData {
+  'updateCalls' : UpdateCallsAggregatedData,
+  'canisterHeapMemorySize' : CanisterHeapMemoryAggregatedData,
+  'canisterCycles' : CanisterCyclesAggregatedData,
+  'canisterMemorySize' : CanisterMemoryAggregatedData,
+  'timeMillis' : bigint,
+}
 export interface ICP { 'e8s' : bigint }
 export interface Infos {
   'subaccount_to_send' : Array<number>,
@@ -49,19 +71,28 @@ export interface Infos__1 {
   'discord' : [] | [string],
   'wallet' : string,
 }
+export type MetricsGranularity = { 'hourly' : null } |
+  { 'daily' : null };
 export interface MintRequest { 'to' : ExtCoreUser, 'metadata' : AvatarRequest }
 export type MintingError = { 'Avatar' : string } |
   { 'Verification' : string };
+export interface NumericEntity {
+  'avg' : bigint,
+  'max' : bigint,
+  'min' : bigint,
+  'first' : bigint,
+  'last' : bigint,
+}
 export interface PaymentError {
   'request_associated' : [] | [Infos__1],
   'error_message' : string,
   'caller' : Principal,
 }
-export type Result = { 'ok' : string } |
+export type Result = { 'ok' : null } |
   { 'err' : string };
-export type Result_1 = { 'ok' : bigint } |
+export type Result_1 = { 'ok' : string } |
   { 'err' : string };
-export type Result_2 = { 'ok' : null } |
+export type Result_2 = { 'ok' : bigint } |
   { 'err' : string };
 export type Status = { 'OG' : null } |
   { 'Staff' : null } |
@@ -81,6 +112,7 @@ export type TransferError = {
   { 'InsufficientFunds' : { 'balance' : ICP } };
 export type TransferResult = { 'Ok' : BlockIndex } |
   { 'Err' : TransferError };
+export type UpdateCallsAggregatedData = Array<bigint>;
 export interface User {
   'height' : [] | [bigint],
   'status' : Status,
@@ -93,18 +125,22 @@ export interface User {
   'avatar' : [] | [TokenIdentifier],
 }
 export interface _SERVICE {
-  'addAdmin' : (arg_0: Principal) => Promise<Result_2>,
-  'addUser' : (arg_0: Principal, arg_1: User) => Promise<Result_2>,
+  'addAdmin' : (arg_0: Principal) => Promise<Result>,
+  'addUser' : (arg_0: Principal, arg_1: User) => Promise<Result>,
   'airdrop' : () => Promise<AirdropResponse>,
   'audit' : () => Promise<undefined>,
   'balance' : () => Promise<ICP>,
   'checkRegistration' : () => Promise<boolean>,
-  'confirm' : (arg_0: bigint) => Promise<Result_2>,
+  'collectCanisterMetrics' : () => Promise<undefined>,
+  'confirm' : (arg_0: bigint) => Promise<Result>,
+  'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
+      [] | [CanisterMetrics]
+    >,
   'getInformations' : () => Promise<Array<[Principal, User]>>,
   'getRank' : (arg_0: Principal) => Promise<[] | [bigint]>,
-  'isUserAuthorized' : () => Promise<Result_2>,
+  'isUserAuthorized' : () => Promise<Result>,
   'mintRequest' : (arg_0: MintRequest) => Promise<AvatarResponse>,
-  'modifyUser' : (arg_0: Principal, arg_1: User) => Promise<Result_2>,
+  'modifyUser' : (arg_0: Principal, arg_1: User) => Promise<Result>,
   'numberUsers' : () => Promise<bigint>,
   'prejoin' : (
       arg_0: string,
@@ -112,16 +148,17 @@ export interface _SERVICE {
       arg_2: [] | [string],
       arg_3: [] | [string],
       arg_4: SubAccount,
-    ) => Promise<Result_1>,
+    ) => Promise<Result_2>,
   'process' : () => Promise<undefined>,
   'recipe' : () => Promise<undefined>,
-  'removeUser' : (arg_0: Principal) => Promise<Result>,
+  'removeUser' : (arg_0: Principal) => Promise<Result_1>,
   'showErrors' : () => Promise<Array<[Time, MintingError]>>,
   'showPaymentErrors' : () => Promise<Array<[Time, PaymentError]>>,
   'showPrejoins' : () => Promise<Array<[Principal, Infos]>>,
   'showUser' : (arg_0: Principal) => Promise<[] | [User]>,
   'show_audits' : () => Promise<Array<Audit>>,
   'transfer' : (arg_0: ICP, arg_1: Principal) => Promise<TransferResult>,
+  'updateAdminsData' : (arg_0: Principal, arg_1: boolean) => Promise<Result>,
   'verification' : () => Promise<undefined>,
   'wallet_available' : () => Promise<bigint>,
   'wallet_receive' : () => Promise<undefined>,
