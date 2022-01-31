@@ -72,27 +72,28 @@
         </h3>
       </div>
       <div class="flex flex-col items-center">
-        <router-link to="/room">
-          <button
-            class="
-              lg:text-3xl
-              md:text-2xl
-              text-xl
-              shadow-2xl
-              font-marker
-              text-white
-              bg-pink-600
-              rounded
-              md:py-6 md:px-14 md:mt-8
-              py-4
-              px-8
-              mt-4
-              cursor-pointer
-            "
-          >
-            Room
-          </button>
-        </router-link>
+        <!-- <router-link to="/room"> -->
+        <button
+          class="
+            lg:text-3xl
+            md:text-2xl
+            text-xl
+            shadow-2xl
+            font-marker
+            text-white
+            bg-pink-600
+            rounded
+            md:py-6 md:px-14 md:mt-8
+            py-4
+            px-8
+            mt-4
+            cursor-pointer
+          "
+          @click="maintenance"
+        >
+          Room
+        </button>
+        <!-- </router-link> -->
         <h3
           class="
             md:w-1/2 md:text-center
@@ -116,6 +117,15 @@
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  setup() {},
+  setup() {
+    const maintenance = () => {
+      alert(
+        "This feature is currently under maintenance. Please try again later."
+      );
+    };
+    return {
+      maintenance,
+    };
+  },
 });
 </script>

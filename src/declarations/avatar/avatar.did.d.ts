@@ -224,6 +224,7 @@ export interface erc721_token {
     >,
   'getMinter' : () => Promise<Array<Principal>>,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__2]>>,
+  'howManyEquipped' : () => Promise<bigint>,
   'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
   'list' : (arg_0: ListRequest) => Promise<Result_2>,
   'listings' : () => Promise<Array<[TokenIndex, Listing, Metadata__1]>>,

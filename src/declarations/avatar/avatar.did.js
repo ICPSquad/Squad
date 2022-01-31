@@ -264,6 +264,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier__2))],
         ['query'],
       ),
+    'howManyEquipped' : IDL.Func([], [IDL.Nat], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'list' : IDL.Func([ListRequest], [Result_2], []),
     'listings' : IDL.Func(

@@ -261,26 +261,26 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    public shared ({caller}) func mint (name : Text, recipient : AccountIdentifier) : async Result.Result<Text,Text> {
-        assert(_isAdmin(caller));
-        switch(_mint(name, recipient)){
-            case(#err(error)) return #err(error);
-            case(#ok(msg)){
-                let event : IndefiniteEvent = {
-                    operation = "mint";
-                    details = [("name", #Text(name)),("to", #Text(recipient))];
-                    caller = caller;
-                };
-                switch(await cap.insert(event)){
-                    case(#err(e)) return #err("Error when reporting event to CAP");
-                    case(#ok(id)){
-                        let id_textual = Nat64.toText(id);
-                        return (#ok(msg # ".Cap recorded with id : " #  id_textual));
-                    }
-                }
-            }
-        }
-    };
+    // public shared ({caller}) func mint (name : Text, recipient : AccountIdentifier) : async Result.Result<Text,Text> {
+    //     assert(_isAdmin(caller));
+    //     switch(_mint(name, recipient)){
+    //         case(#err(error)) return #err(error);
+    //         case(#ok(msg)){
+    //             let event : IndefiniteEvent = {
+    //                 operation = "mint";
+    //                 details = [("name", #Text(name)),("to", #Text(recipient))];
+    //                 caller = caller;
+    //             };
+    //             switch(await cap.insert(event)){
+    //                 case(#err(e)) return #err("Error when reporting event to CAP");
+    //                 case(#ok(id)){
+    //                     let id_textual = Nat64.toText(id);
+    //                     return (#ok(msg # ".Cap recorded with id : " #  id_textual));
+    //                 }
+    //             }
+    //         }
+    //     }
+    // };
 
     public query func getMinter() : async [Principal] {
         _minter;
@@ -296,6 +296,10 @@ shared({ caller = hub }) actor class Hub() = this {
     
     public query func supply() : async Nat {
         _supply;
+    };
+
+    public query func nextTokenId(): async Nat {
+        Nat32.toNat(_nextTokenId);
     };
 
     public query func extensions() : async [Extension] {
@@ -501,6 +505,18 @@ shared({ caller = hub }) actor class Hub() = this {
             case(?#Accessory(accessory)) {?{category = #Accessory ; name = accessory.name; token_identifier = _getTokenIdentifier(token_index)}};
             case(?#LegendaryAccessory(legendary)) {?{category = #Accessory ; name = legendary.name; token_identifier = _getTokenIdentifier(token_index)}};
             case(null) {null}; 
+        };
+    };
+
+
+    public shared query ({caller}) func getHisInventory (p : Principal) : async Inventory {
+        assert(_isAdmin(caller));
+        let account_identifier = AID.fromPrincipal(p, null);
+        switch(_ownerships.get(account_identifier)){
+            case(null) return [];
+            case(?list) {
+                Array.mapFilter<TokenIndex, AssetInventory>(list, _indexToAssetInventory);
+            };
         };
     };
 
@@ -998,66 +1014,66 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
     //TODO Check that the corresponding accessory is not locked ! 
-    public shared({caller}) func wearAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text) : async Result.Result<(), Text> {
-        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);
-        switch(_registry.get(token_index)){
-            case(null) return #err("This token identifier doesn't exist!");
-            case(?owner){
-                if(AID.fromPrincipal(caller, null) != owner){
-                    return #err("Unauthorized");
-                };
-            };
-        };
-        switch(_items.get(token_index)){
-            case(?#Accessory(item)){
-                let wear_value = item.wear;
-                if(wear_value == 1){
-                    return #err("Cannot equip this accessory; wear value is too low.")
-                };
-                switch(await nftActor.wearAccessory(token_identifier_avatar, item.name, caller)){
-                    case(#err(message)) return #err(message);
-                    case(#ok){
-                        //Decrease the wear value by one! 
-                        let new_item = #Accessory({name = item.name; wear = (item.wear - 1); equipped = ?token_identifier_avatar;});
-                        _items.put(token_index, new_item);
-                        return #ok;
-                    };
-                };
-            };
-            case(_) return #err("Not an accessory.");
-        };
-    };
+    // public shared({caller}) func wearAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text) : async Result.Result<(), Text> {
+    //     let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);
+    //     switch(_registry.get(token_index)){
+    //         case(null) return #err("This token identifier doesn't exist!");
+    //         case(?owner){
+    //             if(AID.fromPrincipal(caller, null) != owner){
+    //                 return #err("Unauthorized");
+    //             };
+    //         };
+    //     };
+    //     switch(_items.get(token_index)){
+    //         case(?#Accessory(item)){
+    //             let wear_value = item.wear;
+    //             if(wear_value == 1){
+    //                 return #err("Cannot equip this accessory; wear value is too low.")
+    //             };
+    //             switch(await nftActor.wearAccessory(token_identifier_avatar, item.name, caller)){
+    //                 case(#err(message)) return #err(message);
+    //                 case(#ok){
+    //                     //Decrease the wear value by one! 
+    //                     let new_item = #Accessory({name = item.name; wear = (item.wear - 1); equipped = ?token_identifier_avatar;});
+    //                     _items.put(token_index, new_item);
+    //                     return #ok;
+    //                 };
+    //             };
+    //         };
+    //         case(_) return #err("Not an accessory.");
+    //     };
+    // };
 
-    public shared ({caller}) func removeAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text ) : async Result.Result<(), Text> {
-           let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);
-        switch(_registry.get(token_index)){
-            case(null) return #err("This token identifier doesn't exist!");
-            case(?owner){
-                if(AID.fromPrincipal(caller, null) != owner){
-                    return #err("Unauthorized");
-                };
-            };
-        };
-        switch(_items.get(token_index)){
-            case(?#Accessory(item)){
-                let wear_value = item.wear;
-                if(wear_value == 1){
-                    return #err("Cannot equip this accessory; wear value is too low.")
-                };
-                //TODO -> nftActor.removeAccessory 
-                switch(await nftActor.wearAccessory(token_identifier_avatar, item.name, caller)){
-                    case(#err(message)) return #err(message);
-                    case(#ok){
-                        //Decrease the wear value by one! 
-                        let new_item = #Accessory({name = item.name; wear = (item.wear - 1); equipped = ?token_identifier_avatar;});
-                        _items.put(token_index, new_item);
-                        return #ok;
-                    };
-                };
-            };
-            case(_) return #err("Not an accessory.");
-        };
-    };
+    // public shared ({caller}) func removeAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text ) : async Result.Result<(), Text> {
+    //        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);
+    //     switch(_registry.get(token_index)){
+    //         case(null) return #err("This token identifier doesn't exist!");
+    //         case(?owner){
+    //             if(AID.fromPrincipal(caller, null) != owner){
+    //                 return #err("Unauthorized");
+    //             };
+    //         };
+    //     };
+    //     switch(_items.get(token_index)){
+    //         case(?#Accessory(item)){
+    //             let wear_value = item.wear;
+    //             if(wear_value == 1){
+    //                 return #err("Cannot equip this accessory; wear value is too low.")
+    //             };
+    //             //TODO -> nftActor.removeAccessory 
+    //             switch(await nftActor.wearAccessory(token_identifier_avatar, item.name, caller)){
+    //                 case(#err(message)) return #err(message);
+    //                 case(#ok){
+    //                     //Decrease the wear value by one! 
+    //                     let new_item = #Accessory({name = item.name; wear = (item.wear - 1); equipped = ?token_identifier_avatar;});
+    //                     _items.put(token_index, new_item);
+    //                     return #ok;
+    //                 };
+    //             };
+    //         };
+    //         case(_) return #err("Not an accessory.");
+    //     };
+    // };
 
     private func _burn (token_index : TokenIndex ) :  Result.Result<AccountIdentifier,Text> {
         let token_identifier = _getTokenIdentifier(token_index);
@@ -1094,36 +1110,36 @@ shared({ caller = hub }) actor class Hub() = this {
         accessory2 : ?Text;
     };
 
-    public shared({caller}) func airdrop(airdrop : AirdropObject) : async Result.Result<(), Text >{
-        assert(caller == Principal.fromText("p4y2d-yyaaa-aaaaj-qaixa-cai")); // Hub canister
-        switch(_ownerships.get(AID.fromPrincipal(caller, null))){
-            case(?list) return  #err ("Already airdropped");
-            case(null) {};
-        };
-        switch(_mint(airdrop.material, AID.fromPrincipal(airdrop.recipient, null))){
-            case(#ok(v)) {};
-            case(#err(message)) return #err(message);
-        };
-        switch(airdrop.accessory1){
-            case(null) return #ok;
-            case(?accessory1){
-                switch(_mint(accessory1, AID.fromPrincipal(airdrop.recipient, null))){
-                    case(#err(message)) return #err(message);
-                    case(#ok(v)){};
-                };
-            };
-        };
-        switch(airdrop.accessory2){
-            case(null) return #ok;
-            case(?accessory2){
-                switch(_mint(accessory2, AID.fromPrincipal(airdrop.recipient, null))){
-                    case(#err(message)) return #err(message);
-                    case(#ok(v)){};
-                };
-            };
-        };
-        return #ok;
-    };
+    // public shared({caller}) func airdrop(airdrop : AirdropObject) : async Result.Result<(), Text >{
+    //     assert(caller == Principal.fromText("p4y2d-yyaaa-aaaaj-qaixa-cai")); // Hub canister
+    //     switch(_ownerships.get(AID.fromPrincipal(caller, null))){
+    //         case(?list) return  #err ("Already airdropped");
+    //         case(null) {};
+    //     };
+    //     switch(_mint(airdrop.material, AID.fromPrincipal(airdrop.recipient, null))){
+    //         case(#ok(v)) {};
+    //         case(#err(message)) return #err(message);
+    //     };
+    //     switch(airdrop.accessory1){
+    //         case(null) return #ok;
+    //         case(?accessory1){
+    //             switch(_mint(accessory1, AID.fromPrincipal(airdrop.recipient, null))){
+    //                 case(#err(message)) return #err(message);
+    //                 case(#ok(v)){};
+    //             };
+    //         };
+    //     };
+    //     switch(airdrop.accessory2){
+    //         case(null) return #ok;
+    //         case(?accessory2){
+    //             switch(_mint(accessory2, AID.fromPrincipal(airdrop.recipient, null))){
+    //                 case(#err(message)) return #err(message);
+    //                 case(#ok(v)){};
+    //             };
+    //         };
+    //     };
+    //     return #ok;
+    // };
 
 
     ///////////////////////////////////
@@ -1237,81 +1253,81 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
     type Option = Bool;
-    public shared ({caller}) func createAccessory (name : Text, materials : [TokenIdentifier], subaccount : [Nat8], option : ?Option) : async Result.Result<TokenIdentifier, Text> {
-        //  Check subaccount is valid (not among the firsts to prevent cheating
-        if(_isSubaccountIncorrect(subaccount)){
-            return #err("Subaccount incorrect.");
-        };
-        //  Check 0.1 ICP fee has been paid
-        if(not(await _checkPayment(subaccount,10_000_000))){
-            return #err("Fee has not been paid.");
-        };
-        //  Send back money to the main account and keep track of the subaccount
-        subaccount_to_check := Array.append<SubAccount>(subaccount_to_check, [subaccount]);
-        ignore(_sendBackFrom(subaccount));
-        //  Check ownership of materials
-        let materials_tindex = Array.map<TokenIdentifier, TokenIndex>(materials, ExtCore.TokenIdentifier.getIndex);
-        for(token_index in materials_tindex.vals()){
-            //Check if one material is locked! 
-            switch(_registry.get(token_index)){
-                case(null) return #err("This token doesn't exist." # _getTokenIdentifier(token_index));
-                case(?account){
-                    if(AID.fromPrincipal(caller, null) != account){
-                        return #err("Unauthorized : " # _getTokenIdentifier(token_index));
-                    } else {};
-                };
-            };
-        };
-        switch(_templates.get(name)){
-            case(?#Accessory(template)){
-                let recipe : Recipe = template.recipe;
-                if(not _verifyMaterials(materials, recipe)){
-                    return #err("Materials doesn't fit the recipe.");
-                };
-                //  Burn materials
-                for (token_identifier in materials.vals()){
-                    let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
-                    //  Check that the material is not close to being sold!
-                    if(_isLocked(token_index)){
-                        assert(false);
-                        return #err("Material with token identifier : " # token_identifier # "is locked.");
-                    };
-                    switch(_burn(token_index)){
-                        case(#err(e)) {assert(false); return #err(e)};
-                        case(#ok(owner)){};
-                    };
-                    let event : IndefiniteEvent = {
-                        operation = "burn";
-                        details = [("item", #Text(token_identifier)), ("from", #Text(AID.fromPrincipal(caller, null)))];
-                        caller = caller;
-                    };
-                    switch(await cap.insert(event)){
-                        case(#err(e)) return #err("Error when insering event in CAP for token with identifier : " # token_identifier);
-                        case(#ok(id)){};
-                    };
-                };
-                //  Mint accessory
-                var token_identifier_accessory : Text = "";
-                switch(_mint(name, AID.fromPrincipal(caller,null))){
-                    case(#err(e)) return #err(e);
-                    case(#ok(identifier)){
-                        token_identifier_accessory := identifier;
-                    };
-                };
-                let event : IndefiniteEvent = {
-                    operation = "mint";
-                    details = [("name", #Text(name)), ("to", #Text(AID.fromPrincipal(caller, null)))];
-                    caller = caller;
-                };
-                switch(await cap.insert(event)){
-                    case(#err(e)) return #err("Error when insering event in CAP for token with identifier : " # token_identifier_accessory);
-                    case(#ok(id)){};
-                };
-                return #ok(token_identifier_accessory);
-            };
-            case(_) return #err(name # "is not an accessory");
-        };
-    };
+    // public shared ({caller}) func createAccessory (name : Text, materials : [TokenIdentifier], subaccount : [Nat8], option : ?Option) : async Result.Result<TokenIdentifier, Text> {
+    //     //  Check subaccount is valid (not among the firsts to prevent cheating
+    //     if(_isSubaccountIncorrect(subaccount)){
+    //         return #err("Subaccount incorrect.");
+    //     };
+    //     //  Check 0.1 ICP fee has been paid
+    //     if(not(await _checkPayment(subaccount,10_000_000))){
+    //         return #err("Fee has not been paid.");
+    //     };
+    //     //  Send back money to the main account and keep track of the subaccount
+    //     subaccount_to_check := Array.append<SubAccount>(subaccount_to_check, [subaccount]);
+    //     ignore(_sendBackFrom(subaccount));
+    //     //  Check ownership of materials
+    //     let materials_tindex = Array.map<TokenIdentifier, TokenIndex>(materials, ExtCore.TokenIdentifier.getIndex);
+    //     for(token_index in materials_tindex.vals()){
+    //         //Check if one material is locked! 
+    //         switch(_registry.get(token_index)){
+    //             case(null) return #err("This token doesn't exist." # _getTokenIdentifier(token_index));
+    //             case(?account){
+    //                 if(AID.fromPrincipal(caller, null) != account){
+    //                     return #err("Unauthorized : " # _getTokenIdentifier(token_index));
+    //                 } else {};
+    //             };
+    //         };
+    //     };
+    //     switch(_templates.get(name)){
+    //         case(?#Accessory(template)){
+    //             let recipe : Recipe = template.recipe;
+    //             if(not _verifyMaterials(materials, recipe)){
+    //                 return #err("Materials doesn't fit the recipe.");
+    //             };
+    //             //  Burn materials
+    //             for (token_identifier in materials.vals()){
+    //                 let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+    //                 //  Check that the material is not close to being sold!
+    //                 if(_isLocked(token_index)){
+    //                     assert(false);
+    //                     return #err("Material with token identifier : " # token_identifier # "is locked.");
+    //                 };
+    //                 switch(_burn(token_index)){
+    //                     case(#err(e)) {assert(false); return #err(e)};
+    //                     case(#ok(owner)){};
+    //                 };
+    //                 let event : IndefiniteEvent = {
+    //                     operation = "burn";
+    //                     details = [("item", #Text(token_identifier)), ("from", #Text(AID.fromPrincipal(caller, null)))];
+    //                     caller = caller;
+    //                 };
+    //                 switch(await cap.insert(event)){
+    //                     case(#err(e)) return #err("Error when insering event in CAP for token with identifier : " # token_identifier);
+    //                     case(#ok(id)){};
+    //                 };
+    //             };
+    //             //  Mint accessory
+    //             var token_identifier_accessory : Text = "";
+    //             switch(_mint(name, AID.fromPrincipal(caller,null))){
+    //                 case(#err(e)) return #err(e);
+    //                 case(#ok(identifier)){
+    //                     token_identifier_accessory := identifier;
+    //                 };
+    //             };
+    //             let event : IndefiniteEvent = {
+    //                 operation = "mint";
+    //                 details = [("name", #Text(name)), ("to", #Text(AID.fromPrincipal(caller, null)))];
+    //                 caller = caller;
+    //             };
+    //             switch(await cap.insert(event)){
+    //                 case(#err(e)) return #err("Error when insering event in CAP for token with identifier : " # token_identifier_accessory);
+    //                 case(#ok(id)){};
+    //             };
+    //             return #ok(token_identifier_accessory);
+    //         };
+    //         case(_) return #err(name # "is not an accessory");
+    //     };
+    // };
 
     //  Check that the list of materials corresponds to the recipe 
     private func _verifyMaterials(materials : [TokenIdentifier], recipe : Recipe) : Bool {
@@ -1391,6 +1407,14 @@ shared({ caller = hub }) actor class Hub() = this {
         nftEntries,
     );
 
+    public query func nftId() : async Nat {
+        nfts.currentID();
+    };
+
+    public query func nftSize() : async Nat {
+        nfts.getTotalMinted();
+    };
+
     stable var staticAssetsEntries : [(
         Text,        // Asset Identifier (path).
         Static.Asset // Asset data.
@@ -1399,6 +1423,10 @@ shared({ caller = hub }) actor class Hub() = this {
     
     stable var circulationEntries : [(Text,Text)] = [];
     let circulation : HashMap.HashMap<Text,Text> = HashMap.fromIter(circulationEntries.vals(),0,Text.equal,Text.hash);
+
+    public query func circulationSize() : async Nat {
+        circulation.size();
+    };
 
 
     ///////////////
@@ -1477,5 +1505,90 @@ shared({ caller = hub }) actor class Hub() = this {
         canistergeekMonitor.postupgrade(_canistergeekMonitorUD);
         _canistergeekMonitorUD := null;
     };
+
+
+    ////////////
+    // PATCH //
+    ///////////
+
+    public query func itemsSize() : async Nat {
+        return _items.size();
+    };
+
+    public query func registrySize() : async Nat {
+        return _registry.size();
+    };
+
+    public query func maxTokenId() : async Nat {
+        var max : Nat32 = 0 ;
+        for (tokenid in _registry.keys()){
+            if (tokenid > max){
+                max := tokenid;
+            };
+        };
+        return Nat32.toNat(max);
+    };
+
+    public query func compare (n : Nat32, t : Text) : async (?Item, ?Text) {
+        let item = _items.get(n);
+        let name = circulation.get(t);
+        return((item, name));
+    };
+
+    public query func compareAll() : async [Nat] {
+        var array : [Nat] = [];
+        for (x in Iter.range(0, 5953)){
+            let item = _items.get(Nat32.fromNat(x));
+            let name = circulation.get(Nat.toText(x));
+            switch(item){
+                case(?#Material(item)){
+                    if(item != Option.unwrap(name)){
+                        array := Array.append<Nat>(array, [x]);
+                    };
+                };
+                case(?#Accessory(accessory)){
+                    if(accessory.name != Option.unwrap(name)){
+                        array := Array.append<Nat>(array, [x]);
+                    };
+                };
+                case(null){
+                    if (Option.isSome(name)){
+                        array := Array.append<Nat>(array, [x]);
+                    };
+                };
+                case(_){};
+            };
+        };
+        return array;
+    };
+
+    // public shared ({caller}) func departureToExt() ; async () {
+    //     //Create _registry & _ownerships from nfts
+
+    //     //Create _items from circulation 
+
+    //     //Update token id to create new accessories
+
+    // };
+
+    // public shared ({caller}) func fixAccessories() : async () {
+    //     //Mint all new accessories
+    // }
+
+    stable var storageData : [(TokenIndex, ?AccountIdentifier, ?Item)] = [];
+
+    public shared ({caller}) func saveData() : async [(TokenIndex, ?AccountIdentifier, ?Item)] {
+        assert(_isAdmin(caller));
+        for (x in Iter.range(5391, 5466)){
+            let x_nat32 = Nat32.fromNat(x);
+            let owner = _registry.get(x_nat32);
+            let item = _items.get(x_nat32);
+            storageData := Array.append<(TokenIndex, ?AccountIdentifier, ?Item)>(storageData, [(x_nat32, owner, item)]);
+        };
+        return storageData;
+    };
+
+    public 
+   
 
 };

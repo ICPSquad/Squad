@@ -1305,4 +1305,50 @@ shared (install) actor class erc721_token() = this {
             };
         };
     };
+
+    public query func howManyEquipped() : async Nat {
+        var count = 0;
+        for (avatar in avatars.vals()){
+            let slot = avatar.getSlots();
+            let number = _slotToNat(slot);
+            count := count + number; 
+        };
+        return count;
+    };
+
+
+    private func _slotToNat(slots : Slots) : Nat {
+        var count = 0;
+        switch(slots.Hat){
+            case(null){};
+            case(?text) {
+                count += 1;
+            };
+        };
+        switch(slots.Eyes){
+            case(null){};
+            case(?text) {
+                count += 1;
+            };
+        };
+        switch(slots.Face){
+            case(null){};
+            case(?text) {
+                count += 1;
+            };
+        };
+        switch(slots.Body){
+            case(null){};
+            case(?text) {
+                count += 1;
+            };
+        };
+        switch(slots.Misc){
+            case(null){};
+            case(?text) {
+                count += 1;
+            };
+        };
+    return count;
+    };
 };

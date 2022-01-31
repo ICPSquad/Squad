@@ -49,6 +49,7 @@ type Transaction =
    token: TokenIdentifier__1;
  };
 type TokenIndex = nat32;
+type TokenIdentifier__3 = text;
 type TokenIdentifier__2 = text;
 type TokenIdentifier__1 = text;
 type TokenIdentifier = text;
@@ -92,39 +93,34 @@ type Settlement =
    seller: principal;
    subaccount: SubAccount__2;
  };
-type Result_6 = 
- variant {
-   err: text;
-   ok: TokenIdentifier__2;
- };
 type Result_5 = 
- variant {
-   err: CommonError;
-   ok: AccountIdentifier__2;
- };
-type Result_4 = 
- variant {
-   err: CommonError__1;
-   ok: Metadata;
- };
-type Result_3 = 
  variant {
    err: text;
    ok: text;
  };
-type Result_2 = 
+type Result_4 = 
  variant {
    err: CommonError;
+   ok: AccountIdentifier__2;
+ };
+type Result_3 = 
+ variant {
+   err: CommonError__1;
+   ok: Metadata;
+ };
+type Result_2 = 
+ variant {
+   err: text;
    ok;
  };
 type Result_1 = 
  variant {
-   err: Error;
+   err: CommonError;
    ok;
  };
 type Result = 
  variant {
-   err: text;
+   err: Error;
    ok;
  };
 type Response = 
@@ -143,7 +139,6 @@ type Request =
  };
 type Recipe__1 = vec text;
 type Recipe = vec text;
-type Option = bool;
 type NumericEntity = 
  record {
    avg: nat64;
@@ -192,12 +187,22 @@ type ListRequest =
    price: opt nat64;
    token: TokenIdentifier__1;
  };
+type LegendaryAccessory = 
+ record {
+   date_creation: int;
+   name: text;
+ };
+type Item = 
+ variant {
+   Accessory: Accessory;
+   LegendaryAccessory: LegendaryAccessory;
+   Material: text;
+ };
 type Inventory = vec AssetInventory;
 type ICP = record {e8s: nat64;};
 type Hub = 
  service {
-   addElements: (text, Template) -> (Result_3);
-   airdrop: (AirdropObject) -> (Result);
+   addElements: (text, Template) -> (Result_5);
    allPayments: () -> (vec record {
                              principal;
                              vec SubAccount__1;
@@ -208,14 +213,17 @@ type Hub =
                               }) query;
    balance: (BalanceRequest) -> (BalanceResponse) query;
    balance_ledger: () -> (ICP);
-   bearer: (TokenIdentifier__2) -> (Result_5) query;
+   bearer: (TokenIdentifier__3) -> (Result_4) query;
+   circulationSize: () -> (nat) query;
    clearPayments: (principal, vec SubAccount__1) -> ();
    collectCanisterMetrics: () -> ();
-   createAccessory: (text, vec TokenIdentifier__2, vec nat8, opt Option) ->
-    (Result_6);
+   compare: (nat32, text) -> (opt Item, opt text) query;
+   compareAll: () -> (vec nat) query;
    extensions: () -> (vec Extension) query;
    getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
    getContractInfo: () -> (ContractInfo);
+   getEntrepotFilterInfos: () -> (vec EntrepotFilterInfos) query;
+   getHisInventory: (principal) -> (Inventory) query;
    getInventory: () -> (Inventory) query;
    getMetadata: () -> (ContractMetadata) query;
    getMinter: () -> (vec principal) query;
@@ -235,21 +243,31 @@ type Hub =
    getStats: () -> (vec text) query;
    http_request: (Request) -> (Response) query;
    init: (vec principal, ContractMetadata) -> ();
-   init_cap: () -> (Result);
-   list: (ListRequest) -> (Result_2);
+   init_cap: () -> (Result_2);
+   itemsSize: () -> (nat) query;
+   list: (ListRequest) -> (Result_1);
    listings: () -> (vec record {
                           TokenIndex;
                           Listing;
                           Metadata__1;
                         }) query;
-   lock: (text, nat64, AccountIdentifier__2, SubAccount__1) -> (Result_5);
-   metadata: (TokenIdentifier__2) -> (Result_4) query;
-   mint: (text, AccountIdentifier__2) -> (Result_3);
-   modifyRecipe: (text, Recipe) -> (Result);
+   lock: (text, nat64, AccountIdentifier__2, SubAccount__1) -> (Result_4);
+   maxTokenId: () -> (nat) query;
+   metadata: (TokenIdentifier__3) -> (Result_3) query;
+   modifyRecipe: (text, Recipe) -> (Result_2);
+   nextTokenId: () -> (nat) query;
+   nftId: () -> (nat) query;
+   nftSize: () -> (nat) query;
    payments: () -> (opt vec SubAccount__1) query;
    process: () -> ();
-   removeAccessory: (text, text) -> (Result);
-   settle: (text) -> (Result_2);
+   registrySize: () -> (nat) query;
+   saveData: () ->
+    (vec record {
+           TokenIndex;
+           opt AccountIdentifier__2;
+           opt Item;
+         });
+   settle: (text) -> (Result_1);
    settlements: () ->
     (vec record {
            TokenIndex;
@@ -262,12 +280,11 @@ type Hub =
    transfer: (TransferRequest) -> (TransferResponse);
    transfer_ledger: (ICP, principal) -> (TransferResult);
    updateAccessories: () -> ();
-   updateAdmins: (principal, bool) -> (Result_1);
-   updateAdminsData: (principal, bool) -> (Result_1);
+   updateAdmins: (principal, bool) -> (Result);
+   updateAdminsData: (principal, bool) -> (Result);
    verification: () -> ();
    wallet_available: () -> (nat) query;
    wallet_receive: () -> ();
-   wearAccessory: (text, text) -> (Result);
    whoami: () -> (principal) query;
  };
 type HourlyMetricsData = 
@@ -303,6 +320,11 @@ type Error =
    Unauthorized;
    invalidTransaction;
    unsupportedResponse;
+ };
+type EntrepotFilterInfos = 
+ record {
+   details: text;
+   nature: text;
  };
 type DailyMetricsData = 
  record {
@@ -370,14 +392,13 @@ type AssetInventory =
    name: text;
    token_identifier: text;
  };
-type AirdropObject = 
- record {
-   accessory1: opt text;
-   accessory2: opt text;
-   material: text;
-   recipient: principal;
- };
 type AccountIdentifier__2 = text;
 type AccountIdentifier__1 = text;
 type AccountIdentifier = text;
+type Accessory = 
+ record {
+   equipped: opt TokenIdentifier__2;
+   name: text;
+   wear: nat8;
+ };
 service : () -> Hub
