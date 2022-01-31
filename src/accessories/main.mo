@@ -10,6 +10,7 @@ import Canistergeek "../dependencies/canistergeek/canistergeek";
 import Cap "mo:cap/Cap";
 import Char "mo:base/Char";
 import Entrepot "../dependencies/entrepot";
+import EntrepotFilter "./helper/entrepotHelper";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
 import ExtAllowance "../dependencies/ext/Allowance";
 import ExtCommon "../dependencies/ext/Common";
@@ -800,6 +801,34 @@ shared({ caller = hub }) actor class Hub() = this {
 
     public query(msg) func allPayments() : async [(Principal, [SubAccount])] {
         Iter.toArray(_payments.entries())
+    };
+
+    //  Used to add a filter on Entrepot
+
+    public type EntrepotFilterInfos = {
+        nature : Text; // "Material" or "Accessory"
+        details : Text; //  This property is used to add informations to the object, in case of a material it will be the type of materil (Wood/Glass...) in case of an accessory it will be the Slot (Hat/Face/Eyes...)
+    };
+
+    public query func getEntrepotFilterInfos() : async [EntrepotFilterInfos] {
+        var buffer = Buffer.Buffer<EntrepotFilterInfos>(0);
+        for (item in _items.vals()){
+            switch(item){
+                case(#Material(name)) {
+                    let infos = {nature = "material"; details = EntrepotFilter.nameToDetailsMaterial(name);};
+                    buffer.add(infos);
+                };
+                case(#Accessory(item)){
+                    let infos = {nature = "accessory"; details = EntrepotFilter.nameToDetailsAccessory(item.name)};
+                    buffer.add(infos);
+                };
+                case(_) {
+                    let infos = {nature = ""; details = "";};
+                    buffer.add(infos);
+                };
+            };
+        };
+        return(buffer.toArray());
     };
 
 
