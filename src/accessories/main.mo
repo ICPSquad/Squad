@@ -210,9 +210,10 @@ shared({ caller = hub }) actor class Hub() = this {
     type TransferResponse = ExtCore.TransferResponse;
 
     private let EXTENSIONS : [Extension] = [];
-    private stable var _supply : Balance  = 0;
     private stable var _minter : [Principal]  = [];
     private stable var _nextTokenId : TokenIndex  = 0;
+
+
 
     private stable var _registryEntries : [(TokenIndex, AccountIdentifier)] = [];
     private var _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.fromIter(_registryEntries.vals(), 0, ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
@@ -295,7 +296,7 @@ shared({ caller = hub }) actor class Hub() = this {
     };
     
     public query func supply() : async Nat {
-        _supply;
+        _registry.size();
     };
 
     public query func nextTokenId(): async Nat {
@@ -429,7 +430,6 @@ shared({ caller = hub }) actor class Hub() = this {
             };
             case(null) return #err("There is no item called : " #item);
         };
-        _supply += 1;
         _nextTokenId += 1;
         let token_identifier = _getTokenIdentifier(_nextTokenId - 1);
         return #ok(token_identifier);
@@ -1527,6 +1527,7 @@ shared({ caller = hub }) actor class Hub() = this {
         };
         return Nat32.toNat(max);
     };
+    
 
     public query func compare (n : Nat32, t : Text) : async (?Item, ?Text) {
         let item = _items.get(n);
@@ -1638,9 +1639,28 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    // public shared ({caller}) func recreateAccessories (list : [(AccountIdentifier, Text)]) : async () {
+    public shared ({caller}) func updateNextTokenId (n : Nat32) : async () {
+        assert(_isAdmin(caller));
+        _nextTokenId := n;
+        return;
+    };
 
-    // };
+    public shared ({caller}) func recreateAccessories (list : [(AccountIdentifier, Text)]) : async (Nat,Nat) {
+        var success = 0;
+        var error = 0;
+        for((owner, name) in list.vals()){
+            let result = _mint(name, owner);
+            switch(result){
+                case(#err(text)) {
+                    error +=1;
+                };
+                case(#ok(token_identifier)){
+                    success +=1;
+                };
+            };
+        };
+        return(success, error);
+    };
    
 
 };

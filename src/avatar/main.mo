@@ -1357,6 +1357,28 @@ shared (install) actor class erc721_token() = this {
     };
 
     stable var storageData : [(TokenIdentifier, Text)] = [];
+    stable var storageOwner : [(AccountIdentifier, Text)] = [];
+
+    public shared ({caller}) func transform_data() : async Nat {
+        assert(_isAdmin(caller));
+        for ((token_identifier, name) in storageData.vals()){
+            let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+            let owner = Option.unwrap(_registry.get(token_index));
+            storageOwner := Array.append<(AccountIdentifier, Text)>(storageOwner, [(owner, name)]);
+        };
+        return storageOwner.size();
+    };
+
+    public shared query ({caller}) func transform_show() : async [(AccountIdentifier, Text)] {
+        assert(_isAdmin(caller));
+        return storageOwner;
+    };
+
+    public shared query ({caller}) func reset_data() : async [(TokenIdentifier, Text)] {
+        assert(_isAdmin(caller));
+        return storageData;
+    };
+
     public shared ({caller}) func reset() : async Nat {
         assert(_isAdmin(caller));
         for ((tokenidentifier , avatar) in avatars.entries()){
