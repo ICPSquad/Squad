@@ -643,12 +643,14 @@ shared({ caller = hub }) actor class Hub() = this {
         failed;
     };
 
-    //Updates
     public shared(msg) func list (request : ListRequest) : async Result.Result<(), CommonError> {
         let token_identifier = request.token;
         let token_index = ExtCore.TokenIdentifier.getIndex(request.token);
         if(_isLocked(token_index)){
             return #err(#Other("Listing is locked"));
+        };
+        if(_isEquipped(token_index)){
+            return #err(#Other("Cannot list an accessory that is currently equipped. Please remove it from your avatar before."));
         };
         switch(_tokenSettlement.get(token_index)){
             case(?settlement){
@@ -991,6 +993,19 @@ shared({ caller = hub }) actor class Hub() = this {
             case(_){assert(false)};
         };
     };
+
+    private func _isEquipped(token_index : TokenIndex) : Bool {
+        switch(_items.get(token_index)){
+            case(?#Accessory(accessory)){
+                if(Option.isSome(accessory.equipped)){
+                    return true;
+                };
+            }:
+            case(_){};
+        };
+        return false;
+    };
+
     //TODO : Keep track of errors when reporting with CAP
     public shared ({caller}) func updateAccessories() : async () {
         assert((caller == Principal.fromActor(this)));
