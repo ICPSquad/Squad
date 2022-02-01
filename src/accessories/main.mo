@@ -20,6 +20,7 @@ import HashMap "mo:base/HashMap";
 import Http "types/http";
 import Inventory "types/inventory";
 import Iter "mo:base/Iter";
+import Int "mo:base/Int";
 import Ledger "../dependencies/Ledger/ledger";
 import LedgerCandid "../dependencies/Ledger/ledgerCandid";
 import MapHelper "helper/mapHelper";
@@ -36,6 +37,7 @@ import Result "mo:base/Result";
 import Root "mo:cap/Root";
 import Router "mo:cap/Router";
 import Staged "types/staged";
+import Stack "mo:base/Stack";
 import Static "types/static";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
@@ -260,10 +262,8 @@ shared({ caller = hub }) actor class Hub() = this {
                     details = [("token", #Text(request.token)),("from", #Text(owner)),("to", #Text(receiver))];
                     caller = caller;
                 };
-                switch(await cap.insert(event)){
-                    case(#err(e)) return #err(#Other("Error when reporting event to CAP"));
-                    case(#ok(id)) return #ok(request.amount);
-                };
+                ignore(_registerEvent(event));
+                return #ok(request.amount);
             };
             case (_) {
                 return #err(#InvalidToken(request.token));
@@ -271,7 +271,7 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    public shared ({caller}) func mint (name : Text, recipient : AccountIdentifier) : async Result.Result<Text,Text> {
+    public shared ({caller}) func mint (name : Text, recipient : AccountIdentifier) : async Result.Result<(),Text> {
         assert(_isAdmin(caller));
         switch(_mint(name, recipient)){
             case(#err(error)) return #err(error);
@@ -281,15 +281,10 @@ shared({ caller = hub }) actor class Hub() = this {
                     details = [("name", #Text(name)),("to", #Text(recipient))];
                     caller = caller;
                 };
-                switch(await cap.insert(event)){
-                    case(#err(e)) return #err("Error when reporting event to CAP");
-                    case(#ok(id)){
-                        let id_textual = Nat64.toText(id);
-                        return (#ok(msg # ".Cap recorded with id : " #  id_textual));
-                    }
-                }
-            }
-        }
+                ignore(_registerEvent(event));
+                return #ok;
+            };
+        };
     };
 
     public query func getMinter() : async [Principal] {
@@ -529,6 +524,25 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
+    public shared query func getHisInventory_old (principal : Principal) : async Inventory {
+        let token_list : [Text] = nfts.tokensOf(principal);
+        if (token_list.size() == 0){
+            return [];
+        };
+        let asset_name : [Text] = Array.map<Text,Text>(token_list, _idToName);
+        switch(Inventory.buildInventory(token_list, asset_name)){
+            case (#err(message)) return [];
+            case (#ok(inventory)) return inventory;
+        };
+    };
+
+    private func _idToName (id : Text) : Text {
+        switch(circulation.get(id)) {
+            case (null) return ("Null");
+            case (?name) return (name);
+        };
+    };
+
 
     //////////
     // CAP //
@@ -561,6 +575,41 @@ shared({ caller = hub }) actor class Hub() = this {
             throw e;
         };
     };
+
+    //  This hashmap is used to store events & register them later to avoid any lost event in case of CAP error or message lost.
+    private stable var _eventsEntries : [(Time, IndefiniteEvent)] = [];
+    let _events : HashMap.HashMap<Time, IndefiniteEvent> = HashMap.fromIter(_eventsEntries.vals(), _eventsEntries.size(), Int.equal, Int.hash);
+    
+    //  Periodically called through heartbeat to verify that all events have been reported 
+    public shared ({caller}) func verificationEvents() : async () {
+        assert(caller == Principal.fromActor(this));
+        for((time,event) in _events.entries()){
+            switch(await cap.insert(event)){
+                case(#err(message)){};
+                case(#ok(id)){
+                    _events.delete(time);
+                };
+            };
+        };
+    };
+
+    // It should almost always be 0
+    public shared query ({caller}) func eventsSize() : async Nat {
+        assert(_isAdmin(caller));
+        _events.size();
+    };
+
+    //  Register an event to CAP, store it in _events if registration wasn't successful to process later.
+    private func _registerEvent(event : IndefiniteEvent) : async () {
+        let time = Time.now();
+        _events.put(time, event);
+        switch(await cap.insert(event)){
+            case(#ok(id)){
+                _events.delete(time);
+            };
+            case(#err(message)){};
+        };
+    }; 
 
 
     ///////////////
@@ -755,10 +804,8 @@ shared({ caller = hub }) actor class Hub() = this {
                                 details = [("from", #Text(account_seller)),("to", #Text(settlement.buyer)), ("token", #Text(token_identifier)), ("price", #U64(settlement.price))]; // TODO ADD PRICE
                                 caller = msg.caller;
                             };
-                            switch(await cap.insert(event)){
-                                case(#err(e)) return #err(#Other("Error when reporting event to CAP"));
-                                case(#ok(id)) return #ok;
-                            };
+                            ignore(_registerEvent(event));
+                            return #ok;
                         } else {
                             return #err(#Other("Insufficient funds sent"));
                         };
@@ -1019,10 +1066,7 @@ shared({ caller = hub }) actor class Hub() = this {
                                         details = [("token", #Text(_getTokenIdentifier(token_index))),("from", #Text(owner))];
                                         caller = Principal.fromActor(this);
                                     };
-                                    switch(await(cap.insert(event))){
-                                        case(#err(e)){};
-                                        case(#ok(id)){};
-                                    };
+                                    ignore(_registerEvent(event));
                                 };
                             };
                         } else  {
@@ -1127,7 +1171,7 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    public shared ({caller}) func burn (token_identifier : TokenIdentifier) : async Result.Result<Nat64, Text> {
+    public shared ({caller}) func burn (token_identifier : TokenIdentifier) : async Result.Result<(), Text> {
         assert(_isAdmin(caller));
         let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
         switch(_burn(token_index)){
@@ -1139,10 +1183,9 @@ shared({ caller = hub }) actor class Hub() = this {
                     details = [("token", #Text(token_identifier)), ("from", #Text(account))];
                     caller = caller;
                 };
-                switch(await cap.insert(event)){
-                    case(#err(message)) return #err("Error when reporting event to CAP");
-                    case(#ok(id)) return #ok(id);
-                };
+                ignore(_registerEvent(event));
+
+                return #ok;
             };
         };
     };
@@ -1349,10 +1392,7 @@ shared({ caller = hub }) actor class Hub() = this {
                         details = [("item", #Text(token_identifier)), ("from", #Text(AID.fromPrincipal(caller, null)))];
                         caller = caller;
                     };
-                    switch(await cap.insert(event)){
-                        case(#err(e)) return #err("Error when insering event in CAP for token with identifier : " # token_identifier);
-                        case(#ok(id)){};
-                    };
+                    ignore(_registerEvent(event));
                 };
                 //  Mint accessory
                 var token_identifier_accessory : Text = "";
@@ -1367,10 +1407,7 @@ shared({ caller = hub }) actor class Hub() = this {
                     details = [("name", #Text(name)), ("to", #Text(AID.fromPrincipal(caller, null)))];
                     caller = caller;
                 };
-                switch(await cap.insert(event)){
-                    case(#err(e)) return #err("Error when insering event in CAP for token with identifier : " # token_identifier_accessory);
-                    case(#ok(id)){};
-                };
+                ignore(_registerEvent(event));
                 return #ok(token_identifier_accessory);
             };
             case(_) return #err(name # "is not an accessory");
@@ -1492,6 +1529,10 @@ shared({ caller = hub }) actor class Hub() = this {
 
     system func heartbeat () : async () {
         count += 1;
+        //  Every 2 minutes 
+        if (count % 120 == 0) {
+            await verificationEvents();
+        };
         //  Every 5 minutes 
         if( count % 300 == 0){
             await collectCanisterMetrics();
