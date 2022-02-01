@@ -271,26 +271,26 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    // public shared ({caller}) func mint (name : Text, recipient : AccountIdentifier) : async Result.Result<Text,Text> {
-    //     assert(_isAdmin(caller));
-    //     switch(_mint(name, recipient)){
-    //         case(#err(error)) return #err(error);
-    //         case(#ok(msg)){
-    //             let event : IndefiniteEvent = {
-    //                 operation = "mint";
-    //                 details = [("name", #Text(name)),("to", #Text(recipient))];
-    //                 caller = caller;
-    //             };
-    //             switch(await cap.insert(event)){
-    //                 case(#err(e)) return #err("Error when reporting event to CAP");
-    //                 case(#ok(id)){
-    //                     let id_textual = Nat64.toText(id);
-    //                     return (#ok(msg # ".Cap recorded with id : " #  id_textual));
-    //                 }
-    //             }
-    //         }
-    //     }
-    // };
+    public shared ({caller}) func mint (name : Text, recipient : AccountIdentifier) : async Result.Result<Text,Text> {
+        assert(_isAdmin(caller));
+        switch(_mint(name, recipient)){
+            case(#err(error)) return #err(error);
+            case(#ok(msg)){
+                let event : IndefiniteEvent = {
+                    operation = "mint";
+                    details = [("name", #Text(name)),("to", #Text(recipient))];
+                    caller = caller;
+                };
+                switch(await cap.insert(event)){
+                    case(#err(e)) return #err("Error when reporting event to CAP");
+                    case(#ok(id)){
+                        let id_textual = Nat64.toText(id);
+                        return (#ok(msg # ".Cap recorded with id : " #  id_textual));
+                    }
+                }
+            }
+        }
+    };
 
     public query func getMinter() : async [Principal] {
         _minter;
@@ -1000,7 +1000,7 @@ shared({ caller = hub }) actor class Hub() = this {
                 if(Option.isSome(accessory.equipped)){
                     return true;
                 };
-            }:
+            };
             case(_){};
         };
         return false;
@@ -1159,36 +1159,36 @@ shared({ caller = hub }) actor class Hub() = this {
         accessory2 : ?Text;
     };
 
-    // public shared({caller}) func airdrop(airdrop : AirdropObject) : async Result.Result<(), Text >{
-    //     assert(caller == Principal.fromText("p4y2d-yyaaa-aaaaj-qaixa-cai")); // Hub canister
-    //     switch(_ownerships.get(AID.fromPrincipal(caller, null))){
-    //         case(?list) return  #err ("Already airdropped");
-    //         case(null) {};
-    //     };
-    //     switch(_mint(airdrop.material, AID.fromPrincipal(airdrop.recipient, null))){
-    //         case(#ok(v)) {};
-    //         case(#err(message)) return #err(message);
-    //     };
-    //     switch(airdrop.accessory1){
-    //         case(null) return #ok;
-    //         case(?accessory1){
-    //             switch(_mint(accessory1, AID.fromPrincipal(airdrop.recipient, null))){
-    //                 case(#err(message)) return #err(message);
-    //                 case(#ok(v)){};
-    //             };
-    //         };
-    //     };
-    //     switch(airdrop.accessory2){
-    //         case(null) return #ok;
-    //         case(?accessory2){
-    //             switch(_mint(accessory2, AID.fromPrincipal(airdrop.recipient, null))){
-    //                 case(#err(message)) return #err(message);
-    //                 case(#ok(v)){};
-    //             };
-    //         };
-    //     };
-    //     return #ok;
-    // };
+    public shared({caller}) func airdrop(airdrop : AirdropObject) : async Result.Result<(), Text >{
+        assert(caller == Principal.fromText("p4y2d-yyaaa-aaaaj-qaixa-cai")); // Hub canister
+        switch(_ownerships.get(AID.fromPrincipal(caller, null))){
+            case(?list) return  #err ("Already airdropped");
+            case(null) {};
+        };
+        switch(_mint(airdrop.material, AID.fromPrincipal(airdrop.recipient, null))){
+            case(#ok(v)) {};
+            case(#err(message)) return #err(message);
+        };
+        switch(airdrop.accessory1){
+            case(null) return #ok;
+            case(?accessory1){
+                switch(_mint(accessory1, AID.fromPrincipal(airdrop.recipient, null))){
+                    case(#err(message)) return #err(message);
+                    case(#ok(v)){};
+                };
+            };
+        };
+        switch(airdrop.accessory2){
+            case(null) return #ok;
+            case(?accessory2){
+                switch(_mint(accessory2, AID.fromPrincipal(airdrop.recipient, null))){
+                    case(#err(message)) return #err(message);
+                    case(#ok(v)){};
+                };
+            };
+        };
+        return #ok;
+    };
 
 
     ///////////////////////////////////
@@ -1535,13 +1535,15 @@ shared({ caller = hub }) actor class Hub() = this {
         staticAssetsEntries := Iter.toArray(staticAssets.entries());
         circulationEntries := Iter.toArray(circulation.entries());
 
-        //New
+        //State
         _registryEntries := Iter.toArray(_registry.entries());
         _ownershipsEntries := Iter.toArray(_ownerships.entries());
         _itemsEntries := Iter.toArray(_items.entries());
         _templateEntries := Iter.toArray(_templates.entries());
         _blobsEntries := Iter.toArray(_blobs.entries());
         _canistergeekMonitorUD := ? canistergeekMonitor.preupgrade();
+
+        //TODO : Entrepot
     };
 
     system func postupgrade() {

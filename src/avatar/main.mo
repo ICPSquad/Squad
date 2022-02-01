@@ -969,6 +969,28 @@ shared (install) actor class erc721_token() = this {
         };
         result;
     };
+
+    public query func stats() : async (Nat64, Nat64, Nat64, Nat64, Nat, Nat, Nat) {
+        var res : (Nat64, Nat64, Nat64) = Array.foldLeft<Transaction, (Nat64, Nat64, Nat64)>(_transactions, (0,0,0), func (b : (Nat64, Nat64, Nat64), a : Transaction) : (Nat64, Nat64, Nat64) {
+        var total : Nat64 = b.0 + a.price;
+        var high : Nat64 = b.1;
+        var low : Nat64 = b.2;
+        if (high == 0 or a.price > high) {
+            high := a.price;
+        };
+        if (low == 0 or a.price < low) {
+            low := a.price;
+        }; 
+        (total, high, low);
+        });
+        var floor : Nat64 = 0;
+        for (a in _tokenListing.entries()){
+            if (floor == 0 or a.1.price < floor) {
+                floor := a.1.price;
+            };
+        };
+        (res.0, res.1, res.2, floor, _tokenListing.size(), _registry.size(), _transactions.size());
+    };
     
     //////////////////////
     // Entrepot_private //
@@ -1149,9 +1171,10 @@ shared (install) actor class erc721_token() = this {
     
     private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?Listing, ?Blob)] {
         var tokens = Buffer.Buffer<(TokenIndex, ?Listing, ?Blob)>(0);
-        for ((index,account) in _registry.entries()){
+        for ((token_index,account) in _registry.entries()){
             if(a == account) {
-                let new_element = (index, null, null);
+                let token_identifier = _getTokenIdentifier(token_index);
+                let new_element = (token_index, _tokenListing.get(token_index), _blobs.get(token_identifier));
                 tokens.add(new_element);
             };
         };
@@ -1198,6 +1221,21 @@ shared (install) actor class erc721_token() = this {
         let token_identifier = _getTokenIdentifier(tindex);
         return token_identifier;
     };
+
+    public query func details(token : TokenIdentifier) : async Result.Result<(AccountIdentifier, ?Listing), CommonError> {
+		if (ExtCore.TokenIdentifier.isPrincipal(token, Principal.fromActor(this)) == false) {
+			return #err(#InvalidToken(token));
+		};
+		let tokenind = ExtCore.TokenIdentifier.getIndex(token);
+        switch (_getBearer(tokenind)) {
+            case (?token_owner) {
+                        return #ok((token_owner, _tokenListing.get(tokenind)));
+            };
+            case (_) {
+                return #err(#InvalidToken(token));
+            };
+    };
+	};
 
 
     ///////////////
