@@ -221,6 +221,35 @@ shared({ caller = hub }) actor class Hub() = this {
     private stable var _ownershipsEntries : [(AccountIdentifier, [TokenIndex])] = [];
     private var _ownerships : HashMap.HashMap<AccountIdentifier, [TokenIndex]> = HashMap.fromIter(_ownershipsEntries.vals(), _ownershipsEntries.size(), Text.equal, Text.hash);
 
+    private stable var _ownershipsEntriesVerification : [(AccountIdentifier, [TokenIndex])] = [];
+    private var _ownershipsVerification : HashMap.HashMap<AccountIdentifier, [TokenIndex]> = HashMap.fromIter(_ownershipsEntriesVerification.vals(), _ownershipsEntries.size(), Text.equal, Text.hash);
+
+
+
+    private func _addOwnership2(token_index : TokenIndex, owner : AccountIdentifier) : () {
+        switch(_ownershipsVerification.get(owner)){
+            case(null) {
+                _ownershipsVerification.put(owner, [token_index]);
+            };
+            case(?list){
+                let new_list = Array.append<TokenIndex>(list, [token_index]);
+                _ownershipsVerification.put(owner, new_list);
+            };
+        };
+    };
+
+    public shared ({caller}) func createOwnership() : () {
+        for ((token_index, account) in _registry.entries()){
+            _addOwnership2(token_index, account);
+        };
+    };
+
+    public shared ({caller}) func verifyOwnership() : async (Nat,Nat) {
+        return(_ownerships.size(), _ownershipsVerification.size());
+    }; 
+
+
+
     public shared({caller}) func transfer(request : TransferRequest) : async TransferResponse {
         if (request.amount != 1) {
                 return #err(#Other("Must use amount of 1"));
@@ -248,7 +277,7 @@ shared({ caller = hub }) actor class Hub() = this {
                 // CAP 
                 let event : IndefiniteEvent = {
                     operation = "transfer";
-                    details = [("item", #Text(request.token)),("from", #Text(owner)),("to", #Text(receiver))];
+                    details = [("token", #Text(request.token)),("from", #Text(owner)),("to", #Text(receiver))];
                     caller = caller;
                 };
                 switch(await cap.insert(event)){
@@ -1434,6 +1463,10 @@ shared({ caller = hub }) actor class Hub() = this {
         return(circulation.get(id));
     };
 
+    public query func showItems (id : Nat32) : async ?Item {
+        return(_items.get(id))
+    };
+
 
     ///////////////
     // HEARTBEAT //
@@ -1732,6 +1765,18 @@ shared({ caller = hub }) actor class Hub() = this {
         switch(circulation.get(id)) {
             case (null) return ("Null");
             case (?name) return (name);
+        };
+    };
+
+    public shared ({caller}) func createBlobs() : async () {
+        assert(_isAdmin(caller));
+        for (token_index in _registry.keys()){
+            switch(_items.get(token_index)){
+                case(?#Accessory(template)){
+                    _drawAccessory(token_index);
+                };
+                case(_){};
+            };
         };
     };
 
