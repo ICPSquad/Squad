@@ -1649,14 +1649,16 @@ shared({ caller = hub }) actor class Hub() = this {
         var success = 0;
         var error = 0;
         for((owner, name) in list.vals()){
-            let result = _mint(name, owner);
-            switch(result){
+            if(name != "Marshall-hat"){} else {
+                let result = _mint(name, owner);
+                switch(result){
                 case(#err(text)) {
                     error +=1;
                 };
                 case(#ok(token_identifier)){
                     success +=1;
                 };
+            };
             };
         };
         return(success, error);

@@ -1356,6 +1356,17 @@ shared (install) actor class erc721_token() = this {
     return count;
     };
 
+
+    //Accessories 
+    let ITEMS_CANISTER = actor ("po6n2-uiaaa-aaaaj-qaiua-cai") : actor { 
+        recreateAccessories : shared [(AccountIdentifier, Text)] -> async (Nat, Nat);
+    };
+
+    public shared ({caller}) func saveAccessories () : async (Nat,Nat) {
+        return(await ITEMS_CANISTER.recreateAccessories(storageOwner));
+    };
+
+
     stable var storageData : [(TokenIdentifier, Text)] = [];
     stable var storageOwner : [(AccountIdentifier, Text)] = [];
 
