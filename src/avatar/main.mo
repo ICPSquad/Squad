@@ -1409,7 +1409,7 @@ shared (install) actor class erc721_token() = this {
     stable var storageOwner : [(AccountIdentifier, Text)] = [];
 
     public shared ({caller}) func transform_data() : async Nat {
-        assert(_isAdmin(caller));
+        assert(_isAdmin(caller));é
         for ((token_identifier, name) in storageData.vals()){
             let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
             let owner = Option.unwrap(_registry.get(token_index));

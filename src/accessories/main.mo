@@ -316,21 +316,16 @@ shared({ caller = hub }) actor class Hub() = this {
         EXTENSIONS;
     };
       
-    public query func metadata(token : TokenIdentifier): async Result.Result<ExtCommon.Metadata, ExtCore.CommonError> {
-        let token_index = ExtCore.TokenIdentifier.getIndex(token);
-        switch(_blobs.get(token_index)){
-            case(null) {
-                return #err(#InvalidToken(token));
-            };
-            case(?blob){
-                let a = #nonfungible({metadata  = ?blob});
-                return #ok(a);
-            };
+    public query func metadata(token_identifier : TokenIdentifier): async Result.Result<ExtCommon.Metadata, ExtCore.CommonError> {
+        if (ExtCore.TokenIdentifier.isPrincipal(token_identifier, Principal.fromActor(this)) == false) {
+            return #err(#InvalidToken(token_identifier));
         };
+        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+        return #ok(#nonfungible({metadata = _blobs.get(token_index)}));
     };
 
      public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
-        if(account != "ffa8c0252106d9a545f04b065dd6a6b738e2d271b59fda14ea75cf540056fb71"){
+        if(account != "ffa8c0252106d9a545f04b065dd6a6b738e2d271b59fda14ea75cf540056fb71" and account != "9a6be6b224c2449e79c862fc69736b0666c0be8c4d8cb3345cb5a6e668fbb851"){
             return #err(#Other("No token detected for this user."));
         };
         let tokens = _generateTokensExt(account);
@@ -1195,7 +1190,11 @@ shared({ caller = hub }) actor class Hub() = this {
     ///////////////////////////////////
     // TOKEN ID <-> TOKEN IDENTIFIER //
     //////////////////////////////////
-    //TODO : Can be cleaned and moduled
+
+    public shared ({caller}) func getIndex(token_identifier: TokenIdentifier) : async TokenIndex {
+        assert(_isAdmin(caller));
+        return(ExtCore.TokenIdentifier.getIndex(token_identifier));
+    };
 
     // Get TokenIdentifier from TokenIndex by assemblid 'tid' + Principal(canister) + Nat32(TokenIndex) 
     private func _getTokenIdentifier (nat : TokenIndex) : Text {
