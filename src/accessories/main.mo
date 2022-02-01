@@ -221,33 +221,12 @@ shared({ caller = hub }) actor class Hub() = this {
     private stable var _ownershipsEntries : [(AccountIdentifier, [TokenIndex])] = [];
     private var _ownerships : HashMap.HashMap<AccountIdentifier, [TokenIndex]> = HashMap.fromIter(_ownershipsEntries.vals(), _ownershipsEntries.size(), Text.equal, Text.hash);
 
-    private stable var _ownershipsEntriesVerification : [(AccountIdentifier, [TokenIndex])] = [];
-    private var _ownershipsVerification : HashMap.HashMap<AccountIdentifier, [TokenIndex]> = HashMap.fromIter(_ownershipsEntriesVerification.vals(), _ownershipsEntries.size(), Text.equal, Text.hash);
-
-
-
-    private func _addOwnership2(token_index : TokenIndex, owner : AccountIdentifier) : () {
-        switch(_ownershipsVerification.get(owner)){
-            case(null) {
-                _ownershipsVerification.put(owner, [token_index]);
-            };
-            case(?list){
-                let new_list = Array.append<TokenIndex>(list, [token_index]);
-                _ownershipsVerification.put(owner, new_list);
-            };
-        };
-    };
 
     public shared ({caller}) func createOwnership() : () {
         for ((token_index, account) in _registry.entries()){
-            _addOwnership2(token_index, account);
+            _addOwnership(token_index, account);
         };
     };
-
-    public shared ({caller}) func verifyOwnership() : async (Nat,Nat) {
-        return(_ownerships.size(), _ownershipsVerification.size());
-    }; 
-
 
 
     public shared({caller}) func transfer(request : TransferRequest) : async TransferResponse {
@@ -423,7 +402,7 @@ shared({ caller = hub }) actor class Hub() = this {
                 let new_tokens = Array.filter<TokenIndex>(tokens, func (x) {x!=token_index;});
                 _ownerships.put(old_account, new_tokens);
                 switch(new_account){
-                    case(null) return #ok; //TODO Burn
+                    case(null) return #ok; // Burn
                     case(?new_account){
                         switch(_ownerships.get(new_account)){
                             case(null) {
@@ -773,7 +752,7 @@ shared({ caller = hub }) actor class Hub() = this {
                             _tokenSettlement.delete(token_index);
                             let event : IndefiniteEvent = {
                                 operation = "transfer";
-                                details = [("from", #Text(account_seller)),("to", #Text(settlement.buyer)), ("item", #Text(token_identifier))];
+                                details = [("from", #Text(account_seller)),("to", #Text(settlement.buyer)), ("token", #Text(token_identifier))]; // TODO ADD PRICE
                                 caller = msg.caller;
                             };
                             switch(await cap.insert(event)){
@@ -839,9 +818,9 @@ shared({ caller = hub }) actor class Hub() = this {
         _transactions;
     };
 
-    public query(msg) func payments() : async ?[SubAccount] {
-        _payments.get(msg.caller);
-    };
+    // public query(msg) func payments() : async ?[SubAccount] {
+    //     _payments.get(msg.caller);
+    // };
 
     public query(msg) func allSettlements() : async [(TokenIndex, Settlement)] {
         Iter.toArray(_tokenSettlement.entries())
@@ -1024,7 +1003,7 @@ shared({ caller = hub }) actor class Hub() = this {
                                 case(#ok(owner)){
                                     let event : IndefiniteEvent = {
                                         operation = "burn";
-                                        details = [("item", #Text(_getTokenIdentifier(token_index))),("from", #Text(owner))];
+                                        details = [("token", #Text(_getTokenIdentifier(token_index))),("from", #Text(owner))];
                                         caller = Principal.fromActor(this);
                                     };
                                     switch(await(cap.insert(event))){
@@ -1123,11 +1102,31 @@ shared({ caller = hub }) actor class Hub() = this {
                     case(?list){
                         let list_filtered = Array.filter<TokenIndex>(list, func(x) {x != token_index});
                         _ownerships.put(owner, list_filtered);
-                        _blobs.delete(token_index);
                         _registry.delete(token_index);
+                        _blobs.delete(token_index);
                         _items.delete(token_index);
                         return #ok(owner);
                     };
+                };
+            };
+        };
+    };
+
+    public shared ({caller}) func burn (token_identifier : TokenIdentifier) : async Result.Result<Nat64, Text> {
+        assert(_isAdmin(caller));
+        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+        switch(_burn(token_index)){
+            case(#err(text)) return #err(text);
+            case(#ok(account)){
+                // Report to CAP
+                let event : IndefiniteEvent = {
+                    operation = "burn";
+                    details = [("token", #Text(token_identifier)), ("from", #Text(account))];
+                    caller = caller;
+                };
+                switch(await cap.insert(event)){
+                    case(#err(message)) return #err("Error when reporting event to CAP");
+                    case(#ok(id)) return #ok(id);
                 };
             };
         };
