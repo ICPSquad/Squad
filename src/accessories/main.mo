@@ -1589,6 +1589,49 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
 
+    private func _recreateItems (list : [(TokenIndex, ?AccountIdentifier, ?Item)]) : (Nat,Nat) {
+        var errors = 0;
+        var success = 0;
+        for((token, account, item) in list.vals()){
+            switch(account){
+                case(null){};
+                case(?account){
+                    switch(item){
+                        case(null){};
+                        case(?#Material(name)){
+                            switch(_mint(name, account)){
+                                case(#err(message)){
+                                    errors +=1;
+                                };
+                                case(#ok(token)){
+                                    success +=1;
+                                };
+                            };
+                        };
+                        case(?#Accessory(item)){
+                            switch(_mint(item.name, account)){
+                                case(#err(message)){
+                                    errors +=1;
+                                };
+                                case(#ok(token)){
+                                    success +=1;
+                                };
+                            };
+                        };
+                        case(_){};
+                    };
+                };
+            };
+        };
+        return (success, errors);
+    };
+
+    public shared ({caller}) func recreateItems() : async (Nat,Nat){
+        return(_recreateItems(storageData));
+    };
+
+
+
     //  TokenIndex from Text 
     private func _textToNat32( txt : Text) : Nat32 {
         assert(txt.size() > 0);
