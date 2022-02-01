@@ -1431,8 +1431,6 @@ shared({ caller = hub }) actor class Hub() = this {
         subaccounts_robber := [];
     };
 
-
-
     //////////////////////////////////
     // OLD DEPARTURE LABS STANDARD //
     ////////////////////////////////
@@ -1528,40 +1526,54 @@ shared({ caller = hub }) actor class Hub() = this {
     /////////////
 
     system func preupgrade() {
-        //Old
+        //  Departure labs 
         id                  := nfts.currentID();
         payloadSize         := nfts.payloadSize();
         nftEntries          := Iter.toArray(nfts.entries());
         staticAssetsEntries := Iter.toArray(staticAssets.entries());
         circulationEntries := Iter.toArray(circulation.entries());
 
-        //State
+        //  EXT
         _registryEntries := Iter.toArray(_registry.entries());
         _ownershipsEntries := Iter.toArray(_ownerships.entries());
         _itemsEntries := Iter.toArray(_items.entries());
         _templateEntries := Iter.toArray(_templates.entries());
         _blobsEntries := Iter.toArray(_blobs.entries());
+
+        //  Canister geek (Monitoring)
         _canistergeekMonitorUD := ? canistergeekMonitor.preupgrade();
 
-        //TODO : Entrepot
+        //  Entrepot
+        _tokenListingState := Iter.toArray(_tokenListing.entries());
+        _tokenSettlementState := Iter.toArray(_tokenSettlement.entries());
+        _paymentsState := Iter.toArray(_payments.entries());
+        _refundsState := Iter.toArray(_refunds.entries());
     };
 
     system func postupgrade() {
-        //Old
+        //  Departure labs
         id                  := 0;
         payloadSize         := 0;
         nftEntries          := [];
         staticAssetsEntries := [];
         circulationEntries := [];
 
-        // New 
+        // EXT
         _registryEntries := [];
         _ownershipsEntries := [];
         _templateEntries := [];
         _itemsEntries := [];
         _blobsEntries := [];
+
+        //  Canister geek (Monitoring)
         canistergeekMonitor.postupgrade(_canistergeekMonitorUD);
         _canistergeekMonitorUD := null;
+
+        //  Entrepot
+        _tokenListingState := [];
+        _tokenSettlementState := [];
+        _paymentsState := [];
+        _refundsState := [];
     };
 
 };
