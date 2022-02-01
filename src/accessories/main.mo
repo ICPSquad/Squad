@@ -320,27 +320,30 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    //  public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
-    //     let tokens = _generateTokensExt(account);
-    //     if (tokens.size() == 0) {
-    //         return #err(#Other ("No token detected for this user."));
-    //     } else {
-    //         let answer = #ok(tokens);
-    //         return answer;
-    //     }
-    // };
+     public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
+        if(account != "ffa8c0252106d9a545f04b065dd6a6b738e2d271b59fda14ea75cf540056fb71"){
+            return #err(#Other("No token detected for this user."));
+        };
+        let tokens = _generateTokensExt(account);
+        if (tokens.size() == 0) {
+            return #err(#Other ("No token detected for this user."));
+        } else {
+            let answer = #ok(tokens);
+            return answer;
+        }
+    };
     
-    // private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?Listing, ?Blob)] {
-    //     var tokens = Buffer.Buffer<(TokenIndex, ?Listing, ?Blob)>(0);
-    //     for ((index,account) in _registry.entries()){
-    //         if(a == account) {
-    //             let new_element = (index, null, null);
-    //             tokens.add(new_element);
-    //         };
-    //     };
-    //     let array = tokens.toArray();
-    //     return array;
-    // };
+    private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?Listing, ?Blob)] {
+        var tokens = Buffer.Buffer<(TokenIndex, ?Listing, ?Blob)>(0);
+        for ((index,account) in _registry.entries()){
+            if(a == account) {
+                let new_element = (index, null, null);
+                tokens.add(new_element);
+            };
+        };
+        let array = tokens.toArray();
+        return array;
+    };
 
     public query func balance(request : BalanceRequest) : async BalanceResponse {
             if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
@@ -468,16 +471,16 @@ shared({ caller = hub }) actor class Hub() = this {
     private func _streamStaticAsset(name : Text) : Http.Response {
         switch(_templates.get(name)){
             case(null) {{body = (Text.encodeUtf8("Template not found. (critical error)")); headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200;}};
-            case(?#Material(blob)){{body = blob; headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200;}}; //TODO check content type
-            case(?#LegendaryAccessory(blob)){{body = blob; headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200;}};
-            case(_) {{body = (Text.encodeUtf8("Error unreacheable")); headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200;}};
+            case(?#Material(blob)){{body = blob; headers = [("Content-Type", "image/svg+xml")]; streaming_strategy = null; status_code = 200;}}; //TODO check content type
+            case(?#LegendaryAccessory(blob)){{body = blob; headers = [("Content-Type", "image/svg+xml")]; streaming_strategy = null; status_code = 200;}};
+            case(_) {{body = (Text.encodeUtf8("Error unreacheable")); headers = [("Content-Type", "image/svg+xml")]; streaming_strategy = null; status_code = 200;}};
         }
     };  
 
     private func _streamAccessory(token_index : TokenIndex) : Http.Response {
         switch(_blobs.get(token_index)){
             case(null) {{body = (Text.encodeUtf8("Accessory not found. (critical error)")); headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200;}};
-            case(?blob) {{body = blob; headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200; }}
+            case(?blob) {{body = blob; headers = [("Content-Type", "image/svg+xml")]; streaming_strategy = null; status_code = 200; }}
         }
     };
 
@@ -1427,6 +1430,10 @@ shared({ caller = hub }) actor class Hub() = this {
         circulation.size();
     };
 
+    public query func showCirculation(id : Text) : async ?Text {
+        return(circulation.get(id));
+    };
+
 
     ///////////////
     // HEARTBEAT //
@@ -1706,6 +1713,26 @@ shared({ caller = hub }) actor class Hub() = this {
         };
         return(success, error);
     };
+
+    ///TEST
+
+    public shared query func getHisInventory_old (principal : Principal) : async Inventory {
+        let token_list : [Text] = nfts.tokensOf(principal);
+        if (token_list.size() == 0){
+            return [];
+        };
+        let asset_name : [Text] = Array.map<Text,Text>(token_list, _idToName);
+        switch(Inventory.buildInventory(token_list, asset_name)){
+            case (#err(message)) return [];
+            case (#ok(inventory)) return inventory;
+        };
+    };
    
+    private func _idToName (id : Text) : Text {
+        switch(circulation.get(id)) {
+            case (null) return ("Null");
+            case (?name) return (name);
+        };
+    };
 
 };
