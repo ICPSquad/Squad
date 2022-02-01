@@ -343,12 +343,13 @@ shared({ caller = hub }) actor class Hub() = this {
     };
     
     private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?Listing, ?Blob)] {
-        //TODO IMPROVE
         var tokens = Buffer.Buffer<(TokenIndex, ?Listing, ?Blob)>(0);
-        for ((index,account) in _registry.entries()){
-            if(a == account) {
-                let new_element = (index, null, null);
-                tokens.add(new_element);
+        switch(_ownerships.get(a)){
+            case(null) {};
+            case(?list){
+                for(token_index in list.vals()){
+                    tokens.add(token_index, _tokenListing.get(token_index), _blobs.get(token_index));
+                };
             };
         };
         let array = tokens.toArray();
