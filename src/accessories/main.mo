@@ -837,7 +837,6 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    //Query
     public query func listings() : async [(TokenIndex, Listing, Metadata)] {
         var results : [(TokenIndex, Listing, Metadata)] = [];
         for(a in _tokenListing.entries()) {
@@ -877,6 +876,28 @@ shared({ caller = hub }) actor class Hub() = this {
         Iter.toArray(_payments.entries())
     };
 
+     public query func stats() : async (Nat64, Nat64, Nat64, Nat64, Nat, Nat, Nat) {
+        var res : (Nat64, Nat64, Nat64) = Array.foldLeft<Transaction, (Nat64, Nat64, Nat64)>(_transactions, (0,0,0), func (b : (Nat64, Nat64, Nat64), a : Transaction) : (Nat64, Nat64, Nat64) {
+        var total : Nat64 = b.0 + a.price;
+        var high : Nat64 = b.1;
+        var low : Nat64 = b.2;
+        if (high == 0 or a.price > high) {
+            high := a.price;
+        };
+        if (low == 0 or a.price < low) {
+            low := a.price;
+        }; 
+        (total, high, low);
+        });
+        var floor : Nat64 = 0;
+        for (a in _tokenListing.entries()){
+            if (floor == 0 or a.1.price < floor) {
+                floor := a.1.price;
+            };
+        };
+        (res.0, res.1, res.2, floor, _tokenListing.size(), _registry.size(), _transactions.size());
+    };
+
     //  Used to add a filter on Entrepot
 
     public type EntrepotFilterInfos = {
@@ -886,13 +907,13 @@ shared({ caller = hub }) actor class Hub() = this {
 
     public query func getEntrepotFilterInfos() : async [EntrepotFilterInfos] {
         var buffer = Buffer.Buffer<EntrepotFilterInfos>(0);
-        for (item in _items.vals()){
-            switch(item){
-                case(#Material(name)) {
+        for (i in Iter.range(0, Nat32.toNat(_nextTokenId))){
+            switch(_items.get(Nat32.fromNat(i))){
+                case(?#Material(name)) {
                     let infos = {nature = "material"; details = EntrepotFilter.nameToDetailsMaterial(name);};
                     buffer.add(infos);
                 };
-                case(#Accessory(item)){
+                case(?#Accessory(item)){
                     let infos = {nature = "accessory"; details = EntrepotFilter.nameToDetailsAccessory(item.name)};
                     buffer.add(infos);
                 };
