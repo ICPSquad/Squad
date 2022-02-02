@@ -667,10 +667,14 @@ let this = actor {
     // A count represents one second
     stable var count = 0;
 
+    public query func showCount() : async Nat {
+        count;
+    };
+
     system func heartbeat () : async () {
         count += 1;
         //  Every 5min
-        if( count % 300 == 0){
+        if(count % 300 == 0){
             await collectCanisterMetrics();
         };
         //  Every day
@@ -779,7 +783,7 @@ let this = actor {
 
     //Send recipe of the week to the wallet
     //@auth : canister
-    public shared ({caller}) func recipe () : async () {
+    public shared ({caller}) func recipe() : async () {
         assert(caller == Principal.fromActor(this));
         let balance : Ledger.ICP = await actorLedger.account_balance({
             account = _myAccountIdentifier(null);

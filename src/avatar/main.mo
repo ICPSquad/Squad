@@ -5,6 +5,8 @@ import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
 import ColorModule "types/color";
 import CombinationModule "types/combination";
+import CAPTypes "mo:cap/Types";
+import Cap "mo:cap/Cap";
 import Cycles "mo:base/ExperimentalCycles";
 import Debug "mo:base/Debug";
 import ExtAllowance "../dependencies/ext/Allowance";
@@ -14,6 +16,7 @@ import Hash "mo:base/Hash";
 import HashMap "mo:base/HashMap";
 import Http "types/http";
 import Iter "mo:base/Iter";
+import Int "mo:base/Int";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat8 "mo:base/Nat8";
@@ -21,6 +24,7 @@ import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import PrincipalImproved "../dependencies/util/Principal";
 import Result "mo:base/Result";
+import Root "mo:cap/Root";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Utils "../dependencies/helpers/Array";
@@ -356,6 +360,14 @@ shared (install) actor class erc721_token() = this {
                 // Increase parameters of the minter for the next NFT. 
                 _supply := _supply + 1;
                 _nextTokenId := _nextTokenId + 1;
+
+                //  Register to CAP
+                let event : IndefiniteEvent = {
+                    operation = "mint";
+                    details = [("token", #Text(token_identifier)), ("to", #Text(receiver))];
+                    caller = msg.caller;
+                };
+                ignore(_registerEvent(event));
 
                 let avatar_infos : AvatarInformations = {tokenIdentifier = token_identifier; svg = final_svg;};
                 return #ok (avatar_infos);
@@ -752,6 +764,13 @@ shared (install) actor class erc721_token() = this {
 
                 _supply := _supply + 1;
                 _nextTokenId := _nextTokenId + 1;
+                
+                let event : IndefiniteEvent = {
+                    operation = "mint";
+                    details = [("token", #Text(token_identifier)), ("name", #Text(name)), ("to", #Text(address_receiver))];
+                    caller = caller;
+                };
+                ignore(_registerEvent(event));
 
                 return #ok ("Legendary avatar : " # name # " minted with token identifier : " #token_identifier);
             };
@@ -882,7 +901,8 @@ shared (install) actor class erc721_token() = this {
         switch(_tokenSettlement.get(token)){
             case(null) return #err(#Other("Nothing to settle"));
             case(?settlement){
-                    let response : ICPTs = await LEDGER_CANISTER.account_balance_dfx({account = AID.fromPrincipal(settlement.seller, ?settlement.subaccount)});
+                    let account = AID.fromPrincipal(settlement.seller, ?settlement.subaccount);
+                    let response : ICPTs = await LEDGER_CANISTER.account_balance_dfx({account});
                     switch(_tokenSettlement.get(token)) {
                         case(null) return #err(#Other("Nothing to settle"));
                         case(?settlement) {
@@ -895,6 +915,13 @@ shared (install) actor class erc721_token() = this {
                             _transactions := Array.append(_transactions, [{ token = tokenid; seller = settlement.seller; price = settlement.price; buyer = settlement.buyer; time = Time.now();}]);
                             _tokenListing.delete(token);
                             _tokenSettlement.delete(token);
+                            //  Report event to CAP
+                            let event : IndefiniteEvent = {
+                                operation = "transfer";
+                                details = [("token", #Text(tokenid)), ("from", #Text(account)), ("to", #Text(settlement.buyer)), ("price", #U64(settlement.price))];
+                                caller = msg.caller;
+                            };
+                            ignore(_registerEvent(event));
                             return #ok();
                             } else {
                                 return #err(#Other("Insufficient funds sent"));
@@ -1101,6 +1128,13 @@ shared (install) actor class erc721_token() = this {
                                 return #err(#Unauthorized(spender));
                         };
                         _registry.put(token, receiver);
+                        //  Report event to CAP
+                        let event : IndefiniteEvent = {
+                            operation = "transfer";
+                            details = [("token", #Text(request.token)), ("from", #Text(token_owner)), ("to", #Text(receiver))];
+                            caller = msg.caller;
+                        };
+                        ignore(_registerEvent(event));
                         return #ok(request.amount);
             };
             case (_) {
@@ -1237,6 +1271,73 @@ shared (install) actor class erc721_token() = this {
     };
 	};
 
+    //////////
+    // CAP //
+    /////////
+
+    //Details : https://github.com/Psychedelic/cap-motoko-library
+
+    type DetailValue = Root.DetailValue;
+    type Event = Root.Event;
+    type IndefiniteEvent = Root.IndefiniteEvent;
+    
+    //null is passed as argument to not override the router canister id on mainnet : lj532-6iaaa-aaaah-qcc7a-cai
+    let cap = Cap.Cap(null); 
+
+    // The number of cycles to use when initialising the handshake process which creates a new canister and install the bucket code into cap service
+    let creationCycles : Nat = 1_000_000_000_000;
+
+    // Call the handshake function on CAP which will ask the Router canister to create a new Root canister specifically for this token smart contract.
+    // @auth : owner
+    public shared ({caller}) func init_cap() : async Result.Result<(), Text> {
+        assert(_isAdmin(caller));
+        let tokenContractId = Principal.toText(Principal.fromActor(this));
+        try {
+            let handshake = await cap.handshake(
+                tokenContractId,
+                creationCycles
+            );
+            return #ok();
+        } catch e {
+            throw e;
+        };
+    };
+
+    //  This hashmap is used to store events & register them later to avoid any lost event in case of CAP error or message lost.
+    private stable var _eventsEntries : [(Time, IndefiniteEvent)] = [];
+    let _events : HashMap.HashMap<Time, IndefiniteEvent> = HashMap.fromIter(_eventsEntries.vals(), _eventsEntries.size(), Int.equal, Int.hash);
+    
+    //  Periodically called through heartbeat to verify that all events have been reported 
+    public shared ({caller}) func verificationEvents() : async () {
+        assert(caller == Principal.fromActor(this));
+        for((time,event) in _events.entries()){
+            switch(await cap.insert(event)){
+                case(#err(message)){};
+                case(#ok(id)){
+                    _events.delete(time);
+                };
+            };
+        };
+    };
+
+    // It should almost always be 0
+    public shared query ({caller}) func eventsSize() : async Nat {
+        assert(_isAdmin(caller));
+        _events.size();
+    };
+
+    //  Register an event to CAP, store it in _events if registration wasn't successful to process later.
+    private func _registerEvent(event : IndefiniteEvent) : async () {
+        let time = Time.now();
+        _events.put(time, event);
+        switch(await cap.insert(event)){
+            case(#ok(id)){
+                _events.delete(time);
+            };
+            case(#err(message)){};
+        };
+    };
+
 
     ///////////////
     // HEARTBEAT //
@@ -1258,6 +1359,8 @@ shared (install) actor class erc721_token() = this {
     /////////////
 
     system func preupgrade() {
+
+        // Avatar deserialization
         let buffer_token = Buffer.Buffer<TokenIdentifier>(0);
         let buffer_layer = Buffer.Buffer<[(LayerId,LayerAvatar)]>(0);
         let buffer_style = Buffer.Buffer<Text>(0);
@@ -1276,17 +1379,24 @@ shared (install) actor class erc721_token() = this {
         styleStorage  := buffer_style.toArray();
         slotsStorage := buffer_slots.toArray();
 
+        //  Components & legenndary 
         componentsEntries := Iter.toArray(components.entries());
         accessoriesEntries := Iter.toArray(accessories.entries());
         legendaryEntries := Iter.toArray(legendaries.entries());
+
+        //  Entrepot 
         _tokenListingState := Iter.toArray(_tokenListing.entries());
         _tokenSettlementState := Iter.toArray(_tokenSettlement.entries());
         _paymentsState := Iter.toArray(_payments.entries());
         _refundsState := Iter.toArray(_refunds.entries());
+        //  NFT 
         _principalToAccountsIdentifierState := Iter.toArray(_principalToAccountsIdentifier.entries());
         _registryState := Iter.toArray(_registry.entries());
         _svgsEntries := Iter.toArray(_svgs.entries());
         _blobsEntries := Iter.toArray(_blobs.entries());
+        //  CAP
+        _eventsEntries := Iter.toArray(_events.entries());
+
     };
 
     system func postupgrade() {
@@ -1409,7 +1519,7 @@ shared (install) actor class erc721_token() = this {
     stable var storageOwner : [(AccountIdentifier, Text)] = [];
 
     public shared ({caller}) func transform_data() : async Nat {
-        assert(_isAdmin(caller));é
+        assert(_isAdmin(caller));
         for ((token_identifier, name) in storageData.vals()){
             let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
             let owner = Option.unwrap(_registry.get(token_index));

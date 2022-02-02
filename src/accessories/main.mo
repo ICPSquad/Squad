@@ -801,7 +801,7 @@ shared({ caller = hub }) actor class Hub() = this {
                             _tokenSettlement.delete(token_index);
                             let event : IndefiniteEvent = {
                                 operation = "transfer";
-                                details = [("from", #Text(account_seller)),("to", #Text(settlement.buyer)), ("token", #Text(token_identifier)), ("price", #U64(settlement.price))]; // TODO ADD PRICE
+                                details = [("from", #Text(account_seller)),("to", #Text(settlement.buyer)), ("token", #Text(token_identifier)), ("price", #U64(settlement.price))]; 
                                 caller = msg.caller;
                             };
                             ignore(_registerEvent(event));
@@ -1583,6 +1583,9 @@ shared({ caller = hub }) actor class Hub() = this {
 
         //  Canister geek (Monitoring)
         _canistergeekMonitorUD := ? canistergeekMonitor.preupgrade();
+
+        //CAP
+        _eventsEntries := Iter.toArray(_events.entries());
 
         //  Entrepot
         _tokenListingState := Iter.toArray(_tokenListing.entries());
