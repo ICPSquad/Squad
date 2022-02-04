@@ -165,7 +165,8 @@ shared (install) actor class erc721_token() = this {
         return #ok ("All accessories have been added.");
     };
 
-    public query func showListAccessory () : async [(Text,Accessory)] {
+    public shared query ({caller}) func getAllAccessories () : async [(Text,Accessory)] {
+        assert(_isAdmin(caller));
         let list : [(Text,Accessory)] = Iter.toArray(accessories.entries());
         return list;
     };

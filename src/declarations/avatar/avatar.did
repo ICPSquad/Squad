@@ -21,8 +21,14 @@ type erc721_token =
    bearer: (TokenIdentifier) -> (Result_6) query;
    clearPayments: (principal, vec SubAccount__1) -> ();
    collectCanisterMetrics: () -> ();
+   details: (TokenIdentifier) -> (Result_8) query;
    draw: (TokenIdentifier) -> (Result);
+   eventsSize: () -> (nat) query;
    extensions: () -> (vec Extension) query;
+   getAllAccessories: () -> (vec record {
+                                   text;
+                                   Accessory;
+                                 }) query;
    getAllComponents: () -> (vec record {
                                   text;
                                   Component;
@@ -32,48 +38,58 @@ type erc721_token =
    getMinter: () -> (vec principal) query;
    getRegistry: () -> (vec record {
                              TokenIndex;
-                             AccountIdentifier__2;
+                             AccountIdentifier;
                            }) query;
    howManyEquipped: () -> (nat) query;
    http_request: (HttpRequest) -> (HttpResponse) query;
+   init_cap: () -> (Result);
    list: (ListRequest) -> (Result_2);
    listings: () -> (vec record {
                           TokenIndex;
                           Listing;
                           Metadata__1;
                         }) query;
-   lock: (TokenIdentifier, nat64, AccountIdentifier__2, SubAccount__1) ->
+   lock: (TokenIdentifier, nat64, AccountIdentifier, SubAccount__1) ->
     (Result_6);
    metadata: (TokenIdentifier) -> (Result_5) query;
    mint: (MintRequest) -> (Result_4);
-   mintLegendary: (text, AccountIdentifier__2) -> (Result_3);
+   mintLegendary: (text, AccountIdentifier) -> (Result_3);
    modify_style: (text) -> (text);
    payments: () -> (opt vec SubAccount__1) query;
    removeMouth: (TokenIdentifier) -> (Result);
+   reset: () -> (nat);
+   reset_data: () -> (vec record {
+                            TokenIdentifier;
+                            text;
+                          }) query;
+   saveAccessories: () -> (nat, nat);
    settle: (TokenIdentifier) -> (Result_2);
    settlements: () ->
     (vec record {
            TokenIndex;
-           AccountIdentifier__2;
+           AccountIdentifier;
            nat64;
          }) query;
    showFullSvg: (TokenIdentifier) -> (opt text) query;
-   showListAccessory: () -> (vec record {
-                                   text;
-                                   Accessory;
-                                 }) query;
    showSvg: (TokenIdentifier) -> (opt text) query;
+   stats: () -> (nat64, nat64, nat64, nat64, nat, nat, nat) query;
    supply: () -> (nat) query;
    tokenIdentifier: (TokenIndex) -> (TokenIdentifier) query;
-   tokens_ext: (AccountIdentifier__2) -> (Result_1) query;
+   tokens_ext: (AccountIdentifier) -> (Result_1) query;
    transactions: () -> (vec Transaction) query;
    transfer: (TransferRequest) -> (TransferResponse);
+   transform_data: () -> (nat);
+   transform_show: () -> (vec record {
+                                AccountIdentifier;
+                                text;
+                              }) query;
    updateAdminsData: (principal, bool) -> (Result);
+   verificationEvents: () -> ();
    wearAccessory: (TokenIdentifier, text, principal) -> (Result);
  };
 type User = 
  variant {
-   address: AccountIdentifier;
+   address: AccountIdentifier__1;
    "principal": principal;
  };
 type UpdateCallsAggregatedData = vec nat64;
@@ -81,12 +97,12 @@ type TransferResponse =
  variant {
    err:
     variant {
-      CannotNotify: AccountIdentifier;
+      CannotNotify: AccountIdentifier__1;
       InsufficientBalance;
       InvalidToken: TokenIdentifier__1;
       Other: text;
       Rejected;
-      Unauthorized: AccountIdentifier;
+      Unauthorized: AccountIdentifier__1;
     };
    ok: Balance;
  };
@@ -102,7 +118,7 @@ type TransferRequest =
  };
 type Transaction = 
  record {
-   buyer: AccountIdentifier__1;
+   buyer: AccountIdentifier__2;
    price: nat64;
    seller: principal;
    time: Time;
@@ -140,10 +156,18 @@ type Slots =
  };
 type Settlement = 
  record {
-   buyer: AccountIdentifier__1;
+   buyer: AccountIdentifier__2;
    price: nat64;
    seller: principal;
    subaccount: SubAccount__2;
+ };
+type Result_8 = 
+ variant {
+   err: CommonError;
+   ok: record {
+         AccountIdentifier;
+         opt Listing;
+       };
  };
 type Result_7 = 
  variant {
@@ -153,7 +177,7 @@ type Result_7 =
 type Result_6 = 
  variant {
    err: CommonError;
-   ok: AccountIdentifier__2;
+   ok: AccountIdentifier;
  };
 type Result_5 = 
  variant {

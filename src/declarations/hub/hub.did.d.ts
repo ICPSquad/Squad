@@ -152,6 +152,7 @@ export interface _SERVICE {
   'process' : () => Promise<undefined>,
   'recipe' : () => Promise<undefined>,
   'removeUser' : (arg_0: Principal) => Promise<Result_1>,
+  'showCount' : () => Promise<bigint>,
   'showErrors' : () => Promise<Array<[Time, MintingError]>>,
   'showPaymentErrors' : () => Promise<Array<[Time, PaymentError]>>,
   'showPrejoins' : () => Promise<Array<[Principal, Infos]>>,

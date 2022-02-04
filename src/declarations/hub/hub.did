@@ -208,6 +208,7 @@ service : {
   process: () -> ();
   recipe: () -> ();
   removeUser: (principal) -> (Result_1);
+  showCount: () -> (nat) query;
   showErrors: () -> (vec record {
                            Time;
                            MintingError;

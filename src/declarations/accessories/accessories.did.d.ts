@@ -7,6 +7,12 @@ export interface Accessory {
 export type AccountIdentifier = string;
 export type AccountIdentifier__1 = string;
 export type AccountIdentifier__2 = string;
+export interface AirdropObject {
+  'recipient' : Principal,
+  'accessory1' : [] | [string],
+  'accessory2' : [] | [string],
+  'material' : string,
+}
 export interface AssetInventory {
   'name' : string,
   'token_identifier' : string,
@@ -74,21 +80,26 @@ export interface HourlyMetricsData {
   'timeMillis' : bigint,
 }
 export interface Hub {
-  'addElements' : (arg_0: string, arg_1: Template) => Promise<Result_5>,
+  'addElements' : (arg_0: string, arg_1: Template) => Promise<Result_7>,
+  'airdrop' : (arg_0: AirdropObject) => Promise<Result_3>,
   'allPayments' : () => Promise<Array<[Principal, Array<SubAccount__1>]>>,
   'allSettlements' : () => Promise<Array<[TokenIndex, Settlement]>>,
   'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
   'balance_ledger' : () => Promise<ICP>,
-  'bearer' : (arg_0: TokenIdentifier__3) => Promise<Result_4>,
+  'bearer' : (arg_0: TokenIdentifier__3) => Promise<Result_5>,
+  'burn' : (arg_0: TokenIdentifier__3) => Promise<Result_3>,
   'circulationSize' : () => Promise<bigint>,
   'clearPayments' : (arg_0: Principal, arg_1: Array<SubAccount__1>) => Promise<
       undefined
     >,
   'collectCanisterMetrics' : () => Promise<undefined>,
-  'compare' : (arg_0: number, arg_1: string) => Promise<
-      [[] | [Item], [] | [string]]
-    >,
-  'compareAll' : () => Promise<Array<bigint>>,
+  'createAccessory' : (
+      arg_0: string,
+      arg_1: Array<TokenIdentifier__3>,
+      arg_2: Array<number>,
+      arg_3: [] | [Option],
+    ) => Promise<Result_6>,
+  'eventsSize' : () => Promise<bigint>,
   'extensions' : () => Promise<Array<Extension>>,
   'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
       [] | [CanisterMetrics]
@@ -96,6 +107,8 @@ export interface Hub {
   'getContractInfo' : () => Promise<ContractInfo>,
   'getEntrepotFilterInfos' : () => Promise<Array<EntrepotFilterInfos>>,
   'getHisInventory' : (arg_0: Principal) => Promise<Inventory>,
+  'getHisInventory_old' : (arg_0: Principal) => Promise<Inventory>,
+  'getIndex' : (arg_0: TokenIdentifier__3) => Promise<TokenIndex>,
   'getInventory' : () => Promise<Inventory>,
   'getMetadata' : () => Promise<ContractMetadata>,
   'getMinter' : () => Promise<Array<Principal>>,
@@ -109,34 +122,35 @@ export interface Hub {
   'init' : (arg_0: Array<Principal>, arg_1: ContractMetadata) => Promise<
       undefined
     >,
-  'init_cap' : () => Promise<Result_2>,
-  'itemsSize' : () => Promise<bigint>,
-  'list' : (arg_0: ListRequest) => Promise<Result_1>,
+  'init_cap' : () => Promise<Result_3>,
+  'list' : (arg_0: ListRequest) => Promise<Result_2>,
   'listings' : () => Promise<Array<[TokenIndex, Listing, Metadata__1]>>,
   'lock' : (
       arg_0: string,
       arg_1: bigint,
       arg_2: AccountIdentifier__2,
       arg_3: SubAccount__1,
-    ) => Promise<Result_4>,
-  'maxTokenId' : () => Promise<bigint>,
-  'metadata' : (arg_0: TokenIdentifier__3) => Promise<Result_3>,
-  'modifyRecipe' : (arg_0: string, arg_1: Recipe) => Promise<Result_2>,
+    ) => Promise<Result_5>,
+  'metadata' : (arg_0: TokenIdentifier__3) => Promise<Result_4>,
+  'mint' : (arg_0: string, arg_1: AccountIdentifier__2) => Promise<Result_3>,
+  'modifyRecipe' : (arg_0: string, arg_1: Recipe) => Promise<Result_3>,
   'nextTokenId' : () => Promise<bigint>,
   'nftId' : () => Promise<bigint>,
   'nftSize' : () => Promise<bigint>,
   'payments' : () => Promise<[] | [Array<SubAccount__1>]>,
   'process' : () => Promise<undefined>,
-  'registrySize' : () => Promise<bigint>,
-  'saveData' : () => Promise<
-      Array<[TokenIndex, [] | [AccountIdentifier__2], [] | [Item]]>
-    >,
-  'settle' : (arg_0: string) => Promise<Result_1>,
+  'settle' : (arg_0: string) => Promise<Result_2>,
   'settlements' : () => Promise<
       Array<[TokenIndex, AccountIdentifier__2, bigint]>
     >,
   'showAdmins' : () => Promise<Array<Principal>>,
+  'showCirculation' : (arg_0: string) => Promise<[] | [string]>,
+  'showItems' : (arg_0: number) => Promise<[] | [Item]>,
+  'stats' : () => Promise<
+      [bigint, bigint, bigint, bigint, bigint, bigint, bigint]
+    >,
   'supply' : () => Promise<bigint>,
+  'tokens_ext' : (arg_0: AccountIdentifier__2) => Promise<Result_1>,
   'transactions' : () => Promise<Array<Transaction>>,
   'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
   'transfer_ledger' : (arg_0: ICP, arg_1: Principal) => Promise<TransferResult>,
@@ -144,6 +158,7 @@ export interface Hub {
   'updateAdmins' : (arg_0: Principal, arg_1: boolean) => Promise<Result>,
   'updateAdminsData' : (arg_0: Principal, arg_1: boolean) => Promise<Result>,
   'verification' : () => Promise<undefined>,
+  'verificationEvents' : () => Promise<undefined>,
   'wallet_available' : () => Promise<bigint>,
   'wallet_receive' : () => Promise<undefined>,
   'whoami' : () => Promise<Principal>,
@@ -195,6 +210,7 @@ export interface NumericEntity {
   'first' : bigint,
   'last' : bigint,
 }
+export type Option = boolean;
 export type Recipe = Array<string>;
 export type Recipe__1 = Array<string>;
 export interface Request {
@@ -211,15 +227,21 @@ export interface Response {
 }
 export type Result = { 'ok' : null } |
   { 'err' : Error };
-export type Result_1 = { 'ok' : null } |
+export type Result_1 = {
+    'ok' : Array<[TokenIndex, [] | [Listing], [] | [Array<number>]]>
+  } |
   { 'err' : CommonError };
 export type Result_2 = { 'ok' : null } |
-  { 'err' : string };
-export type Result_3 = { 'ok' : Metadata } |
-  { 'err' : CommonError__1 };
-export type Result_4 = { 'ok' : AccountIdentifier__2 } |
   { 'err' : CommonError };
-export type Result_5 = { 'ok' : string } |
+export type Result_3 = { 'ok' : null } |
+  { 'err' : string };
+export type Result_4 = { 'ok' : Metadata } |
+  { 'err' : CommonError__1 };
+export type Result_5 = { 'ok' : AccountIdentifier__2 } |
+  { 'err' : CommonError };
+export type Result_6 = { 'ok' : TokenIdentifier__3 } |
+  { 'err' : string };
+export type Result_7 = { 'ok' : string } |
   { 'err' : string };
 export interface Settlement {
   'subaccount' : SubAccount__2,

@@ -180,6 +180,7 @@ export const idlFactory = ({ IDL }) => {
     'process' : IDL.Func([], [], []),
     'recipe' : IDL.Func([], [], []),
     'removeUser' : IDL.Func([IDL.Principal], [Result_1], []),
+    'showCount' : IDL.Func([], [IDL.Nat], ['query']),
     'showErrors' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(Time, MintingError))],

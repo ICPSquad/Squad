@@ -15,18 +15,18 @@ export const idlFactory = ({ IDL }) => {
   const SubAccount__1 = IDL.Vec(IDL.Nat8);
   const TokenIndex = IDL.Nat32;
   const SubAccount__2 = IDL.Vec(IDL.Nat8);
-  const AccountIdentifier__1 = IDL.Text;
+  const AccountIdentifier__2 = IDL.Text;
   const Settlement = IDL.Record({
     'subaccount' : SubAccount__2,
     'seller' : IDL.Principal,
-    'buyer' : AccountIdentifier__1,
+    'buyer' : AccountIdentifier__2,
     'price' : IDL.Nat64,
   });
   const TokenIdentifier__1 = IDL.Text;
-  const AccountIdentifier = IDL.Text;
+  const AccountIdentifier__1 = IDL.Text;
   const User = IDL.Variant({
     'principal' : IDL.Principal,
-    'address' : AccountIdentifier,
+    'address' : AccountIdentifier__1,
   });
   const BalanceRequest = IDL.Record({
     'token' : TokenIdentifier__1,
@@ -42,13 +42,23 @@ export const idlFactory = ({ IDL }) => {
     'err' : CommonError__1,
   });
   const TokenIdentifier = IDL.Text;
-  const AccountIdentifier__2 = IDL.Text;
+  const AccountIdentifier = IDL.Text;
   const CommonError = IDL.Variant({
     'InvalidToken' : TokenIdentifier__1,
     'Other' : IDL.Text,
   });
   const Result_6 = IDL.Variant({
-    'ok' : AccountIdentifier__2,
+    'ok' : AccountIdentifier,
+    'err' : CommonError,
+  });
+  const Time = IDL.Int;
+  const Listing = IDL.Record({
+    'locked' : IDL.Opt(Time),
+    'seller' : IDL.Principal,
+    'price' : IDL.Nat64,
+  });
+  const Result_8 = IDL.Variant({
+    'ok' : IDL.Tuple(AccountIdentifier, IDL.Opt(Listing)),
     'err' : CommonError,
   });
   const Extension = IDL.Text;
@@ -145,12 +155,6 @@ export const idlFactory = ({ IDL }) => {
     'price' : IDL.Opt(IDL.Nat64),
   });
   const Result_2 = IDL.Variant({ 'ok' : IDL.Null, 'err' : CommonError });
-  const Time = IDL.Int;
-  const Listing = IDL.Record({
-    'locked' : IDL.Opt(Time),
-    'seller' : IDL.Principal,
-    'price' : IDL.Nat64,
-  });
   const Metadata__1 = IDL.Variant({
     'fungible' : IDL.Record({
       'decimals' : IDL.Nat8,
@@ -195,7 +199,7 @@ export const idlFactory = ({ IDL }) => {
     'token' : TokenIdentifier__2,
     'time' : Time,
     'seller' : IDL.Principal,
-    'buyer' : AccountIdentifier__1,
+    'buyer' : AccountIdentifier__2,
     'price' : IDL.Nat64,
   });
   const Memo = IDL.Vec(IDL.Nat8);
@@ -212,11 +216,11 @@ export const idlFactory = ({ IDL }) => {
   const TransferResponse = IDL.Variant({
     'ok' : Balance,
     'err' : IDL.Variant({
-      'CannotNotify' : AccountIdentifier,
+      'CannotNotify' : AccountIdentifier__1,
       'InsufficientBalance' : IDL.Null,
       'InvalidToken' : TokenIdentifier__1,
       'Rejected' : IDL.Null,
-      'Unauthorized' : AccountIdentifier,
+      'Unauthorized' : AccountIdentifier__1,
       'Other' : IDL.Text,
     }),
   });
@@ -245,8 +249,15 @@ export const idlFactory = ({ IDL }) => {
     'bearer' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
     'clearPayments' : IDL.Func([IDL.Principal, IDL.Vec(SubAccount__1)], [], []),
     'collectCanisterMetrics' : IDL.Func([], [], []),
+    'details' : IDL.Func([TokenIdentifier], [Result_8], ['query']),
     'draw' : IDL.Func([TokenIdentifier], [Result], []),
+    'eventsSize' : IDL.Func([], [IDL.Nat], ['query']),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
+    'getAllAccessories' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, Accessory))],
+        ['query'],
+      ),
     'getAllComponents' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Text, Component))],
@@ -261,11 +272,12 @@ export const idlFactory = ({ IDL }) => {
     'getMinter' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'getRegistry' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier__2))],
+        [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier))],
         ['query'],
       ),
     'howManyEquipped' : IDL.Func([], [IDL.Nat], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
+    'init_cap' : IDL.Func([], [Result], []),
     'list' : IDL.Func([ListRequest], [Result_2], []),
     'listings' : IDL.Func(
         [],
@@ -273,39 +285,49 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'lock' : IDL.Func(
-        [TokenIdentifier, IDL.Nat64, AccountIdentifier__2, SubAccount__1],
+        [TokenIdentifier, IDL.Nat64, AccountIdentifier, SubAccount__1],
         [Result_6],
         [],
       ),
     'metadata' : IDL.Func([TokenIdentifier], [Result_5], ['query']),
     'mint' : IDL.Func([MintRequest], [Result_4], []),
-    'mintLegendary' : IDL.Func(
-        [IDL.Text, AccountIdentifier__2],
-        [Result_3],
-        [],
-      ),
+    'mintLegendary' : IDL.Func([IDL.Text, AccountIdentifier], [Result_3], []),
     'modify_style' : IDL.Func([IDL.Text], [IDL.Text], []),
     'payments' : IDL.Func([], [IDL.Opt(IDL.Vec(SubAccount__1))], ['query']),
     'removeMouth' : IDL.Func([TokenIdentifier], [Result], []),
+    'reset' : IDL.Func([], [IDL.Nat], []),
+    'reset_data' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(TokenIdentifier, IDL.Text))],
+        ['query'],
+      ),
+    'saveAccessories' : IDL.Func([], [IDL.Nat, IDL.Nat], []),
     'settle' : IDL.Func([TokenIdentifier], [Result_2], []),
     'settlements' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier__2, IDL.Nat64))],
+        [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier, IDL.Nat64))],
         ['query'],
       ),
     'showFullSvg' : IDL.Func([TokenIdentifier], [IDL.Opt(IDL.Text)], ['query']),
-    'showListAccessory' : IDL.Func(
+    'showSvg' : IDL.Func([TokenIdentifier], [IDL.Opt(IDL.Text)], ['query']),
+    'stats' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(IDL.Text, Accessory))],
+        [IDL.Nat64, IDL.Nat64, IDL.Nat64, IDL.Nat64, IDL.Nat, IDL.Nat, IDL.Nat],
         ['query'],
       ),
-    'showSvg' : IDL.Func([TokenIdentifier], [IDL.Opt(IDL.Text)], ['query']),
     'supply' : IDL.Func([], [IDL.Nat], ['query']),
     'tokenIdentifier' : IDL.Func([TokenIndex], [TokenIdentifier], ['query']),
-    'tokens_ext' : IDL.Func([AccountIdentifier__2], [Result_1], ['query']),
+    'tokens_ext' : IDL.Func([AccountIdentifier], [Result_1], ['query']),
     'transactions' : IDL.Func([], [IDL.Vec(Transaction)], ['query']),
     'transfer' : IDL.Func([TransferRequest], [TransferResponse], []),
+    'transform_data' : IDL.Func([], [IDL.Nat], []),
+    'transform_show' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(AccountIdentifier, IDL.Text))],
+        ['query'],
+      ),
     'updateAdminsData' : IDL.Func([IDL.Principal, IDL.Bool], [Result], []),
+    'verificationEvents' : IDL.Func([], [], []),
     'wearAccessory' : IDL.Func(
         [TokenIdentifier, IDL.Text, IDL.Principal],
         [Result],

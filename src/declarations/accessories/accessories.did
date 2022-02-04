@@ -93,30 +93,44 @@ type Settlement =
    seller: principal;
    subaccount: SubAccount__2;
  };
-type Result_5 = 
+type Result_7 = 
  variant {
    err: text;
    ok: text;
  };
-type Result_4 = 
+type Result_6 = 
+ variant {
+   err: text;
+   ok: TokenIdentifier__3;
+ };
+type Result_5 = 
  variant {
    err: CommonError;
    ok: AccountIdentifier__2;
  };
-type Result_3 = 
+type Result_4 = 
  variant {
    err: CommonError__1;
    ok: Metadata;
  };
-type Result_2 = 
+type Result_3 = 
  variant {
    err: text;
+   ok;
+ };
+type Result_2 = 
+ variant {
+   err: CommonError;
    ok;
  };
 type Result_1 = 
  variant {
    err: CommonError;
-   ok;
+   ok: vec record {
+             TokenIndex;
+             opt Listing;
+             opt blob;
+           };
  };
 type Result = 
  variant {
@@ -139,6 +153,7 @@ type Request =
  };
 type Recipe__1 = vec text;
 type Recipe = vec text;
+type Option = bool;
 type NumericEntity = 
  record {
    avg: nat64;
@@ -202,7 +217,8 @@ type Inventory = vec AssetInventory;
 type ICP = record {e8s: nat64;};
 type Hub = 
  service {
-   addElements: (text, Template) -> (Result_5);
+   addElements: (text, Template) -> (Result_7);
+   airdrop: (AirdropObject) -> (Result_3);
    allPayments: () -> (vec record {
                              principal;
                              vec SubAccount__1;
@@ -213,17 +229,21 @@ type Hub =
                               }) query;
    balance: (BalanceRequest) -> (BalanceResponse) query;
    balance_ledger: () -> (ICP);
-   bearer: (TokenIdentifier__3) -> (Result_4) query;
+   bearer: (TokenIdentifier__3) -> (Result_5) query;
+   burn: (TokenIdentifier__3) -> (Result_3);
    circulationSize: () -> (nat) query;
    clearPayments: (principal, vec SubAccount__1) -> ();
    collectCanisterMetrics: () -> ();
-   compare: (nat32, text) -> (opt Item, opt text) query;
-   compareAll: () -> (vec nat) query;
+   createAccessory: (text, vec TokenIdentifier__3, vec nat8, opt Option) ->
+    (Result_6);
+   eventsSize: () -> (nat) query;
    extensions: () -> (vec Extension) query;
    getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
    getContractInfo: () -> (ContractInfo);
    getEntrepotFilterInfos: () -> (vec EntrepotFilterInfos) query;
    getHisInventory: (principal) -> (Inventory) query;
+   getHisInventory_old: (principal) -> (Inventory) query;
+   getIndex: (TokenIdentifier__3) -> (TokenIndex);
    getInventory: () -> (Inventory) query;
    getMetadata: () -> (ContractMetadata) query;
    getMinter: () -> (vec principal) query;
@@ -243,31 +263,23 @@ type Hub =
    getStats: () -> (vec text) query;
    http_request: (Request) -> (Response) query;
    init: (vec principal, ContractMetadata) -> ();
-   init_cap: () -> (Result_2);
-   itemsSize: () -> (nat) query;
-   list: (ListRequest) -> (Result_1);
+   init_cap: () -> (Result_3);
+   list: (ListRequest) -> (Result_2);
    listings: () -> (vec record {
                           TokenIndex;
                           Listing;
                           Metadata__1;
                         }) query;
-   lock: (text, nat64, AccountIdentifier__2, SubAccount__1) -> (Result_4);
-   maxTokenId: () -> (nat) query;
-   metadata: (TokenIdentifier__3) -> (Result_3) query;
-   modifyRecipe: (text, Recipe) -> (Result_2);
+   lock: (text, nat64, AccountIdentifier__2, SubAccount__1) -> (Result_5);
+   metadata: (TokenIdentifier__3) -> (Result_4) query;
+   mint: (text, AccountIdentifier__2) -> (Result_3);
+   modifyRecipe: (text, Recipe) -> (Result_3);
    nextTokenId: () -> (nat) query;
    nftId: () -> (nat) query;
    nftSize: () -> (nat) query;
    payments: () -> (opt vec SubAccount__1) query;
    process: () -> ();
-   registrySize: () -> (nat) query;
-   saveData: () ->
-    (vec record {
-           TokenIndex;
-           opt AccountIdentifier__2;
-           opt Item;
-         });
-   settle: (text) -> (Result_1);
+   settle: (text) -> (Result_2);
    settlements: () ->
     (vec record {
            TokenIndex;
@@ -275,7 +287,11 @@ type Hub =
            nat64;
          }) query;
    showAdmins: () -> (vec principal) query;
+   showCirculation: (text) -> (opt text) query;
+   showItems: (nat32) -> (opt Item) query;
+   stats: () -> (nat64, nat64, nat64, nat64, nat, nat, nat) query;
    supply: () -> (nat) query;
+   tokens_ext: (AccountIdentifier__2) -> (Result_1) query;
    transactions: () -> (vec Transaction) query;
    transfer: (TransferRequest) -> (TransferResponse);
    transfer_ledger: (ICP, principal) -> (TransferResult);
@@ -283,6 +299,7 @@ type Hub =
    updateAdmins: (principal, bool) -> (Result);
    updateAdminsData: (principal, bool) -> (Result);
    verification: () -> ();
+   verificationEvents: () -> ();
    wallet_available: () -> (nat) query;
    wallet_receive: () -> ();
    whoami: () -> (principal) query;
@@ -391,6 +408,13 @@ type AssetInventory =
    category: AssetInventoryType;
    name: text;
    token_identifier: text;
+ };
+type AirdropObject = 
+ record {
+   accessory1: opt text;
+   accessory2: opt text;
+   material: text;
+   recipient: principal;
  };
 type AccountIdentifier__2 = text;
 type AccountIdentifier__1 = text;
