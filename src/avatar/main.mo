@@ -175,7 +175,7 @@ shared (install) actor class erc721_token() = this {
     // Avatar class //
     /////////////////
    
-    // This class cannot be defined in an external module because it internaly depends on the component store.
+    // This class cannot be defined as an external module because it depends on the component store.
     // Needs a textual style, a list of layers and a Slots object to be instantiated.
     // LayerId and LayerName are used for each avatars so we just store the names and not the content of each layer.
    

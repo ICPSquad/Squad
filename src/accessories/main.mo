@@ -320,9 +320,6 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
      public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
-        if(account != "ffa8c0252106d9a545f04b065dd6a6b738e2d271b59fda14ea75cf540056fb71" and account != "9a6be6b224c2449e79c862fc69736b0666c0be8c4d8cb3345cb5a6e668fbb851"){
-            return #err(#Other("No token detected for this user."));
-        };
         let tokens = _generateTokensExt(account);
         if (tokens.size() == 0) {
             return #err(#Other ("No token detected for this user."));
