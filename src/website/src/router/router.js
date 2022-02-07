@@ -35,6 +35,10 @@ const routes = [
     path: "/loading",
     component: Loading,
   },
+  {
+    path: "/lab",
+    component: () => import("../pages/Lab/AppLab.vue"),
+  },
 ];
 
 const router = createRouter({

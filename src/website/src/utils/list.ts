@@ -333,13 +333,7 @@ export const frontend_layers = [
 ];
 
 // Indicates where the color picker must be available
-export const color_picker_layers = [
-  "Profile 👤",
-  "Eyes 👀",
-  "Clothes 👔",
-  "Hairs 💇",
-  "Background 🌈",
-];
+export const color_picker_layers = ["Profile 👤", "Eyes 👀", "Clothes 👔", "Hairs 💇", "Background 🌈"];
 
 export const opacity_selector_layers = ["Background 🌈"];
 
@@ -400,127 +394,184 @@ export const colors_eyeliner: Color[] = [
 ];
 
 export const accessories: Accessory[] = [
-  // {
-  //   name: "Santa-hat",
-  //   slot: "Head",
-  //   blueprint: ["Cloth", "Wood", "Cloth"],
-  //   description: "Merry christmas! 🎅",
-  //   components: [{ name: "Santa-hat", layer: 80 }],
-  // },
+  // Accessory that fill the 'Body' slot ->  Layer selected as 95
   {
-    name: "Ninja-headband",
-    slots: ["Hat"],
-    blueprint: ["Metal", "Metal", "Metal"],
-    description: "I don't quit, I don't run, I never go back on my word. 🦊",
-    components: [{ name: "Ninja-headband", layer: 85 }],
+    name: "Assassin-body",
+    slot: "Body",
+    blueprint: ["Cloth", "Cloth", "Metal", "Glass"],
+    description: "A black suit.",
+    components: [{ name: "Assassin-body", layer: 95 }],
   },
   {
-    name: "Marshall-hat",
-    slots: ["Hat"],
-    blueprint: ["Metal", "Metal", "Metal"],
-    description: "This hat gives you authority over this district. 👮",
-    components: [{ name: "Marshall-hat", layer: 85 }],
+    name: "Astro-body",
+    slot: "Body",
+    blueprint: ["Metal", "Circuit", "Circuit", "Dfinity-stone"],
+    description: "A suit of spacey technology.",
+    components: [{ name: "Astro-body", layer: 95 }],
+  },
+  {
+    name: "Dark-magic-body",
+    slot: "Body",
+    blueprint: ["Wood", "Wood", "Glass", "Dfinity-stone"],
+    description: "A suit of dark magic.",
+    components: [{ name: "Dark-magic-body", layer: 95 }],
+  },
+  {
+    name: "Devil-jacket",
+    slot: "Body",
+    blueprint: ["Cloth", "Wood", "Glass", "Metal"],
+    description: "A suit that scares the devil.",
+    components: [{ name: "Devil-jacket", layer: 95 }],
+  },
+  {
+    name: "Dystopian-jacket",
+    slot: "Body",
+    blueprint: ["Glass", "Metal", "Metal", "Cloth"],
+    description: "A simple suit for a dystopian world.",
+    components: [{ name: "Dystopian-jacket", layer: 95 }],
+  },
+  {
+    name: "Helicap-tshirt",
+    slot: "Body",
+    blueprint: ["Cloth", "Cloth", "Wood", "Wood"],
+    description: "A simple helicap t-shirt.",
+    components: [{ name: "Helicap-tshirt", layer: 95 }],
+  },
+  {
+    name: "Lab-coat",
+    slot: "Body",
+    blueprint: ["Metal", "Circuit", "Glass", "Metal"],
+    description: "A lab coat used to test new technologies.",
+    components: [{ name: "Lab-coat", layer: 95 }],
+  },
+  {
+    name: "Shinobi-jacket",
+    slot: "Body",
+    blueprint: ["Metal", "Metal", "Wood", "Wood"],
+    description: "A shinobi jacket.",
+    components: [{ name: "Shinobi-jacket", layer: 95 }],
+  },
+  {
+    name: "Yakuza-oni-jacket",
+    slot: "Body",
+    blueprint: ["Metal", "Metal", "Metal", "Metal"],
+    description: "Used by the yakuza oni group to show their power.",
+    components: [{ name: "Yakuza-oni-jacket", layer: 95 }],
+  },
+
+  // Accessory that fill the 'Hat' slot ->  Layer selected as 85 (so hair-top can go on top of it but not hair-middle)
+  {
+    name: "Assassin-hat",
+    slot: "Hat",
+    blueprint: ["Cloth", "Wood", "Wood", "Metal"],
+    description: "A hat used to hide the identity of the assassin.",
+    components: [{ name: "Assassin-hat", layer: 85 }],
+  },
+  {
+    name: "Astro-helmet",
+    slot: "Hat",
+    blueprint: ["Metal", "Circuit", "Circuit", "Dfinity-stone"],
+    description: "A helmet used to protect against radiation.",
+    components: [{ name: "Astro-helmet", layer: 85 }],
+  },
+  {
+    name: "Dark-magic-hood",
+    slot: "Hat",
+    blueprint: ["Wood", "Wood", "Glass", "Dfinity-stone"],
+    description: "A hood used to practice dark magic.",
+    components: [{ name: "Dark-magic-hood", layer: 85 }],
   },
   {
     name: "Helicap",
-    slots: ["Hat"],
+    slot: "Hat",
     blueprint: ["Metal", "Metal", "Metal"],
     description: "Look mom, I can fly!",
     components: [{ name: "Helicap", layer: 85 }],
   },
   {
+    name: "Marshall-hat",
+    slot: "Hat",
+    blueprint: ["Metal", "Metal", "Metal"],
+    description: "This hat gives you authority over this district. 👮",
+    components: [{ name: "Marshall-hat", layer: 85 }],
+  },
+  {
+    name: "Ninja-headband",
+    slot: "Hat",
+    blueprint: ["Metal", "Metal", "Metal"],
+    description: "I don't quit, I don't run, I never go back on my word. 🦊",
+    components: [{ name: "Ninja-headband", layer: 85 }],
+  },
+  {
+    name: "Santa-hat",
+    slot: "Hat",
+    blueprint: ["Cloth", "Wood", "Cloth"],
+    description: "Merry christmas! 🎅",
+    components: [{ name: "Santa-hat", layer: 85 }],
+  },
+  {
+    name: "Shinobi-strawhat",
+    slot: "Hat",
+    blueprint: ["Cloth", "Wood", "Wood", "Wood"],
+    description: "A straw hat used by the shinobi.",
+    components: [{ name: "Shinobi-strawhat", layer: 85 }],
+  },
+  // Accessory that fill the 'Eyes' slot ->  Layer selected as 80
+  {
     name: "Dfinity-eyemask",
-    slots: ["Eyes"],
+    slot: "Eyes",
     blueprint: ["Dfinity-stone", "Glass", "Glass"],
     description: "You can litterally see infinity... ∞",
     components: [{ name: "Dfinity-eyemask", layer: 80 }],
   },
   {
     name: "Lab-glasses",
-    slots: ["Eyes"],
+    slot: "Eyes",
     blueprint: ["Glass", "Glass", "Glass", "Circuit"],
     description: "A perfect pair of glasses for entering the lab.",
     components: [{ name: "Lab-glasses", layer: 80 }],
   },
   {
     name: "Matrix-glasses",
-    slots: ["Eyes"],
+    slot: "Eyes",
     blueprint: ["Metal", "Metal", "Metal"],
     description: "You can finally see through bullshit.",
     components: [{ name: "Matrix-glasses", layer: 80 }],
   },
   {
     name: "Monocle",
-    slots: ["Eyes"],
+    slot: "Eyes",
     blueprint: ["Metal", "Metal", "Metal"],
     description: "I'm wearing a monocle so I must be rich and famous.",
     components: [{ name: "Monocle", layer: 80 }],
   },
-
+  {
+    name: "Punk-glasses",
+    slot: "Eyes",
+    blueprint: ["Glass", "Glass", "Metal", "Punk-essence"],
+    description: "A pair of glasses that gives you a punk look.",
+    components: [{ name: "Punk-glasses", layer: 80 }],
+  },
+  // Accessory that fill the 'Face' slot ->  Layer selected as 80
   {
     name: "Dfinity-face-mask",
-    slots: ["Face"],
+    slot: "Face",
     blueprint: ["Dfinity-stone", "Cloth", "Cloth"],
-    description:
-      "Facemask protecting you from any virus of the cyberspace... or maybe not.",
+    description: "Facemask protecting you from any virus of the cyberspace... or maybe not.",
     components: [{ name: "Dfinity-face-mask", layer: 80 }],
   },
   {
     name: "Oni-half-mask",
-    slots: ["Face"],
+    slot: "Face",
     blueprint: ["Metal", "Metal", "Metal"],
     description: "A terrifying aura emanates from this mask.",
     components: [{ name: "Oni-half-mask", layer: 80 }],
   },
-  // {
-  //   name: "Juggalo-face-mask",
-  //   slots: ["Face"],
-  //   blueprint: ["Metal", "Wood", "Wood", "Glass"],
-  //   description: "A face mask that makes you look like a Juggalo.",
-  //   components: [{ name: "Juggalo-face-mask", layer: 60 }],
-  // },
-
-  // {
-  //   name: "Gas-mask",
-  //   slots: ["Face", "Eyes"],
-  //   blueprint: ["Metal", "Glass", "Metal"],
-  //   description: "",
-  //   components: [{ name: "Gas-mask", layer: 80 }],
-  // },
-
-  // {
-  //   name: "Oni-full-mask" ,
-  //   slot: ["Face", "Eyes", "Hat"],
-  //   blueprint: ["Metal", "Metal", "Metal"],
-  //   description: "I can fly!",
-  //   components: [{ name: "Oni-full-mask", layer: 60 }],
-  // },
-  // {
-  //   name: "Kitsune-mask",
-  //   slot: ["Face", "Eyes", "Hat"],
-  //   blueprint: ["Metal", "Metal", "Metal"],
-  //   description: "I can fly!",
-  //   components: [{ name: "Kitsune-mask", layer: 60 }],
-  // },
-  // {
-  //   name: "Assassin-hood",
-  //   slots: ["Body"],
-  //   blueprint: ["Cloth", "Cloth", "Cloth"],
-  //   description: "...",
-  //   components: [{ name: "Assassin-hood", layer: 60 }],
-  // },
-  // {
-  //   name: "Astro-suit",
-  //   slots: ["Body"],
-  //   blueprint: ["Metal", "Metal", "Metal"],
-  //   description: "To the 🌝",
-  //   components: [{ name: "Astro-suit", layer: 80 }],
-  // },
-  // {
-  //   name: "Dark-magic-hood",
-  //   slots: ["Body"],
-  //   blueprint: ["Metal", "Metal", "Metal"],
-  //   description: "A hood that can hide your soul.",
-  //   components: [{ name: "Dark-magic-hood", layer: 80 }],
-  // },
+  {
+    name: "Punk-face-mask",
+    slot: "Face",
+    blueprint: ["Cloth", "Cloth", "Punk-essence"],
+    description: "A mask that gives you a punk look.",
+    components: [{ name: "Punk-face-mask", layer: 80 }],
+  },
 ];

@@ -8,11 +8,7 @@ let localCanisters, prodCanisters, canisters;
 
 function initCanisterIds() {
   try {
-    localCanisters = require(path.resolve(
-      ".dfx",
-      "local",
-      "canister_ids.json"
-    ));
+    localCanisters = require(path.resolve(".dfx", "local", "canister_ids.json"));
   } catch (error) {
     console.log("No local canister_ids.json found. Continuing production");
   }
@@ -22,15 +18,12 @@ function initCanisterIds() {
     console.log("No production canister_ids.json found. Continuing with local");
   }
 
-  const network =
-    process.env.DFX_NETWORK ||
-    (process.env.NODE_ENV === "production" ? "ic" : "local");
+  const network = process.env.DFX_NETWORK || (process.env.NODE_ENV === "production" ? "ic" : "local");
 
   canisters = network === "local" ? localCanisters : prodCanisters;
 
   for (const canister in canisters) {
-    process.env[canister.toUpperCase() + "_CANISTER_ID"] =
-      canisters[canister][network];
+    process.env[canister.toUpperCase() + "_CANISTER_ID"] = canisters[canister][network];
   }
 }
 initCanisterIds();
@@ -106,9 +99,9 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
-      MATERIALS_CANISTER_ID: canisters["accessories"],
-      NFT_CANISTER_ID: canisters["avatar"],
-      HUB_CANISTER_ID: canisters["hub"],
+      MATERIALS_CANISTER_ID: "po6n2-uiaaa-aaaaj-qaiua-cai",
+      NFT_CANISTER_ID: "jmuqr-yqaaa-aaaaj-qaicq-cai",
+      HUB_CANISTER_ID: "p4y2d-yyaaa-aaaaj-qaixa-cai",
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],

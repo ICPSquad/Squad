@@ -11,7 +11,7 @@ export type Slots = {
 export type Accessory = {
   name: string;
   description: string;
-  slots: string[];
+  slot: string;
   blueprint: string[];
   components: ComponentSingle[];
 };
