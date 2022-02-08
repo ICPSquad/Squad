@@ -115,7 +115,7 @@ module.exports = {
   ],
   // proxy /api to port 8000 during development
   devServer: {
-    port: 8080,
+    port: 9000,
     contentBase: path.resolve(__dirname, "dist"),
     proxy: {
       "/api": {

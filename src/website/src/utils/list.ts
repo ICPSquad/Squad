@@ -545,13 +545,13 @@ export const accessories: Accessory[] = [
     description: "I'm wearing a monocle so I must be rich and famous.",
     components: [{ name: "Monocle", layer: 80 }],
   },
-  {
-    name: "Punk-glasses",
-    slot: "Eyes",
-    blueprint: ["Glass", "Glass", "Metal", "Punk-essence"],
-    description: "A pair of glasses that gives you a punk look.",
-    components: [{ name: "Punk-glasses", layer: 80 }],
-  },
+  // {
+  //   name: "Punk-glasses",
+  //   slot: "Eyes",
+  //   blueprint: ["Glass", "Glass", "Metal", "Punk-essence"],
+  //   description: "A pair of glasses that gives you a punk look.",
+  //   components: [{ name: "Punk-glasses", layer: 80 }],
+  // },
   // Accessory that fill the 'Face' slot ->  Layer selected as 80
   {
     name: "Dfinity-face-mask",
