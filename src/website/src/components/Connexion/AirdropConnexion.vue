@@ -1,74 +1,20 @@
 <template>
   <div class="flex flex-col justify-around items-center flex-1">
     <div>
-      <h2
-        class="
-          text-center
-          2xl:text-5xl
-          lg:text-4xl
-          md:text-3xl
-          text-2xl
-          font-bold
-          text-gray-800
-          font-marker
-        "
-      >
-        Please login 👤
-      </h2>
+      <h2 class="text-center 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-bold text-gray-800 font-marker">Please login 👤</h2>
     </div>
 
     <div class="flex flex-row justify-around w-full">
-      <button
-        class="
-          lg:text-3xl
-          md:text-2xl
-          text-xl
-          shadow-2xl
-          font-marker
-          text-white
-          bg-pink-600
-          rounded
-          py-6
-          px-8
-          mt-8
-          cursor-pointer
-          hidden
-          md:block
-        "
-        @click="plugConnection"
-      >
-        Plug
-      </button>
-      <button
-        class="
-          lg:text-3xl
-          md:text-2xl
-          text-xl
-          shadow-2xl
-          font-marker
-          text-white
-          bg-pink-600
-          rounded
-          py-6
-          px-8
-          mt-8
-          cursor-pointer
-        "
-        @click="stoicConnection"
-      >
-        Stoic
-      </button>
+      <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mt-8 cursor-pointer hidden md:block" @click="plugConnection">Plug</button>
+      <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mt-8 cursor-pointer" @click="stoicConnection">Stoic</button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 import { useStore } from "vuex";
-import {
-  idlFactory,
-  idlFactory as idlFactory_hub,
-} from "declarations/hub/index";
+import { idlFactory as idlFactory_hub } from "declarations/hub/index";
 
 //@ts-ignore
 import { StoicIdentity } from "ic-stoic-identity";
