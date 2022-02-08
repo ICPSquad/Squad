@@ -115,6 +115,8 @@ module.exports = {
   ],
   // proxy /api to port 8000 during development
   devServer: {
+    port: 8080,
+    contentBase: path.resolve(__dirname, "dist"),
     proxy: {
       "/api": {
         target: "https://mainnet.dfinity.network",
@@ -125,7 +127,6 @@ module.exports = {
       },
     },
     hot: true,
-    contentBase: path.resolve(__dirname, "./src/Frontend"),
     watchContentBase: true,
   },
 };

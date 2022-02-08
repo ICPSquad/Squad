@@ -1,274 +1,85 @@
-<svg
-  width="100%"
-  height="100%"
-  viewBox="0 0 800 800"
-  version="2.0"
-  xmlns="http://www.w3.org/2000/svg"
-  style="
-    fill-rule: evenodd;
-    clip-rule: evenodd;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-miterlimit: 1.5;
-  "
->
+<svg width="100%" height="100%" viewBox="0 0 800 800" version="2.0" xmlns="http://www.w3.org/2000/svg" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 1.5">
   <g id="normal-card">
-    <rect
-      id="bg"
-      x="-48.418"
-      y="-9.957"
-      width="931.967"
-      height="871.066"
-      style="fill: rgb(6, 46, 66)"
-    />
+    <rect id="bg" x="-48.418" y="-9.957" width="931.967" height="871.066" style="fill: rgb(6, 46, 66)" />
     <g id="rectangles" transform="matrix(1,0,0,1,49.4291,64.1339)">
       <g opacity="0.5">
         <g transform="matrix(0.660629,0,0,1.04551,351.522,-81.058)">
-          <rect
-            x="462.47"
-            y="633.282"
-            width="419.335"
-            height="322.449"
-            style="fill: none"
-          />
+          <rect x="462.47" y="633.282" width="419.335" height="322.449" style="fill: none" />
           <clipPath id="_clip1_card_template">
             <rect x="462.47" y="633.282" width="419.335" height="322.449" />
           </clipPath>
           <g clip-path="url(#_clip1_card_template)">
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,37.369)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,58.0423)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,68.3789)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,89.0522)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,99.3888)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,130.399)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,151.072)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,171.745)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
           </g>
-          <rect
-            x="462.47"
-            y="633.282"
-            width="419.335"
-            height="322.449"
-            style="
-              fill: none;
-              stroke: rgb(166, 240, 98);
-              stroke-width: 4.57px;
-              stroke-dasharray: 4.86, 8.58, 0, 0;
-            "
-          />
+          <rect x="462.47" y="633.282" width="419.335" height="322.449" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4.57px; stroke-dasharray: 4.86, 8.58, 0, 0" />
         </g>
         <g transform="matrix(0.192707,0,0,1.04551,466.744,2.40586)">
-          <rect
-            x="462.47"
-            y="633.282"
-            width="419.335"
-            height="322.449"
-            style="fill: none"
-          />
+          <rect x="462.47" y="633.282" width="419.335" height="322.449" style="fill: none" />
           <clipPath id="_clip2_card_template">
             <rect x="462.47" y="633.282" width="419.335" height="322.449" />
           </clipPath>
           <g clip-path="url(#_clip2_card_template)">
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,37.369)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(237, 30, 121);
-                  stroke-width: 5.43px;
-                  stroke-dasharray: 5.77, 10.18, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(237, 30, 121); stroke-width: 5.43px; stroke-dasharray: 5.77, 10.18, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,58.0423)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(237, 30, 121);
-                  stroke-width: 5.43px;
-                  stroke-dasharray: 5.77, 10.18, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(237, 30, 121); stroke-width: 5.43px; stroke-dasharray: 5.77, 10.18, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,68.3789)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(237, 30, 121);
-                  stroke-width: 5.43px;
-                  stroke-dasharray: 5.77, 10.18, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(237, 30, 121); stroke-width: 5.43px; stroke-dasharray: 5.77, 10.18, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,89.0522)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(237, 30, 121);
-                  stroke-width: 5.43px;
-                  stroke-dasharray: 5.77, 10.18, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(237, 30, 121); stroke-width: 5.43px; stroke-dasharray: 5.77, 10.18, 0, 0" />
             </g>
           </g>
-          <rect
-            x="462.47"
-            y="633.282"
-            width="419.335"
-            height="322.449"
-            style="
-              fill: none;
-              stroke: rgb(237, 30, 121);
-              stroke-width: 5.32px;
-              stroke-dasharray: 5.65, 9.98, 0, 0;
-            "
-          />
+          <rect x="462.47" y="633.282" width="419.335" height="322.449" style="fill: none; stroke: rgb(237, 30, 121); stroke-width: 5.32px; stroke-dasharray: 5.65, 9.98, 0, 0" />
         </g>
       </g>
     </g>
     <g id="circles" opacity="0.5">
       <g transform="matrix(1,0,0,1,-118.853,-94.5905)">
-        <circle
-          cx="155.124"
-          cy="124.814"
-          r="124.814"
-          style="
-            fill: none;
-            stroke: rgb(255, 207, 0);
-            stroke-width: 4px;
-            stroke-dasharray: 4.25, 7.5, 0, 0;
-          "
-        />
+        <circle cx="155.124" cy="124.814" r="124.814" style="fill: none; stroke: rgb(255, 207, 0); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
       </g>
       <g transform="matrix(0.928318,0,0,0.928318,-107.734,-85.6437)">
-        <circle
-          cx="155.124"
-          cy="124.814"
-          r="124.814"
-          style="
-            fill: none;
-            stroke: rgb(255, 207, 0);
-            stroke-width: 4.31px;
-            stroke-dasharray: 4.58, 8.08, 0, 0;
-          "
-        />
+        <circle cx="155.124" cy="124.814" r="124.814" style="fill: none; stroke: rgb(255, 207, 0); stroke-width: 4.31px; stroke-dasharray: 4.58, 8.08, 0, 0" />
       </g>
       <g transform="matrix(0.691272,0,0,0.691272,-70.9623,-56.0571)">
-        <circle
-          cx="155.124"
-          cy="124.814"
-          r="124.814"
-          style="
-            fill: none;
-            stroke: rgb(255, 108, 0);
-            stroke-width: 5.79px;
-            stroke-dasharray: 6.15, 10.85, 0, 0;
-          "
-        />
+        <circle cx="155.124" cy="124.814" r="124.814" style="fill: none; stroke: rgb(255, 108, 0); stroke-width: 5.79px; stroke-dasharray: 6.15, 10.85, 0, 0" />
       </g>
     </g>
     <g id="rarity-bars" transform="matrix(0.86723,0,0,0.86723,10.4494,88.5493)">
       <g id="rarity-bars-fill">
         <g transform="matrix(0.114833,0,0,0.114833,59.0756,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: rgb(139, 57, 219)"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: rgb(139, 57, 219)" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,126.648,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: rgb(237, 30, 121)"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: rgb(237, 30, 121)" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,194.22,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: rgb(241, 90, 36)"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: rgb(241, 90, 36)" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,261.792,653.445)">
           <!-- <path
@@ -285,151 +96,55 @@
       </g>
       <g id="rarity-bars-stroke">
         <g transform="matrix(0.114833,0,0,0.114833,59.0756,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: none; stroke: white; stroke-width: 34.83px" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,126.648,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: none; stroke: white; stroke-width: 34.83px" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,194.22,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: none; stroke: white; stroke-width: 34.83px" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,261.792,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: none; stroke: white; stroke-width: 34.83px" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,329.364,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: none; stroke: white; stroke-width: 34.83px" />
         </g>
       </g>
     </g>
     <g transform="matrix(0.720342,0,0,0.720342,23.1337,330.63)">
-      <text
-        x="77.471px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
+      <text x="77.471px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">
         RARIT
         <tspan x="216.021px " y="439.84px ">Y</tspan>
       </text>
     </g>
-    <g transform="matrix(0.911866,0,0,0.911866,348.746,309.097)">
-      <text
-        x="131.891px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
-        /
-      </text>
-      <text
-        x="151.763px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
-        1
-        <tspan x="179.62px 210.479px " y="439.84px 439.84px ">00</tspan>
-      </text>
-    </g>
+
     <g transform="matrix(0.911866,0,0,0.911866,252.534,309.097)">
-      <text
-        x="151.763px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
-        1
-        <tspan x="179.62px 210.479px " y="439.84px 439.84px ">00</tspan>
-      </text>
+      <text x="190.763px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white" id="wear_value"></text>
     </g>
     <g transform="matrix(0.720342,0,0,0.720342,340.614,330.63)">
-      <text
-        x="77.471px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
-        WEAR
-      </text>
+      <text x="77.471px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">WEAR</text>
     </g>
-    <g transform="matrix(0.12628,0,0,0.12628,605.263,647.2)">
-      <g id="headwear">
-        <path
-          d="M242.443,340.748C239.366,324.107 235.815,312.06 233.6,282.977C231.724,258.34 232.547,205.029 246.678,183.177C256.885,167.393 277.39,147.796 293.216,139.523C328.059,121.306 359.521,112.563 399.4,112.476L400,112.475L400,112.476C439.88,112.563 471.341,121.306 506.185,139.523C522.01,147.796 542.515,167.393 552.722,183.177C566.853,205.029 567.676,258.34 565.8,282.977C563.66,311.08 560.272,323.275 557.269,339.086C559.529,333.346 562.212,328.072 567.983,324.162C574.687,319.621 586.281,319.368 591.059,327.169C595.049,333.683 596.09,339.464 596.221,346.832C596.376,355.493 587.445,399.939 581.655,411.912C577.788,419.91 563.307,452.43 547.771,448.494C544.36,447.63 542.548,444.628 541.249,441.016C540.665,443.546 540.087,446.055 539.523,448.534C527.922,499.533 498.217,534.323 460.902,568.28C449.868,578.321 439.394,585.832 423.24,595.36C418.67,598.055 413.211,598.568 407.961,598.886C406.403,598.981 402.197,599.155 400,599.258L400,599.287L399.4,599.258C397.203,599.155 392.997,598.981 391.44,598.886C386.189,598.568 380.73,598.055 376.16,595.36C360.006,585.832 349.532,578.321 338.498,568.28C301.183,534.323 271.478,499.533 259.877,448.534C259.271,445.871 258.649,443.172 258.021,440.449C256.707,444.31 254.889,447.585 251.3,448.494C235.765,452.43 220.094,421.057 215.586,411.7C209.814,399.719 202.695,355.493 202.85,346.832C202.981,339.464 204.022,333.683 208.012,327.169C212.79,319.368 224.384,319.621 231.088,324.162C237.412,328.446 240.028,334.369 242.443,340.748Z"
-          style="fill: white"
-        />
+    <g id="hat" transform="matrix(1.10125,0,0,1.10125,158.833,-78.5692)">
+      <g transform="matrix(1,0,0,1,-51.9094,-2.83465)">
+        <path d="M474.461,710.793C485.268,715.724 523.434,714.96 530.456,710.765" style="fill: none; stroke: white; stroke-width: 3px; stroke-linecap: butt" />
+      </g>
+      <g transform="matrix(1,0,0,0.58812,-0.101996,292.708)">
+        <rect x="433.636" y="663.946" width="33.608" height="46.716" style="fill: white" />
       </g>
     </g>
     <g transform="matrix(0.720342,0,0,0.720342,520.614,330.63)">
-      <text
-        x="124.102px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
+      <text x="124.102px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">
         SL
         <tspan x="173.882px 217.217px " y="439.84px 439.84px ">OT</tspan>
       </text>
     </g>
     <g transform="matrix(1,0,0,1,-7.69409,0)">
-      <path
-        d="M82.194,602.738L733.196,602.258C733.979,602.258 734.615,601.621 734.614,600.838C734.614,600.055 733.977,599.42 733.194,599.42L82.192,599.9C81.409,599.901 80.773,600.537 80.774,601.321C80.775,602.104 81.411,602.739 82.194,602.738Z"
-        style="fill: white"
-      />
+      <path d="M82.194,602.738L733.196,602.258C733.979,602.258 734.615,601.621 734.614,600.838C734.614,600.055 733.977,599.42 733.194,599.42L82.192,599.9C81.409,599.901 80.773,600.537 80.774,601.321C80.775,602.104 81.411,602.739 82.194,602.738Z" style="fill: white" />
     </g>
     <g transform="matrix(1,0,0,1,120.441,145.046)">
-      <text
-        x="77.471px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
-        <tspan x="80.457px 120.461px " y="439.84px 439.84px ">
-          NINJA HEADBAND
-        </tspan>
+      <text x="77.471px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">
+        <tspan x="80.457px 120.461px " y="439.84px 439.84px ">NINJA HEADBAND</tspan>
       </text>
     </g>
     <path
@@ -438,29 +153,10 @@
       style="fill: rgb(0, 153, 197)"
     />
     <g id="guide" transform="matrix(1,0,0,1.04284,1.75676,-22.4672)">
-      <rect
-        x="82.193"
-        y="95.569"
-        width="632.101"
-        height="428.927"
-        style="
-          fill: url(#_Linear3_card_template);
-          stroke: rgb(0, 153, 197);
-          stroke-width: 4.8px;
-        "
-      />
+      <rect x="82.193" y="95.569" width="632.101" height="428.927" style="fill: url(#_Linear3_card_template); stroke: rgb(0, 153, 197); stroke-width: 4.8px" />
     </g>
     <g transform="translate(0,50)">
-      <g
-        id="ninja-headband"
-        style="
-          fill-rule: evenodd;
-          clip-rule: evenodd;
-          stroke-linecap: round;
-          stroke-linejoin: round;
-          stroke-miterlimit: 1.5;
-        "
-      >
+      <g id="ninja-headband" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 1.5">
         <path
           id="Shadow"
           d="M228.747,281.018C229.107,281.635 232.283,282 232.92,282.162C236.979,283.194 241.013,284.323 245.025,285.528C263.322,291.026 282.953,292.801 301.788,295.709C338.701,301.41 376.456,304.92 413.813,303.931C445.463,303.093 476.473,299.083 507.783,294.76C524.53,292.448 541.48,289.855 557.69,284.922C561.566,283.742 565.353,282.361 569.073,280.758C569.417,280.61 572.243,279.642 572.084,279.068C571.866,278.286 567.648,278.676 567.111,278.676C561.209,278.675 555.305,278.809 549.405,278.9C524.533,279.283 499.667,279.929 474.794,280.231C448.417,280.55 422.04,280.503 395.661,280.458C348.318,280.378 301.056,279.934 253.735,278.635"
@@ -478,23 +174,14 @@
           </clipPath>
           <g clip-path="url(#_clip1_ninja_headband)">
             <g id="strokes">
-              <path
-                d="M536.34,218.459C536.737,218.059 538.779,218.295 539.273,218.275C542.12,218.159 544.966,218.075 547.815,218.029C558.662,217.856 569.5,218.293 580.327,217.439"
-                style="fill: none; stroke: black; stroke-width: 2.1px"
-              />
+              <path d="M536.34,218.459C536.737,218.059 538.779,218.295 539.273,218.275C542.12,218.159 544.966,218.075 547.815,218.029C558.662,217.856 569.5,218.293 580.327,217.439" style="fill: none; stroke: black; stroke-width: 2.1px" />
               <path
                 d="M537.717,235.454C540.154,234.017 545.766,234.426 548.468,234.186C557.633,233.373 566.805,233.025 576.003,233.368C579.035,233.481 582.209,233.62 585.165,234.373C585.432,234.441 587.819,234.908 587.731,235.364C587.631,235.881 586.043,235.886 585.698,235.925C583.332,236.194 580.935,236.267 578.559,236.393C568.786,236.913 559.08,237.818 549.433,239.508"
                 style="fill: none; stroke: black; stroke-width: 2.1px"
               />
-              <path
-                d="M534.567,263.13C536.888,261.613 543.65,262.379 546.328,262.218C556.406,261.612 566.513,261.093 576.608,260.868"
-                style="fill: none; stroke: black; stroke-width: 2.1px"
-              />
+              <path d="M534.567,263.13C536.888,261.613 543.65,262.379 546.328,262.218C556.406,261.612 566.513,261.093 576.608,260.868" style="fill: none; stroke: black; stroke-width: 2.1px" />
               <g transform="matrix(-1,0,0,1,799.329,0)">
-                <path
-                  d="M536.34,218.459C536.737,218.059 538.779,218.295 539.273,218.275C542.12,218.159 544.966,218.075 547.815,218.029C558.662,217.856 569.5,218.293 580.327,217.439"
-                  style="fill: none; stroke: black; stroke-width: 2.1px"
-                />
+                <path d="M536.34,218.459C536.737,218.059 538.779,218.295 539.273,218.275C542.12,218.159 544.966,218.075 547.815,218.029C558.662,217.856 569.5,218.293 580.327,217.439" style="fill: none; stroke: black; stroke-width: 2.1px" />
               </g>
               <g transform="matrix(-1,0,0,1,799.329,0)">
                 <path
@@ -503,10 +190,7 @@
                 />
               </g>
               <g transform="matrix(-1,0,0,1,799.329,0)">
-                <path
-                  d="M534.567,263.13C536.888,261.613 543.65,262.379 546.328,262.218C556.406,261.612 566.513,261.093 576.608,260.868"
-                  style="fill: none; stroke: black; stroke-width: 2.1px"
-                />
+                <path d="M534.567,263.13C536.888,261.613 543.65,262.379 546.328,262.218C556.406,261.612 566.513,261.093 576.608,260.868" style="fill: none; stroke: black; stroke-width: 2.1px" />
               </g>
             </g>
             <path
@@ -543,159 +227,68 @@
             <g transform="matrix(1,0,0,1,-0.188361,0)">
               <path
                 d="M400.188,240.239C403.136,236.337 419.03,217.019 442.647,220.016C468.586,223.308 474.958,249.266 457.659,265.107C442.741,278.768 423.348,273.621 411.337,264.404C405.661,260.049 401.602,256.052 400.188,254.609C398.774,256.052 394.716,260.049 389.04,264.404C377.028,273.621 357.636,278.768 342.718,265.107C325.419,249.266 331.791,223.308 357.729,220.016C381.346,217.019 397.241,236.337 400.188,240.239ZM406.971,246.658C406.971,246.658 418.574,230.525 434.075,229.677C449.576,228.83 457.366,237.218 454.503,248.8C451.64,260.382 439.231,263.104 429.147,259.777C419.063,256.45 406.971,246.658 406.971,246.658ZM393.405,246.658C393.405,246.658 381.803,230.525 366.302,229.677C350.801,228.83 343.011,237.218 345.874,248.8C348.737,260.382 361.146,263.104 371.23,259.777C381.314,256.45 393.405,246.658 393.405,246.658Z"
-                style="
-                  fill: rgb(129, 158, 164);
-                  stroke: black;
-                  stroke-width: 2.1px;
-                "
+                style="fill: rgb(129, 158, 164); stroke: black; stroke-width: 2.1px"
               />
             </g>
             <g id="Scratches">
-              <path
-                d="M318.768,216.42C318.153,216.466 316.498,219.303 316.15,219.736C313.387,223.174 310.72,226.692 308.074,230.22"
-                style="fill: none; stroke: black; stroke-width: 1.2px"
-              />
-              <path
-                d="M320.051,219.696C320.13,219.354 319.817,220.358 319.702,220.69C319.483,221.327 319.274,221.967 319.063,222.606C318.425,224.542 317.788,226.481 317.214,228.437"
-                style="fill: none; stroke: black; stroke-width: 1.2px"
-              />
-              <path
-                d="M328.972,215.544C328.882,215.525 328.138,217.275 328.088,217.384"
-                style="fill: none; stroke: black; stroke-width: 1.2px"
-              />
-              <path
-                d="M303.888,265.214C303.912,265.189 305.058,266.666 305.131,266.761"
-                style="fill: none; stroke: black; stroke-width: 1.2px"
-              />
-              <path
-                d="M318.312,270.187C317.655,270.837 317.354,272.867 317.081,273.727"
-                style="fill: none; stroke: black; stroke-width: 1.2px"
-              />
-              <path
-                d="M478.817,217.154C478.948,217.111 479.598,217.86 479.685,217.946"
-                style="fill: none; stroke: black; stroke-width: 1.2px"
-              />
-              <path
-                d="M491.987,229.762C491.406,231.505 489.924,233.291 489.019,234.876C486.976,238.456 484.973,242.06 482.979,245.667"
-                style="fill: none; stroke: black; stroke-width: 1.2px"
-              />
-              <path
-                d="M494.786,236.726C494.596,236.749 494.036,238.195 493.948,238.357C492.992,240.11 492.071,241.893 491.031,243.597"
-                style="fill: none; stroke: black; stroke-width: 1.2px"
-              />
-              <path
-                d="M478.817,274.813C478.832,274.825 477.933,276.601 477.878,276.724"
-                style="fill: none; stroke: black; stroke-width: 1.2px"
-              />
+              <path d="M318.768,216.42C318.153,216.466 316.498,219.303 316.15,219.736C313.387,223.174 310.72,226.692 308.074,230.22" style="fill: none; stroke: black; stroke-width: 1.2px" />
+              <path d="M320.051,219.696C320.13,219.354 319.817,220.358 319.702,220.69C319.483,221.327 319.274,221.967 319.063,222.606C318.425,224.542 317.788,226.481 317.214,228.437" style="fill: none; stroke: black; stroke-width: 1.2px" />
+              <path d="M328.972,215.544C328.882,215.525 328.138,217.275 328.088,217.384" style="fill: none; stroke: black; stroke-width: 1.2px" />
+              <path d="M303.888,265.214C303.912,265.189 305.058,266.666 305.131,266.761" style="fill: none; stroke: black; stroke-width: 1.2px" />
+              <path d="M318.312,270.187C317.655,270.837 317.354,272.867 317.081,273.727" style="fill: none; stroke: black; stroke-width: 1.2px" />
+              <path d="M478.817,217.154C478.948,217.111 479.598,217.86 479.685,217.946" style="fill: none; stroke: black; stroke-width: 1.2px" />
+              <path d="M491.987,229.762C491.406,231.505 489.924,233.291 489.019,234.876C486.976,238.456 484.973,242.06 482.979,245.667" style="fill: none; stroke: black; stroke-width: 1.2px" />
+              <path d="M494.786,236.726C494.596,236.749 494.036,238.195 493.948,238.357C492.992,240.11 492.071,241.893 491.031,243.597" style="fill: none; stroke: black; stroke-width: 1.2px" />
+              <path d="M478.817,274.813C478.832,274.825 477.933,276.601 477.878,276.724" style="fill: none; stroke: black; stroke-width: 1.2px" />
             </g>
             <g id="Screws">
               <g transform="matrix(1,0,0,1,-0.753959,0.151398)">
-                <ellipse
-                  cx="288.868"
-                  cy="215.408"
-                  rx="4.221"
-                  ry="4.327"
-                  style="fill: rgb(201, 221, 228)"
-                />
+                <ellipse cx="288.868" cy="215.408" rx="4.221" ry="4.327" style="fill: rgb(201, 221, 228)" />
                 <clipPath id="_clip3_ninja_headband">
                   <ellipse cx="288.868" cy="215.408" rx="4.221" ry="4.327" />
                 </clipPath>
                 <g clip-path="url(#_clip3_ninja_headband)">
                   <g transform="matrix(1,0,0,1,-223.715,-56.1356)">
-                    <path
-                      d="M513.054,268.88C510.972,269.213 512.283,272.02 514.01,272.076C515.669,272.13 514.792,269.136 513.548,268.845"
-                      style="fill: white"
-                    />
+                    <path d="M513.054,268.88C510.972,269.213 512.283,272.02 514.01,272.076C515.669,272.13 514.792,269.136 513.548,268.845" style="fill: white" />
                   </g>
                 </g>
-                <ellipse
-                  cx="288.868"
-                  cy="215.408"
-                  rx="4.221"
-                  ry="4.327"
-                  style="fill: none; stroke: black; stroke-width: 2.1px"
-                />
+                <ellipse cx="288.868" cy="215.408" rx="4.221" ry="4.327" style="fill: none; stroke: black; stroke-width: 2.1px" />
               </g>
               <g transform="matrix(1,0,0,1,-1.46262,55.9585)">
-                <ellipse
-                  cx="288.868"
-                  cy="215.408"
-                  rx="4.221"
-                  ry="4.327"
-                  style="fill: rgb(201, 221, 228)"
-                />
+                <ellipse cx="288.868" cy="215.408" rx="4.221" ry="4.327" style="fill: rgb(201, 221, 228)" />
                 <clipPath id="_clip4_ninja_headband">
                   <ellipse cx="288.868" cy="215.408" rx="4.221" ry="4.327" />
                 </clipPath>
                 <g clip-path="url(#_clip4_ninja_headband)">
                   <g transform="matrix(1,0,0,1,-223.36,-55.9585)">
-                    <path
-                      d="M513.054,268.88C510.972,269.213 512.283,272.02 514.01,272.076C515.669,272.13 514.792,269.136 513.548,268.845"
-                      style="fill: white"
-                    />
+                    <path d="M513.054,268.88C510.972,269.213 512.283,272.02 514.01,272.076C515.669,272.13 514.792,269.136 513.548,268.845" style="fill: white" />
                   </g>
                 </g>
-                <ellipse
-                  cx="288.868"
-                  cy="215.408"
-                  rx="4.221"
-                  ry="4.327"
-                  style="fill: none; stroke: black; stroke-width: 2.1px"
-                />
+                <ellipse cx="288.868" cy="215.408" rx="4.221" ry="4.327" style="fill: none; stroke: black; stroke-width: 2.1px" />
               </g>
               <g transform="matrix(1,0,0,1,223.183,0.151398)">
-                <ellipse
-                  cx="288.868"
-                  cy="215.408"
-                  rx="4.221"
-                  ry="4.327"
-                  style="fill: rgb(201, 221, 228)"
-                />
+                <ellipse cx="288.868" cy="215.408" rx="4.221" ry="4.327" style="fill: rgb(201, 221, 228)" />
                 <clipPath id="_clip5_ninja_headband">
                   <ellipse cx="288.868" cy="215.408" rx="4.221" ry="4.327" />
                 </clipPath>
                 <g clip-path="url(#_clip5_ninja_headband)">
                   <g transform="matrix(1,0,0,1,-223.537,-56.1356)">
-                    <path
-                      d="M513.054,268.88C510.972,269.213 512.283,272.02 514.01,272.076C515.669,272.13 514.792,269.136 513.548,268.845"
-                      style="fill: white"
-                    />
+                    <path d="M513.054,268.88C510.972,269.213 512.283,272.02 514.01,272.076C515.669,272.13 514.792,269.136 513.548,268.845" style="fill: white" />
                   </g>
                 </g>
-                <ellipse
-                  cx="288.868"
-                  cy="215.408"
-                  rx="4.221"
-                  ry="4.327"
-                  style="fill: none; stroke: black; stroke-width: 2.1px"
-                />
+                <ellipse cx="288.868" cy="215.408" rx="4.221" ry="4.327" style="fill: none; stroke: black; stroke-width: 2.1px" />
               </g>
               <g transform="matrix(1,0,0,1,223.537,55.9585)">
-                <ellipse
-                  cx="288.868"
-                  cy="215.408"
-                  rx="4.221"
-                  ry="4.327"
-                  style="fill: rgb(201, 221, 228)"
-                />
+                <ellipse cx="288.868" cy="215.408" rx="4.221" ry="4.327" style="fill: rgb(201, 221, 228)" />
                 <clipPath id="_clip6_ninja_headband">
                   <ellipse cx="288.868" cy="215.408" rx="4.221" ry="4.327" />
                 </clipPath>
                 <g clip-path="url(#_clip6_ninja_headband)">
                   <g transform="matrix(1,0,0,1,-223.537,-55.9585)">
-                    <path
-                      d="M513.054,268.88C510.972,269.213 512.283,272.02 514.01,272.076C515.669,272.13 514.792,269.136 513.548,268.845"
-                      style="fill: white"
-                    />
+                    <path d="M513.054,268.88C510.972,269.213 512.283,272.02 514.01,272.076C515.669,272.13 514.792,269.136 513.548,268.845" style="fill: white" />
                   </g>
                 </g>
-                <ellipse
-                  cx="288.868"
-                  cy="215.408"
-                  rx="4.221"
-                  ry="4.327"
-                  style="fill: none; stroke: black; stroke-width: 2.1px"
-                />
+                <ellipse cx="288.868" cy="215.408" rx="4.221" ry="4.327" style="fill: none; stroke: black; stroke-width: 2.1px" />
               </g>
             </g>
           </g>
@@ -706,108 +299,32 @@
         </g>
       </g>
       <defs>
-        <linearGradient
-          id="_Linear5"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="0"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform="matrix(0.676239,212.321,-212.321,0.676239,399.671,115.988)"
-        >
-          <stop
-            offset="0"
-            style="stop-color: rgb(236, 65, 81); stop-opacity: 1"
-          />
-          <stop
-            offset="0.5"
-            style="stop-color: rgb(220, 55, 76); stop-opacity: 1"
-          />
-          <stop
-            offset="1"
-            style="stop-color: rgb(172, 27, 60); stop-opacity: 1"
-          />
+        <linearGradient id="_Linear5" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(0.676239,212.321,-212.321,0.676239,399.671,115.988)">
+          <stop offset="0" style="stop-color: rgb(236, 65, 81); stop-opacity: 1" />
+          <stop offset="0.5" style="stop-color: rgb(220, 55, 76); stop-opacity: 1" />
+          <stop offset="1" style="stop-color: rgb(172, 27, 60); stop-opacity: 1" />
         </linearGradient>
-        <linearGradient
-          id="_Linear7"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="0"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform="matrix(0.676239,174.104,-174.104,0.676239,399.671,95.0041)"
-        >
-          <stop
-            offset="0"
-            style="stop-color: rgb(245, 249, 251); stop-opacity: 1"
-          />
-          <stop
-            offset="0.59"
-            style="stop-color: rgb(226, 236, 243); stop-opacity: 1"
-          />
-          <stop
-            offset="0.81"
-            style="stop-color: rgb(183, 208, 225); stop-opacity: 1"
-          />
-          <stop
-            offset="1"
-            style="stop-color: rgb(140, 180, 206); stop-opacity: 1"
-          />
+        <linearGradient id="_Linear7" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(0.676239,174.104,-174.104,0.676239,399.671,95.0041)">
+          <stop offset="0" style="stop-color: rgb(245, 249, 251); stop-opacity: 1" />
+          <stop offset="0.59" style="stop-color: rgb(226, 236, 243); stop-opacity: 1" />
+          <stop offset="0.81" style="stop-color: rgb(183, 208, 225); stop-opacity: 1" />
+          <stop offset="1" style="stop-color: rgb(140, 180, 206); stop-opacity: 1" />
         </linearGradient>
-        <linearGradient
-          id="_Linear8"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="0"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform="matrix(6.8912e-15,-112.542,112.542,6.8912e-15,399.671,269.108)"
-        >
-          <stop
-            offset="0"
-            style="stop-color: rgb(236, 65, 81); stop-opacity: 1"
-          />
-          <stop
-            offset="0.46"
-            style="stop-color: rgb(227, 63, 84); stop-opacity: 1"
-          />
-          <stop
-            offset="1"
-            style="stop-color: rgb(203, 57, 90); stop-opacity: 1"
-          />
+        <linearGradient id="_Linear8" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(6.8912e-15,-112.542,112.542,6.8912e-15,399.671,269.108)">
+          <stop offset="0" style="stop-color: rgb(236, 65, 81); stop-opacity: 1" />
+          <stop offset="0.46" style="stop-color: rgb(227, 63, 84); stop-opacity: 1" />
+          <stop offset="1" style="stop-color: rgb(203, 57, 90); stop-opacity: 1" />
         </linearGradient>
       </defs>
     </g>
     <g transform="matrix(1,0,0,1,7.6296,-2.65748)">
-      <text
-        x="263.72px"
-        y="53.076px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
-        SEASON 0
-      </text>
+      <text x="263.72px" y="53.076px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">SEASON 0</text>
     </g>
   </g>
   <defs>
-    <linearGradient
-      id="_Linear3_card_template"
-      x1="0"
-      y1="0"
-      x2="1"
-      y2="0"
-      gradientUnits="userSpaceOnUse"
-      gradientTransform="matrix(3.89688e-14,-610.267,636.408,3.73681e-14,398.243,614.74)"
-    >
+    <linearGradient id="_Linear3_card_template" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(3.89688e-14,-610.267,636.408,3.73681e-14,398.243,614.74)">
       <stop offset="0" style="stop-color: rgb(80, 225, 255); stop-opacity: 1" />
-      <stop
-        offset="0.44"
-        style="stop-color: rgb(219, 249, 255); stop-opacity: 1"
-      />
+      <stop offset="0.44" style="stop-color: rgb(219, 249, 255); stop-opacity: 1" />
       <stop offset="1" style="stop-color: white; stop-opacity: 1" />
     </linearGradient>
   </defs>

@@ -1,274 +1,85 @@
-<svg
-  width="100%"
-  height="100%"
-  viewBox="0 0 800 800"
-  version="2.0"
-  xmlns="http://www.w3.org/2000/svg"
-  style="
-    fill-rule: evenodd;
-    clip-rule: evenodd;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-miterlimit: 1.5;
-  "
->
+<svg width="100%" height="100%" viewBox="0 0 800 800" version="2.0" xmlns="http://www.w3.org/2000/svg" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 1.5">
   <g id="normal-card">
-    <rect
-      id="bg"
-      x="-48.418"
-      y="-9.957"
-      width="931.967"
-      height="871.066"
-      style="fill: rgb(6, 46, 66)"
-    />
+    <rect id="bg" x="-48.418" y="-9.957" width="931.967" height="871.066" style="fill: rgb(6, 46, 66)" />
     <g id="rectangles" transform="matrix(1,0,0,1,49.4291,64.1339)">
       <g opacity="0.5">
         <g transform="matrix(0.660629,0,0,1.04551,351.522,-81.058)">
-          <rect
-            x="462.47"
-            y="633.282"
-            width="419.335"
-            height="322.449"
-            style="fill: none"
-          />
+          <rect x="462.47" y="633.282" width="419.335" height="322.449" style="fill: none" />
           <clipPath id="_clip1_card_template">
             <rect x="462.47" y="633.282" width="419.335" height="322.449" />
           </clipPath>
           <g clip-path="url(#_clip1_card_template)">
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,37.369)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,58.0423)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,68.3789)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,89.0522)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,99.3888)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,130.399)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,151.072)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,171.745)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
             </g>
           </g>
-          <rect
-            x="462.47"
-            y="633.282"
-            width="419.335"
-            height="322.449"
-            style="
-              fill: none;
-              stroke: rgb(166, 240, 98);
-              stroke-width: 4.57px;
-              stroke-dasharray: 4.86, 8.58, 0, 0;
-            "
-          />
+          <rect x="462.47" y="633.282" width="419.335" height="322.449" style="fill: none; stroke: rgb(166, 240, 98); stroke-width: 4.57px; stroke-dasharray: 4.86, 8.58, 0, 0" />
         </g>
         <g transform="matrix(0.192707,0,0,1.04551,466.744,2.40586)">
-          <rect
-            x="462.47"
-            y="633.282"
-            width="419.335"
-            height="322.449"
-            style="fill: none"
-          />
+          <rect x="462.47" y="633.282" width="419.335" height="322.449" style="fill: none" />
           <clipPath id="_clip2_card_template">
             <rect x="462.47" y="633.282" width="419.335" height="322.449" />
           </clipPath>
           <g clip-path="url(#_clip2_card_template)">
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,37.369)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(237, 30, 121);
-                  stroke-width: 5.43px;
-                  stroke-dasharray: 5.77, 10.18, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(237, 30, 121); stroke-width: 5.43px; stroke-dasharray: 5.77, 10.18, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,58.0423)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(237, 30, 121);
-                  stroke-width: 5.43px;
-                  stroke-dasharray: 5.77, 10.18, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(237, 30, 121); stroke-width: 5.43px; stroke-dasharray: 5.77, 10.18, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,68.3789)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(237, 30, 121);
-                  stroke-width: 5.43px;
-                  stroke-dasharray: 5.77, 10.18, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(237, 30, 121); stroke-width: 5.43px; stroke-dasharray: 5.77, 10.18, 0, 0" />
             </g>
             <g transform="matrix(1.51371,0,0,0.956468,-452.99,89.0522)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(237, 30, 121);
-                  stroke-width: 5.43px;
-                  stroke-dasharray: 5.77, 10.18, 0, 0;
-                "
-              />
+              <path d="M604.78,633.282L877.032,634.306" style="fill: none; stroke: rgb(237, 30, 121); stroke-width: 5.43px; stroke-dasharray: 5.77, 10.18, 0, 0" />
             </g>
           </g>
-          <rect
-            x="462.47"
-            y="633.282"
-            width="419.335"
-            height="322.449"
-            style="
-              fill: none;
-              stroke: rgb(237, 30, 121);
-              stroke-width: 5.32px;
-              stroke-dasharray: 5.65, 9.98, 0, 0;
-            "
-          />
+          <rect x="462.47" y="633.282" width="419.335" height="322.449" style="fill: none; stroke: rgb(237, 30, 121); stroke-width: 5.32px; stroke-dasharray: 5.65, 9.98, 0, 0" />
         </g>
       </g>
     </g>
     <g id="circles" opacity="0.5">
       <g transform="matrix(1,0,0,1,-118.853,-94.5905)">
-        <circle
-          cx="155.124"
-          cy="124.814"
-          r="124.814"
-          style="
-            fill: none;
-            stroke: rgb(255, 207, 0);
-            stroke-width: 4px;
-            stroke-dasharray: 4.25, 7.5, 0, 0;
-          "
-        />
+        <circle cx="155.124" cy="124.814" r="124.814" style="fill: none; stroke: rgb(255, 207, 0); stroke-width: 4px; stroke-dasharray: 4.25, 7.5, 0, 0" />
       </g>
       <g transform="matrix(0.928318,0,0,0.928318,-107.734,-85.6437)">
-        <circle
-          cx="155.124"
-          cy="124.814"
-          r="124.814"
-          style="
-            fill: none;
-            stroke: rgb(255, 207, 0);
-            stroke-width: 4.31px;
-            stroke-dasharray: 4.58, 8.08, 0, 0;
-          "
-        />
+        <circle cx="155.124" cy="124.814" r="124.814" style="fill: none; stroke: rgb(255, 207, 0); stroke-width: 4.31px; stroke-dasharray: 4.58, 8.08, 0, 0" />
       </g>
       <g transform="matrix(0.691272,0,0,0.691272,-70.9623,-56.0571)">
-        <circle
-          cx="155.124"
-          cy="124.814"
-          r="124.814"
-          style="
-            fill: none;
-            stroke: rgb(255, 108, 0);
-            stroke-width: 5.79px;
-            stroke-dasharray: 6.15, 10.85, 0, 0;
-          "
-        />
+        <circle cx="155.124" cy="124.814" r="124.814" style="fill: none; stroke: rgb(255, 108, 0); stroke-width: 5.79px; stroke-dasharray: 6.15, 10.85, 0, 0" />
       </g>
     </g>
     <g id="rarity-bars" transform="matrix(0.86723,0,0,0.86723,10.4494,88.5493)">
       <g id="rarity-bars-fill">
         <g transform="matrix(0.114833,0,0,0.114833,59.0756,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: rgb(139, 57, 219)"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: rgb(139, 57, 219)" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,126.648,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: rgb(237, 30, 121)"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: rgb(237, 30, 121)" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,194.22,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: rgb(241, 90, 36)"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: rgb(241, 90, 36)" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,261.792,653.445)">
           <!-- <path
@@ -285,149 +96,55 @@
       </g>
       <g id="rarity-bars-stroke">
         <g transform="matrix(0.114833,0,0,0.114833,59.0756,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: none; stroke: white; stroke-width: 34.83px" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,126.648,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: none; stroke: white; stroke-width: 34.83px" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,194.22,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: none; stroke: white; stroke-width: 34.83px" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,261.792,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: none; stroke: white; stroke-width: 34.83px" />
         </g>
         <g transform="matrix(0.114833,0,0,0.114833,329.364,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
+          <path d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z" style="fill: none; stroke: white; stroke-width: 34.83px" />
         </g>
       </g>
     </g>
     <g transform="matrix(0.720342,0,0,0.720342,23.1337,330.63)">
-      <text
-        x="77.471px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
+      <text x="77.471px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">
         RARIT
         <tspan x="216.021px " y="439.84px ">Y</tspan>
       </text>
     </g>
-    <g transform="matrix(0.911866,0,0,0.911866,348.746,309.097)">
-      <text
-        x="131.891px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
-        /
-      </text>
-      <text
-        x="151.763px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
-        1
-        <tspan x="179.62px 210.479px " y="439.84px 439.84px ">00</tspan>
-      </text>
-    </g>
     <g transform="matrix(0.911866,0,0,0.911866,252.534,309.097)">
-      <text
-        x="151.763px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
-        1
-        <tspan x="179.62px 210.479px " y="439.84px 439.84px ">00</tspan>
-      </text>
+      <text x="190.763px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white" id="wear_value"></text>
     </g>
     <g transform="matrix(0.720342,0,0,0.720342,340.614,330.63)">
-      <text
-        x="77.471px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
-        WEAR
-      </text>
+      <text x="77.471px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">WEAR</text>
     </g>
     <g id="eyewear" transform="matrix(1,0,0,1,-1.77165,0)">
       <g transform="matrix(0.88044,0,0,0.88044,68.5829,70.2432)">
-          <path d="M634.355,700.111C653.954,688.642 678.218,688.642 697.818,700.111C704.234,703.866 709.059,706.69 709.059,706.69C709.059,706.69 704.234,709.513 697.818,713.268C678.218,724.738 653.954,724.738 634.355,713.268C627.938,709.513 623.113,706.69 623.113,706.69C623.113,706.69 627.938,703.866 634.355,700.111Z" style="fill:white;"/>
+        <path
+          d="M634.355,700.111C653.954,688.642 678.218,688.642 697.818,700.111C704.234,703.866 709.059,706.69 709.059,706.69C709.059,706.69 704.234,709.513 697.818,713.268C678.218,724.738 653.954,724.738 634.355,713.268C627.938,709.513 623.113,706.69 623.113,706.69C623.113,706.69 627.938,703.866 634.355,700.111Z"
+          style="fill: white"
+        />
       </g>
-      <circle cx="655.032" cy="692.441" r="13.365" style="fill:rgb(6,46,66);"/>
-  </g>
+      <circle cx="655.032" cy="692.441" r="13.365" style="fill: rgb(6, 46, 66)" />
+    </g>
     <g transform="matrix(0.720342,0,0,0.720342,520.614,330.63)">
-      <text
-        x="124.102px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
+      <text x="124.102px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">
         SL
         <tspan x="173.882px 217.217px " y="439.84px 439.84px ">OT</tspan>
       </text>
     </g>
     <g transform="matrix(1,0,0,1,-7.69409,0)">
-      <path
-        d="M82.194,602.738L733.196,602.258C733.979,602.258 734.615,601.621 734.614,600.838C734.614,600.055 733.977,599.42 733.194,599.42L82.192,599.9C81.409,599.901 80.773,600.537 80.774,601.321C80.775,602.104 81.411,602.739 82.194,602.738Z"
-        style="fill: white"
-      />
+      <path d="M82.194,602.738L733.196,602.258C733.979,602.258 734.615,601.621 734.614,600.838C734.614,600.055 733.977,599.42 733.194,599.42L82.192,599.9C81.409,599.901 80.773,600.537 80.774,601.321C80.775,602.104 81.411,602.739 82.194,602.738Z" style="fill: white" />
     </g>
     <g transform="matrix(1,0,0,1,120.441,145.046)">
-      <text
-        x="77.471px"
-        y="439.84px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
-        <tspan x="110.457px 140.461px " y="439.84px 439.84px ">
-          SUNGLASSES
-        </tspan>
+      <text x="77.471px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">
+        <tspan x="110.457px 140.461px " y="439.84px 439.84px ">SUNGLASSES</tspan>
       </text>
     </g>
     <path
@@ -436,29 +153,10 @@
       style="fill: rgb(0, 153, 197)"
     />
     <g id="guide" transform="matrix(1,0,0,1.04284,1.75676,-22.4672)">
-      <rect
-        x="82.193"
-        y="95.569"
-        width="632.101"
-        height="428.927"
-        style="
-          fill: url(#_Linear3_card_template);
-          stroke: rgb(0, 153, 197);
-          stroke-width: 4.8px;
-        "
-      />
+      <rect x="82.193" y="95.569" width="632.101" height="428.927" style="fill: url(#_Linear3_card_template); stroke: rgb(0, 153, 197); stroke-width: 4.8px" />
     </g>
     <g transform="translate(0,0)">
-      <g
-        id="Matrix-glasses"
-        style="
-          fill-rule: evenodd;
-          clip-rule: evenodd;
-          stroke-linecap: round;
-          stroke-linejoin: round;
-          stroke-miterlimit: 1.5;
-        "
-      >
+      <g id="Matrix-glasses" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 1.5">
         <path
           id="shadow"
           d="M400.138,350.796C404.105,350.095 410.328,351.899 412.316,352.308C413.554,352.563 414.794,352.809 416.036,353.044C417.769,353.372 419.496,353.743 421.236,354.032C450.415,358.892 480.725,353.024 510.19,355.699L526.994,360.054C527.287,359.91 526.682,361.974 525.785,365.467C524.84,369.141 521.452,373.73 518.861,376.426C511.111,384.494 499.538,390.779 488.756,393.459C473.978,397.133 453.94,394.86 441.811,384.371C438.284,381.321 435.898,377.935 432.682,374.975C431.167,373.581 429.482,374.742 428.282,373.26C426.029,370.48 426.062,366.939 422.554,364.987C418.326,362.634 412.685,359.866 407.933,358.995C405.479,358.545 402.658,358.904 400.138,358.636C397.618,358.904 394.797,358.545 392.343,358.995C387.591,359.866 381.95,362.634 377.722,364.987C374.214,366.939 374.247,370.48 371.994,373.26C370.794,374.742 369.109,373.581 367.594,374.975C364.378,377.935 361.992,381.321 358.465,384.371C346.336,394.86 326.298,397.133 311.52,393.459C300.738,390.779 289.165,384.494 281.415,376.426C278.824,373.73 275.436,369.141 274.491,365.467C273.594,361.974 272.989,359.91 273.282,360.054L290.086,355.699C319.551,353.024 349.86,358.892 379.04,354.032C380.78,353.743 382.507,353.372 384.24,353.044C385.482,352.809 386.722,352.563 387.96,352.308C389.948,351.899 396.171,350.095 400.138,350.796Z"
@@ -466,13 +164,7 @@
         />
         <g id="glasses">
           <g transform="matrix(0.965458,0,0,0.977435,18.2515,6.29125)">
-            <ellipse
-              cx="475.216"
-              cy="353.228"
-              rx="52.956"
-              ry="34.854"
-              style="fill: url(#_Linear1_matrix_glasses)"
-            />
+            <ellipse cx="475.216" cy="353.228" rx="52.956" ry="34.854" style="fill: url(#_Linear1_matrix_glasses)" />
             <clipPath id="_clip2_matrix_glasses">
               <ellipse cx="475.216" cy="353.228" rx="52.956" ry="34.854" />
             </clipPath>
@@ -484,22 +176,10 @@
                 />
               </g>
             </g>
-            <ellipse
-              cx="475.216"
-              cy="353.228"
-              rx="52.956"
-              ry="34.854"
-              style="fill: none; stroke: black; stroke-width: 2.16px"
-            />
+            <ellipse cx="475.216" cy="353.228" rx="52.956" ry="34.854" style="fill: none; stroke: black; stroke-width: 2.16px" />
           </g>
           <g transform="matrix(0.965458,0,0,0.977435,-136.06,6.29125)">
-            <ellipse
-              cx="475.216"
-              cy="353.228"
-              rx="52.956"
-              ry="34.854"
-              style="fill: url(#_Linear4_matrix_glasses)"
-            />
+            <ellipse cx="475.216" cy="353.228" rx="52.956" ry="34.854" style="fill: url(#_Linear4_matrix_glasses)" />
             <clipPath id="_clip5_matrix_glasses">
               <ellipse cx="475.216" cy="353.228" rx="52.956" ry="34.854" />
             </clipPath>
@@ -511,13 +191,7 @@
                 />
               </g>
             </g>
-            <ellipse
-              cx="475.216"
-              cy="353.228"
-              rx="52.956"
-              ry="34.854"
-              style="fill: none; stroke: black; stroke-width: 2.16px"
-            />
+            <ellipse cx="475.216" cy="353.228" rx="52.956" ry="34.854" style="fill: none; stroke: black; stroke-width: 2.16px" />
           </g>
           <path
             d="M373.876,353.502C374.098,352.789 374.369,352.135 374.537,351.838C374.869,351.247 375.217,350.672 375.606,350.117C376.516,348.82 379.277,345.313 381.094,347.279C382.562,348.867 382.497,351.879 382.461,353.868C382.352,359.851 380.94,365.07 378.001,370.286C377.024,372.02 375.947,373.68 374.651,375.194C374.296,375.61 373.605,376.508 372.949,376.37C372.3,376.233 372.089,375.035 371.96,374.524C371.434,372.45 371.307,370.182 371.278,368.051C371.252,366.159 371.366,364.253 371.739,362.396C372.358,359.32 372.946,356.499 373.876,353.502Z"
@@ -593,187 +267,55 @@
         </g>
       </g>
       <defs>
-        <linearGradient
-          id="_Linear1_matrix_glasses"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="0"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform="matrix(-17.801,64.9251,-65.7305,-17.5829,488.478,328.534)"
-        >
-          <stop
-            offset="0"
-            style="stop-color: rgb(88, 18, 71); stop-opacity: 1"
-          />
-          <stop
-            offset="0.66"
-            style="stop-color: rgb(227, 52, 46); stop-opacity: 1"
-          />
-          <stop
-            offset="0.84"
-            style="stop-color: rgb(229, 47, 63); stop-opacity: 1"
-          />
-          <stop
-            offset="1"
-            style="stop-color: rgb(237, 30, 121); stop-opacity: 1"
-          />
+        <linearGradient id="_Linear1_matrix_glasses" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-17.801,64.9251,-65.7305,-17.5829,488.478,328.534)">
+          <stop offset="0" style="stop-color: rgb(88, 18, 71); stop-opacity: 1" />
+          <stop offset="0.66" style="stop-color: rgb(227, 52, 46); stop-opacity: 1" />
+          <stop offset="0.84" style="stop-color: rgb(229, 47, 63); stop-opacity: 1" />
+          <stop offset="1" style="stop-color: rgb(237, 30, 121); stop-opacity: 1" />
         </linearGradient>
-        <linearGradient
-          id="_Linear3_matrix_glasses"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="0"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform="matrix(-14.3633,48.7334,-48.7334,-14.3633,497.433,339.96)"
-        >
+        <linearGradient id="_Linear3_matrix_glasses" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-14.3633,48.7334,-48.7334,-14.3633,497.433,339.96)">
           <stop offset="0" style="stop-color: white; stop-opacity: 1" />
           <stop offset="1" style="stop-color: white; stop-opacity: 0" />
         </linearGradient>
-        <linearGradient
-          id="_Linear4_matrix_glasses"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="0"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform="matrix(-17.801,64.9251,-65.7305,-17.5829,488.478,328.534)"
-        >
-          <stop
-            offset="0"
-            style="stop-color: rgb(88, 18, 71); stop-opacity: 1"
-          />
-          <stop
-            offset="0.66"
-            style="stop-color: rgb(227, 52, 46); stop-opacity: 1"
-          />
-          <stop
-            offset="0.84"
-            style="stop-color: rgb(229, 47, 63); stop-opacity: 1"
-          />
-          <stop
-            offset="1"
-            style="stop-color: rgb(237, 30, 121); stop-opacity: 1"
-          />
+        <linearGradient id="_Linear4_matrix_glasses" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-17.801,64.9251,-65.7305,-17.5829,488.478,328.534)">
+          <stop offset="0" style="stop-color: rgb(88, 18, 71); stop-opacity: 1" />
+          <stop offset="0.66" style="stop-color: rgb(227, 52, 46); stop-opacity: 1" />
+          <stop offset="0.84" style="stop-color: rgb(229, 47, 63); stop-opacity: 1" />
+          <stop offset="1" style="stop-color: rgb(237, 30, 121); stop-opacity: 1" />
         </linearGradient>
-        <linearGradient
-          id="_Linear6_matrix_glasses"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="0"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform="matrix(-44.4467,44.7782,-44.7782,-44.4467,334.629,334.091)"
-        >
+        <linearGradient id="_Linear6_matrix_glasses" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-44.4467,44.7782,-44.7782,-44.4467,334.629,334.091)">
           <stop offset="0" style="stop-color: white; stop-opacity: 1" />
           <stop offset="1" style="stop-color: white; stop-opacity: 0" />
         </linearGradient>
       </defs>
 
       <defs>
-        <linearGradient
-          id="_Linear5"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="0"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform="matrix(0.676239,212.321,-212.321,0.676239,399.671,115.988)"
-        >
-          <stop
-            offset="0"
-            style="stop-color: rgb(236, 65, 81); stop-opacity: 1"
-          />
-          <stop
-            offset="0.5"
-            style="stop-color: rgb(220, 55, 76); stop-opacity: 1"
-          />
-          <stop
-            offset="1"
-            style="stop-color: rgb(172, 27, 60); stop-opacity: 1"
-          />
+        <linearGradient id="_Linear5" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(0.676239,212.321,-212.321,0.676239,399.671,115.988)">
+          <stop offset="0" style="stop-color: rgb(236, 65, 81); stop-opacity: 1" />
+          <stop offset="0.5" style="stop-color: rgb(220, 55, 76); stop-opacity: 1" />
+          <stop offset="1" style="stop-color: rgb(172, 27, 60); stop-opacity: 1" />
         </linearGradient>
-        <linearGradient
-          id="_Linear7"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="0"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform="matrix(0.676239,174.104,-174.104,0.676239,399.671,95.0041)"
-        >
-          <stop
-            offset="0"
-            style="stop-color: rgb(245, 249, 251); stop-opacity: 1"
-          />
-          <stop
-            offset="0.59"
-            style="stop-color: rgb(226, 236, 243); stop-opacity: 1"
-          />
-          <stop
-            offset="0.81"
-            style="stop-color: rgb(183, 208, 225); stop-opacity: 1"
-          />
-          <stop
-            offset="1"
-            style="stop-color: rgb(140, 180, 206); stop-opacity: 1"
-          />
+        <linearGradient id="_Linear7" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(0.676239,174.104,-174.104,0.676239,399.671,95.0041)">
+          <stop offset="0" style="stop-color: rgb(245, 249, 251); stop-opacity: 1" />
+          <stop offset="0.59" style="stop-color: rgb(226, 236, 243); stop-opacity: 1" />
+          <stop offset="0.81" style="stop-color: rgb(183, 208, 225); stop-opacity: 1" />
+          <stop offset="1" style="stop-color: rgb(140, 180, 206); stop-opacity: 1" />
         </linearGradient>
-        <linearGradient
-          id="_Linear8"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="0"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform="matrix(6.8912e-15,-112.542,112.542,6.8912e-15,399.671,269.108)"
-        >
-          <stop
-            offset="0"
-            style="stop-color: rgb(236, 65, 81); stop-opacity: 1"
-          />
-          <stop
-            offset="0.46"
-            style="stop-color: rgb(227, 63, 84); stop-opacity: 1"
-          />
-          <stop
-            offset="1"
-            style="stop-color: rgb(203, 57, 90); stop-opacity: 1"
-          />
+        <linearGradient id="_Linear8" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(6.8912e-15,-112.542,112.542,6.8912e-15,399.671,269.108)">
+          <stop offset="0" style="stop-color: rgb(236, 65, 81); stop-opacity: 1" />
+          <stop offset="0.46" style="stop-color: rgb(227, 63, 84); stop-opacity: 1" />
+          <stop offset="1" style="stop-color: rgb(203, 57, 90); stop-opacity: 1" />
         </linearGradient>
       </defs>
     </g>
     <g transform="matrix(1,0,0,1,7.6296,-2.65748)">
-      <text
-        x="263.72px"
-        y="53.076px"
-        style="
-          font-family: 'Futura-Medium', 'Futura', sans-serif;
-          font-weight: 500;
-          font-size: 50px;
-          fill: white;
-        "
-      >
-        SEASON 0
-      </text>
+      <text x="263.72px" y="53.076px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">SEASON 0</text>
     </g>
   </g>
   <defs>
-    <linearGradient
-      id="_Linear3_card_template"
-      x1="0"
-      y1="0"
-      x2="1"
-      y2="0"
-      gradientUnits="userSpaceOnUse"
-      gradientTransform="matrix(3.89688e-14,-610.267,636.408,3.73681e-14,398.243,614.74)"
-    >
+    <linearGradient id="_Linear3_card_template" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(3.89688e-14,-610.267,636.408,3.73681e-14,398.243,614.74)">
       <stop offset="0" style="stop-color: rgb(80, 225, 255); stop-opacity: 1" />
-      <stop
-        offset="0.44"
-        style="stop-color: rgb(219, 249, 255); stop-opacity: 1"
-      />
+      <stop offset="0.44" style="stop-color: rgb(219, 249, 255); stop-opacity: 1" />
       <stop offset="1" style="stop-color: white; stop-opacity: 1" />
     </linearGradient>
   </defs>

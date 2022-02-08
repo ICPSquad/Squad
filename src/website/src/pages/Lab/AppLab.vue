@@ -1,14 +1,13 @@
 <template>
-  <div class="flex flex-col">
-    <!-- Slot picker -->
-    <div class="flex md:flex-row flex-col justify-around gap-x-8">
-      <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker bg-pink rounded py-6 px-8 mt-8 cursor-pointer" :class="picker === 'Hat' ? 'text-black' : 'text-white'" @click="changePicker('Hat')">Hat 🎩</button>
-      <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker bg-pink rounded py-6 px-8 mt-8 cursor-pointer" :class="picker === 'Face' ? 'text-black' : 'text-white'" @click="changePicker('Face')">Face 👦</button>
-      <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker bg-pink rounded py-6 px-8 mt-8 cursor-pointer" :class="picker === 'Eyes' ? 'text-black' : 'text-white'" @click="changePicker('Eyes')">Eyes 👀</button>
-      <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker bg-pink rounded py-6 px-8 mt-8 cursor-pointer" :class="picker === 'Body' ? 'text-black' : 'text-white'" @click="changePicker('Body')">Body 👕</button>
-      <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker bg-pink rounded py-6 px-8 mt-8 cursor-pointer" :class="picker === 'Special' ? 'text-black' : 'text-white'" @click="changePicker('Special')">Special ✨</button>
+  <div>
+    <div class="flex flex-col items-center py-8">
+      <h2 class="text-center 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-bold text-gray-800 font-marker mt-8">Welcome to the Lab 🧑‍🔬 !</h2>
+      <h3 class="w-2/3 md:w-1/2 mx-auto text-center lg:text-3xl md:text-2xl text-xl font-bold mt-16 text-gray-800">
+        Here you can create new fancy accessories directly from your materials.
+        <br />
+      </h3>
     </div>
-    <div class="flex flex-col items-center justify-around gap-16">
+    <div class="grid grid-cols-1 md:grid-cols-3">
       <accessory-lab v-for="accessory in accessoriesFiltered" :key="accessory.name" :description="accessory.description" :name="accessory.name" :recipe="accessory.blueprint"></accessory-lab>
     </div>
   </div>
@@ -38,3 +37,10 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.fuck {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+</style>

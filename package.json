@@ -41,15 +41,15 @@
     "terser-webpack-plugin": "5.1.1",
     "ts-loader": "^9.2.6",
     "typescript": "^4.4.4",
-    "util": "0.12.3",
     "url-loader": "^4.1.1",
+    "util": "0.12.3",
     "webpack": "5.24.4",
     "webpack-cli": "4.9.0",
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
-    "@dfinity/auth-client": "^0.10.1",
     "@dfinity/agent": "^0.10.1",
+    "@dfinity/auth-client": "^0.10.1",
     "ic-stoic-identity": "^2.0.0",
     "js-sha256": "^0.9.0",
     "svg-captcha-browser": "^1.0.2",
