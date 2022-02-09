@@ -567,11 +567,11 @@ export const accessories: Accessory[] = [
     description: "A terrifying aura emanates from this mask.",
     components: [{ name: "Oni-half-mask", layer: 80 }],
   },
-  {
-    name: "Punk-face-mask",
-    slot: "Face",
-    blueprint: ["Cloth", "Cloth", "Punk-essence"],
-    description: "A mask that gives you a punk look.",
-    components: [{ name: "Punk-face-mask", layer: 80 }],
-  },
+  // {
+  //   name: "Punk-face-mask",
+  //   slot: "Face",
+  //   blueprint: ["Cloth", "Cloth", "Punk-essence"],
+  //   description: "A mask that gives you a punk look.",
+  //   components: [{ name: "Punk-face-mask", layer: 80 }],
+  // },
 ];
