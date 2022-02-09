@@ -1370,7 +1370,7 @@ shared({ caller = hub }) actor class Hub() = this {
         };
         //  Check 0.1 ICP fee has been paid
         //  TODO change the amount
-        if(not(await _checkPayment(subaccount,10_000_000))){
+        if(not(await _checkPayment(subaccount,10_000))){
             return #err("Fee has not been paid.");
         };
         //  Send back money to the main account and keep track of the subaccount
