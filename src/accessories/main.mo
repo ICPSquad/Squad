@@ -1369,12 +1369,13 @@ shared({ caller = hub }) actor class Hub() = this {
             return #err("Subaccount incorrect.");
         };
         //  Check 0.1 ICP fee has been paid
+        //  TODO change the amount
         if(not(await _checkPayment(subaccount,10_000_000))){
             return #err("Fee has not been paid.");
         };
         //  Send back money to the main account and keep track of the subaccount
-        subaccount_to_check := Array.append<SubAccount>(subaccount_to_check, [subaccount]);
-        ignore(_sendBackFrom(subaccount));
+        // subaccount_to_check := Array.append<SubAccount>(subaccount_to_check, [subaccount]);
+        // ignore(_sendBackFrom(subaccount));
         //  Check ownership of materials
         let materials_tindex = Array.map<TokenIdentifier, TokenIndex>(materials, ExtCore.TokenIdentifier.getIndex);
         for(token_index in materials_tindex.vals()){

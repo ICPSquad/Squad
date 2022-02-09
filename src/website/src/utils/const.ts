@@ -13,4 +13,5 @@ export { ICPTs, Memo } from "../types/Ledger/ledger.did.d";
 
 export const FEE: ICPTs = { e8s: BigInt(10000) };
 export const AMOUNT: ICPTs = { e8s: BigInt(100000000) }; //1 ICP
+export const AMOUNT_ACCESSORY_MINTING: ICPTs = { e8s: BigInt(10000) }; //TODO: change to 0.1
 export const MEMO: Memo = BigInt(0);

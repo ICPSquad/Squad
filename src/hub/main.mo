@@ -455,10 +455,6 @@ let this = actor {
     };
 
 
-    // Verify that a transaction really happened by asking the candid ledger needs : Height/Sender/Receiver/Amount.
-    // ⚠️ Needs to be called when the transaction is still fresh. Ledger only keeps the last 1000 blocks before archive.
-
-
     ///////////////
     // JOINING ///
     /////////////

@@ -1,9 +1,7 @@
-import { HttpAgent } from "@dfinity/agent";
-import { createLedgerCanister, SendArgs } from "./ledger";
-import { MEMO, FEE, AMOUNT } from "./const";
+import { SendArgs } from "./ledger";
+import { FEE } from "./const";
 import { SubAccount } from "declarations/hub/hub.did.d";
 import { principalToAccountIdentifier } from "./accountid";
-import { stringify } from "postcss";
 
 export const getRandomSubaccount = (): number[] => {
   var bs: number[] = [];
@@ -15,19 +13,17 @@ export const getRandomSubaccount = (): number[] => {
 
 export async function pay_plug(
   subaccount: SubAccount,
-  memo: bigint
+  memo: bigint,
+  amount: number
 ): Promise<{
   height: number;
 }> {
-  let address_to_pay = principalToAccountIdentifier(
-    "p4y2d-yyaaa-aaaaj-qaixa-cai",
-    subaccount
-  );
+  let address_to_pay = principalToAccountIdentifier("p4y2d-yyaaa-aaaaj-qaixa-cai", subaccount);
 
   //@ts-ignore
   const resultTransfer = await window.ic.plug.requestTransfer({
     to: address_to_pay,
-    amount: 100000000,
+    amount: amount,
     memo: String(memo),
   });
   if (resultTransfer) {
@@ -41,21 +37,13 @@ export async function pay_plug(
   }
 }
 
-export async function pay_stoic(
-  subaccount: SubAccount,
-  memo: bigint,
-  ledgerActor: any
-): Promise<{ height: number }> {
-  let address_to_pay = principalToAccountIdentifier(
-    "p4y2d-yyaaa-aaaaj-qaixa-cai",
-    subaccount
-  );
-
+export async function pay_stoic(ledgerActor: any, subaccount: SubAccount, memo: bigint, amount: number): Promise<{ height: number }> {
+  let address_to_pay = principalToAccountIdentifier("p4y2d-yyaaa-aaaaj-qaixa-cai", subaccount);
   let send_args: SendArgs = {
     to: address_to_pay,
     fee: FEE,
     memo,
-    amount: AMOUNT,
+    amount: { e8s: BigInt(amount) },
     from_subaccount: [],
     created_at_time: [{ timestamp_nanos: BigInt(Date.now() * 1000000) }],
   };
