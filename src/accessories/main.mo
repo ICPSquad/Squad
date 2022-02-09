@@ -1160,15 +1160,9 @@ shared({ caller = hub }) actor class Hub() = this {
     //     };
     // };
 
-    private func _burn (token_index : TokenIndex ) :  Result.Result<AccountIdentifier,Text> {
+    private func _burn (token_index : TokenIndex) : Result.Result<AccountIdentifier,Text> {
         let token_identifier = _getTokenIdentifier(token_index);
-        var name : Text = "";
-        let item : ?Item = _items.get(token_index);
         let owner : ?AccountIdentifier = _registry.get(token_index);
-        switch(item){
-            case(?#Accessory(item)){ name := item.name};
-            case(_){assert(false)};
-        };
         switch(owner) {
             case(null)(#err("No owner found for this token"));
             case(?owner) {
@@ -1194,15 +1188,13 @@ shared({ caller = hub }) actor class Hub() = this {
         let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
         switch(_burn(token_index)){
             case(#err(text)) return #err(text);
-            case(#ok(account)){
-                // Report to CAP
+            case(#ok(owner)){
                 let event : IndefiniteEvent = {
                     operation = "burn";
-                    details = [("token", #Text(token_identifier)), ("from", #Text(account))];
+                    details = [("token", #Text(token_identifier)), ("from", #Text(owner))];
                     caller = caller;
                 };
                 ignore(_registerEvent(event));
-
                 return #ok;
             };
         };
@@ -1406,6 +1398,7 @@ shared({ caller = hub }) actor class Hub() = this {
                         case(#err(e)) {assert(false); return #err(e)};
                         case(#ok(owner)){};
                     };
+                    //  Need to register event to CAP because the internal function doesn't do it (not async).
                     let event : IndefiniteEvent = {
                         operation = "burn";
                         details = [("item", #Text(token_identifier)), ("from", #Text(AID.fromPrincipal(caller, null)))];
@@ -1429,7 +1422,7 @@ shared({ caller = hub }) actor class Hub() = this {
                 ignore(_registerEvent(event));
                 return #ok(token_identifier_accessory);
             };
-            case(_) return #err(name # "is not an accessory");
+            case(_) return #err(name # " is not an accessory");
         };
     };
 

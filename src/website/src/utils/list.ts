@@ -433,7 +433,7 @@ export const accessories: Accessory[] = [
   {
     name: "Helicap-tshirt",
     slot: "Body",
-    blueprint: ["Cloth", "Cloth", "Wood", "Wood"],
+    blueprint: ["Cloth", "Cloth", "Wood", "Glass"],
     description: "A simple helicap t-shirt.",
     components: [{ name: "Helicap-tshirt", layer: 95 }],
   },
@@ -484,7 +484,7 @@ export const accessories: Accessory[] = [
   {
     name: "Helicap",
     slot: "Hat",
-    blueprint: ["Metal", "Metal", "Metal"],
+    blueprint: ["Cloth", "Cloth", "Wood", "Glass"],
     description: "Look mom, I can fly!",
     components: [{ name: "Helicap", layer: 85 }],
   },
