@@ -275,10 +275,10 @@ export default {
       let transaction;
       if (wallet == "Plug") {
         message.value = "Payment";
-        transaction = await pay_plug(subaccount.value, memo.value, 100000000);
+        transaction = await pay_plug(subaccount.value, memo.value, 100000000, "p4y2d-yyaaa-aaaaj-qaixa-cai");
       } else if (wallet == "Stoic") {
         message.value = "Payment";
-        transaction = await pay_stoic(ledgerActor, subaccount.value, memo.value, 100000000);
+        transaction = await pay_stoic(ledgerActor, subaccount.value, memo.value, 100000000, "p4y2d-yyaaa-aaaaj-qaixa-cai");
       } else {
         throw new Error("Wallet not compatible");
       }

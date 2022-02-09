@@ -47,11 +47,11 @@ export default defineComponent({
 
       store.commit("setAuthenticatedActor_hub", actor_hub);
       store.commit("setPrincipal", principal);
-      store.commit("setWallet", "plug");
+      store.commit("setWallet", "Plug");
     };
 
     const stoicConnection = async () => {
-      store.commit("setWallet", "stoic");
+      store.commit("setWallet", "Stoic");
       let identity = await StoicIdentity.load();
       if (identity !== false) {
       } else {

@@ -1,131 +1,25 @@
 <template>
   <div class="flex flex-col justify-around h-full" v-if="!connected">
     <div>
-      <h3
-        class="
-          w-2/3
-          md:w-1/2
-          mx-auto
-          text-center
-          lg:text-3xl
-          md:text-2xl
-          text-xl
-          font-bold
-          mt-16
-          text-gray-800
-        "
-      >
-        Please connect with the same wallet you used for the registration.
-      </h3>
+      <h3 class="w-2/3 md:w-1/2 mx-auto text-center lg:text-3xl md:text-2xl text-xl font-bold mt-16 text-gray-800">Please connect with the same wallet you used for the registration.</h3>
     </div>
 
     <div class="flex flex-row justify-around">
-      <button
-        class="
-          lg:text-3xl
-          md:text-2xl
-          text-xl
-          shadow-2xl
-          font-marker
-          text-white
-          bg-pink-600
-          rounded
-          py-6
-          px-8
-          mt-8
-          cursor-pointer
-          hidden
-          md:block
-        "
-        @click="plugConnection"
-      >
-        Plug
-      </button>
-      <button
-        class="
-          lg:text-3xl
-          md:text-2xl
-          text-xl
-          shadow-2xl
-          font-marker
-          text-white
-          bg-pink-600
-          rounded
-          py-6
-          px-8
-          mt-8
-          cursor-pointer
-        "
-        @click="stoicConnection"
-      >
-        Stoic
-      </button>
+      <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mt-8 cursor-pointer hidden md:block" @click="plugConnection">Plug</button>
+      <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mt-8 cursor-pointer" @click="stoicConnection">Stoic</button>
     </div>
   </div>
-  <acknowledgment
-    v-else-if="connected && authorized"
-    class="flex-1"
-  ></acknowledgment>
+  <acknowledgment v-else-if="connected && authorized" class="flex-1"></acknowledgment>
 
   <div class="flex flex-col justify-center items-center flex-1" v-else>
-    <h3
-      class="
-        w-2/3
-        md:w-1/2
-        mx-auto
-        text-center
-        lg:text-4xl
-        md:text-2xl
-        text-xl
-        font-bold
-        mt-16
-        text-gray-800
-      "
-      :class="waiting ? 'animate-pulse' : ''"
-    >
+    <h3 class="w-2/3 md:w-1/2 mx-auto text-center lg:text-4xl md:text-2xl text-xl font-bold mt-16 text-gray-800" :class="waiting ? 'animate-pulse' : ''">
       {{ message }}
     </h3>
     <router-link to="/">
-      <button
-        v-if="!waiting && showHomeButton"
-        class="
-          lg:text-3xl
-          md:text-2xl
-          text-xl
-          shadow-2xl
-          font-marker
-          text-white
-          bg-pink-600
-          rounded
-          py-6
-          px-8
-          mt-8
-          cursor-pointer
-        "
-      >
-        Home 🏠
-      </button>
+      <button v-if="!waiting && showHomeButton" class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mt-8 cursor-pointer">Home 🏠</button>
     </router-link>
     <router-link to="/">
-      <button
-        v-if="!waiting && showJoinButton"
-        class="
-          lg:text-3xl
-          md:text-2xl
-          text-xl
-          shadow-2xl
-          font-marker
-          text-white
-          bg-pink-600
-          rounded
-          py-6
-          px-8
-          mt-8
-          cursor-pointer
-        "
-      >
-        Home 🏠
-      </button>
+      <button v-if="!waiting && showJoinButton" class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mt-8 cursor-pointer">Home 🏠</button>
     </router-link>
   </div>
 </template>
@@ -174,7 +68,7 @@ export default defineComponent({
 
       store.commit("setAuthenticatedActor_hub", myActor);
       store.commit("setPrincipal", principal);
-      store.commit("setWallet", "plug");
+      store.commit("setWallet", "Plug");
       connected.value = true;
       verifUser();
     };
@@ -195,21 +89,19 @@ export default defineComponent({
 
       store.commit("setAuthenticatedActor_hub", myActor);
       store.commit("setPrincipal", principal);
-      store.commit("setWallet", "stoic");
+      store.commit("setWallet", "Stoic");
       connected.value = true;
       verifUser();
     };
 
     const verifUser = async () => {
       waiting.value = true;
-      let result =
-        await store.getters.getAuthenticatedActor_hub.isUserAuthorized();
+      let result = await store.getters.getAuthenticatedActor_hub.isUserAuthorized();
       console.log(result);
       if (result.hasOwnProperty("ok")) {
         waiting.value = false;
         authorized.value = true;
-        message.value =
-          "Welcome! Thank you for giving your support so early ❤️ ";
+        message.value = "Welcome! Thank you for giving your support so early ❤️ ";
       } else {
         waiting.value = false;
         if (result.err == "You haven't registered.") {

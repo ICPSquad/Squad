@@ -38,7 +38,7 @@ export default defineComponent({
         return;
       }
 
-      store.commit("setWallet", "plug");
+      store.commit("setWallet", "Plug");
 
       let principal = await (window as any).ic?.plug?.agent.getPrincipal();
       store.commit("setPrincipal", principal);
@@ -53,24 +53,40 @@ export default defineComponent({
     };
 
     const stoicConnection = async () => {
-      store.commit("setWallet", "stoic");
-      let identity = await StoicIdentity.load();
-      if (identity !== false) {
-      } else {
-        identity = await StoicIdentity.connect();
+      try {
+        StoicIdentity.load().then(async (identity: any) => {
+          if (identity !== false) {
+            //ID is a already connected wallet!
+          } else {
+            //No existing connection, lets make one!
+            identity = await StoicIdentity.connect();
+          }
+          try {
+            await identity.sign("a");
+          } catch (e) {
+            alert("Error logging in with stoic, please ensure cookies are enabled");
+            return;
+          }
+          //Lets display the connected principal!
+          console.log(identity.getPrincipal().toText());
+          let principal = identity.getPrincipal();
+          store.commit("setWallet", "Stoic");
+          store.commit("setPrincipal", principal);
+
+          //Create an actor canister
+          const actor = Actor.createActor(idlFactory, {
+            agent: new HttpAgent({
+              identity,
+            }),
+            canisterId: canister_accessories_id,
+          });
+          store.commit("setAuthenticatedActor_material", actor);
+          store.dispatch("loadInventory");
+        });
+      } catch (e) {
+        alert(e);
+        return;
       }
-      let principal = identity.getPrincipal();
-      store.commit("setPrincipal", principal);
-
-      let myAgent = new HttpAgent({ identity });
-
-      //@ts-ignore
-      const actor_material = Actor.createCanister(idlFactory_material, {
-        canisterId: canister_accessories_id,
-        agent: myAgent,
-      });
-      store.commit("setAuthenticatedActor_material", actor_material);
-      store.dispatch("loadInventory");
     };
 
     return {

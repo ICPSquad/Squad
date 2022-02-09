@@ -101,13 +101,12 @@ export default defineComponent({
       subaccount.value = getRandomSubaccount();
       let wallet = store.getters.getWallet;
       console.log("Wallet is ", wallet);
-      if (wallet === "plug") {
-        let transaction = await pay_plug(subaccount.value, BigInt(100), 10000);
+      if (wallet === "Plug") {
+        let transaction = await pay_plug(subaccount.value, BigInt(100), 10000, "po6n2-uiaaa-aaaaj-qaiua-cai");
         if (transaction.height != 0) {
           mint();
         }
-      }
-      if (wallet === "stoic") {
+      } else if (wallet === "Stoic") {
         let ledgerActor;
         // Get the stoic identity
         try {
@@ -136,7 +135,9 @@ export default defineComponent({
           alert(e);
           return;
         }
-        await pay_stoic(ledgerActor, subaccount.value, BigInt(100), 10000);
+        await pay_stoic(ledgerActor, subaccount.value, BigInt(100), 10000, "po6n2-uiaaa-aaaaj-qaiua-cai");
+      } else {
+        throw new Error("Unknown wallet");
       }
     };
 

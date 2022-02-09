@@ -14,11 +14,12 @@ export const getRandomSubaccount = (): number[] => {
 export async function pay_plug(
   subaccount: SubAccount,
   memo: bigint,
-  amount: number
+  amount: number,
+  canister_id: string
 ): Promise<{
   height: number;
 }> {
-  let address_to_pay = principalToAccountIdentifier("p4y2d-yyaaa-aaaaj-qaixa-cai", subaccount);
+  let address_to_pay = principalToAccountIdentifier(canister_id, subaccount);
 
   //@ts-ignore
   const resultTransfer = await window.ic.plug.requestTransfer({
@@ -37,8 +38,8 @@ export async function pay_plug(
   }
 }
 
-export async function pay_stoic(ledgerActor: any, subaccount: SubAccount, memo: bigint, amount: number): Promise<{ height: number }> {
-  let address_to_pay = principalToAccountIdentifier("p4y2d-yyaaa-aaaaj-qaixa-cai", subaccount);
+export async function pay_stoic(ledgerActor: any, subaccount: SubAccount, memo: bigint, amount: number, canister_id: string): Promise<{ height: number }> {
+  let address_to_pay = principalToAccountIdentifier(canister_id, subaccount);
   let send_args: SendArgs = {
     to: address_to_pay,
     fee: FEE,

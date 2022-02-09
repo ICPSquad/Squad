@@ -59,7 +59,7 @@ export default defineComponent({
 
       let principal = await (window as any).ic?.plug?.agent.getPrincipal();
       store.commit("setPrincipal", principal);
-      store.commit("setWallet", "plug");
+      store.commit("setWallet", "Plug");
     };
 
     const stoicConnection = async () => {
