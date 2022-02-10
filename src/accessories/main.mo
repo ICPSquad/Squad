@@ -778,7 +778,8 @@ shared({ caller = hub }) actor class Hub() = this {
         switch(_tokenSettlement.get(token_index)){
             case(null) return #err(#Other("Nothing to settle"));
             case(?settlement){
-                let account_seller = AID.fromPrincipal(settlement.seller, null);
+                let account_seller = AID.fromPrincipal(settlement.seller, ?settlement.subaccount);
+                let owner = AID.fromPrincipal(settlement.seller, null); // Cannot sell from 
                 let response : ICPTs = await LEDGER_CANISTER.account_balance_dfx({account = account_seller});
                 switch(_tokenSettlement.get(token_index)){
                     case(null) return #err(#Other("Nothing to settle"));
@@ -789,7 +790,10 @@ shared({ caller = hub }) actor class Hub() = this {
                             case(_) [settlement.subaccount];
                             });
                             switch(_transferTokenOwnership(AID.fromPrincipal(settlement.seller, null), ?settlement.buyer, token_index)){
-                                case(#err(e)) return #err(#Other(e));
+                                case(#err(e)) {
+                                    assert(false);
+                                    return #err(#Other(e));
+                                };
                                 case(#ok) {};
                             };
                             _registry.put(token_index, settlement.buyer);
@@ -798,7 +802,7 @@ shared({ caller = hub }) actor class Hub() = this {
                             _tokenSettlement.delete(token_index);
                             let event : IndefiniteEvent = {
                                 operation = "transfer";
-                                details = [("from", #Text(account_seller)),("to", #Text(settlement.buyer)), ("token", #Text(token_identifier)), ("price", #U64(settlement.price))]; 
+                                details = [("from", #Text(owner)),("to", #Text(settlement.buyer)), ("token", #Text(token_identifier)), ("price", #U64(settlement.price))]; 
                                 caller = msg.caller;
                             };
                             ignore(_registerEvent(event));
