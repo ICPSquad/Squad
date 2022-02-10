@@ -157,7 +157,7 @@ shared (install) actor class erc721_token() = this {
     stable var accessoriesEntries : [(Text,Accessory)] = [];
     let accessories : HashMap.HashMap<Text,Accessory> = HashMap.fromIter(accessoriesEntries.vals(), 0, Text.equal, Text.hash);
 
-    public shared func ({caller}) addListAccessory (list : [Accessory]) : async Result.Result<Text,Text> {
+    public shared ({caller}) func addListAccessory (list : [Accessory]) : async Result.Result<Text,Text> {
         assert(_isAdmin(caller));
         for (accessory in list.vals()){
             let name = accessory.name;
@@ -208,11 +208,6 @@ shared (install) actor class erc721_token() = this {
     stable var layerStorage : [[(LayerId,LayerAvatar)]] = [];
     stable var styleStorage : [Text] = [];
     stable var slotsStorage : [Slots] = [];
-
-    //  Get the wrapped <g> element as Text based on the layer. Returns an error if the name doesn't relate to any component or accessory.
-    private func _layersToText(layer : LayerAvatar, layer_id : LayerId) : Result.Result<Text,Text>{
-        
-    };
 
     private class Avatar ( layersEntries : [(LayerId, LayerAvatar)], style : Text, slots : Slots) {
 
@@ -271,10 +266,12 @@ shared (install) actor class erc721_token() = this {
             return content;
         };
 
+        //  Return a list of all layers that are populated associated with their layer object (see Avatar.mo).
         public func getLayers () : [(LayerId,LayerAvatar)] {
             return Iter.toArray(layers.entries());
         };
 
+        //  Return a list of all layers that are populated associated with their wrapped <g> element.
         public func getLayersText() : [(LayerId, Text)]{
             var buffer = Buffer.Buffer<(LayerId,Text)>(0);
             for(i in Iter.range(0,100)){
@@ -284,7 +281,7 @@ shared (install) actor class erc721_token() = this {
                         switch(layer) {
                             case(#Accessory(name)){
                                switch(accessories.get(name)){
-                                   case(null) return #err("No accessory found for name : " #name);
+                                   case(null) {};
                                    case(?accessory){
                                        buffer.add(i, AvatarModule.wrapAccessory(accessory.slot, accessory.content));
                                    };
@@ -292,7 +289,7 @@ shared (install) actor class erc721_token() = this {
                             };
                             case(#Component(name)){
                                 switch(components.get(name)) {
-                                   case(null) return #err("No component found for name : " #name);
+                                   case(null) {};
                                     case (?compo) {
                                         buffer.add(i, AvatarModule.wrapComponent(compo.content, i, name));
                                     };
@@ -302,6 +299,7 @@ shared (install) actor class erc721_token() = this {
                     };
                 };
            };
+           return(buffer.toArray());
         };
 
         public func getLayer (id : LayerId) : ?LayerAvatar {
@@ -524,17 +522,7 @@ shared (install) actor class erc721_token() = this {
                 switch(avatars.get(token)){
                     case(null) return #err ("There is no avatar associated for this tokenIdentifier (strange) " # token);
                     case(?avatar) { 
-                        
-                        //Need to rebuild the avatar in case we haven't done so after previous upgrades... (Wasn't the best choice)
-                        // avatar.buildSvg();
-
-                        let preview : AvatarPreview = {
-                            token_identifier = token;
-                            layers = 
-                            avatar_svg = avatar.getFullSvg();
-                            slots = avatar.getSlots();
-                        };
-                        return #ok(preview);
+                        return #ok({token_identifier = token; layers = avatar.getLayersText(); style = avatar.getRawStyle(); slots = avatar.getSlots();});
                     };
                 };
             };
