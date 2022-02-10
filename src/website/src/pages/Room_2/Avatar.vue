@@ -5,10 +5,24 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref, computed, watchEffect } from "vue";
 import { useStore } from "vuex";
-import { redrawSvg } from "../../utils/svg";
+import { constructSVG } from "../../utils/svg_new";
 
 export default defineComponent({
-  setup() {
+  props: {
+    layers: {
+      type: Array,
+      default: () => [],
+    },
+    body_name: {
+      type: String,
+      required: true,
+    },
+    style: {
+      type: String,
+      required: true,
+    },
+  },
+  setup(props, _) {
     const div = document.createElement("div");
     const avatarDiv = ref<HTMLDivElement>(div);
 
@@ -16,11 +30,13 @@ export default defineComponent({
     const slots = computed(() => store.getters.getSlots);
 
     onMounted(() => {
-      avatarDiv.value.innerHTML = redrawSvg();
+      //@ts-ignore
+      avatarDiv.value.innerHTML = constructSVG(props.layers, props.body_name, props.style);
     });
 
     watchEffect(() => {
-      avatarDiv.value.innerHTML = redrawSvg();
+      //@ts-ignore
+      avatarDiv.value.innerHTML = constructSVG(props.layers, props.body_name, props.style);
     });
 
     return { avatarDiv, slots };

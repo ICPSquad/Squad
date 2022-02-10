@@ -57,12 +57,12 @@ export const idlFactory = ({ IDL }) => {
     'seller' : IDL.Principal,
     'price' : IDL.Nat64,
   });
-  const Result_8 = IDL.Variant({
+  const Result_9 = IDL.Variant({
     'ok' : IDL.Tuple(AccountIdentifier, IDL.Opt(Listing)),
     'err' : CommonError,
   });
   const Extension = IDL.Text;
-  const Slots = IDL.Record({
+  const Slots__1 = IDL.Record({
     'Hat' : IDL.Opt(IDL.Text),
     'Body' : IDL.Opt(IDL.Text),
     'Eyes' : IDL.Opt(IDL.Text),
@@ -72,10 +72,26 @@ export const idlFactory = ({ IDL }) => {
   const TokenIdentifier__3 = IDL.Text;
   const AvatarPreview = IDL.Record({
     'avatar_svg' : IDL.Text,
-    'slots' : Slots,
+    'slots' : Slots__1,
     'token_identifier' : TokenIdentifier__3,
   });
-  const Result_7 = IDL.Variant({ 'ok' : AvatarPreview, 'err' : IDL.Text });
+  const Result_8 = IDL.Variant({ 'ok' : AvatarPreview, 'err' : IDL.Text });
+  const LayerId = IDL.Nat;
+  const Slots = IDL.Record({
+    'Hat' : IDL.Opt(IDL.Text),
+    'Body' : IDL.Opt(IDL.Text),
+    'Eyes' : IDL.Opt(IDL.Text),
+    'Face' : IDL.Opt(IDL.Text),
+    'Misc' : IDL.Opt(IDL.Text),
+  });
+  const AvatarPreviewNew = IDL.Record({
+    'body_name' : IDL.Text,
+    'layers' : IDL.Vec(IDL.Tuple(LayerId, IDL.Text)),
+    'slots' : Slots,
+    'style' : IDL.Text,
+    'token_identifier' : TokenIdentifier,
+  });
+  const Result_7 = IDL.Variant({ 'ok' : AvatarPreviewNew, 'err' : IDL.Text });
   const MetricsGranularity = IDL.Variant({
     'hourly' : IDL.Null,
     'daily' : IDL.Null,
@@ -249,7 +265,7 @@ export const idlFactory = ({ IDL }) => {
     'bearer' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
     'clearPayments' : IDL.Func([IDL.Principal, IDL.Vec(SubAccount__1)], [], []),
     'collectCanisterMetrics' : IDL.Func([], [], []),
-    'details' : IDL.Func([TokenIdentifier], [Result_8], ['query']),
+    'details' : IDL.Func([TokenIdentifier], [Result_9], ['query']),
     'draw' : IDL.Func([TokenIdentifier], [Result], []),
     'eventsSize' : IDL.Func([], [IDL.Nat], ['query']),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
@@ -263,7 +279,8 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(IDL.Text, Component))],
         ['query'],
       ),
-    'getAvatarInfos' : IDL.Func([], [Result_7], ['query']),
+    'getAvatarInfos' : IDL.Func([], [Result_8], ['query']),
+    'getAvatarInfos_new' : IDL.Func([], [Result_7], ['query']),
     'getCanisterMetrics' : IDL.Func(
         [GetMetricsParameters],
         [IDL.Opt(CanisterMetrics)],

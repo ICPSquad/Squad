@@ -14,8 +14,15 @@ export interface AvatarInformations {
 }
 export interface AvatarPreview {
   'avatar_svg' : string,
-  'slots' : Slots,
+  'slots' : Slots__1,
   'token_identifier' : TokenIdentifier__3,
+}
+export interface AvatarPreviewNew {
+  'body_name' : string,
+  'layers' : Array<[LayerId, string]>,
+  'slots' : Slots,
+  'style' : string,
+  'token_identifier' : TokenIdentifier,
 }
 export interface AvatarRequest {
   'components' : Array<ComponentRequest>,
@@ -81,6 +88,7 @@ export type HttpStreamingStrategy = {
       'callback' : StreamingCallback,
     }
   };
+export type LayerId = bigint;
 export interface ListRequest {
   'token' : TokenIdentifier__2,
   'from_subaccount' : [] | [SubAccount__2],
@@ -136,9 +144,11 @@ export type Result_5 = { 'ok' : Metadata } |
   { 'err' : CommonError__1 };
 export type Result_6 = { 'ok' : AccountIdentifier } |
   { 'err' : CommonError };
-export type Result_7 = { 'ok' : AvatarPreview } |
+export type Result_7 = { 'ok' : AvatarPreviewNew } |
   { 'err' : string };
-export type Result_8 = { 'ok' : [AccountIdentifier, [] | [Listing]] } |
+export type Result_8 = { 'ok' : AvatarPreview } |
+  { 'err' : string };
+export type Result_9 = { 'ok' : [AccountIdentifier, [] | [Listing]] } |
   { 'err' : CommonError };
 export interface Settlement {
   'subaccount' : SubAccount__2,
@@ -147,6 +157,13 @@ export interface Settlement {
   'price' : bigint,
 }
 export interface Slots {
+  'Hat' : [] | [string],
+  'Body' : [] | [string],
+  'Eyes' : [] | [string],
+  'Face' : [] | [string],
+  'Misc' : [] | [string],
+}
+export interface Slots__1 {
   'Hat' : [] | [string],
   'Body' : [] | [string],
   'Eyes' : [] | [string],
@@ -217,13 +234,14 @@ export interface erc721_token {
       undefined
     >,
   'collectCanisterMetrics' : () => Promise<undefined>,
-  'details' : (arg_0: TokenIdentifier) => Promise<Result_8>,
+  'details' : (arg_0: TokenIdentifier) => Promise<Result_9>,
   'draw' : (arg_0: TokenIdentifier) => Promise<Result>,
   'eventsSize' : () => Promise<bigint>,
   'extensions' : () => Promise<Array<Extension>>,
   'getAllAccessories' : () => Promise<Array<[string, Accessory]>>,
   'getAllComponents' : () => Promise<Array<[string, Component]>>,
-  'getAvatarInfos' : () => Promise<Result_7>,
+  'getAvatarInfos' : () => Promise<Result_8>,
+  'getAvatarInfos_new' : () => Promise<Result_7>,
   'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
       [] | [CanisterMetrics]
     >,

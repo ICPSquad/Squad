@@ -21,7 +21,7 @@ type erc721_token =
    bearer: (TokenIdentifier) -> (Result_6) query;
    clearPayments: (principal, vec SubAccount__1) -> ();
    collectCanisterMetrics: () -> ();
-   details: (TokenIdentifier) -> (Result_8) query;
+   details: (TokenIdentifier) -> (Result_9) query;
    draw: (TokenIdentifier) -> (Result);
    eventsSize: () -> (nat) query;
    extensions: () -> (vec Extension) query;
@@ -33,7 +33,8 @@ type erc721_token =
                                   text;
                                   Component;
                                 }) query;
-   getAvatarInfos: () -> (Result_7) query;
+   getAvatarInfos: () -> (Result_8) query;
+   getAvatarInfos_new: () -> (Result_7) query;
    getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
    getMinter: () -> (vec principal) query;
    getRegistry: () -> (vec record {
@@ -146,6 +147,14 @@ type StreamingCallbackResponse =
  };
 type StreamingCallback = func (StreamingCallbackToken) ->
                           (StreamingCallbackResponse) query;
+type Slots__1 = 
+ record {
+   Body: opt text;
+   Eyes: opt text;
+   Face: opt text;
+   Hat: opt text;
+   Misc: opt text;
+ };
 type Slots = 
  record {
    Body: opt text;
@@ -161,7 +170,7 @@ type Settlement =
    seller: principal;
    subaccount: SubAccount__2;
  };
-type Result_8 = 
+type Result_9 = 
  variant {
    err: CommonError;
    ok: record {
@@ -169,10 +178,15 @@ type Result_8 =
          opt Listing;
        };
  };
-type Result_7 = 
+type Result_8 = 
  variant {
    err: text;
    ok: AvatarPreview;
+ };
+type Result_7 = 
+ variant {
+   err: text;
+   ok: AvatarPreviewNew;
  };
 type Result_6 = 
  variant {
@@ -266,6 +280,7 @@ type ListRequest =
    price: opt nat64;
    token: TokenIdentifier__2;
  };
+type LayerId = nat;
 type HttpStreamingStrategy = variant {
                                Callback:
                                 record {
@@ -370,10 +385,21 @@ type AvatarRequest =
                };
    components: vec ComponentRequest;
  };
+type AvatarPreviewNew = 
+ record {
+   body_name: text;
+   layers: vec record {
+                 LayerId;
+                 text;
+               };
+   slots: Slots;
+   style: text;
+   token_identifier: TokenIdentifier;
+ };
 type AvatarPreview = 
  record {
    avatar_svg: text;
-   slots: Slots;
+   slots: Slots__1;
    token_identifier: TokenIdentifier__3;
  };
 type AvatarInformations = 

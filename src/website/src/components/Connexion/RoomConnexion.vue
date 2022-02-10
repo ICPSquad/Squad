@@ -46,7 +46,7 @@ export default defineComponent({
         interfaceFactory: idlFactory_material,
       });
       store.commit("setAuthenticatedActor_material", actor_material);
-      store.dispatch("loadInventory");
+      // store.dispatch("loadInventory");
 
       //@ts-ignore
       const actor_nft = await window.ic.plug.createActor({
@@ -54,8 +54,8 @@ export default defineComponent({
         interfaceFactory: idlFactory_nft,
       });
       store.commit("setAuthenticatedActor_nft", actor_nft);
-      //  Load token_identifier / avatar svg / slots
-      store.dispatch("loadInfos");
+
+      store.dispatch("loadInfosNew");
 
       let principal = await (window as any).ic?.plug?.agent.getPrincipal();
       store.commit("setPrincipal", principal);

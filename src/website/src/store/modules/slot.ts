@@ -15,9 +15,6 @@ const mutations = {
     if (accessory == null) {
       return;
     }
-    // accessory.slots.forEach((slot) => {
-    //   state[slot as keyof Slots] = accessory;
-    // });
     state[accessory.slot as keyof State] = accessory;
   },
   clearSlot(state: State, slot: string) {
