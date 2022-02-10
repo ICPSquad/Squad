@@ -1249,6 +1249,11 @@ shared({ caller = hub }) actor class Hub() = this {
         return(ExtCore.TokenIdentifier.getIndex(token_identifier));
     };
 
+    public shared query ({caller}) func getIdentifier (token_index : TokenIndex) : async TokenIdentifier {
+        assert(_isAdmin(caller));
+        return(_getTokenIdentifier(token_index));
+    };
+
     // Get TokenIdentifier from TokenIndex by assemblid 'tid' + Principal(canister) + Nat32(TokenIndex) 
     private func _getTokenIdentifier (nat : TokenIndex) : Text {
         let padding : [Nat8] = [10, 116, 105, 100];
