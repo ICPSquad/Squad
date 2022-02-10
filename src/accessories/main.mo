@@ -383,7 +383,7 @@ shared({ caller = hub }) actor class Hub() = this {
     // NFT-helpers //
     /////////////////
 
-    //Used to update _ownersToNfts hashmap. If new_account is null token is removed.
+    //  Used to update _ownersToNfts hashmap. If new_account is null token is removed.
     private func _transferTokenOwnership(old_account : AccountIdentifier, new_account : ?AccountIdentifier, token_index : TokenIndex) : Result.Result<(), Text> { 
         //Remove from old_account
         switch(_ownerships.get(old_account)){
@@ -778,7 +778,7 @@ shared({ caller = hub }) actor class Hub() = this {
         switch(_tokenSettlement.get(token_index)){
             case(null) return #err(#Other("Nothing to settle"));
             case(?settlement){
-                let account_seller = AID.fromPrincipal(settlement.seller, ?settlement.subaccount);
+                let account_seller = AID.fromPrincipal(settlement.seller, null);
                 let response : ICPTs = await LEDGER_CANISTER.account_balance_dfx({account = account_seller});
                 switch(_tokenSettlement.get(token_index)){
                     case(null) return #err(#Other("Nothing to settle"));
@@ -788,7 +788,7 @@ shared({ caller = hub }) actor class Hub() = this {
                             case(?p) Array.append(p, [settlement.subaccount]);
                             case(_) [settlement.subaccount];
                             });
-                            switch(_transferTokenOwnership(AID.fromPrincipal(settlement.seller, ?settlement.subaccount), ?settlement.buyer, token_index)){
+                            switch(_transferTokenOwnership(AID.fromPrincipal(settlement.seller, null), ?settlement.buyer, token_index)){
                                 case(#err(e)) return #err(#Other(e));
                                 case(#ok) {};
                             };
