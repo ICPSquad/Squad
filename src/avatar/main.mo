@@ -242,8 +242,21 @@ shared (install) actor class erc721_token() = this {
         public func getRawSvg (): Text {
             svg;
         };
-
+        
+        //  Get the body name to add as class to the final svg so the css style can target and modify elements.
         private func _getNameBody () : Text {
+            let layer_head = layers.get(20);
+            switch(layer_head){
+                case(?#Component(text)){
+                    return text;
+                };
+                case(_){
+                    return "null";
+                };
+            };
+        };
+
+        public func getNameBody () : Text {
             let layer_head = layers.get(20);
             switch(layer_head){
                 case(?#Component(text)){
@@ -513,8 +526,10 @@ shared (install) actor class erc721_token() = this {
         layers : [(LayerId, Text)];
         style : Text;
         slots : Slots;
+        body_name : Text;
     };
 
+    //  Used to get all the informations to construct the room on the frontend where users can equip accessories. If caller owns an avatar, returns it's token identifier/layersText/style/slots/body-type.
     public shared query ({caller}) func getAvatarInfos_new() : async Result.Result<AvatarPreviewNew, Text> {
         switch(_myTokenIdentifier(caller)){
             case(null) return #err("You don't own any avatar.");
@@ -522,7 +537,7 @@ shared (install) actor class erc721_token() = this {
                 switch(avatars.get(token)){
                     case(null) return #err ("There is no avatar associated for this tokenIdentifier (strange) " # token);
                     case(?avatar) { 
-                        return #ok({token_identifier = token; layers = avatar.getLayersText(); style = avatar.getRawStyle(); slots = avatar.getSlots();});
+                        return #ok({token_identifier = token; layers = avatar.getLayersText(); style = avatar.getRawStyle(); slots = avatar.getSlots(); body_name = avatar.getNameBody()});
                     };
                 };
             };
