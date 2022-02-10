@@ -243,6 +243,7 @@ type Hub =
    getEntrepotFilterInfos: () -> (vec EntrepotFilterInfos) query;
    getHisInventory: (principal) -> (Inventory) query;
    getHisInventory_old: (principal) -> (Inventory) query;
+   getIdentifier: (TokenIndex) -> (TokenIdentifier__3) query;
    getIndex: (TokenIdentifier__3) -> (TokenIndex);
    getInventory: () -> (Inventory) query;
    getMetadata: () -> (ContractMetadata) query;
@@ -261,6 +262,10 @@ type Hub =
                              AccountIdentifier__2;
                            }) query;
    getStats: () -> (vec text) query;
+   getTokens: () -> (vec record {
+                           TokenIndex;
+                           Metadata__1;
+                         }) query;
    http_request: (Request) -> (Response) query;
    init: (vec principal, ContractMetadata) -> ();
    init_cap: () -> (Result_3);

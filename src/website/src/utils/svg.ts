@@ -1,7 +1,6 @@
 // Goal of this module is to deconstruct the svg that is received as raw text from the nft canister
 // SVG -> [{content : string, layer : number}] so we can easily insert accessories and rebuild the whole svg
 
-import { def } from "@vue/shared";
 import store from "../store";
 import { Slots } from "../types/accessories";
 export type SvgLayer = {
@@ -93,10 +92,7 @@ export const deconstruct = (svg: string): Array<SvgLayer> => {
   return array;
 };
 
-const reconstruct = (
-  deconstructed: SvgDeconstructed | null,
-  slots: Slots
-): string => {
+const reconstruct = (deconstructed: SvgDeconstructed | null, slots: Slots): string => {
   if (deconstructed == null) {
     return "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'></svg>";
   }

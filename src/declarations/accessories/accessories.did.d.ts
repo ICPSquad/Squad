@@ -108,6 +108,7 @@ export interface Hub {
   'getEntrepotFilterInfos' : () => Promise<Array<EntrepotFilterInfos>>,
   'getHisInventory' : (arg_0: Principal) => Promise<Inventory>,
   'getHisInventory_old' : (arg_0: Principal) => Promise<Inventory>,
+  'getIdentifier' : (arg_0: TokenIndex) => Promise<TokenIdentifier__3>,
   'getIndex' : (arg_0: TokenIdentifier__3) => Promise<TokenIndex>,
   'getInventory' : () => Promise<Inventory>,
   'getMetadata' : () => Promise<ContractMetadata>,
@@ -118,6 +119,7 @@ export interface Hub {
   'getRecipes' : () => Promise<Array<[string, Recipe]>>,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__2]>>,
   'getStats' : () => Promise<Array<string>>,
+  'getTokens' : () => Promise<Array<[TokenIndex, Metadata__1]>>,
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init' : (arg_0: Array<Principal>, arg_1: ContractMetadata) => Promise<
       undefined

@@ -128,6 +128,15 @@ export const idlFactory = ({ IDL }) => {
     'symbol' : IDL.Text,
   });
   const Recipe = IDL.Vec(IDL.Text);
+  const Metadata__1 = IDL.Variant({
+    'fungible' : IDL.Record({
+      'decimals' : IDL.Nat8,
+      'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+      'name' : IDL.Text,
+      'symbol' : IDL.Text,
+    }),
+    'nonfungible' : IDL.Record({ 'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)) }),
+  });
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
   const Request = IDL.Record({
     'url' : IDL.Text,
@@ -173,15 +182,6 @@ export const idlFactory = ({ IDL }) => {
     'locked' : IDL.Opt(Time),
     'seller' : IDL.Principal,
     'price' : IDL.Nat64,
-  });
-  const Metadata__1 = IDL.Variant({
-    'fungible' : IDL.Record({
-      'decimals' : IDL.Nat8,
-      'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-      'name' : IDL.Text,
-      'symbol' : IDL.Text,
-    }),
-    'nonfungible' : IDL.Record({ 'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)) }),
   });
   const Metadata = IDL.Variant({
     'fungible' : IDL.Record({
@@ -314,6 +314,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getHisInventory' : IDL.Func([IDL.Principal], [Inventory], ['query']),
     'getHisInventory_old' : IDL.Func([IDL.Principal], [Inventory], ['query']),
+    'getIdentifier' : IDL.Func([TokenIndex], [TokenIdentifier__3], ['query']),
     'getIndex' : IDL.Func([TokenIdentifier__3], [TokenIndex], []),
     'getInventory' : IDL.Func([], [Inventory], ['query']),
     'getMetadata' : IDL.Func([], [ContractMetadata], ['query']),
@@ -334,6 +335,11 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getStats' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
+    'getTokens' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(TokenIndex, Metadata__1))],
+        ['query'],
+      ),
     'http_request' : IDL.Func([Request], [Response], ['query']),
     'init' : IDL.Func([IDL.Vec(IDL.Principal), ContractMetadata], [], []),
     'init_cap' : IDL.Func([], [Result_3], []),

@@ -157,7 +157,8 @@ shared (install) actor class erc721_token() = this {
     stable var accessoriesEntries : [(Text,Accessory)] = [];
     let accessories : HashMap.HashMap<Text,Accessory> = HashMap.fromIter(accessoriesEntries.vals(), 0, Text.equal, Text.hash);
 
-    public func addListAccessory (list : [Accessory]) : async Result.Result<Text,Text> {
+    public shared func ({caller}) addListAccessory (list : [Accessory]) : async Result.Result<Text,Text> {
+        assert(_isAdmin(caller));
         for (accessory in list.vals()){
             let name = accessory.name;
             accessories.put(name, accessory);
@@ -207,6 +208,11 @@ shared (install) actor class erc721_token() = this {
     stable var layerStorage : [[(LayerId,LayerAvatar)]] = [];
     stable var styleStorage : [Text] = [];
     stable var slotsStorage : [Slots] = [];
+
+    //  Get the wrapped <g> element as Text based on the layer. Returns an error if the name doesn't relate to any component or accessory.
+    private func _layersToText(layer : LayerAvatar, layer_id : LayerId) : Result.Result<Text,Text>{
+        
+    };
 
     private class Avatar ( layersEntries : [(LayerId, LayerAvatar)], style : Text, slots : Slots) {
 
@@ -267,6 +273,35 @@ shared (install) actor class erc721_token() = this {
 
         public func getLayers () : [(LayerId,LayerAvatar)] {
             return Iter.toArray(layers.entries());
+        };
+
+        public func getLayersText() : [(LayerId, Text)]{
+            var buffer = Buffer.Buffer<(LayerId,Text)>(0);
+            for(i in Iter.range(0,100)){
+                switch(layers.get(i)) {
+                    case (null) {};
+                    case (?layer) {
+                        switch(layer) {
+                            case(#Accessory(name)){
+                               switch(accessories.get(name)){
+                                   case(null) return #err("No accessory found for name : " #name);
+                                   case(?accessory){
+                                       buffer.add(i, AvatarModule.wrapAccessory(accessory.slot, accessory.content));
+                                   };
+                               };
+                            };
+                            case(#Component(name)){
+                                switch(components.get(name)) {
+                                   case(null) return #err("No component found for name : " #name);
+                                    case (?compo) {
+                                        buffer.add(i, AvatarModule.wrapComponent(compo.content, i, name));
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+           };
         };
 
         public func getLayer (id : LayerId) : ?LayerAvatar {
@@ -465,6 +500,37 @@ shared (install) actor class erc721_token() = this {
 
                         let preview : AvatarPreview = {
                             token_identifier = token;
+                            avatar_svg = avatar.getFullSvg();
+                            slots = avatar.getSlots();
+                        };
+                        return #ok(preview);
+                    };
+                };
+            };
+        };
+    };
+
+    type AvatarPreviewNew = {
+        token_identifier : TokenIdentifier;
+        layers : [(LayerId, Text)];
+        style : Text;
+        slots : Slots;
+    };
+
+    public shared query ({caller}) func getAvatarInfos_new() : async Result.Result<AvatarPreviewNew, Text> {
+        switch(_myTokenIdentifier(caller)){
+            case(null) return #err("You don't own any avatar.");
+            case(?token){
+                switch(avatars.get(token)){
+                    case(null) return #err ("There is no avatar associated for this tokenIdentifier (strange) " # token);
+                    case(?avatar) { 
+                        
+                        //Need to rebuild the avatar in case we haven't done so after previous upgrades... (Wasn't the best choice)
+                        // avatar.buildSvg();
+
+                        let preview : AvatarPreview = {
+                            token_identifier = token;
+                            layers = 
                             avatar_svg = avatar.getFullSvg();
                             slots = avatar.getSlots();
                         };
