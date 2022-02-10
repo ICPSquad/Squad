@@ -835,11 +835,22 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
     public query func listings() : async [(TokenIndex, Listing, Metadata)] {
+        //TODO switch to a buffer! 
         var results : [(TokenIndex, Listing, Metadata)] = [];
         for(a in _tokenListing.entries()) {
             results := Array.append<(TokenIndex, Listing,Metadata)>(results, [(a.0, a.1, #nonfungible({ metadata = null }))]);
         };
         results;
+    };
+
+    //  Used by Entrepot to query the number of tokens, not sure exactly why it's needed but it doesn't work otherwise.
+    //  Doesn't seem to really need the metada so just put null to save calculations.
+    public query func getTokens() : async [(TokenIndex, Metadata)] {
+        var results = Buffer.Buffer<(TokenIndex, Metadata)>(0);
+        for (token_index in _tokenListing.keys()){
+            results.add((token_index,#nonfungible({ metadata = null })));
+        };
+        return(results.toArray());
     };
 
     public query func settlements() : async [(TokenIndex, AccountIdentifier, Nat64)] {
