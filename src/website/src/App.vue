@@ -13,10 +13,6 @@ import Sidebar from "./components/Sidebar.vue";
 import TheFooter from "./components/Footer.vue";
 
 export default defineComponent({
-  setup() {
-    const inventory = ref(true);
-    return { inventory };
-  },
   components: {
     TheHeader,
     TheFooter,

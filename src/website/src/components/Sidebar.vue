@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col bg-black bg-opacity-95 gap-y-10 py-8 z-10 items-center" v-show="!inventory">
+  <div class="flex flex-col bg-black bg-opacity-95 gap-y-10 py-8 z-10 items-center">
     <router-link to="/center">
       <button class="text-xl text-white bg-pink rounded py-4 cursor-pointer w-44">Avatar 👤</button>
     </router-link>
@@ -19,7 +19,6 @@
       </div>
     </div>
   </div>
-  <inventory v-show="inventory"></inventory>
 </template>
 
 <script lang="ts">
@@ -33,9 +32,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped>
-.inventory:hover {
-  transform: scale(0.95);
-}
-</style>
