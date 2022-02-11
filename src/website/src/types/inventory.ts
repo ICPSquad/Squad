@@ -10,7 +10,7 @@ type inventoryObjectForComponent = {
   Stone: number;
 };
 
-type AccesoryInfos = {
+export type AccesoryInfos = {
   name: string;
   token_identifier: string;
   equipped: boolean;

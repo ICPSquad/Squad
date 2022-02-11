@@ -575,3 +575,7 @@ export const accessories: Accessory[] = [
   //   components: [{ name: "Punk-face-mask", layer: 80 }],
   // },
 ];
+
+export function nameToSlot(name: string): string | undefined {
+  return accessories.find((a) => a.name === name)?.slot;
+}
