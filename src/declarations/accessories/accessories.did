@@ -242,7 +242,6 @@ type Hub =
    getContractInfo: () -> (ContractInfo);
    getEntrepotFilterInfos: () -> (vec EntrepotFilterInfos) query;
    getHisInventory: (principal) -> (Inventory) query;
-   getHisInventory_old: (principal) -> (Inventory) query;
    getIdentifier: (TokenIndex) -> (TokenIdentifier__3) query;
    getIndex: (TokenIdentifier__3) -> (TokenIndex);
    getInventory: () -> (Inventory) query;
@@ -404,7 +403,7 @@ type BalanceRequest =
 type Balance = nat;
 type AssetInventoryType = 
  variant {
-   Accessory;
+   Accessory: bool;
    LegendaryAccessory;
    Material;
  };

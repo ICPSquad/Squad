@@ -18,7 +18,7 @@ export interface AssetInventory {
   'token_identifier' : string,
   'category' : AssetInventoryType,
 }
-export type AssetInventoryType = { 'Accessory' : null } |
+export type AssetInventoryType = { 'Accessory' : boolean } |
   { 'LegendaryAccessory' : null } |
   { 'Material' : null };
 export type Balance = bigint;
@@ -107,7 +107,6 @@ export interface Hub {
   'getContractInfo' : () => Promise<ContractInfo>,
   'getEntrepotFilterInfos' : () => Promise<Array<EntrepotFilterInfos>>,
   'getHisInventory' : (arg_0: Principal) => Promise<Inventory>,
-  'getHisInventory_old' : (arg_0: Principal) => Promise<Inventory>,
   'getIdentifier' : (arg_0: TokenIndex) => Promise<TokenIdentifier__3>,
   'getIndex' : (arg_0: TokenIdentifier__3) => Promise<TokenIndex>,
   'getInventory' : () => Promise<Inventory>,

@@ -113,7 +113,7 @@ export const idlFactory = ({ IDL }) => {
     'details' : IDL.Text,
   });
   const AssetInventoryType = IDL.Variant({
-    'Accessory' : IDL.Null,
+    'Accessory' : IDL.Bool,
     'LegendaryAccessory' : IDL.Null,
     'Material' : IDL.Null,
   });
@@ -313,7 +313,6 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getHisInventory' : IDL.Func([IDL.Principal], [Inventory], ['query']),
-    'getHisInventory_old' : IDL.Func([IDL.Principal], [Inventory], ['query']),
     'getIdentifier' : IDL.Func([TokenIndex], [TokenIdentifier__3], ['query']),
     'getIndex' : IDL.Func([TokenIdentifier__3], [TokenIndex], []),
     'getInventory' : IDL.Func([], [Inventory], ['query']),
