@@ -503,11 +503,13 @@ shared({ caller = hub }) actor class Hub() = this {
     private func _indexToAssetInventory(token_index : TokenIndex) : ?AssetInventory {
         switch(_items.get(token_index)){
             case(?#Material(name)) {?{category = #Material; name = name; token_identifier = _getTokenIdentifier(token_index)}};
-            case(?#Accessory(accessory)) {?{category = #Accessory ; name = accessory.name; token_identifier = _getTokenIdentifier(token_index)}};
-            case(?#LegendaryAccessory(legendary)) {?{category = #Accessory ; name = legendary.name; token_identifier = _getTokenIdentifier(token_index)}};
+            case(?#Accessory(accessory)) {?{category = #Accessory(_isEquipped(token_index)) ; name = accessory.name; token_identifier = _getTokenIdentifier(token_index)}};
+            case(?#LegendaryAccessory(legendary)) {?{category = #LegendaryAccessory ; name = legendary.name; token_identifier = _getTokenIdentifier(token_index)}};
             case(null) {null}; 
         };
     };
+
+
 
 
     public shared query ({caller}) func getHisInventory (p : Principal) : async Inventory {
@@ -521,17 +523,6 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    public shared query func getHisInventory_old (principal : Principal) : async Inventory {
-        let token_list : [Text] = nfts.tokensOf(principal);
-        if (token_list.size() == 0){
-            return [];
-        };
-        let asset_name : [Text] = Array.map<Text,Text>(token_list, _idToName);
-        switch(Inventory.buildInventory(token_list, asset_name)){
-            case (#err(message)) return [];
-            case (#ok(inventory)) return inventory;
-        };
-    };
 
     private func _idToName (id : Text) : Text {
         switch(circulation.get(id)) {

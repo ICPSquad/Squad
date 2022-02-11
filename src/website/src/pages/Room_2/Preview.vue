@@ -239,6 +239,7 @@ export default defineComponent({
     return {
       connected: computed(() => store.getters.isRoomConnected),
       loaded: computed(() => store.getters.isAvatarPreviewLoaded && store.state.auth.equippedAccessory),
+      inventory : computed(() => store.getters.getInventory),
       list_types_accessories,
       selectedType,
       changeSelectedType,

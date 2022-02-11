@@ -89,3 +89,12 @@ export function getTokenIdentifier(
   });
   return tokenIdentifier;
 }
+
+export function getTokensAccessory(inventory: Inventory): string[] {
+  var tokens: string[] = [];
+  inventory.forEach((element) => {
+    console.log(element);
+    tokens.push(element.token_identifier);
+  });
+  return tokens;
+}

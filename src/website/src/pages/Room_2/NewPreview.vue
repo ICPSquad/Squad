@@ -31,10 +31,15 @@ import RoomConnexion from "../../components/Connexion/RoomConnexion.vue";
 import LoadingAvatar from "./LoadingAvatar.vue";
 import Avatar from "./Avatar.vue";
 import SlotComponent from "./Slots.vue";
-
+import { getTokensAccessory } from "../../types/inventory";
 export default defineComponent({
   setup() {
     const store = useStore();
+
+    const accessories = computed(() => {
+      let inventory = store.state.auth.inventory;
+      getTokensAccessory(inventory);
+    });
 
     return {
       connected: computed(() => store.getters.isRoomConnected),
@@ -50,6 +55,7 @@ export default defineComponent({
       body_name: computed(() => store.state.auth.avatarPreview.body_name),
       style: computed(() => store.state.auth.avatarPreview.style),
       inventory: computed(() => store.state.auth.inventory),
+      accessories,
     };
   },
   components: {
