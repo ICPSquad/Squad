@@ -10,7 +10,6 @@
 import { defineComponent, ref } from "vue";
 import TheHeader from "./components/Header.vue";
 import Sidebar from "./components/Sidebar.vue";
-import Inventory from "./components/Inventory/Inventory.vue";
 import TheFooter from "./components/Footer.vue";
 
 export default defineComponent({
@@ -22,7 +21,6 @@ export default defineComponent({
     TheHeader,
     TheFooter,
     Sidebar,
-    Inventory,
   },
 });
 </script>

@@ -1,7 +1,4 @@
-import {
-  Inventory,
-  AssetInventoryType,
-} from "declarations/accessories/accessories.did";
+import { Inventory, AssetInventoryType } from "declarations/accessories/accessories.did";
 // Get number materials
 
 type inventoryObjectForComponent = {
@@ -13,12 +10,14 @@ type inventoryObjectForComponent = {
   Stone: number;
 };
 
-type AccesoryForComponent = [string, string]; // [tokenId, name]
-type arrayObjectForComponent = AccesoryForComponent[];
+type AccesoryInfos = {
+  name: string;
+  token_identifier: string;
+  equipped: boolean;
+};
+type AccessoryList = AccesoryInfos[];
 
-export function getObjectForMaterialComponent(
-  inventory: Inventory
-): inventoryObjectForComponent {
+export function getObjectForMaterialComponent(inventory: Inventory): inventoryObjectForComponent {
   var inventoryObject: inventoryObjectForComponent = {
     Cloth: 0,
     Wood: 0,
@@ -50,24 +49,20 @@ export function getObjectForMaterialComponent(
   return inventoryObject;
 }
 
-export function getArrayforAccessoryComponent(
-  inventory: Inventory
-): arrayObjectForComponent {
-  var arrayObject: arrayObjectForComponent = [];
+export function AccessoryListFromInventory(inventory: Inventory): AccessoryList {
+  var arrayObject: AccessoryList = [];
   inventory.forEach((element) => {
     let category: AssetInventoryType = element.category;
-    //@ts-ignore
     if ("Accessory" in category) {
-      arrayObject.push([element.token_identifier, element.name]);
+      //@ts-ignore
+      arrayObject.push({ name: element.name, token_identifier: element.token_identifier, equipped: element.category.Accessory });
     }
   });
+  console.log("arrayObject", arrayObject);
   return arrayObject;
 }
 
-export function isAccessoryInInventory(
-  string: string,
-  inventory: Inventory
-): boolean {
+export function isAccessoryInInventory(string: string, inventory: Inventory): boolean {
   var isAccessory: boolean = false;
   inventory.forEach((element) => {
     if (element.name === string) {
@@ -77,10 +72,7 @@ export function isAccessoryInInventory(
   return isAccessory;
 }
 
-export function getTokenIdentifier(
-  string: string,
-  inventory: Inventory
-): string {
+export function getTokenIdentifier(string: string, inventory: Inventory): string {
   var tokenIdentifier: string = "null";
   inventory.forEach((element) => {
     if (element.name === string) {

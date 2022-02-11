@@ -1,58 +1,16 @@
 <template>
   <div class="flex flex-col relative">
-    <nav
-      class="
-        flex flex-row
-        w-full
-        py-2
-        px-4
-        bg-black
-        md:py-6 md:px-12
-        justify-between
-        items-center
-      "
-    >
-      <h1
-        class="
-          text-left
-          font-marker
-          text-xl
-          md:text-xl
-          lg:text-3xl
-          2lg:text-5xl
-          font-bold
-          cursor-pointer
-          text-white
-        "
-      >
+    <nav class="flex flex-row w-full py-2 px-4 bg-black md:py-6 md:px-12 justify-between items-center">
+      <h1 class="text-left font-marker text-xl md:text-xl lg:text-3xl 2lg:text-5xl font-bold cursor-pointer text-white">
         <router-link to="/"> ICP Squad </router-link>
       </h1>
       <div class="flex-row gap-x-3 xl:gap-x-6 hidden lg:flex">
-        <router-link to="/center"
-          ><button-cypher
-            class="h-12 xl:w-56 xl:h-16 text-lg px-4"
-            text="Avatar 👤"
-          ></button-cypher
-        ></router-link>
-        <router-link to="/accessory">
-          <button-cypher
-            class="h-12 xl:w-56 xl:h-16 text-lg px-4"
-            text="Accessory 🧢"
-          ></button-cypher
-        ></router-link>
-        <router-link to="/lottery">
-          <button-cypher
-            class="h-12 xl:w-56 xl:h-16 text-lg px-4"
-            text="Lottery 🎁"
-          ></button-cypher
-        ></router-link>
+        <router-link to="/center"><button-cypher class="h-12 xl:w-56 xl:h-16 text-lg px-4" text="Avatar 👤"></button-cypher></router-link>
+        <router-link to="/accessory"> <button-cypher class="h-12 xl:w-56 xl:h-16 text-lg px-4" text="Accessory 🧢"></button-cypher></router-link>
+        <router-link to="/lottery"> <button-cypher class="h-12 xl:w-56 xl:h-16 text-lg px-4" text="Lottery 🎁"></button-cypher></router-link>
         <router-link to="/education">
-          <button-cypher
-            class="block h-12 xl:w-56 xl:h-16 text-lg px-4"
-            text="Education 💡"
-          ></button-cypher>
+          <button-cypher class="block h-12 xl:w-56 xl:h-16 text-lg px-4" text="Education 💡"></button-cypher>
         </router-link>
-        <rounded-button @click="toggleInventory"></rounded-button>
       </div>
 
       <!-- Hamburger menu goes here -->
@@ -64,7 +22,6 @@
       <!-- Mobile menu goes here  -->
     </nav>
     <sidebar v-if="menuMobile" />
-    <inventory :class="[menuInventory ? 'opacity-100' : 'hidden']"></inventory>
   </div>
 </template>
 
@@ -72,14 +29,12 @@
 import Sidebar from "./Sidebar.vue";
 import ButtonCypher from "./Button/ButtonCypher.vue";
 import RoundedButton from "./Button/RoundedButton.vue";
-import Inventory from "./Inventory/Inventory.vue";
 import { ref } from "vue";
 export default {
   components: {
     Sidebar,
     ButtonCypher,
     RoundedButton,
-    Inventory,
   },
   setup() {
     const menuMobile = ref(false);
@@ -88,18 +43,11 @@ export default {
       menuMobile.value = !menuMobile.value;
     };
 
-    const menuInventory = ref(false);
-    const toggleInventory = () => {
-      menuInventory.value = !menuInventory.value;
-    };
-
     // Take care of when user click on something or click away
     return {
       menuMobile,
       menuLearn,
       toggleMenu,
-      toggleInventory,
-      menuInventory,
     };
   },
 };
