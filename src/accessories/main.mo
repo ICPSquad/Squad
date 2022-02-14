@@ -1132,7 +1132,7 @@ shared({ caller = hub }) actor class Hub() = this {
                     case(#err(message)) return #err(message);
                     case(#ok){
                         //Decrease the wear value by one! 
-                        let new_item = #Accessory({name = item.name; wear = (item.wear - 1); equipped = ?token_identifier_avatar;});
+                        let new_item = #Accessory({name = item.name; wear = (item.wear - 1); equipped =  null});
                         _items.put(token_index, new_item);
                         _drawAccessory(token_index);
                         return #ok;
