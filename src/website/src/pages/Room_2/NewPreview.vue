@@ -114,7 +114,7 @@ export default defineComponent({
       return { show: true, text: "Wear 🕶" };
     });
 
-    const buttonAction = () => {
+    const buttonAction = async () => {
       if (!selectedAccessory.value) {
         return;
       }
@@ -124,19 +124,31 @@ export default defineComponent({
             "Are you sure you want to remove this accessory ? It will consume 1 wear point and you will loose all the stats associated with it. You will be able to wear it again if you have enough wear points."
           )
         ) {
-          remove();
+          let actor = store.getters.getAuthenticatedActor_material;
+          let token_identifier_avatar = store.state.auth.avatarPreview.token_identifier;
+          let token_identifier_accessory = selectedAccessory.value.token_identifier;
+          const result = await actor.removeAccessory(token_identifier_accessory, token_identifier_avatar);
+          if (result.hasOwnProperty("err")) {
+            alert(JSON.stringify(result.err));
+          } else {
+            alert("Accessory has been successfully equipped, congratulations ! Take a look at your avatar.");
+          }
         }
       } else {
         if (confirm("Are you sure you want to equip this accessory? It will consume 1 wear point. You will be able to remove it later.")) {
           waiting.value = true;
-          equip();
+          let actor = store.getters.getAuthenticatedActor_material;
+          let token_identifier_avatar = store.state.auth.avatarPreview.token_identifier;
+          let token_identifier_accessory = selectedAccessory.value.token_identifier;
+          const result = await actor.wearAccessory(token_identifier_accessory, token_identifier_avatar);
+          if (result.hasOwnProperty("err")) {
+            alert(JSON.stringify(result.err));
+          } else {
+            alert("Accessory has been successfully equipped, congratulations ! Take a look at your avatar.");
+          }
         }
       }
     };
-
-    async function remove() {}
-
-    async function equip() {}
 
     return {
       connected: computed(() => store.getters.isRoomConnected),

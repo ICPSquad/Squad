@@ -459,6 +459,95 @@ shared (install) actor class erc721_token() = this {
     };
 
 
+    public shared (msg) func removeAccessory (token_avatar : TokenIdentifier, name : Text, principal_caller : Principal) : async Result.Result<(), Text> {
+        assert(msg.caller == Principal.fromText ("po6n2-uiaaa-aaaaj-qaiua-cai")); //Only this canister can use this method!
+        //  Check the avatar is owned by the principal_caller.
+        switch(avatars.get(token_avatar)){
+            case (null) return #err("No avatar found for this token identifier : " # token_avatar);
+            case (?avatar) {
+                if(not (_isOwner(principal_caller, token_avatar))){
+                    let principal_caller_textual : Text = Principal.toText(principal_caller);
+                    var message : Text = "This avatar : " # token_avatar # " .";
+                    message #=  "Does not belong to this principal : " # principal_caller_textual # " .";
+                    return #err(message);
+                };
+                // Check the accessory exists
+                switch(accessories.get(name)){
+                    case(null) return #err("No accessory found for name : " #name);
+                    case(?accessory){
+                        // Check the accessory is equipped
+                        let slot = accessory.slot;
+                        let slots_avatar = avatar.getSlots();
+                        if(not(_verifySlot(slots_avatar, slot, name))){
+                            return #err("This accessory is not equipped on this avatar... (strange)");
+                        };
+                        //  Remove from slots & layers 
+                        switch(avatar.removeFromSlot(slot)){
+                            case(#err(msg)) return #err(msg);
+                            case(#ok){
+                                avatar.removeLayer(Nat8.toNat(accessory.layer));
+                                //  Redraw the avatar 
+                                switch(_draw(token_avatar)){
+                                    case(#err(msg)) return #err(msg);
+                                    case(#ok){
+                                        return #ok;
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+
+    // Verify that the accessory is already equipped in the slot. Returns a boolean.
+    private func _verifySlot(slots : Slots, slot_to_check : Text, name_accessory : Text) : Bool {
+        switch(slot_to_check){
+            case("Hat"){
+                switch(slots.Hat){
+                    case(null) return false;
+                    case(?something) {
+                        return (Text.equal(something, name_accessory));
+                    };
+                };
+            };
+            case("Eyes"){
+                switch(slots.Eyes){
+                    case(null) return false;
+                    case(?something) {
+                        return (Text.equal(something, name_accessory));
+                    };
+                };
+            };
+            case("Face"){
+                switch(slots.Face){
+                    case(null) return false;
+                    case(?something) {
+                        return (Text.equal(something, name_accessory));
+                    };
+                };
+            };
+            case("Body"){
+                switch(slots.Body){
+                    case(null) return false;
+                    case(?something) {
+                        return (Text.equal(something, name_accessory));
+                    };
+                };
+            };
+            case("Misc"){
+                switch(slots.Misc){
+                    case(null) return false;
+                    case(?something) {
+                        return (Text.equal(something, name_accessory));
+                    };
+                };
+            };
+        };
+    };
+
+
     //////////////////
     // Avatar query //
     /////////////////

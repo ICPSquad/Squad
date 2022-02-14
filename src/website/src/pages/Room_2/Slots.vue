@@ -58,7 +58,7 @@ export default defineComponent({
 
     const Hat = computed(() => {
       if (store.state.auth.equippedAccessories.Hat[0]) {
-        return `#${store.state.avatar.equippedAccessories.Hat[0]}`;
+        return `#${store.state.auth.equippedAccessories.Hat[0]}`;
       } else {
         return store.getters.getHatId;
       }
