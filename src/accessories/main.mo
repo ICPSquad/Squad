@@ -1013,6 +1013,17 @@ shared({ caller = hub }) actor class Hub() = this {
     private stable var _itemsEntries : [(TokenIndex, Item)] = [];
     private var _items : HashMap.HashMap<TokenIndex, Item> = HashMap.fromIter(_itemsEntries.vals(), _itemsEntries.size(), ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
 
+    public shared ({caller}) func fix(token_identifier : TokenIdentifier) : async () {
+        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+        switch(_items.get(token_index)){
+            case(?#Accessory(item)){
+                let new_item = #Accessory({name = item.name; wear = item.wear; equipped =  null});
+                _items.put(token_index,new_item);
+            };
+            case(_){};
+        };
+    };
+
     //   Accessories stored as Blob after being drawn.
     private stable var _blobsEntries : [(TokenIndex,Blob) ]= [];
     private var _blobs : HashMap.HashMap<TokenIndex,Blob> = HashMap.fromIter(_blobsEntries.vals(), _blobsEntries.size(), ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);

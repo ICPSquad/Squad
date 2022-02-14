@@ -1345,6 +1345,7 @@ shared (install) actor class erc721_token() = this {
         };
     };
 
+    //  Method used by Entrepot to query the tokens of an account.
     public query func tokens(aid : AccountIdentifier) : async Result.Result<[TokenIndex], CommonError> {
         var buffer = Buffer.Buffer<(TokenIndex)>(0);
         for((token_index, account) in _registry.entries()){
@@ -1357,7 +1358,18 @@ shared (install) actor class erc721_token() = this {
         } else {
             return #ok(buffer.toArray());
         };
-  };
+    };
+
+    // Method used by Plug wallet to query tokens for the EXT standard.
+    public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
+        let tokens = _generateTokensExt(account);
+        if (tokens.size() == 0) {
+            return #err(#Other ("No token detected for this user."));
+        } else {
+            let answer = #ok(tokens);
+            return answer;
+        }
+    };
 
     
     private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?Listing, ?Blob)] {
