@@ -901,34 +901,6 @@ shared({ caller = hub }) actor class Hub() = this {
         (res.0, res.1, res.2, floor, _tokenListing.size(), _registry.size(), _transactions.size());
     };
 
-    //  Used to add a filter on Entrepot
-
-    public type EntrepotFilterInfos = {
-        nature : Text; // "Material" or "Accessory"
-        details : Text; //  This property is used to add informations to the object, in case of a material it will be the type of materil (Wood/Glass...) in case of an accessory it will be the Slot (Hat/Face/Eyes...)
-    };
-
-    public query func getEntrepotFilterInfos() : async [EntrepotFilterInfos] {
-        var buffer = Buffer.Buffer<EntrepotFilterInfos>(0);
-        for (i in Iter.range(0, Nat32.toNat(_nextTokenId))){
-            switch(_items.get(Nat32.fromNat(i))){
-                case(?#Material(name)) {
-                    let infos = {nature = "material"; details = EntrepotFilter.nameToDetailsMaterial(name);};
-                    buffer.add(infos);
-                };
-                case(?#Accessory(item)){
-                    let infos = {nature = "accessory"; details = EntrepotFilter.nameToDetailsAccessory(item.name)};
-                    buffer.add(infos);
-                };
-                case(_) {
-                    let infos = {nature = ""; details = "";};
-                    buffer.add(infos);
-                };
-            };
-        };
-        return(buffer.toArray());
-    };
-
 
     ////////////
     // CYCLES//

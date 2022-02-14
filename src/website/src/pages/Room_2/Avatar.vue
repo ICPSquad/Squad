@@ -21,6 +21,10 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    accessory: {
+      type: Object,
+      required: false,
+    },
   },
   setup(props, _) {
     const div = document.createElement("div");
