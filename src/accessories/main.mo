@@ -923,6 +923,7 @@ shared({ caller = hub }) actor class Hub() = this {
 
     let nftActor = actor("jmuqr-yqaaa-aaaaj-qaicq-cai") : actor {
         wearAccessory : shared (Text, Text, Principal) -> async Result.Result<(),Text>;
+        removeAccessory : shared (Text, Text, Principal) -> async Result.Result<(), Text>;
     };
 
     public type Item = Accessory.Item;
@@ -1102,7 +1103,7 @@ shared({ caller = hub }) actor class Hub() = this {
                         //Decrease the wear value by one! 
                         let new_item = #Accessory({name = item.name; wear = (item.wear - 1); equipped = ?token_identifier_avatar;});
                         _items.put(token_index, new_item);
-                        //TODO : draw the accessory again
+                        _drawAccessory(token_index);
                         return #ok;
                     };
                 };
@@ -1127,13 +1128,13 @@ shared({ caller = hub }) actor class Hub() = this {
                 if(wear_value == 1){
                     return #err("Cannot desequip this accessory; wear value is too low.")
                 };
-                //TODO -> nftActor.removeAccessory 
-                switch(await nftActor.wearAccessory(token_identifier_avatar, item.name, caller)){
+                switch(await nftActor.removeAccessory(token_identifier_avatar, item.name, caller)){
                     case(#err(message)) return #err(message);
                     case(#ok){
                         //Decrease the wear value by one! 
                         let new_item = #Accessory({name = item.name; wear = (item.wear - 1); equipped = ?token_identifier_avatar;});
                         _items.put(token_index, new_item);
+                        _drawAccessory(token_index);
                         return #ok;
                     };
                 };

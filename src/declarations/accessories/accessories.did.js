@@ -352,6 +352,7 @@ export const idlFactory = ({ IDL }) => {
     'nftSize' : IDL.Func([], [IDL.Nat], ['query']),
     'payments' : IDL.Func([], [IDL.Opt(IDL.Vec(SubAccount__1))], ['query']),
     'process' : IDL.Func([], [], []),
+    'removeAccessory' : IDL.Func([IDL.Text, IDL.Text], [Result], []),
     'settle' : IDL.Func([IDL.Text], [Result_3], []),
     'settlements' : IDL.Func(
         [],

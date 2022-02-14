@@ -138,6 +138,7 @@ export interface Hub {
   'nftSize' : () => Promise<bigint>,
   'payments' : () => Promise<[] | [Array<SubAccount__1>]>,
   'process' : () => Promise<undefined>,
+  'removeAccessory' : (arg_0: string, arg_1: string) => Promise<Result>,
   'settle' : (arg_0: string) => Promise<Result_3>,
   'settlements' : () => Promise<
       Array<[TokenIndex, AccountIdentifier__2, bigint]>

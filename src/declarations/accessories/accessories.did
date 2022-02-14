@@ -282,6 +282,7 @@ type Hub =
    nftSize: () -> (nat) query;
    payments: () -> (opt vec SubAccount__1) query;
    process: () -> ();
+   removeAccessory: (text, text) -> (Result);
    settle: (text) -> (Result_3);
    settlements: () ->
     (vec record {

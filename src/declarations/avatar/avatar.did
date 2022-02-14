@@ -61,6 +61,7 @@ type erc721_token =
    mintLegendary: (text, AccountIdentifier) -> (Result_3);
    modify_style: (text) -> (text);
    payments: () -> (opt vec SubAccount__1) query;
+   removeAccessory: (TokenIdentifier, text, principal) -> (Result);
    removeMouth: (TokenIdentifier) -> (Result);
    reset: () -> (nat);
    reset_data: () -> (vec record {

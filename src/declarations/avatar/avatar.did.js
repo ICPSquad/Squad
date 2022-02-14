@@ -314,6 +314,11 @@ export const idlFactory = ({ IDL }) => {
     'mintLegendary' : IDL.Func([IDL.Text, AccountIdentifier], [Result_3], []),
     'modify_style' : IDL.Func([IDL.Text], [IDL.Text], []),
     'payments' : IDL.Func([], [IDL.Opt(IDL.Vec(SubAccount__1))], ['query']),
+    'removeAccessory' : IDL.Func(
+        [TokenIdentifier, IDL.Text, IDL.Principal],
+        [Result],
+        [],
+      ),
     'removeMouth' : IDL.Func([TokenIdentifier], [Result], []),
     'reset' : IDL.Func([], [IDL.Nat], []),
     'reset_data' : IDL.Func(

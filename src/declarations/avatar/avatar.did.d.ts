@@ -264,6 +264,11 @@ export interface erc721_token {
     >,
   'modify_style' : (arg_0: string) => Promise<string>,
   'payments' : () => Promise<[] | [Array<SubAccount__1>]>,
+  'removeAccessory' : (
+      arg_0: TokenIdentifier,
+      arg_1: string,
+      arg_2: Principal,
+    ) => Promise<Result>,
   'removeMouth' : (arg_0: TokenIdentifier) => Promise<Result>,
   'reset' : () => Promise<bigint>,
   'reset_data' : () => Promise<Array<[TokenIdentifier, string]>>,
