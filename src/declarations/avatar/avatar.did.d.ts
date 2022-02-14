@@ -130,24 +130,28 @@ export interface NumericEntity {
 }
 export type Result = { 'ok' : null } |
   { 'err' : string };
-export type Result_1 = { 'ok' : Array<TokenIndex> } |
+export type Result_1 = {
+    'ok' : Array<[TokenIndex, [] | [Listing], [] | [Array<number>]]>
+  } |
   { 'err' : CommonError };
-export type Result_2 = { 'ok' : null } |
+export type Result_10 = { 'ok' : [AccountIdentifier, [] | [Listing]] } |
   { 'err' : CommonError };
-export type Result_3 = { 'ok' : string } |
+export type Result_2 = { 'ok' : Array<TokenIndex> } |
+  { 'err' : CommonError };
+export type Result_3 = { 'ok' : null } |
+  { 'err' : CommonError };
+export type Result_4 = { 'ok' : string } |
   { 'err' : string };
-export type Result_4 = { 'ok' : AvatarInformations } |
+export type Result_5 = { 'ok' : AvatarInformations } |
   { 'err' : string };
-export type Result_5 = { 'ok' : Metadata } |
+export type Result_6 = { 'ok' : Metadata } |
   { 'err' : CommonError__1 };
-export type Result_6 = { 'ok' : AccountIdentifier } |
+export type Result_7 = { 'ok' : AccountIdentifier } |
   { 'err' : CommonError };
-export type Result_7 = { 'ok' : AvatarPreviewNew } |
+export type Result_8 = { 'ok' : AvatarPreviewNew } |
   { 'err' : string };
-export type Result_8 = { 'ok' : AvatarPreview } |
+export type Result_9 = { 'ok' : AvatarPreview } |
   { 'err' : string };
-export type Result_9 = { 'ok' : [AccountIdentifier, [] | [Listing]] } |
-  { 'err' : CommonError };
 export interface Settlement {
   'subaccount' : SubAccount__2,
   'seller' : Principal,
@@ -220,26 +224,26 @@ export type User = { 'principal' : Principal } |
 export interface erc721_token {
   'acceptCycles' : () => Promise<undefined>,
   'addAdmin' : (arg_0: Principal) => Promise<Result>,
-  'addLegendary' : (arg_0: string, arg_1: string) => Promise<Result_3>,
-  'addListAccessory' : (arg_0: Array<Accessory>) => Promise<Result_3>,
-  'addListComponent' : (arg_0: Array<[string, Component]>) => Promise<Result_3>,
+  'addLegendary' : (arg_0: string, arg_1: string) => Promise<Result_4>,
+  'addListAccessory' : (arg_0: Array<Accessory>) => Promise<Result_4>,
+  'addListComponent' : (arg_0: Array<[string, Component]>) => Promise<Result_4>,
   'allPayments' : () => Promise<Array<[Principal, Array<SubAccount__1>]>>,
   'allSettlements' : () => Promise<Array<[TokenIndex, Settlement]>>,
   'availableCycles' : () => Promise<bigint>,
   'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
-  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_6>,
+  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_7>,
   'clearPayments' : (arg_0: Principal, arg_1: Array<SubAccount__1>) => Promise<
       undefined
     >,
   'collectCanisterMetrics' : () => Promise<undefined>,
-  'details' : (arg_0: TokenIdentifier) => Promise<Result_9>,
+  'details' : (arg_0: TokenIdentifier) => Promise<Result_10>,
   'draw' : (arg_0: TokenIdentifier) => Promise<Result>,
   'eventsSize' : () => Promise<bigint>,
   'extensions' : () => Promise<Array<Extension>>,
   'getAllAccessories' : () => Promise<Array<[string, Accessory]>>,
   'getAllComponents' : () => Promise<Array<[string, Component]>>,
-  'getAvatarInfos' : () => Promise<Result_8>,
-  'getAvatarInfos_new' : () => Promise<Result_7>,
+  'getAvatarInfos' : () => Promise<Result_9>,
+  'getAvatarInfos_new' : () => Promise<Result_8>,
   'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
       [] | [CanisterMetrics]
     >,
@@ -249,18 +253,18 @@ export interface erc721_token {
   'howManyEquipped' : () => Promise<bigint>,
   'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
   'init_cap' : () => Promise<Result>,
-  'list' : (arg_0: ListRequest) => Promise<Result_2>,
+  'list' : (arg_0: ListRequest) => Promise<Result_3>,
   'listings' : () => Promise<Array<[TokenIndex, Listing, Metadata__1]>>,
   'lock' : (
       arg_0: TokenIdentifier,
       arg_1: bigint,
       arg_2: AccountIdentifier,
       arg_3: SubAccount__1,
-    ) => Promise<Result_6>,
-  'metadata' : (arg_0: TokenIdentifier) => Promise<Result_5>,
-  'mint' : (arg_0: MintRequest) => Promise<Result_4>,
+    ) => Promise<Result_7>,
+  'metadata' : (arg_0: TokenIdentifier) => Promise<Result_6>,
+  'mint' : (arg_0: MintRequest) => Promise<Result_5>,
   'mintLegendary' : (arg_0: string, arg_1: AccountIdentifier) => Promise<
-      Result_3
+      Result_4
     >,
   'modify_style' : (arg_0: string) => Promise<string>,
   'payments' : () => Promise<[] | [Array<SubAccount__1>]>,
@@ -273,7 +277,7 @@ export interface erc721_token {
   'reset' : () => Promise<bigint>,
   'reset_data' : () => Promise<Array<[TokenIdentifier, string]>>,
   'saveAccessories' : () => Promise<[bigint, bigint]>,
-  'settle' : (arg_0: TokenIdentifier) => Promise<Result_2>,
+  'settle' : (arg_0: TokenIdentifier) => Promise<Result_3>,
   'settlements' : () => Promise<Array<[TokenIndex, AccountIdentifier, bigint]>>,
   'showFullSvg' : (arg_0: TokenIdentifier) => Promise<[] | [string]>,
   'showSvg' : (arg_0: TokenIdentifier) => Promise<[] | [string]>,
@@ -282,7 +286,8 @@ export interface erc721_token {
     >,
   'supply' : () => Promise<bigint>,
   'tokenIdentifier' : (arg_0: TokenIndex) => Promise<TokenIdentifier>,
-  'tokens' : (arg_0: AccountIdentifier) => Promise<Result_1>,
+  'tokens' : (arg_0: AccountIdentifier) => Promise<Result_2>,
+  'tokens_ext' : (arg_0: AccountIdentifier) => Promise<Result_1>,
   'transactions' : () => Promise<Array<Transaction>>,
   'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
   'transform_data' : () => Promise<bigint>,

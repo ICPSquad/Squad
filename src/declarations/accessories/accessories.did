@@ -238,6 +238,7 @@ type Hub =
     (Result_6);
    eventsSize: () -> (nat) query;
    extensions: () -> (vec Extension) query;
+   fix: (TokenIdentifier__3) -> ();
    getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
    getContractInfo: () -> (ContractInfo);
    getHisInventory: (principal) -> (Inventory) query;

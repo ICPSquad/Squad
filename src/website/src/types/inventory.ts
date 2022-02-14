@@ -1,4 +1,4 @@
-import { Inventory, AssetInventoryType } from "declarations/accessories/accessories.did";
+import { Inventory, AssetInventoryType, StreamingCallback } from "declarations/accessories/accessories.did";
 // Get number materials
 
 type inventoryObjectForComponent = {
@@ -89,4 +89,18 @@ export function getTokensAccessory(inventory: Inventory): string[] {
     tokens.push(element.token_identifier);
   });
   return tokens;
+}
+
+// Used to update the Accessory List that is loaded once we have equipped/desequipped an accessory and change the equipped field of the correponding accessory
+export function changeInventory(token_identifier: string, inventory: Inventory): Inventory {
+  var newInventory: Inventory = [];
+  inventory.forEach((element) => {
+    if (element.token_identifier === token_identifier) {
+      //@ts-ignore
+      newInventory.push({ name: element.name, token_identifier: element.token_identifier, category: { Accessory: !element.category.Accessory } });
+    } else {
+      newInventory.push(element);
+    }
+  });
+  return newInventory;
 }

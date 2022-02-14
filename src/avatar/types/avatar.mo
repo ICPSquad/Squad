@@ -8,7 +8,9 @@ import Result "mo:base/Result";
 import Char "mo:base/Char";
 import Iter "mo:base/Iter";
 import Text "mo:base/Text";
+import Option "mo:base/Option";
 import Color "./color";
+
 
 module  {
   
@@ -97,6 +99,10 @@ module  {
                 return false;
             };
         };
+    };
+
+    public func isEmpty (slots : Slots) : Bool {
+        return(Option.isNull(slots.Hat) and Option.isNull(slots.Eyes) and Option.isNull(slots.Face) and Option.isNull(slots.Body) and Option.isNull(slots.Misc));
     };
 
     public func putAccessoryInSlot (slot_name : Text, slots_object : Slots, accessory_name : Text) : Result.Result<Slots, Text> {

@@ -667,19 +667,22 @@ let this = actor {
         count;
     };
 
+    public func resetCount() : async () {
+        count := 0;
+    };
+
     system func heartbeat () : async () {
         count += 1;
         //  Every 5min
         if(count % 300 == 0){
             await collectCanisterMetrics();
         };
-        //  Every day
+        //  Every day 
         if(count % 86_400 == 0){
             await (verification());
-            await (process());
         };
-        //  Every week
-        if(count % 604_800 == 0) {
+        //  Every week (and ten seconds!)
+        if(count % 604_810 == 0) {
             await (audit());
             await (recipe());
             count := 0
@@ -711,15 +714,20 @@ let this = actor {
         return ();
     };
 
+    public shared query ({caller}) func show_robbers() : async [SubAccount] {
+        assert(caller == Principal.fromActor(this));
+        subaccounts_robber;
+    };
+
     //Process to the paiement of the concerned subbaccounts
 
-    public shared ({caller}) func process () : async () {
-        assert(caller == Principal.fromActor(this));
-        for (subaccount in subaccounts_robber.vals()){
-            await (_sendBackFrom(subaccount));
-        };
-        subaccounts_robber := [];
-    };
+    // public shared ({caller}) func process () : async () {
+    //     assert(caller == Principal.fromActor(this));
+    //     for (subaccount in subaccounts_robber.vals()){
+    //         await (_sendBackFrom(subaccount));
+    //     };
+    //     subaccounts_robber := [];
+    // };
 
 
     /////////////
@@ -738,7 +746,6 @@ let this = actor {
     //Run an internal audits and updates values
     //@auth : canister
     public shared ({caller}) func audit () : async () {
-        assert(caller == Principal.fromActor(this));
         //Get updated values
         let new_value_users = users.size();
         let new_value_icps = await balance();
@@ -803,6 +810,14 @@ let this = actor {
 
     public query func wallet_available() : async Nat {
         return Cycles.balance();
+    };
+
+    /////////////
+    // PATCH ///
+    ////////////
+
+    public shared ({caller}) func patch() : async () {
+        
     };
 
 };

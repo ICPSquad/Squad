@@ -227,6 +227,10 @@ shared (install) actor class erc721_token() = this {
           return;  
         };
 
+        public func isLayer (id : LayerId) : Bool {
+            return(Option.isSome(layers.get(id)));
+        };
+
         public func changeSlots(slots : Slots) : () {
             slots_in_memory := slots;
         };
@@ -1771,6 +1775,20 @@ shared (install) actor class erc721_token() = this {
             };
         };
     };
+
+
+    // public shared ({caller}) func patch() : async () {
+    //     for ((token,avatar) in avatars.entries()){
+    //         let slots = avatar.getSlots();
+    //         let layers = avatar.getLayers();
+    //         if(AvatarModule.isEmpty(slots) and (avatar.isLayer(80) or avatar.isLayer(85))){
+    //             avatar.removeLayer(80);
+    //             avatar.removeLayer(85);
+    //             let result = _draw(token);
+    //         };
+    //     };
+    // };
+
 
     
 };

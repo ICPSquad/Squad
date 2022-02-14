@@ -29,7 +29,6 @@
             </li>
           </div>
         </div>
-
         <h2 class="text-center px-8 text-2xl font-bold text-gray-800 mt-8">
           {{ message }}
         </h2>
@@ -53,8 +52,8 @@ import RoomConnexion from "../../components/Connexion/RoomConnexion.vue";
 import LoadingAvatar from "./LoadingAvatar.vue";
 import Avatar from "./Avatar.vue";
 import SlotComponent from "./Slots.vue";
-import { nameToSlot } from "../../utils/list";
-import { AccessoryListFromInventory, AccesoryInfos } from "../../types/inventory";
+import { nameToSlot, nameToAccessory } from "../../utils/list";
+import { AccessoryListFromInventory, AccesoryInfos, changeInventory } from "../../types/inventory";
 export default defineComponent({
   inheritAttrs: false,
   setup() {
@@ -78,17 +77,6 @@ export default defineComponent({
         return "This accessory can be equipped in the slot : " + slot;
       }
     });
-
-    function canBeEquipped(accessory: AccesoryInfos) {
-      let slot = nameToSlot(accessory.name);
-      if (!slot) {
-        return false;
-      }
-      if (store.state.auth.equippedAccessories[slot].length > 0) {
-        return false;
-      }
-      return true;
-    }
 
     function clickAccessory(accessory: AccesoryInfos) {
       selectedAccessory.value = accessory;
@@ -124,14 +112,24 @@ export default defineComponent({
             "Are you sure you want to remove this accessory ? It will consume 1 wear point and you will loose all the stats associated with it. You will be able to wear it again if you have enough wear points."
           )
         ) {
+          waiting.value = true;
           let actor = store.getters.getAuthenticatedActor_material;
           let token_identifier_avatar = store.state.auth.avatarPreview.token_identifier;
           let token_identifier_accessory = selectedAccessory.value.token_identifier;
           const result = await actor.removeAccessory(token_identifier_accessory, token_identifier_avatar);
+          waiting.value = false;
+
           if (result.hasOwnProperty("err")) {
             alert(JSON.stringify(result.err));
           } else {
-            alert("Accessory has been successfully equipped, congratulations ! Take a look at your avatar.");
+            selectedAccessory.value = {
+              ...selectedAccessory.value,
+              equipped: false,
+            };
+            store.commit("clearSlot", nameToSlot(selectedAccessory.value.name));
+            let new_inventory = changeInventory(token_identifier_accessory, store.state.auth.inventory);
+            store.commit("setInventory", new_inventory);
+            alert("Accessory has been successfully removed, congratulation ! Take a look at your avatar.");
           }
         }
       } else {
@@ -141,10 +139,18 @@ export default defineComponent({
           let token_identifier_avatar = store.state.auth.avatarPreview.token_identifier;
           let token_identifier_accessory = selectedAccessory.value.token_identifier;
           const result = await actor.wearAccessory(token_identifier_accessory, token_identifier_avatar);
+          waiting.value = false;
           if (result.hasOwnProperty("err")) {
             alert(JSON.stringify(result.err));
           } else {
-            alert("Accessory has been successfully equipped, congratulations ! Take a look at your avatar.");
+            selectedAccessory.value = {
+              ...selectedAccessory.value,
+              equipped: true,
+            };
+            store.commit("setAccessory", nameToAccessory(selectedAccessory.value.name));
+            let new_inventory = changeInventory(token_identifier_accessory, store.state.auth.inventory);
+            store.commit("setInventory", new_inventory);
+            alert("Accessory has been successfully equipped, congratulation ! Take a look at your avatar.");
           }
         }
       }

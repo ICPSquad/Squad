@@ -583,3 +583,7 @@ export function nameToSlot(name: string): string | undefined {
 export function nameToLayerId(name: string): number | undefined {
   return accessories.find((a) => a.name === name)?.components[0].layer;
 }
+
+export function nameToAccessory(name: string): Accessory | undefined {
+  return accessories.find((a) => a.name === name);
+}
