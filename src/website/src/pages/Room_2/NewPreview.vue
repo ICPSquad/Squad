@@ -11,8 +11,8 @@
     <!-- Room -->
     <div class="flex lg:flex-row flex-col min-h-screen justify-around" v-else>
       <div class="flex flex-col lg:w-1/2 lg:border-r-4 border-b-4 lg:border-b-0 border-gray-500">
-        <avatar :body_name="body_name" :layers="layers" :style="style" :accessory="equippedAccessories"></avatar>
-        <slot-component :slots="slots"></slot-component>
+        <avatar :body_name="body_name" :layers="layers" :style="style" :accessory="selectedAccessory"></avatar>
+        <slot-component></slot-component>
       </div>
       <div class="flex flex-col lg:w-1/2 items-center">
         <div>
@@ -34,7 +34,7 @@
           {{ message }}
         </h2>
         <button
-          class="md:text-2xl shadow-xl text-gray-800 font-bold bg-pink-600 rounded px-8 py-4 lg:px-14 lg:py-6 lg:w-1/3 mt-8"
+          class="text-2xl shadow-xl text-black font-bold bg-pink-600 rounded px-8 py-4 w-44 mt-8"
           :class="[waiting ? 'animate-pulse cursor-wait' : '']"
           @click="buttonAction"
           v-if="buttonState.show"
@@ -92,14 +92,14 @@ export default defineComponent({
 
     function clickAccessory(accessory: AccesoryInfos) {
       selectedAccessory.value = accessory;
-      if(canBeEquipped(accessory)) {
-        let layer =
-      }
     }
 
     const buttonState = computed(() => {
       if (!selectedAccessory.value) {
         return { show: false, text: "" };
+      }
+      if (waiting.value) {
+        return { show: true, text: "Wait..." };
       }
       if (selectedAccessory.value.equipped) {
         return { show: true, text: "Remove" };
@@ -111,8 +111,32 @@ export default defineComponent({
       if (store.state.auth.equippedAccessories[slot].length > 0) {
         return { show: false, text: "" };
       }
-      return { show: true, text: "Equip" };
+      return { show: true, text: "Wear 🕶" };
     });
+
+    const buttonAction = () => {
+      if (!selectedAccessory.value) {
+        return;
+      }
+      if (selectedAccessory.value.equipped) {
+        if (
+          confirm(
+            "Are you sure you want to remove this accessory ? It will consume 1 wear point and you will loose all the stats associated with it. You will be able to wear it again if you have enough wear points."
+          )
+        ) {
+          remove();
+        }
+      } else {
+        if (confirm("Are you sure you want to equip this accessory? It will consume 1 wear point. You will be able to remove it later.")) {
+          waiting.value = true;
+          equip();
+        }
+      }
+    };
+
+    async function remove() {}
+
+    async function equip() {}
 
     return {
       connected: computed(() => store.getters.isRoomConnected),
@@ -128,6 +152,8 @@ export default defineComponent({
       message,
       clickAccessory,
       buttonState,
+      buttonAction,
+      waiting,
     };
   },
   components: {

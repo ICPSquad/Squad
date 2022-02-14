@@ -1076,7 +1076,7 @@ shared({ caller = hub }) actor class Hub() = this {
             };
         };
     };
-    //TODO Check that the corresponding accessory is not locked ! 
+
     // public shared({caller}) func wearAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text) : async Result.Result<(), Text> {
     //     let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);
     //     switch(_registry.get(token_index)){

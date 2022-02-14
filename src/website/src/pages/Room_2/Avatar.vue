@@ -35,12 +35,12 @@ export default defineComponent({
 
     onMounted(() => {
       //@ts-ignore
-      avatarDiv.value.innerHTML = constructSVG(props.layers, props.body_name, props.style);
+      avatarDiv.value.innerHTML = constructSVG(props.layers, props.body_name, props.style, props.accessory);
     });
 
     watchEffect(() => {
       //@ts-ignore
-      avatarDiv.value.innerHTML = constructSVG(props.layers, props.body_name, props.style);
+      avatarDiv.value.innerHTML = constructSVG(props.layers, props.body_name, props.style, props.accessory);
     });
 
     return { avatarDiv, slots };

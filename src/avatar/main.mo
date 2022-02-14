@@ -1225,6 +1225,16 @@ shared (install) actor class erc721_token() = this {
     public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
         Iter.toArray(_registry.entries());
     };
+
+    public query func getTokens() : async [(TokenIndex, Metadata)]{
+        var buffer = Buffer.Buffer<(TokenIndex,Metadata)>(0);
+        for (token_index in _registry.keys()){
+            let token_identifier = _getTokenIdentifier(token_index);
+            let element = (token_index, #nonfungible{metadata =_blobs.get(token_identifier)});
+            buffer.add(element);
+        };
+        buffer.toArray();
+    };
     
     public query func supply() : async Nat {
         _supply;
@@ -1245,33 +1255,21 @@ shared (install) actor class erc721_token() = this {
             };
         };
     };
-    
-    // public func tokens(caller  : Principal, accountId : Ext.AccountIdentifier) : Result.Result<[Ext.TokenIndex], Ext.CommonError> {
-    //         var tokens : [Ext.TokenIndex] = [];
-    //         var i : Nat32 = 0;
-    //         for (token in Iter.fromArray(state.ledger.read(null))) {
-    //             switch (token) {
-    //                 case (?t) {
-    //                     if (Ext.AccountIdentifier.equal(accountId, t.owner)) {
-    //                         tokens := Array.append(tokens, [i]);
-    //                     };
-    //                 };
-    //                 case _ ();
-    //             };
-    //             i += 1;
-    //         };
-    //         #ok(tokens);
-    //     };
 
-    public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
-        let tokens = _generateTokensExt(account);
-        if (tokens.size() == 0) {
-            return #err(#Other ("No token detected for this user."));
+    public query func tokens(aid : AccountIdentifier) : async Result.Result<[TokenIndex], CommonError> {
+        var buffer = Buffer.Buffer<(TokenIndex)>(0);
+        for((token_index, account) in _registry.entries()){
+            if (Text.equal(account, aid)){
+                buffer.add(token_index);
+            };
+        };
+        if(buffer.size() == 0){
+            return #err(#Other("No tokens"));
         } else {
-            let answer = #ok(tokens);
-            return answer;
-        }
-    };
+            return #ok(buffer.toArray());
+        };
+  };
+
     
     private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?Listing, ?Blob)] {
         var tokens = Buffer.Buffer<(TokenIndex, ?Listing, ?Blob)>(0);

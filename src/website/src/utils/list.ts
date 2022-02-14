@@ -579,3 +579,7 @@ export const accessories: Accessory[] = [
 export function nameToSlot(name: string): string | undefined {
   return accessories.find((a) => a.name === name)?.slot;
 }
+
+export function nameToLayerId(name: string): number | undefined {
+  return accessories.find((a) => a.name === name)?.components[0].layer;
+}
