@@ -41,6 +41,10 @@ type erc721_token =
                              TokenIndex;
                              AccountIdentifier;
                            }) query;
+   getTokens: () -> (vec record {
+                           TokenIndex;
+                           Metadata__1;
+                         }) query;
    howManyEquipped: () -> (nat) query;
    http_request: (HttpRequest) -> (HttpResponse) query;
    init_cap: () -> (Result);
@@ -76,7 +80,7 @@ type erc721_token =
    stats: () -> (nat64, nat64, nat64, nat64, nat, nat, nat) query;
    supply: () -> (nat) query;
    tokenIdentifier: (TokenIndex) -> (TokenIdentifier) query;
-   tokens_ext: (AccountIdentifier) -> (Result_1) query;
+   tokens: (AccountIdentifier) -> (Result_1) query;
    transactions: () -> (vec Transaction) query;
    transfer: (TransferRequest) -> (TransferResponse);
    transform_data: () -> (nat);
@@ -216,11 +220,7 @@ type Result_2 =
 type Result_1 = 
  variant {
    err: CommonError;
-   ok: vec record {
-             TokenIndex;
-             opt Listing;
-             opt blob;
-           };
+   ok: vec TokenIndex;
  };
 type Result = 
  variant {

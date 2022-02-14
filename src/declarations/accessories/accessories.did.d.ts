@@ -53,7 +53,6 @@ export interface DailyMetricsData {
   'canisterMemorySize' : NumericEntity,
   'timeMillis' : bigint,
 }
-export interface EntrepotFilterInfos { 'nature' : string, 'details' : string }
 export type Error = { 'AssetNotFound' : null } |
   { 'Immutable' : null } |
   { 'unsupportedResponse' : null } |
@@ -81,13 +80,13 @@ export interface HourlyMetricsData {
 }
 export interface Hub {
   'addElements' : (arg_0: string, arg_1: Template) => Promise<Result_7>,
-  'airdrop' : (arg_0: AirdropObject) => Promise<Result_3>,
+  'airdrop' : (arg_0: AirdropObject) => Promise<Result>,
   'allPayments' : () => Promise<Array<[Principal, Array<SubAccount__1>]>>,
   'allSettlements' : () => Promise<Array<[TokenIndex, Settlement]>>,
   'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
   'balance_ledger' : () => Promise<ICP>,
   'bearer' : (arg_0: TokenIdentifier__3) => Promise<Result_5>,
-  'burn' : (arg_0: TokenIdentifier__3) => Promise<Result_3>,
+  'burn' : (arg_0: TokenIdentifier__3) => Promise<Result>,
   'circulationSize' : () => Promise<bigint>,
   'clearPayments' : (arg_0: Principal, arg_1: Array<SubAccount__1>) => Promise<
       undefined
@@ -105,7 +104,6 @@ export interface Hub {
       [] | [CanisterMetrics]
     >,
   'getContractInfo' : () => Promise<ContractInfo>,
-  'getEntrepotFilterInfos' : () => Promise<Array<EntrepotFilterInfos>>,
   'getHisInventory' : (arg_0: Principal) => Promise<Inventory>,
   'getIdentifier' : (arg_0: TokenIndex) => Promise<TokenIdentifier__3>,
   'getIndex' : (arg_0: TokenIdentifier__3) => Promise<TokenIndex>,
@@ -123,8 +121,8 @@ export interface Hub {
   'init' : (arg_0: Array<Principal>, arg_1: ContractMetadata) => Promise<
       undefined
     >,
-  'init_cap' : () => Promise<Result_3>,
-  'list' : (arg_0: ListRequest) => Promise<Result_2>,
+  'init_cap' : () => Promise<Result>,
+  'list' : (arg_0: ListRequest) => Promise<Result_3>,
   'listings' : () => Promise<Array<[TokenIndex, Listing, Metadata__1]>>,
   'lock' : (
       arg_0: string,
@@ -133,14 +131,14 @@ export interface Hub {
       arg_3: SubAccount__1,
     ) => Promise<Result_5>,
   'metadata' : (arg_0: TokenIdentifier__3) => Promise<Result_4>,
-  'mint' : (arg_0: string, arg_1: AccountIdentifier__2) => Promise<Result_3>,
-  'modifyRecipe' : (arg_0: string, arg_1: Recipe) => Promise<Result_3>,
+  'mint' : (arg_0: string, arg_1: AccountIdentifier__2) => Promise<Result>,
+  'modifyRecipe' : (arg_0: string, arg_1: Recipe) => Promise<Result>,
   'nextTokenId' : () => Promise<bigint>,
   'nftId' : () => Promise<bigint>,
   'nftSize' : () => Promise<bigint>,
   'payments' : () => Promise<[] | [Array<SubAccount__1>]>,
   'process' : () => Promise<undefined>,
-  'settle' : (arg_0: string) => Promise<Result_2>,
+  'settle' : (arg_0: string) => Promise<Result_3>,
   'settlements' : () => Promise<
       Array<[TokenIndex, AccountIdentifier__2, bigint]>
     >,
@@ -151,17 +149,18 @@ export interface Hub {
       [bigint, bigint, bigint, bigint, bigint, bigint, bigint]
     >,
   'supply' : () => Promise<bigint>,
-  'tokens_ext' : (arg_0: AccountIdentifier__2) => Promise<Result_1>,
+  'tokens_ext' : (arg_0: AccountIdentifier__2) => Promise<Result_2>,
   'transactions' : () => Promise<Array<Transaction>>,
   'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
   'transfer_ledger' : (arg_0: ICP, arg_1: Principal) => Promise<TransferResult>,
   'updateAccessories' : () => Promise<undefined>,
-  'updateAdmins' : (arg_0: Principal, arg_1: boolean) => Promise<Result>,
-  'updateAdminsData' : (arg_0: Principal, arg_1: boolean) => Promise<Result>,
+  'updateAdmins' : (arg_0: Principal, arg_1: boolean) => Promise<Result_1>,
+  'updateAdminsData' : (arg_0: Principal, arg_1: boolean) => Promise<Result_1>,
   'verification' : () => Promise<undefined>,
   'verificationEvents' : () => Promise<undefined>,
   'wallet_available' : () => Promise<bigint>,
   'wallet_receive' : () => Promise<undefined>,
+  'wearAccessory' : (arg_0: string, arg_1: string) => Promise<Result>,
   'whoami' : () => Promise<Principal>,
 }
 export interface ICP { 'e8s' : bigint }
@@ -227,15 +226,15 @@ export interface Response {
   'status_code' : number,
 }
 export type Result = { 'ok' : null } |
+  { 'err' : string };
+export type Result_1 = { 'ok' : null } |
   { 'err' : Error };
-export type Result_1 = {
+export type Result_2 = {
     'ok' : Array<[TokenIndex, [] | [Listing], [] | [Array<number>]]>
   } |
   { 'err' : CommonError };
-export type Result_2 = { 'ok' : null } |
-  { 'err' : CommonError };
 export type Result_3 = { 'ok' : null } |
-  { 'err' : string };
+  { 'err' : CommonError };
 export type Result_4 = { 'ok' : Metadata } |
   { 'err' : CommonError__1 };
 export type Result_5 = { 'ok' : AccountIdentifier__2 } |

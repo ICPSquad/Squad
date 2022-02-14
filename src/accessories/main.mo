@@ -1077,35 +1077,38 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    // public shared({caller}) func wearAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text) : async Result.Result<(), Text> {
-    //     let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);
-    //     switch(_registry.get(token_index)){
-    //         case(null) return #err("This token identifier doesn't exist!");
-    //         case(?owner){
-    //             if(AID.fromPrincipal(caller, null) != owner){
-    //                 return #err("Unauthorized");
-    //             };
-    //         };
-    //     };
-    //     switch(_items.get(token_index)){
-    //         case(?#Accessory(item)){
-    //             let wear_value = item.wear;
-    //             if(wear_value == 1){
-    //                 return #err("Cannot equip this accessory; wear value is too low.")
-    //             };
-    //             switch(await nftActor.wearAccessory(token_identifier_avatar, item.name, caller)){
-    //                 case(#err(message)) return #err(message);
-    //                 case(#ok){
-    //                     //Decrease the wear value by one! 
-    //                     let new_item = #Accessory({name = item.name; wear = (item.wear - 1); equipped = ?token_identifier_avatar;});
-    //                     _items.put(token_index, new_item);
-    //                     return #ok;
-    //                 };
-    //             };
-    //         };
-    //         case(_) return #err("Not an accessory.");
-    //     };
-    // };
+    public shared({caller}) func wearAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text) : async Result.Result<(), Text> {
+        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);
+        switch(_registry.get(token_index)){
+            case(null) return #err("This token identifier doesn't exist!");
+            case(?owner){
+                if(AID.fromPrincipal(caller, null) != owner){
+                    return #err("Unauthorized");
+                };
+            };
+        };
+        if(_isLocked(token_index)){
+            return #err("Cannot equip an accessory that is listed. Please delist it trying again.");
+        };
+        switch(_items.get(token_index)){
+            case(?#Accessory(item)){
+                let wear_value = item.wear;
+                if(wear_value == 1){
+                    return #err("Cannot equip this accessory; wear value is too low.")
+                };
+                switch(await nftActor.wearAccessory(token_identifier_avatar, item.name, caller)){
+                    case(#err(message)) return #err(message);
+                    case(#ok){
+                        //Decrease the wear value by one! 
+                        let new_item = #Accessory({name = item.name; wear = (item.wear - 1); equipped = ?token_identifier_avatar;});
+                        _items.put(token_index, new_item);
+                        return #ok;
+                    };
+                };
+            };
+            case(_) return #err("Not an accessory.");
+        };
+    };
 
     // public shared ({caller}) func removeAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text ) : async Result.Result<(), Text> {
     //        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);

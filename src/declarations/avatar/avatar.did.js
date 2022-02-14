@@ -131,6 +131,15 @@ export const idlFactory = ({ IDL }) => {
     'daily' : IDL.Vec(DailyMetricsData),
   });
   const CanisterMetrics = IDL.Record({ 'data' : CanisterMetricsData });
+  const Metadata__1 = IDL.Variant({
+    'fungible' : IDL.Record({
+      'decimals' : IDL.Nat8,
+      'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+      'name' : IDL.Text,
+      'symbol' : IDL.Text,
+    }),
+    'nonfungible' : IDL.Record({ 'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)) }),
+  });
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
   const HttpRequest = IDL.Record({
     'url' : IDL.Text,
@@ -171,15 +180,6 @@ export const idlFactory = ({ IDL }) => {
     'price' : IDL.Opt(IDL.Nat64),
   });
   const Result_2 = IDL.Variant({ 'ok' : IDL.Null, 'err' : CommonError });
-  const Metadata__1 = IDL.Variant({
-    'fungible' : IDL.Record({
-      'decimals' : IDL.Nat8,
-      'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-      'name' : IDL.Text,
-      'symbol' : IDL.Text,
-    }),
-    'nonfungible' : IDL.Record({ 'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)) }),
-  });
   const Metadata = IDL.Variant({
     'fungible' : IDL.Record({
       'decimals' : IDL.Nat8,
@@ -206,9 +206,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_4 = IDL.Variant({ 'ok' : AvatarInformations, 'err' : IDL.Text });
   const Result_1 = IDL.Variant({
-    'ok' : IDL.Vec(
-      IDL.Tuple(TokenIndex, IDL.Opt(Listing), IDL.Opt(IDL.Vec(IDL.Nat8)))
-    ),
+    'ok' : IDL.Vec(TokenIndex),
     'err' : CommonError,
   });
   const Transaction = IDL.Record({
@@ -292,6 +290,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier))],
         ['query'],
       ),
+    'getTokens' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(TokenIndex, Metadata__1))],
+        ['query'],
+      ),
     'howManyEquipped' : IDL.Func([], [IDL.Nat], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'init_cap' : IDL.Func([], [Result], []),
@@ -334,7 +337,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'supply' : IDL.Func([], [IDL.Nat], ['query']),
     'tokenIdentifier' : IDL.Func([TokenIndex], [TokenIdentifier], ['query']),
-    'tokens_ext' : IDL.Func([AccountIdentifier], [Result_1], ['query']),
+    'tokens' : IDL.Func([AccountIdentifier], [Result_1], ['query']),
     'transactions' : IDL.Func([], [IDL.Vec(Transaction)], ['query']),
     'transfer' : IDL.Func([TransferRequest], [TransferResponse], []),
     'transform_data' : IDL.Func([], [IDL.Nat], []),

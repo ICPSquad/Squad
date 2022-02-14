@@ -16,7 +16,7 @@ export const idlFactory = ({ IDL }) => {
     'accessory2' : IDL.Opt(IDL.Text),
     'material' : IDL.Text,
   });
-  const Result_3 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const SubAccount__1 = IDL.Vec(IDL.Nat8);
   const TokenIndex = IDL.Nat32;
   const SubAccount__2 = IDL.Vec(IDL.Nat8);
@@ -108,10 +108,6 @@ export const idlFactory = ({ IDL }) => {
     'heap_size' : IDL.Nat,
     'authorized_users' : IDL.Vec(IDL.Principal),
   });
-  const EntrepotFilterInfos = IDL.Record({
-    'nature' : IDL.Text,
-    'details' : IDL.Text,
-  });
   const AssetInventoryType = IDL.Variant({
     'Accessory' : IDL.Bool,
     'LegendaryAccessory' : IDL.Null,
@@ -176,7 +172,7 @@ export const idlFactory = ({ IDL }) => {
     'from_subaccount' : IDL.Opt(SubAccount__2),
     'price' : IDL.Opt(IDL.Nat64),
   });
-  const Result_2 = IDL.Variant({ 'ok' : IDL.Null, 'err' : CommonError });
+  const Result_3 = IDL.Variant({ 'ok' : IDL.Null, 'err' : CommonError });
   const Time = IDL.Int;
   const Listing = IDL.Record({
     'locked' : IDL.Opt(Time),
@@ -208,7 +204,7 @@ export const idlFactory = ({ IDL }) => {
     'LegendaryAccessory' : LegendaryAccessory,
     'Material' : IDL.Text,
   });
-  const Result_1 = IDL.Variant({
+  const Result_2 = IDL.Variant({
     'ok' : IDL.Vec(
       IDL.Tuple(TokenIndex, IDL.Opt(Listing), IDL.Opt(IDL.Vec(IDL.Nat8)))
     ),
@@ -268,10 +264,10 @@ export const idlFactory = ({ IDL }) => {
     'AuthorizedPrincipalLimitReached' : IDL.Nat,
     'FailedToWrite' : IDL.Text,
   });
-  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
+  const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
   const Hub = IDL.Service({
     'addElements' : IDL.Func([IDL.Text, Template], [Result_7], []),
-    'airdrop' : IDL.Func([AirdropObject], [Result_3], []),
+    'airdrop' : IDL.Func([AirdropObject], [Result], []),
     'allPayments' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Vec(SubAccount__1)))],
@@ -285,7 +281,7 @@ export const idlFactory = ({ IDL }) => {
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
     'balance_ledger' : IDL.Func([], [ICP], []),
     'bearer' : IDL.Func([TokenIdentifier__3], [Result_5], ['query']),
-    'burn' : IDL.Func([TokenIdentifier__3], [Result_3], []),
+    'burn' : IDL.Func([TokenIdentifier__3], [Result], []),
     'circulationSize' : IDL.Func([], [IDL.Nat], ['query']),
     'clearPayments' : IDL.Func([IDL.Principal, IDL.Vec(SubAccount__1)], [], []),
     'collectCanisterMetrics' : IDL.Func([], [], []),
@@ -307,11 +303,6 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getContractInfo' : IDL.Func([], [ContractInfo], []),
-    'getEntrepotFilterInfos' : IDL.Func(
-        [],
-        [IDL.Vec(EntrepotFilterInfos)],
-        ['query'],
-      ),
     'getHisInventory' : IDL.Func([IDL.Principal], [Inventory], ['query']),
     'getIdentifier' : IDL.Func([TokenIndex], [TokenIdentifier__3], ['query']),
     'getIndex' : IDL.Func([TokenIdentifier__3], [TokenIndex], []),
@@ -341,8 +332,8 @@ export const idlFactory = ({ IDL }) => {
       ),
     'http_request' : IDL.Func([Request], [Response], ['query']),
     'init' : IDL.Func([IDL.Vec(IDL.Principal), ContractMetadata], [], []),
-    'init_cap' : IDL.Func([], [Result_3], []),
-    'list' : IDL.Func([ListRequest], [Result_2], []),
+    'init_cap' : IDL.Func([], [Result], []),
+    'list' : IDL.Func([ListRequest], [Result_3], []),
     'listings' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(TokenIndex, Listing, Metadata__1))],
@@ -354,14 +345,14 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'metadata' : IDL.Func([TokenIdentifier__3], [Result_4], ['query']),
-    'mint' : IDL.Func([IDL.Text, AccountIdentifier__2], [Result_3], []),
-    'modifyRecipe' : IDL.Func([IDL.Text, Recipe], [Result_3], []),
+    'mint' : IDL.Func([IDL.Text, AccountIdentifier__2], [Result], []),
+    'modifyRecipe' : IDL.Func([IDL.Text, Recipe], [Result], []),
     'nextTokenId' : IDL.Func([], [IDL.Nat], ['query']),
     'nftId' : IDL.Func([], [IDL.Nat], ['query']),
     'nftSize' : IDL.Func([], [IDL.Nat], ['query']),
     'payments' : IDL.Func([], [IDL.Opt(IDL.Vec(SubAccount__1))], ['query']),
     'process' : IDL.Func([], [], []),
-    'settle' : IDL.Func([IDL.Text], [Result_2], []),
+    'settle' : IDL.Func([IDL.Text], [Result_3], []),
     'settlements' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier__2, IDL.Nat64))],
@@ -376,17 +367,18 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'supply' : IDL.Func([], [IDL.Nat], ['query']),
-    'tokens_ext' : IDL.Func([AccountIdentifier__2], [Result_1], ['query']),
+    'tokens_ext' : IDL.Func([AccountIdentifier__2], [Result_2], ['query']),
     'transactions' : IDL.Func([], [IDL.Vec(Transaction)], ['query']),
     'transfer' : IDL.Func([TransferRequest], [TransferResponse], []),
     'transfer_ledger' : IDL.Func([ICP, IDL.Principal], [TransferResult], []),
     'updateAccessories' : IDL.Func([], [], []),
-    'updateAdmins' : IDL.Func([IDL.Principal, IDL.Bool], [Result], []),
-    'updateAdminsData' : IDL.Func([IDL.Principal, IDL.Bool], [Result], []),
+    'updateAdmins' : IDL.Func([IDL.Principal, IDL.Bool], [Result_1], []),
+    'updateAdminsData' : IDL.Func([IDL.Principal, IDL.Bool], [Result_1], []),
     'verification' : IDL.Func([], [], []),
     'verificationEvents' : IDL.Func([], [], []),
     'wallet_available' : IDL.Func([], [IDL.Nat], ['query']),
     'wallet_receive' : IDL.Func([], [], []),
+    'wearAccessory' : IDL.Func([IDL.Text, IDL.Text], [Result], []),
     'whoami' : IDL.Func([], [IDL.Principal], ['query']),
   });
   return Hub;

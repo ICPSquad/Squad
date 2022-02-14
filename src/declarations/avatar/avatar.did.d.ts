@@ -130,9 +130,7 @@ export interface NumericEntity {
 }
 export type Result = { 'ok' : null } |
   { 'err' : string };
-export type Result_1 = {
-    'ok' : Array<[TokenIndex, [] | [Listing], [] | [Array<number>]]>
-  } |
+export type Result_1 = { 'ok' : Array<TokenIndex> } |
   { 'err' : CommonError };
 export type Result_2 = { 'ok' : null } |
   { 'err' : CommonError };
@@ -247,6 +245,7 @@ export interface erc721_token {
     >,
   'getMinter' : () => Promise<Array<Principal>>,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier]>>,
+  'getTokens' : () => Promise<Array<[TokenIndex, Metadata__1]>>,
   'howManyEquipped' : () => Promise<bigint>,
   'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
   'init_cap' : () => Promise<Result>,
@@ -278,7 +277,7 @@ export interface erc721_token {
     >,
   'supply' : () => Promise<bigint>,
   'tokenIdentifier' : (arg_0: TokenIndex) => Promise<TokenIdentifier>,
-  'tokens_ext' : (arg_0: AccountIdentifier) => Promise<Result_1>,
+  'tokens' : (arg_0: AccountIdentifier) => Promise<Result_1>,
   'transactions' : () => Promise<Array<Transaction>>,
   'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
   'transform_data' : () => Promise<bigint>,
