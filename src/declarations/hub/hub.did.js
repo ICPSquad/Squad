@@ -177,9 +177,9 @@ export const idlFactory = ({ IDL }) => {
         [Result_2],
         [],
       ),
-    'process' : IDL.Func([], [], []),
     'recipe' : IDL.Func([], [], []),
     'removeUser' : IDL.Func([IDL.Principal], [Result_1], []),
+    'resetCount' : IDL.Func([], [], []),
     'showCount' : IDL.Func([], [IDL.Nat], ['query']),
     'showErrors' : IDL.Func(
         [],
@@ -198,6 +198,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'showUser' : IDL.Func([IDL.Principal], [IDL.Opt(User)], ['query']),
     'show_audits' : IDL.Func([], [IDL.Vec(Audit)], ['query']),
+    'show_robbers' : IDL.Func([], [IDL.Vec(SubAccount)], ['query']),
     'transfer' : IDL.Func([ICP, IDL.Principal], [TransferResult], []),
     'updateAdminsData' : IDL.Func([IDL.Principal, IDL.Bool], [Result], []),
     'verification' : IDL.Func([], [], []),

@@ -267,6 +267,7 @@ export interface erc721_token {
       Result_4
     >,
   'modify_style' : (arg_0: string) => Promise<string>,
+  'patch' : () => Promise<undefined>,
   'payments' : () => Promise<[] | [Array<SubAccount__1>]>,
   'removeAccessory' : (
       arg_0: TokenIdentifier,

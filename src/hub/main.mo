@@ -812,12 +812,22 @@ let this = actor {
         return Cycles.balance();
     };
 
-    /////////////
-    // PATCH ///
-    ////////////
+    ///////////////////////////
+    // ACTIVITY & TRACKING ///
+    /////////////////////////
 
-    public shared ({caller}) func patch() : async () {
-        
+    let Transaction = {
+        token : TokenIdentifier;
+        seller : Principal;
+        price : Nat64;
+        buyer : AccountIdentifier;
+        time : Time;
     };
+
+    let EXTActivityInterface = actor {
+        transactions : query () -> async [Transaction];
+        listings : query () -> async[(TokenIndex, Listing, Metadata)];
+    };
+
 
 };

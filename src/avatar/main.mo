@@ -35,7 +35,7 @@ import Entrepot "../dependencies/entrepot";
 import Canistergeek "../dependencies/canistergeek/canistergeek";
 
 
-shared (install) actor class erc721_token() = this {
+shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = this {
 
 
     //////////////
@@ -403,8 +403,6 @@ shared (install) actor class erc721_token() = this {
                 // Generate svg and blob from Avatar and also associate the TokenIdentifier with them.
                 avatar.buildSvg();
                 let final_svg = avatar.getFullSvg();
-                _svgs.put(token_identifier,final_svg);
-
                 let final_blob = Text.encodeUtf8(final_svg);
                 _blobs.put(token_identifier, final_blob);
 
@@ -548,6 +546,9 @@ shared (install) actor class erc721_token() = this {
                     };
                 };
             };
+            case(_) {
+                return false;
+            };
         };
     };
 
@@ -555,9 +556,6 @@ shared (install) actor class erc721_token() = this {
     //////////////////
     // Avatar query //
     /////////////////
-
-    private stable var _svgsEntries : [(TokenIdentifier, Text)] = [];
-    private var _svgs : HashMap.HashMap<TokenIdentifier, Text> = HashMap.fromIter(_svgsEntries.vals(), 0, Text.equal, Text.hash);
     
     private stable var _blobsEntries : [(TokenIdentifier, Blob)] = [];
     private var _blobs : HashMap.HashMap<TokenIdentifier, Blob> = HashMap.fromIter(_blobsEntries.vals(), 0 , Text.equal, Text.hash);
@@ -569,15 +567,6 @@ shared (install) actor class erc721_token() = this {
             case (?avatar) {
                 ignore(_draw(token));
                 return #ok;
-            };
-        };
-    };
-
-    public query func showSvg (token_identifier : TokenIdentifier) : async ?Text {
-        switch(_svgs.get(token_identifier)){
-            case(null) return null;
-            case(?svg) {
-                return ?svg;
             };
         };
     };
@@ -667,14 +656,11 @@ shared (install) actor class erc721_token() = this {
         switch(avatars.get(token)) {
             case (null) return #err ("Avatar not found");
             case (?avatar) {
+                // Redraw the avatar
                 avatar.buildSvg();
 
-                // Rebuilds and stores the svg
-                let new_svg = avatar.getFullSvg();
-               _svgs.put(token, new_svg);
-
                 //Rebuilds and stores the blob
-               let new_blob = Text.encodeUtf8(new_svg);
+               let new_blob = Text.encodeUtf8(avatar.getFullSvg());
                _blobs.put(token, new_blob);
 
                return #ok;
@@ -867,7 +853,7 @@ shared (install) actor class erc721_token() = this {
         let iterator = Text.split(request.url, #text("tokenid="));
         let array = Iter.toArray(iterator);
         let token = array[array.size() - 1];
-        switch(_svgs.get(token)){
+        switch(_blobs.get(token)){
             case(null) {
                 {
                     body = Blob.toArray(Text.encodeUtf8("Not found"));
@@ -876,9 +862,9 @@ shared (install) actor class erc721_token() = this {
                     status_code = 200;
                 }
             };
-            case(?svg) {
+            case(?blob) {
                 {
-                    body = Blob.toArray(Text.encodeUtf8(svg));
+                    body = Blob.toArray(blob);
                     headers = [("Content-Type", "image/svg+xml")];
                     streaming_strategy = null;
                     status_code = 200;
@@ -922,7 +908,6 @@ shared (install) actor class erc721_token() = this {
 
                 let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId);
                 
-                _svgs.put(token_identifier, avatar);
                 _blobs.put(token_identifier, Text.encodeUtf8(avatar));
 
                 _supply := _supply + 1;
@@ -1531,6 +1516,13 @@ shared (install) actor class erc721_token() = this {
     // UPGRADE //
     /////////////
 
+    stable var version = 1;
+
+    // Returns size of data strucutres as a simple way to check state of the canister after upgrade.
+    private func read() : (Nat, Nat, Nat, Nat) {
+        (version, _registry.size(), avatars.size(), _blobs.size());
+    };
+
     system func preupgrade() {
 
         // Avatar deserialization
@@ -1565,7 +1557,6 @@ shared (install) actor class erc721_token() = this {
         //  NFT 
         _principalToAccountsIdentifierState := Iter.toArray(_principalToAccountsIdentifier.entries());
         _registryState := Iter.toArray(_registry.entries());
-        _svgsEntries := Iter.toArray(_svgs.entries());
         _blobsEntries := Iter.toArray(_blobs.entries());
         //  CAP
         _eventsEntries := Iter.toArray(_events.entries());
@@ -1583,6 +1574,11 @@ shared (install) actor class erc721_token() = this {
             let avatar : Avatar = Avatar(layersEntries, style, slots);
             avatars.put(tokenIdentifier, avatar);
         };
+
+        if (upgradeMode == #verify){
+            Debug.trap(debug_show(#verify(read())));
+        };
+
         componentsEntries := [];
         accessoriesEntries := [];
         legendaryEntries := [];
@@ -1592,7 +1588,6 @@ shared (install) actor class erc721_token() = this {
         _paymentsState := [];
         _refundsState := [];
         _principalToAccountsIdentifierState := [];
-        _svgsEntries := [];
         _blobsEntries := [];
         layerStorage := [];
         tokenStorage := [];
@@ -1777,6 +1772,8 @@ shared (install) actor class erc721_token() = this {
     };
 
 
+    // This patch was used to remove accessories from people that had already equipped them, the previous patch are removed them from the "slot" but not remove it from the layers!
+
     // public shared ({caller}) func patch() : async () {
     //     for ((token,avatar) in avatars.entries()){
     //         let slots = avatar.getSlots();
@@ -1789,6 +1786,24 @@ shared (install) actor class erc721_token() = this {
     //     };
     // };
 
+    // This patch was used to redraw the hairstyle that was broken (Hair-6)
+    // public shared ({caller}) func patch() : async () {
+    //     assert(_isAdmin(caller));
+    //     for ((token, avatar) in avatars.entries()){
+    //         switch(avatar.getLayer(75)){
+    //             case(null){};
+    //             case(?layer){
+    //                 switch(layer){
+    //                     case(#Component(name)){
+    //                         if(name == "Hair-6" or name == "Hair-6-base"){
+    //                             let result = _draw(token);
+    //                         };
+    //                     };
+    //                 };
+    //             };
+    //         };
+    //     };
+    // };
 
-    
+
 };

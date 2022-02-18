@@ -60,6 +60,7 @@ type erc721_token =
    mint: (MintRequest) -> (Result_5);
    mintLegendary: (text, AccountIdentifier) -> (Result_4);
    modify_style: (text) -> (text);
+   patch: () -> ();
    payments: () -> (opt vec SubAccount__1) query;
    removeAccessory: (TokenIdentifier, text, principal) -> (Result);
    removeMouth: (TokenIdentifier) -> (Result);

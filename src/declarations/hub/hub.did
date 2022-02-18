@@ -205,9 +205,9 @@ service : {
   modifyUser: (principal, User) -> (Result);
   numberUsers: () -> (nat) query;
   prejoin: (text, opt text, opt text, opt text, SubAccount) -> (Result_2);
-  process: () -> ();
   recipe: () -> ();
   removeUser: (principal) -> (Result_1);
+  resetCount: () -> ();
   showCount: () -> (nat) query;
   showErrors: () -> (vec record {
                            Time;
@@ -223,6 +223,7 @@ service : {
                            }) query;
   showUser: (principal) -> (opt User) query;
   show_audits: () -> (vec Audit) query;
+  show_robbers: () -> (vec SubAccount) query;
   transfer: (ICP, principal) -> (TransferResult);
   updateAdminsData: (principal, bool) -> (Result);
   verification: () -> ();

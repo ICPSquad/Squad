@@ -319,6 +319,7 @@ export const idlFactory = ({ IDL }) => {
     'mint' : IDL.Func([MintRequest], [Result_5], []),
     'mintLegendary' : IDL.Func([IDL.Text, AccountIdentifier], [Result_4], []),
     'modify_style' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'patch' : IDL.Func([], [], []),
     'payments' : IDL.Func([], [IDL.Opt(IDL.Vec(SubAccount__1))], ['query']),
     'removeAccessory' : IDL.Func(
         [TokenIdentifier, IDL.Text, IDL.Principal],
