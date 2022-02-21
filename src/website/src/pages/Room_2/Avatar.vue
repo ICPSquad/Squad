@@ -4,6 +4,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref, computed, watchEffect } from "vue";
+import { useStore } from "vuex";
 import { constructSVG } from "../../utils/svg_new";
 
 export default defineComponent({
@@ -28,6 +29,7 @@ export default defineComponent({
   setup(props, _) {
     const div = document.createElement("div");
     const avatarDiv = ref<HTMLDivElement>(div);
+    const store = useStore();
 
     onMounted(() => {
       //@ts-ignore
@@ -39,7 +41,7 @@ export default defineComponent({
       avatarDiv.value.innerHTML = constructSVG(props.layers, props.body_name, props.style, props.accessory);
     });
 
-    return { avatarDiv };
+    return { avatarDiv, hideClothes: computed(() => store.state.auth.hideClothing) };
   },
 });
 </script>

@@ -5,6 +5,7 @@ import { AvatarPreviewNew } from "@/declarations/avatar/avatar.did";
 import { LayerId } from "@/declarations/avatar/avatar.did";
 import { AccesoryInfos } from "../types/inventory";
 import { nameToLayerId } from "./list";
+import store from "../store";
 
 //  Get the final svg to display from layers, body_name & style.
 export function constructSVG(layers: Array<[LayerId, string]>, body_name: string, style: string, accessory?: AccesoryInfos): string {
@@ -19,6 +20,12 @@ export function constructSVG(layers: Array<[LayerId, string]>, body_name: string
   }
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" class='${body_name}'>`;
   svg += style;
+
+  // Check if we need to hide clothing (e.g when we have just equipped something on body)
+  //@ts-ignore
+  if (store.state.auth.hideClothing) {
+    svg += "<style>.clothing{visibility : hidden;}</style>";
+  }
   // Order arrray by layerId
   layers_copy.sort((a, b) => {
     return Number(a[0] - b[0]);

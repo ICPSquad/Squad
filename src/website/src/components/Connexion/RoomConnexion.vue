@@ -1,63 +1,12 @@
 <template>
   <div class="flex flex-col justify-around items-center flex-1">
     <div>
-      <h2
-        class="
-          text-center
-          2xl:text-5xl
-          lg:text-4xl
-          md:text-3xl
-          text-2xl
-          font-bold
-          text-gray-800
-          font-marker
-        "
-      >
-        Please login 👤
-      </h2>
+      <h2 class="text-center 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-bold text-gray-800 font-marker">Please login 👤</h2>
     </div>
 
     <div class="flex flex-row justify-around w-full">
-      <button
-        class="
-          lg:text-3xl
-          md:text-2xl
-          text-xl
-          shadow-2xl
-          font-marker
-          text-white
-          bg-pink-600
-          rounded
-          py-6
-          px-8
-          mt-8
-          cursor-pointer
-          hidden
-          md:block
-        "
-        @click="plugConnection"
-      >
-        Plug
-      </button>
-      <button
-        class="
-          lg:text-3xl
-          md:text-2xl
-          text-xl
-          shadow-2xl
-          font-marker
-          text-white
-          bg-pink-600
-          rounded
-          py-6
-          px-8
-          mt-8
-          cursor-pointer
-        "
-        @click="stoicConnection"
-      >
-        Stoic
-      </button>
+      <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mt-8 cursor-pointer hidden md:block" @click="plugConnection">Plug</button>
+      <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mt-8 cursor-pointer" @click="stoicConnection">Stoic</button>
     </div>
   </div>
 </template>
@@ -106,7 +55,7 @@ export default defineComponent({
       });
       store.commit("setAuthenticatedActor_nft", actor_nft);
 
-      store.dispatch("loadInfosNew");
+      store.dispatch("loadInfos");
 
       let principal = await (window as any).ic?.plug?.agent.getPrincipal();
       store.commit("setPrincipal", principal);

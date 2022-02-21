@@ -18,6 +18,7 @@ const state: {
   rawAvatar: string | null;
   avatarInfo: AvatarPreviewNew | null;
   inventory: Inventory;
+  hideClothing: boolean;
 } = {
   principal: null,
   wallet: null,
@@ -28,6 +29,7 @@ const state: {
   rawAvatar: null,
   avatarInfo: null,
   inventory: [],
+  hideClothing: false,
 };
 
 type State = typeof state;
@@ -63,10 +65,16 @@ const mutations = {
   addAccessory(state: State, { slot, name }: { slot: string; name: string }) {
     state.avatarInfo!.slots[slot as keyof Slots] = [name];
     state.avatarInfo!.layers = addAccessoryLayers(state.avatarInfo!.layers, name);
+    if (slot == "Body") {
+      state.hideClothing = true;
+    }
   },
   removeAccessory(state: State, { slot, name }: { slot: string; name: string }) {
     state.avatarInfo!.slots[slot as keyof Slots] = [];
     state.avatarInfo!.layers = removeAccessoryLayers(state.avatarInfo!.layers, name);
+    if (slot == "Body") {
+      state.hideClothing = false;
+    }
   },
 };
 
@@ -108,30 +116,8 @@ const actions = {
     commit("setTokenIdentifier", tokenIdentifier_result[0]);
     return;
   },
+
   async loadInfos({ dispatch, commit, state }: { dispatch: any; commit: Commit; state: State }) {
-    const actor = state.authenticatedActor_nft;
-    if (actor == null) {
-      throw new Error("Need an authenticated actor to set avatar");
-    }
-
-    //@ts-ignore
-    const avatar_result = await actor.getAvatarInfos();
-    console.log("avatar_result", avatar_result);
-    if (avatar_result.err) {
-      throw new Error(avatar_result.err);
-    }
-
-    let token_identifier = avatar_result.ok.token_identifier;
-    console.log("token_identifier", token_identifier);
-    let raw_avatar = avatar_result.ok.avatar_svg;
-    let slots = avatar_result.ok.slots;
-    console.log("slots", slots);
-    console.log("raw_avatar", raw_avatar);
-    commit("setRawAvatar", raw_avatar);
-    commit("setEquipedAccessory", slots);
-    commit("setTokenIdentifier", token_identifier);
-  },
-  async loadInfosNew({ dispatch, commit, state }: { dispatch: any; commit: Commit; state: State }) {
     const actor = state.authenticatedActor_nft;
     if (actor == null) {
       throw new Error("Need an authenticated actor");
