@@ -32,6 +32,7 @@ export type Balance = bigint;
 export interface BalanceRequest { 'token' : TokenIdentifier__1, 'user' : User }
 export type BalanceResponse = { 'ok' : Balance } |
   { 'err' : CommonError__1 };
+export type Balance__1 = bigint;
 export type CanisterCyclesAggregatedData = Array<bigint>;
 export type CanisterHeapMemoryAggregatedData = Array<bigint>;
 export type CanisterMemoryAggregatedData = Array<bigint>;
@@ -134,23 +135,25 @@ export type Result_1 = {
     'ok' : Array<[TokenIndex, [] | [Listing], [] | [Array<number>]]>
   } |
   { 'err' : CommonError };
-export type Result_10 = { 'ok' : [AccountIdentifier, [] | [Listing]] } |
+export type Result_10 = { 'ok' : AvatarPreview } |
+  { 'err' : string };
+export type Result_11 = { 'ok' : [AccountIdentifier, [] | [Listing]] } |
   { 'err' : CommonError };
 export type Result_2 = { 'ok' : Array<TokenIndex> } |
   { 'err' : CommonError };
-export type Result_3 = { 'ok' : null } |
+export type Result_3 = { 'ok' : Balance__1 } |
   { 'err' : CommonError };
-export type Result_4 = { 'ok' : string } |
+export type Result_4 = { 'ok' : null } |
+  { 'err' : CommonError };
+export type Result_5 = { 'ok' : string } |
   { 'err' : string };
-export type Result_5 = { 'ok' : AvatarInformations } |
+export type Result_6 = { 'ok' : AvatarInformations } |
   { 'err' : string };
-export type Result_6 = { 'ok' : Metadata } |
+export type Result_7 = { 'ok' : Metadata } |
   { 'err' : CommonError__1 };
-export type Result_7 = { 'ok' : AccountIdentifier } |
+export type Result_8 = { 'ok' : AccountIdentifier } |
   { 'err' : CommonError };
-export type Result_8 = { 'ok' : AvatarPreviewNew } |
-  { 'err' : string };
-export type Result_9 = { 'ok' : AvatarPreview } |
+export type Result_9 = { 'ok' : AvatarPreviewNew } |
   { 'err' : string };
 export interface Settlement {
   'subaccount' : SubAccount__2,
@@ -224,26 +227,26 @@ export type User = { 'principal' : Principal } |
 export interface erc721_token {
   'acceptCycles' : () => Promise<undefined>,
   'addAdmin' : (arg_0: Principal) => Promise<Result>,
-  'addLegendary' : (arg_0: string, arg_1: string) => Promise<Result_4>,
-  'addListAccessory' : (arg_0: Array<Accessory>) => Promise<Result_4>,
-  'addListComponent' : (arg_0: Array<[string, Component]>) => Promise<Result_4>,
+  'addLegendary' : (arg_0: string, arg_1: string) => Promise<Result_5>,
+  'addListAccessory' : (arg_0: Array<Accessory>) => Promise<Result_5>,
+  'addListComponent' : (arg_0: Array<[string, Component]>) => Promise<Result_5>,
   'allPayments' : () => Promise<Array<[Principal, Array<SubAccount__1>]>>,
   'allSettlements' : () => Promise<Array<[TokenIndex, Settlement]>>,
   'availableCycles' : () => Promise<bigint>,
   'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
-  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_7>,
+  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_8>,
   'clearPayments' : (arg_0: Principal, arg_1: Array<SubAccount__1>) => Promise<
       undefined
     >,
   'collectCanisterMetrics' : () => Promise<undefined>,
-  'details' : (arg_0: TokenIdentifier) => Promise<Result_10>,
+  'details' : (arg_0: TokenIdentifier) => Promise<Result_11>,
   'draw' : (arg_0: TokenIdentifier) => Promise<Result>,
   'eventsSize' : () => Promise<bigint>,
   'extensions' : () => Promise<Array<Extension>>,
   'getAllAccessories' : () => Promise<Array<[string, Accessory]>>,
   'getAllComponents' : () => Promise<Array<[string, Component]>>,
-  'getAvatarInfos' : () => Promise<Result_9>,
-  'getAvatarInfos_new' : () => Promise<Result_8>,
+  'getAvatarInfos' : () => Promise<Result_10>,
+  'getAvatarInfos_new' : () => Promise<Result_9>,
   'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
       [] | [CanisterMetrics]
     >,
@@ -253,21 +256,20 @@ export interface erc721_token {
   'howManyEquipped' : () => Promise<bigint>,
   'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
   'init_cap' : () => Promise<Result>,
-  'list' : (arg_0: ListRequest) => Promise<Result_3>,
+  'list' : (arg_0: ListRequest) => Promise<Result_4>,
   'listings' : () => Promise<Array<[TokenIndex, Listing, Metadata__1]>>,
   'lock' : (
       arg_0: TokenIdentifier,
       arg_1: bigint,
       arg_2: AccountIdentifier,
       arg_3: SubAccount__1,
-    ) => Promise<Result_7>,
-  'metadata' : (arg_0: TokenIdentifier) => Promise<Result_6>,
-  'mint' : (arg_0: MintRequest) => Promise<Result_5>,
+    ) => Promise<Result_8>,
+  'metadata' : (arg_0: TokenIdentifier) => Promise<Result_7>,
+  'mint' : (arg_0: MintRequest) => Promise<Result_6>,
   'mintLegendary' : (arg_0: string, arg_1: AccountIdentifier) => Promise<
-      Result_4
+      Result_5
     >,
   'modify_style' : (arg_0: string) => Promise<string>,
-  'patch' : () => Promise<undefined>,
   'payments' : () => Promise<[] | [Array<SubAccount__1>]>,
   'removeAccessory' : (
       arg_0: TokenIdentifier,
@@ -278,14 +280,13 @@ export interface erc721_token {
   'reset' : () => Promise<bigint>,
   'reset_data' : () => Promise<Array<[TokenIdentifier, string]>>,
   'saveAccessories' : () => Promise<[bigint, bigint]>,
-  'settle' : (arg_0: TokenIdentifier) => Promise<Result_3>,
+  'settle' : (arg_0: TokenIdentifier) => Promise<Result_4>,
   'settlements' : () => Promise<Array<[TokenIndex, AccountIdentifier, bigint]>>,
   'showFullSvg' : (arg_0: TokenIdentifier) => Promise<[] | [string]>,
-  'showSvg' : (arg_0: TokenIdentifier) => Promise<[] | [string]>,
   'stats' : () => Promise<
       [bigint, bigint, bigint, bigint, bigint, bigint, bigint]
     >,
-  'supply' : () => Promise<bigint>,
+  'supply' : (arg_0: TokenIdentifier) => Promise<Result_3>,
   'tokenIdentifier' : (arg_0: TokenIndex) => Promise<TokenIdentifier>,
   'tokens' : (arg_0: AccountIdentifier) => Promise<Result_2>,
   'tokens_ext' : (arg_0: AccountIdentifier) => Promise<Result_1>,

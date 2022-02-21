@@ -57,42 +57,42 @@ export default defineComponent({
     const store = useStore();
 
     const Hat = computed(() => {
-      if (store.state.auth.equippedAccessories.Hat[0]) {
-        return `#${store.state.auth.equippedAccessories.Hat[0]}`;
+      if (store.state.auth.avatarInfo !== null) {
+        return `#${store.state.auth.avatarInfo.slots.Hat[0]}`;
       } else {
-        return store.getters.getHatId;
+        return "#empty";
       }
     });
 
     const Eyes = computed(() => {
-      if (store.state.auth.equippedAccessories.Eyes[0]) {
-        return `#${store.state.auth.equippedAccessories.Eyes[0]}`;
+      if (store.state.auth.avatarInfo !== null) {
+        return `#${store.state.auth.avatarInfo.slots.Eyes[0]}`;
       } else {
-        return store.getters.getEyesId;
+        return "#empty";
       }
     });
 
     const Face = computed(() => {
-      if (store.state.auth.equippedAccessories.Face[0]) {
-        return `#${store.state.auth.equippedAccessories.Hat[0]}`;
+      if (store.state.auth.avatarInfo !== null) {
+        return `#${store.state.auth.avatarInfo.slots.Face[0]}`;
       } else {
-        return store.getters.getFaceId;
+        return "#empty";
       }
     });
 
     const Body = computed(() => {
-      if (store.state.auth.equippedAccessories.Body[0]) {
-        return `#${store.state.auth.equippedAccessories.Body[0]}`;
+      if (store.state.auth.avatarInfo !== null) {
+        return `#${store.state.auth.avatarInfo.slots.Body[0]}`;
       } else {
-        return store.getters.getBodyId;
+        return "#empty";
       }
     });
 
     const Misc = computed(() => {
-      if (store.state.auth.equippedAccessories.Misc[0]) {
-        return `#${store.state.auth.equippedAccessories.Misc[0]}`;
+      if (store.state.auth.avatarInfo !== null) {
+        return `#${store.state.auth.avatarInfo.slots.Misc[0]}`;
       } else {
-        return store.getters.getMiscId;
+        return "#empty";
       }
     });
 

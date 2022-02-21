@@ -2,12 +2,12 @@ type erc721_token =
  service {
    acceptCycles: () -> ();
    addAdmin: (principal) -> (Result);
-   addLegendary: (text, text) -> (Result_4);
-   addListAccessory: (vec Accessory) -> (Result_4);
+   addLegendary: (text, text) -> (Result_5);
+   addListAccessory: (vec Accessory) -> (Result_5);
    addListComponent: (vec record {
                             text;
                             Component;
-                          }) -> (Result_4);
+                          }) -> (Result_5);
    allPayments: () -> (vec record {
                              principal;
                              vec SubAccount__1;
@@ -18,10 +18,10 @@ type erc721_token =
                               }) query;
    availableCycles: () -> (nat) query;
    balance: (BalanceRequest) -> (BalanceResponse) query;
-   bearer: (TokenIdentifier) -> (Result_7) query;
+   bearer: (TokenIdentifier) -> (Result_8) query;
    clearPayments: (principal, vec SubAccount__1) -> ();
    collectCanisterMetrics: () -> ();
-   details: (TokenIdentifier) -> (Result_10) query;
+   details: (TokenIdentifier) -> (Result_11) query;
    draw: (TokenIdentifier) -> (Result);
    eventsSize: () -> (nat) query;
    extensions: () -> (vec Extension) query;
@@ -33,8 +33,8 @@ type erc721_token =
                                   text;
                                   Component;
                                 }) query;
-   getAvatarInfos: () -> (Result_9) query;
-   getAvatarInfos_new: () -> (Result_8) query;
+   getAvatarInfos: () -> (Result_10) query;
+   getAvatarInfos_new: () -> (Result_9) query;
    getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
    getMinter: () -> (vec principal) query;
    getRegistry: () -> (vec record {
@@ -48,19 +48,18 @@ type erc721_token =
    howManyEquipped: () -> (nat) query;
    http_request: (HttpRequest) -> (HttpResponse) query;
    init_cap: () -> (Result);
-   list: (ListRequest) -> (Result_3);
+   list: (ListRequest) -> (Result_4);
    listings: () -> (vec record {
                           TokenIndex;
                           Listing;
                           Metadata__1;
                         }) query;
    lock: (TokenIdentifier, nat64, AccountIdentifier, SubAccount__1) ->
-    (Result_7);
-   metadata: (TokenIdentifier) -> (Result_6) query;
-   mint: (MintRequest) -> (Result_5);
-   mintLegendary: (text, AccountIdentifier) -> (Result_4);
+    (Result_8);
+   metadata: (TokenIdentifier) -> (Result_7) query;
+   mint: (MintRequest) -> (Result_6);
+   mintLegendary: (text, AccountIdentifier) -> (Result_5);
    modify_style: (text) -> (text);
-   patch: () -> ();
    payments: () -> (opt vec SubAccount__1) query;
    removeAccessory: (TokenIdentifier, text, principal) -> (Result);
    removeMouth: (TokenIdentifier) -> (Result);
@@ -70,7 +69,7 @@ type erc721_token =
                             text;
                           }) query;
    saveAccessories: () -> (nat, nat);
-   settle: (TokenIdentifier) -> (Result_3);
+   settle: (TokenIdentifier) -> (Result_4);
    settlements: () ->
     (vec record {
            TokenIndex;
@@ -78,9 +77,8 @@ type erc721_token =
            nat64;
          }) query;
    showFullSvg: (TokenIdentifier) -> (opt text) query;
-   showSvg: (TokenIdentifier) -> (opt text) query;
    stats: () -> (nat64, nat64, nat64, nat64, nat, nat, nat) query;
-   supply: () -> (nat) query;
+   supply: (TokenIdentifier) -> (Result_3) query;
    tokenIdentifier: (TokenIndex) -> (TokenIdentifier) query;
    tokens: (AccountIdentifier) -> (Result_2) query;
    tokens_ext: (AccountIdentifier) -> (Result_1) query;
@@ -180,50 +178,55 @@ type Settlement =
 type Result_9 = 
  variant {
    err: text;
-   ok: AvatarPreview;
- };
-type Result_8 = 
- variant {
-   err: text;
    ok: AvatarPreviewNew;
  };
-type Result_7 = 
+type Result_8 = 
  variant {
    err: CommonError;
    ok: AccountIdentifier;
  };
-type Result_6 = 
+type Result_7 = 
  variant {
    err: CommonError__1;
    ok: Metadata;
  };
-type Result_5 = 
+type Result_6 = 
  variant {
    err: text;
    ok: AvatarInformations;
  };
-type Result_4 = 
+type Result_5 = 
  variant {
    err: text;
    ok: text;
  };
-type Result_3 = 
+type Result_4 = 
  variant {
    err: CommonError;
    ok;
+ };
+type Result_3 = 
+ variant {
+   err: CommonError;
+   ok: Balance__1;
  };
 type Result_2 = 
  variant {
    err: CommonError;
    ok: vec TokenIndex;
  };
-type Result_10 = 
+type Result_11 = 
  variant {
    err: CommonError;
    ok: record {
          AccountIdentifier;
          opt Listing;
        };
+ };
+type Result_10 = 
+ variant {
+   err: text;
+   ok: AvatarPreview;
  };
 type Result_1 = 
  variant {
@@ -378,6 +381,7 @@ type CanisterMetrics = record {data: CanisterMetricsData;};
 type CanisterMemoryAggregatedData = vec nat64;
 type CanisterHeapMemoryAggregatedData = vec nat64;
 type CanisterCyclesAggregatedData = vec nat64;
+type Balance__1 = nat;
 type BalanceResponse = 
  variant {
    err: CommonError__1;
@@ -429,4 +433,7 @@ type Accessory =
    name: text;
    slot: text;
  };
-service : () -> erc721_token
+service : (variant {
+             commit;
+             verify;
+           }) -> erc721_token

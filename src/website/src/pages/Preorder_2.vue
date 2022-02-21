@@ -49,6 +49,7 @@
           <div class="text-center lg:text-2xl text-xl font-bold text-gray-800 w-2/3">
             Start playing and earn
             <a href="https://www.dfinitycommunity.com/why-icp-squad-nfts-are-game-changer-for-internet-computer-dapps/" target="_blank" class="text-purple-500 font-extrabold"> rewards 💰 </a>
+            (soon)
             <br />
             <br />
             Missions, contests , partnerships and more !
@@ -57,7 +58,10 @@
         </div>
       </div>
     </div>
-    <div class="flex flex-col flex-1 w-full bg-gradient-to-l from-gray-600 via-gray-900 to-black 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-semibold text-white md:justify-around" v-if="!connected">
+    <div
+      class="flex flex-col flex-1 w-full bg-gradient-to-l from-gray-600 via-gray-900 to-black 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-semibold text-white md:justify-around"
+      v-if="!connected"
+    >
       <h1 class="text-center mt-8 font-marker">Connect your wallet.</h1>
 
       <div class="flex flex-row justify-around mb-8">
@@ -66,7 +70,10 @@
       </div>
     </div>
   </div>
-  <div v-else-if="connected && squad_member" class="flex flex-col flex-1 w-full bg-gradient-to-l from-gray-600 via-gray-900 to-black lg:text-6xl md:text-4xl text-2xl font-semibold text-white justify-around">
+  <div
+    v-else-if="connected && squad_member"
+    class="flex flex-col flex-1 w-full bg-gradient-to-l from-gray-600 via-gray-900 to-black lg:text-6xl md:text-4xl text-2xl font-semibold text-white justify-around"
+  >
     <h3 class="text-center md:mb-16 mt-8 mb-8 font-marker lg:text-5xl md:text- 3xl text-2xl">Already in the team !<br /></h3>
     <div class="w-full flex flex-row justify-around items-center">
       <router-link to="/">
@@ -77,7 +84,10 @@
       </router-link>
     </div>
   </div>
-  <div class="flex flex-col flex-1 w-full bg-gradient-to-l from-gray-600 via-gray-900 to-black lg:text-6xl md:text-4xl text-2xl font-semibold text-white justify-center" v-if="connected && !squad_member && !joined">
+  <div
+    class="flex flex-col flex-1 w-full bg-gradient-to-l from-gray-600 via-gray-900 to-black lg:text-6xl md:text-4xl text-2xl font-semibold text-white justify-center"
+    v-if="connected && !squad_member && !joined"
+  >
     <h1 class="text-center md:mb-16 mt-8 mb-8 font-marker">Inscription 🔥</h1>
 
     <div class="flex flex-col justify-between items-center mb-8 mt-8 gap-y-8 w-full">
@@ -111,21 +121,34 @@
           <input v-model="captchaText" size="10" class="border-4 border-gray-800 rounded-xl p-2 outline-none focus:border-pink-600 md:text-3xl text-xl text-black font-bold mb-8" type="text" />
         </div>
       </div>
-      <h3 class="mb-4 mx-auto lg:text-lg md:text-base text-sm font-normal text-white md:w-3/12 w-9/12">🚨 <strong>Only 1 entry allowed per person.</strong><br />There's no gameplay advantage to owning more than one character. Cheaters risk being banned from the game.<br /></h3>
-      <button class="2xl:text-5xl lg:text-4xl md:text-3xl text-2xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 md:py-8 md:px-12 mt-8 mb-8 cursor-pointer max-w-2xl" @click="verification" :class="waiting ? 'animate-pulse' : ''">
+      <h3 class="mb-4 mx-auto lg:text-lg md:text-base text-sm font-normal text-white md:w-3/12 w-9/12">
+        🚨 <strong>Only 1 entry allowed per person.</strong><br />There's no gameplay advantage to owning more than one character. Cheaters risk being banned from the game.<br />
+      </h3>
+      <button
+        class="2xl:text-5xl lg:text-4xl md:text-3xl text-2xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 md:py-8 md:px-12 mt-8 mb-8 cursor-pointer max-w-2xl"
+        @click="verification"
+        :class="waiting ? 'animate-pulse' : ''"
+      >
         {{ message }}
       </button>
       <h3 class="mb-8 mx-auto lg:text-base md:text-sm text-xs font-normal text-white md:w-3/12 w-9/12">
         ⚠️ <strong class="text-center">Disclaimer</strong> ⚠️<br />
         <u>Please do not invest money you cannot afford to lose!</u><br />
-        The Internet Computer is still a new technology and NFT markets are unpredictable. The last thing we want is to have any of our dear supporters experience financial hardship due to unexpected delays or unpredictable market outcomes. Always do your own research and take accountability for managing your financial risk wisely. By submitting this form you agree to indemnify and hold ICP Squad harmless to the maximum extent permitted by applicable law, without limitation, from and against any
-        and all losses. In other words, please don't try to sue us. We are just a bunch of nerds volunteering to build cool stuff for the Internet Computer, and a lawsuit would ruin all the fun.<br />
+        The Internet Computer is still a new technology and NFT markets are unpredictable. The last thing we want is to have any of our dear supporters experience financial hardship due to unexpected
+        delays or unpredictable market outcomes. Always do your own research and take accountability for managing your financial risk wisely. By submitting this form you agree to indemnify and hold
+        ICP Squad harmless to the maximum extent permitted by applicable law, without limitation, from and against any and all losses. In other words, please don't try to sue us. We are just a bunch
+        of nerds volunteering to build cool stuff for the Internet Computer, and a lawsuit would ruin all the fun.<br />
       </h3>
       <h3 class="mb-2 mt-8 mx-auto lg:text-xl md:text-lg text-base font-normal text-white text-center">Having trouble submitting the form?<br /></h3>
-      <a class="mb-24 mx-auto lg:text-xl md:text-lg text-base font-normal text-pink-600 hover:text-pink-300 text-center" href="https://discord.com/invite/icpsquad" target="_blank"> 🙋 Click here for info and support<br /> </a>
+      <a class="mb-24 mx-auto lg:text-xl md:text-lg text-base font-normal text-pink-600 hover:text-pink-300 text-center" href="https://discord.com/invite/icpsquad" target="_blank">
+        🙋 Click here for info and support<br />
+      </a>
     </div>
   </div>
-  <div v-else-if="connected && joined && !squad_member" class="flex flex-col flex-1 w-full bg-gradient-to-l from-gray-600 via-gray-900 to-black lg:text-6xl md:text-4xl text-2xl font-semibold text-white justify-around">
+  <div
+    v-else-if="connected && joined && !squad_member"
+    class="flex flex-col flex-1 w-full bg-gradient-to-l from-gray-600 via-gray-900 to-black lg:text-6xl md:text-4xl text-2xl font-semibold text-white justify-around"
+  >
     <h1 class="text-center md:mb-16 mt-8 mb-8 font-marker">Congratulation 🎉</h1>
     <h3 class="text-center md:mb-16 mt-8 mb-8 font-marker lg:text-5xl md:text- 3xl text-2xl">You've successfully joined the squad!<br /></h3>
     <div class="w-full flex flex-row justify-around items-center">
@@ -183,7 +206,9 @@ export default {
     const captchaValid = ref<string>();
 
     const messageFee = () => {
-      alert("During your registration, you will be charged a fee of 1 ICP.\nInstead of selling our NFTs on a marketplace we choosed this method of funding! \nThis money will be put to good use to pay our artists, developers and fund the future of ICP Squad. \n\nThank you for your support!");
+      alert(
+        "During your registration, you will be charged a fee of 1 ICP.\nInstead of selling our NFTs on a marketplace we choosed this method of funding! \nThis money will be put to good use to pay our artists, developers and fund the future of ICP Squad. \n\nThank you for your support!"
+      );
     };
 
     const messageDev = () => {

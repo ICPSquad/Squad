@@ -3,17 +3,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, computed, watchEffect } from "vue";
-import { useStore } from "vuex";
+import { defineComponent, onMounted, ref, watchEffect } from "vue";
 import { redrawSvg } from "../../utils/svg";
 
 export default defineComponent({
   setup() {
     const div = document.createElement("div");
     const avatarDiv = ref<HTMLDivElement>(div);
-
-    const store = useStore();
-    const slots = computed(() => store.getters.getSlots);
 
     onMounted(() => {
       avatarDiv.value.innerHTML = redrawSvg();
@@ -23,7 +19,7 @@ export default defineComponent({
       avatarDiv.value.innerHTML = redrawSvg();
     });
 
-    return { avatarDiv, slots };
+    return { avatarDiv };
   },
 });
 </script>

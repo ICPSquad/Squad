@@ -1314,8 +1314,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         buffer.toArray();
     };
     
-    public query func supply() : async Nat {
-        _supply;
+    public query func supply(token : TokenIdentifier) : async Result.Result<Balance,CommonError> {
+        #ok(_supply);
     };
 
     public query func extensions() : async [Extension] {

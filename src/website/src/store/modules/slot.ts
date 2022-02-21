@@ -17,9 +17,6 @@ const mutations = {
     }
     state[accessory.slot as keyof State] = accessory;
   },
-  clearSlot(state: State, slot: string) {
-    state[slot as keyof Slots] = null;
-  },
 };
 
 const getters = {

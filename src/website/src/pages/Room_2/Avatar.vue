@@ -1,10 +1,9 @@
 <template>
-  <div ref="avatarDiv" class="mt-8 md:w-96 mx-auto w-60 h-auto border-4 border-pink-300 bg-white"></div>
+  <div ref="avatarDiv" class="mt-8 md:w-96 mx-auto w-60 h-auto"></div>
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted, ref, computed, watchEffect } from "vue";
-import { useStore } from "vuex";
 import { constructSVG } from "../../utils/svg_new";
 
 export default defineComponent({
@@ -30,9 +29,6 @@ export default defineComponent({
     const div = document.createElement("div");
     const avatarDiv = ref<HTMLDivElement>(div);
 
-    const store = useStore();
-    const slots = computed(() => store.getters.getSlots);
-
     onMounted(() => {
       //@ts-ignore
       avatarDiv.value.innerHTML = constructSVG(props.layers, props.body_name, props.style, props.accessory);
@@ -43,7 +39,7 @@ export default defineComponent({
       avatarDiv.value.innerHTML = constructSVG(props.layers, props.body_name, props.style, props.accessory);
     });
 
-    return { avatarDiv, slots };
+    return { avatarDiv };
   },
 });
 </script>

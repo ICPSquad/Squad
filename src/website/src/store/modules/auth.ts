@@ -3,8 +3,9 @@ import { Principal } from "@dfinity/principal";
 import { Commit } from "vuex";
 
 import { Inventory } from "declarations/accessories/accessories.did.d";
-import { AvatarPreviewNew } from "@/declarations/avatar/avatar.did";
+import { AvatarPreviewNew, LayerId } from "@/declarations/avatar/avatar.did";
 import { Slots } from "declarations/avatar/avatar.did";
+import { addAccessoryLayers, removeAccessoryLayers } from "../../utils/svg_new";
 import store from "..";
 
 const state: {
@@ -15,8 +16,7 @@ const state: {
   authenticatedActor_material: Actor | null;
   tokenIdentifier: string | null;
   rawAvatar: string | null;
-  avatarPreview: AvatarPreviewNew | null;
-  equippedAccessories: Slots | null;
+  avatarInfo: AvatarPreviewNew | null;
   inventory: Inventory;
 } = {
   principal: null,
@@ -26,14 +26,7 @@ const state: {
   authenticatedActor_material: null,
   tokenIdentifier: null,
   rawAvatar: null,
-  avatarPreview: null,
-  equippedAccessories: {
-    Hat: [],
-    Face: [],
-    Eyes: [],
-    Body: [],
-    Misc: [],
-  },
+  avatarInfo: null,
   inventory: [],
 };
 
@@ -64,11 +57,16 @@ const mutations = {
   setRawAvatar(state: State, rawAvatar: string) {
     state.rawAvatar = rawAvatar;
   },
-  setEquipedAccessory(state: State, equipedAccessory: Slots) {
-    state.equippedAccessories = equipedAccessory;
+  setAvatarInfo(state: State, avatarInfo: AvatarPreviewNew) {
+    state.avatarInfo = avatarInfo;
   },
-  setAvatarPreview(state: State, avatarPreview: AvatarPreviewNew) {
-    state.avatarPreview = avatarPreview;
+  addAccessory(state: State, { slot, name }: { slot: string; name: string }) {
+    state.avatarInfo!.slots[slot as keyof Slots] = [name];
+    state.avatarInfo!.layers = addAccessoryLayers(state.avatarInfo!.layers, name);
+  },
+  removeAccessory(state: State, { slot, name }: { slot: string; name: string }) {
+    state.avatarInfo!.slots[slot as keyof Slots] = [];
+    state.avatarInfo!.layers = removeAccessoryLayers(state.avatarInfo!.layers, name);
   },
 };
 
@@ -76,24 +74,19 @@ const getters = {
   getPrincipal: (state: State) => state.principal,
   getAuthenticatedActor_hub: (state: State) => state.authenticatedActor_hub,
   getAuthenticatedActor_nft: (state: State) => state.authenticatedActor_nft,
-  getAuthenticatedActor_material: (state: State) =>
-    state.authenticatedActor_material,
+  getAuthenticatedActor_material: (state: State) => state.authenticatedActor_material,
   getInventory: (state: State) => state.inventory,
   getRawAvatar: (state: State) => state.rawAvatar,
-  getEquipedAccessory: (state: State) => state.equippedAccessories,
   getWallet: (state: State) => state.wallet,
   getTokenAvatar: (state: State) => state.tokenIdentifier,
   isAvatarLoaded: (state: State) => state.rawAvatar !== null,
-  isAvatarPreviewLoaded: (state: State) => state.avatarPreview !== null,
-  isInventoryConnected: (state: State) =>
-    state.authenticatedActor_material !== null,
-  isConnected: (state: State) =>
-    state.authenticatedActor_hub !== null && state.authenticatedActor_nft, // TODO: is it really ok?
+  isAvatarInfoLoaded: (state: State) => state.avatarInfo !== null,
+  isInventoryConnected: (state: State) => state.authenticatedActor_material !== null,
+  isConnected: (state: State) => state.authenticatedActor_hub !== null && state.authenticatedActor_nft, // TODO: is it really ok?
   isPrincipalSet: (state: State) => state.principal !== null,
   isAirdropConnected: (state: State) => state.authenticatedActor_hub !== null,
   isHubConnected: (state: State) => state.authenticatedActor_hub !== null,
-  isRoomConnected: (state: State) =>
-    state.authenticatedActor_nft !== null && state.authenticatedActor_material,
+  isRoomConnected: (state: State) => state.authenticatedActor_nft !== null && state.authenticatedActor_material,
   isTokenIdentifierFound: (state: State) => state.tokenIdentifier !== null,
 };
 
@@ -105,13 +98,7 @@ const actions = {
       commit("setInventory", inventory);
     }
   },
-  async loadTokenIdentifier({
-    commit,
-    state,
-  }: {
-    commit: Commit;
-    state: State;
-  }) {
+  async loadTokenIdentifier({ commit, state }: { commit: Commit; state: State }) {
     const actor = state.authenticatedActor_nft;
     if (actor == null) {
       throw new Error("Need an authenticated actor to set token identifier");
@@ -121,15 +108,7 @@ const actions = {
     commit("setTokenIdentifier", tokenIdentifier_result[0]);
     return;
   },
-  async loadInfos({
-    dispatch,
-    commit,
-    state,
-  }: {
-    dispatch: any;
-    commit: Commit;
-    state: State;
-  }) {
+  async loadInfos({ dispatch, commit, state }: { dispatch: any; commit: Commit; state: State }) {
     const actor = state.authenticatedActor_nft;
     if (actor == null) {
       throw new Error("Need an authenticated actor to set avatar");
@@ -152,18 +131,10 @@ const actions = {
     commit("setEquipedAccessory", slots);
     commit("setTokenIdentifier", token_identifier);
   },
-  async loadInfosNew({
-    dispatch,
-    commit,
-    state,
-  }: {
-    dispatch: any;
-    commit: Commit;
-    state: State;
-  }) {
+  async loadInfosNew({ dispatch, commit, state }: { dispatch: any; commit: Commit; state: State }) {
     const actor = state.authenticatedActor_nft;
     if (actor == null) {
-      throw new Error("Need an authenticated actor to set avatar");
+      throw new Error("Need an authenticated actor");
     }
 
     //@ts-ignore
@@ -173,11 +144,9 @@ const actions = {
       //TODO : avatar not found
       throw new Error(avatar_result.err);
     }
-    let { token_identifier, layers, slots, body_name, style } =
-      avatar_result.ok;
+    let { token_identifier } = avatar_result.ok;
     console.log("token_identifier", token_identifier);
-    store.commit("setAvatarPreview", avatar_result.ok);
-    store.commit("setEquipedAccessory", slots);
+    store.commit("setAvatarInfo", avatar_result.ok);
   },
 };
 

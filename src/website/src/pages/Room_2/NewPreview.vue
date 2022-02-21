@@ -17,15 +17,11 @@
       <div class="flex flex-col lg:w-1/2 items-center">
         <div>
           <h2 class="text-center 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-bold text-gray-800 font-marker mt-8">Accessories 🎩</h2>
-          <div class="grid grid-cols-3 gap-x-4 gap-y-6 px-8 mt-8" v-if="accessoryList.length > 0">
-            <li
-              v-for="accessory in accessoryList"
-              :key="accessory.name"
-              class="list-none flex flex-row flex-wrap cursor-pointer"
-              :class="[selectedAccessory != undefined && selectedAccessory === accessory.name ? 'border-4 border-pink-400' : '']"
-              @click="clickAccessory(accessory)"
-            >
-              <img class="w-44" :src="`https://po6n2-uiaaa-aaaaj-qaiua-cai.raw.ic0.app/?&tokenid=${accessory.token_identifier}`" alt="Accessory_card" />
+          <div class="grid md:grid-cols-3 grid-cols-1 gap-x-4 gap-y-6 px-8 mt-8" v-if="accessoryList.length > 0">
+            <li v-for="accessory in accessoryList" :key="accessory.name" class="list-none">
+              <div class="cursor-pointer w-56" :class="[selectedAccessory != undefined && selectedAccessory.name === accessory.name ? 'recipe-border' : '']" @click="clickAccessory(accessory)">
+                <img :src="`https://po6n2-uiaaa-aaaaj-qaiua-cai.raw.ic0.app/?&tokenid=${accessory.token_identifier}`" alt="Accessory_card" />
+              </div>
             </li>
           </div>
         </div>
@@ -63,22 +59,25 @@ export default defineComponent({
 
     const message = computed(() => {
       if (!selectedAccessory.value) {
-        return "Please select an accessory";
+        return "Please select an accessory.";
       } else if (selectedAccessory.value.equipped) {
-        return "This accessory is equipped";
+        return "This accessory is equipped.";
       } else {
         let slot = nameToSlot(selectedAccessory.value.name);
         if (!slot) {
-          return "This accessory is not compatible with the current room";
+          return "This accessory is not compatible with the current version of the game.";
         }
-        if (store.state.auth.equippedAccessories[slot].length > 0) {
-          return "Cannot equip this accessory, you already have one in the slot : " + slot;
+        if (store.state.auth.avatarInfo.slots[slot].length > 0) {
+          return "Cannot equip this accessory, you already have one in the slot : " + slot + ".";
         }
-        return "This accessory can be equipped in the slot : " + slot;
+        return "This accessory can be equipped in the slot : " + slot + ".";
       }
     });
 
     function clickAccessory(accessory: AccesoryInfos) {
+      if (waiting.value) {
+        return;
+      }
       selectedAccessory.value = accessory;
     }
 
@@ -96,7 +95,7 @@ export default defineComponent({
       if (!slot) {
         return { show: false, text: "" };
       }
-      if (store.state.auth.equippedAccessories[slot].length > 0) {
+      if (store.state.auth.avatarInfo.slots[slot].length > 0) {
         return { show: false, text: "" };
       }
       return { show: true, text: "Wear 🕶" };
@@ -114,7 +113,7 @@ export default defineComponent({
         ) {
           waiting.value = true;
           let actor = store.getters.getAuthenticatedActor_material;
-          let token_identifier_avatar = store.state.auth.avatarPreview.token_identifier;
+          let token_identifier_avatar = store.state.auth.avatarInfo.token_identifier;
           let token_identifier_accessory = selectedAccessory.value.token_identifier;
           const result = await actor.removeAccessory(token_identifier_accessory, token_identifier_avatar);
           waiting.value = false;
@@ -122,13 +121,11 @@ export default defineComponent({
           if (result.hasOwnProperty("err")) {
             alert(JSON.stringify(result.err));
           } else {
-            selectedAccessory.value = {
-              ...selectedAccessory.value,
-              equipped: false,
-            };
-            store.commit("clearSlot", nameToSlot(selectedAccessory.value.name));
+            let payload = { slot: nameToSlot(selectedAccessory.value.name), name: selectedAccessory.value.name };
+            store.commit("removeAccessory", payload);
             let new_inventory = changeInventory(token_identifier_accessory, store.state.auth.inventory);
             store.commit("setInventory", new_inventory);
+            selectedAccessory.value = undefined;
             alert("Accessory has been successfully removed, congratulation ! Take a look at your avatar.");
           }
         }
@@ -136,7 +133,7 @@ export default defineComponent({
         if (confirm("Are you sure you want to equip this accessory? It will consume 1 wear point. You will be able to remove it later.")) {
           waiting.value = true;
           let actor = store.getters.getAuthenticatedActor_material;
-          let token_identifier_avatar = store.state.auth.avatarPreview.token_identifier;
+          let token_identifier_avatar = store.state.auth.avatarInfo.token_identifier;
           let token_identifier_accessory = selectedAccessory.value.token_identifier;
           const result = await actor.wearAccessory(token_identifier_accessory, token_identifier_avatar);
           waiting.value = false;
@@ -147,7 +144,8 @@ export default defineComponent({
               ...selectedAccessory.value,
               equipped: true,
             };
-            store.commit("setAccessory", nameToAccessory(selectedAccessory.value.name));
+            let payload = { slot: nameToSlot(selectedAccessory.value.name), name: selectedAccessory.value.name };
+            store.commit("addAccessory", payload);
             let new_inventory = changeInventory(token_identifier_accessory, store.state.auth.inventory);
             store.commit("setInventory", new_inventory);
             alert("Accessory has been successfully equipped, congratulation ! Take a look at your avatar.");
@@ -158,12 +156,12 @@ export default defineComponent({
 
     return {
       connected: computed(() => store.getters.isRoomConnected),
-      loaded: computed(() => store.state.auth.avatarPreview && store.state.auth.equippedAccessories),
-      token_identifier: computed(() => store.state.auth.avatarPreview.token_identifier),
-      layers: computed(() => store.state.auth.avatarPreview.layers),
-      slots: computed(() => store.state.auth.avatarPreview.slots),
-      body_name: computed(() => store.state.auth.avatarPreview.body_name),
-      style: computed(() => store.state.auth.avatarPreview.style),
+      loaded: computed(() => store.state.auth.avatarInfo),
+      token_identifier: computed(() => store.state.auth.avatarInfo.token_identifier),
+      layers: computed(() => store.state.auth.avatarInfo.layers),
+      slots: computed(() => store.state.auth.avatarInfo.slots),
+      body_name: computed(() => store.state.auth.avatarInfo.body_name),
+      style: computed(() => store.state.auth.avatarInfo.style),
       inventory: computed(() => store.state.auth.inventory),
       accessoryList: computed(() => AccessoryListFromInventory(store.state.auth.inventory)),
       selectedAccessory,
@@ -182,3 +180,11 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.recipe-border {
+  border-image: linear-gradient(90deg, rgb(87, 39, 133) 0%, rgb(237, 30, 121) 25%, rgb(41, 171, 226) 51%, rgb(241, 90, 36) 76%, rgb(251, 176, 59) 100%);
+  border-width: 6px;
+  border-image-slice: 1;
+}
+</style>

@@ -824,10 +824,13 @@ let this = actor {
         time : Time;
     };
 
+    let 
+
     let EXTActivityInterface = actor {
         transactions : query () -> async [Transaction];
         listings : query () -> async[(TokenIndex, Listing, Metadata)];
     };
+
 
 
 };
