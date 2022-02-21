@@ -1013,16 +1013,37 @@ shared({ caller = hub }) actor class Hub() = this {
     private stable var _itemsEntries : [(TokenIndex, Item)] = [];
     private var _items : HashMap.HashMap<TokenIndex, Item> = HashMap.fromIter(_itemsEntries.vals(), _itemsEntries.size(), ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
 
-    public shared ({caller}) func fix(token_identifier : TokenIdentifier) : async () {
-        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
-        switch(_items.get(token_index)){
-            case(?#Accessory(item)){
-                let new_item = #Accessory({name = item.name; wear = item.wear; equipped =  null});
-                _items.put(token_index,new_item);
-            };
-            case(_){};
+    // Returns the name of an item.
+    private func _getNameItem(item : Item) : Text {
+        switch(item){
+            case(#Accessory(obj)) return (obj.name);
+            case(#Material(name)) return (name);
+            case(#LegendaryAccessory(obj)) return (obj.name);
         };
     };
+
+
+    // Returns a list that contains all items in circulation with their current supply!
+    public shared query ({caller}) func stats_circulation() : async [(Text, Nat32)] {
+        assert(_isAdmin(caller));
+        var circulation : HashMap.HashMap<Text, Nat32> = HashMap.HashMap<Text, Nat32>(0, Text.equal, Text.hash);
+        for(item in _items.vals()){
+            let name = _getNameItem(item);
+            switch(circulation.get(name)){
+                //  First time we encounter the item we add it to the hashamp
+                case(null) {
+                    circulation.put(name, 1);
+                };
+                // Increase count 
+                case(?value) {
+                    circulation.put(name, value + 1);
+                };
+            };
+        };
+        return(Iter.toArray(circulation.entries()));
+    };
+
+
 
     //   Accessories stored as Blob after being drawn.
     private stable var _blobsEntries : [(TokenIndex,Blob) ]= [];
