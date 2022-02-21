@@ -41,7 +41,7 @@ export default defineComponent({
       avatarDiv.value.innerHTML = constructSVG(props.layers, props.body_name, props.style, props.accessory);
     });
 
-    return { avatarDiv, hideClothes: computed(() => store.state.auth.hideClothing) };
+    return { avatarDiv };
   },
 });
 </script>

@@ -297,7 +297,6 @@ export const idlFactory = ({ IDL }) => {
       ),
     'eventsSize' : IDL.Func([], [IDL.Nat], ['query']),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
-    'fix' : IDL.Func([TokenIdentifier__3], [], []),
     'getCanisterMetrics' : IDL.Func(
         [GetMetricsParameters],
         [IDL.Opt(CanisterMetrics)],
@@ -366,6 +365,11 @@ export const idlFactory = ({ IDL }) => {
     'stats' : IDL.Func(
         [],
         [IDL.Nat64, IDL.Nat64, IDL.Nat64, IDL.Nat64, IDL.Nat, IDL.Nat, IDL.Nat],
+        ['query'],
+      ),
+    'stats_circulation' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat32))],
         ['query'],
       ),
     'supply' : IDL.Func([], [IDL.Nat], ['query']),

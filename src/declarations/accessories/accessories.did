@@ -238,7 +238,6 @@ type Hub =
     (Result_6);
    eventsSize: () -> (nat) query;
    extensions: () -> (vec Extension) query;
-   fix: (TokenIdentifier__3) -> ();
    getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
    getContractInfo: () -> (ContractInfo);
    getHisInventory: (principal) -> (Inventory) query;
@@ -295,6 +294,10 @@ type Hub =
    showCirculation: (text) -> (opt text) query;
    showItems: (nat32) -> (opt Item) query;
    stats: () -> (nat64, nat64, nat64, nat64, nat, nat, nat) query;
+   stats_circulation: () -> (vec record {
+                                   text;
+                                   nat32;
+                                 }) query;
    supply: () -> (nat) query;
    tokens_ext: (AccountIdentifier__2) -> (Result_2) query;
    transactions: () -> (vec Transaction) query;

@@ -21,7 +21,7 @@ export function constructSVG(layers: Array<[LayerId, string]>, body_name: string
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" class='${body_name}'>`;
   svg += style;
 
-  // Check if we need to hide clothing (e.g when we have just equipped something on body)
+  // Check if we need to hide clothing (Fix for when we have just equipped something on body)
   //@ts-ignore
   if (store.state.auth.hideClothing) {
     svg += "<style>.clothing{visibility : hidden;}</style>";

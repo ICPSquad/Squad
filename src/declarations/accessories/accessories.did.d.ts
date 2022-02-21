@@ -100,7 +100,6 @@ export interface Hub {
     ) => Promise<Result_6>,
   'eventsSize' : () => Promise<bigint>,
   'extensions' : () => Promise<Array<Extension>>,
-  'fix' : (arg_0: TokenIdentifier__3) => Promise<undefined>,
   'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
       [] | [CanisterMetrics]
     >,
@@ -150,6 +149,7 @@ export interface Hub {
   'stats' : () => Promise<
       [bigint, bigint, bigint, bigint, bigint, bigint, bigint]
     >,
+  'stats_circulation' : () => Promise<Array<[string, number]>>,
   'supply' : () => Promise<bigint>,
   'tokens_ext' : (arg_0: AccountIdentifier__2) => Promise<Result_2>,
   'transactions' : () => Promise<Array<Transaction>>,
