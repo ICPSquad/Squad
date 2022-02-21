@@ -226,6 +226,7 @@ export type User = { 'principal' : Principal } |
   { 'address' : AccountIdentifier__1 };
 export interface erc721_token {
   'acceptCycles' : () => Promise<undefined>,
+  'addAccessory' : (arg_0: string, arg_1: Accessory) => Promise<Result_5>,
   'addAdmin' : (arg_0: Principal) => Promise<Result>,
   'addLegendary' : (arg_0: string, arg_1: string) => Promise<Result_5>,
   'addListAccessory' : (arg_0: Array<Accessory>) => Promise<Result_5>,

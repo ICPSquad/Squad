@@ -1,6 +1,7 @@
 type erc721_token = 
  service {
    acceptCycles: () -> ();
+   addAccessory: (text, Accessory) -> (Result_5);
    addAdmin: (principal) -> (Result);
    addLegendary: (text, text) -> (Result_5);
    addListAccessory: (vec Accessory) -> (Result_5);

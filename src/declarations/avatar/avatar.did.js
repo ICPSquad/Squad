@@ -1,12 +1,12 @@
 export const idlFactory = ({ IDL }) => {
-  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
-  const Result_5 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
   const Accessory = IDL.Record({
     'content' : IDL.Text,
     'name' : IDL.Text,
     'slot' : IDL.Text,
     'layer' : IDL.Nat8,
   });
+  const Result_5 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
+  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const Component = IDL.Record({
     'content' : IDL.Text,
     'name' : IDL.Text,
@@ -248,6 +248,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const erc721_token = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
+    'addAccessory' : IDL.Func([IDL.Text, Accessory], [Result_5], []),
     'addAdmin' : IDL.Func([IDL.Principal], [Result], []),
     'addLegendary' : IDL.Func([IDL.Text, IDL.Text], [Result_5], []),
     'addListAccessory' : IDL.Func([IDL.Vec(Accessory)], [Result_5], []),

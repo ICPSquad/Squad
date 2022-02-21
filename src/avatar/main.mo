@@ -157,6 +157,20 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     stable var accessoriesEntries : [(Text,Accessory)] = [];
     let accessories : HashMap.HashMap<Text,Accessory> = HashMap.fromIter(accessoriesEntries.vals(), 0, Text.equal, Text.hash);
 
+    public shared ({caller}) func addAccessory (name : Text, accessory : Accessory) : async Result.Result<Text, Text> {
+        assert(_isAdmin(caller));
+        switch(accessories.get(name)){
+            case(?something) {
+                accessories.put(name, accessory);
+                return #ok("This accessory has been updated : " #name);
+            };
+            case(null) {
+                accessories.put(name, accessory);
+                return #ok ("This accessory has been added : " #name);
+            };
+        };
+    };
+
     public shared ({caller}) func addListAccessory (list : [Accessory]) : async Result.Result<Text,Text> {
         assert(_isAdmin(caller));
         for (accessory in list.vals()){
@@ -246,6 +260,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         public func getRawSvg (): Text {
             svg;
         };
+
         
         //  Get the body name to add as class to the final svg so the css style can target and modify elements.
         private func _getNameBody () : Text {
@@ -276,8 +291,17 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
             var content : Text = "<svg viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg' class='";
             content #= _getNameBody(); // We add class "Punk-body" / "Miss-body" / "Business-body" to the svg to apply the style.
             content #= "'>";
-            content #= style_to_add;
-            content #= style_in_memory;
+            content #= style_to_add; // This style allow for all components to fit on the 3 different body types
+            content #= style_in_memory; //  This style contains information about colors for eyes,hair,skin ...
+
+            //  This style allow us to hide some layers when accessory are equipped!
+            switch(get_style_optional_accessory()){
+                case(?style) {
+                    content #= style;
+                };
+                case(null){};
+            };
+
             content #= svg;
             content #= "</svg>";
             return content;
@@ -379,6 +403,15 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
                     slots_in_memory := new_slots;
                     return #ok
                 };
+            };
+        };
+
+        private func get_style_optional_accessory() : ?Text {
+            switch(slots_in_memory.Body){
+                case(?something) {
+                    return ?"<style> .clothing {visibility : hidden;} </style>";
+                };
+                case(null) return null;
             };
         };
     };

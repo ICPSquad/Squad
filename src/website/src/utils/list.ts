@@ -403,7 +403,7 @@ export const accessories: Accessory[] = [
     components: [{ name: "Assassin-body", layer: 95 }],
   },
   {
-    name: "Astro-body",
+    name: "Astro-suit",
     slot: "Body",
     blueprint: ["Metal", "Circuit", "Circuit", "Dfinity-stone"],
     description: "A suit of spacey technology.",
