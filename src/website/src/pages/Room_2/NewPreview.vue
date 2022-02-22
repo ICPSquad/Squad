@@ -115,18 +115,23 @@ export default defineComponent({
           let actor = store.getters.getAuthenticatedActor_material;
           let token_identifier_avatar = store.state.auth.avatarInfo.token_identifier;
           let token_identifier_accessory = selectedAccessory.value.token_identifier;
-          const result = await actor.removeAccessory(token_identifier_accessory, token_identifier_avatar);
-          waiting.value = false;
-
-          if (result.hasOwnProperty("err")) {
-            alert(JSON.stringify(result.err));
-          } else {
-            let payload = { slot: nameToSlot(selectedAccessory.value.name), name: selectedAccessory.value.name };
-            store.commit("removeAccessory", payload);
-            let new_inventory = changeInventory(token_identifier_accessory, store.state.auth.inventory);
-            store.commit("setInventory", new_inventory);
-            selectedAccessory.value = undefined;
-            alert("Accessory has been successfully removed, congratulation ! Take a look at your avatar.");
+          try {
+            const result = await actor.removeAccessory(token_identifier_accessory, token_identifier_avatar);
+            waiting.value = false;
+            if (result.hasOwnProperty("err")) {
+              alert(JSON.stringify(result.err));
+            } else {
+              let payload = { slot: nameToSlot(selectedAccessory.value.name), name: selectedAccessory.value.name };
+              store.commit("removeAccessory", payload);
+              let new_inventory = changeInventory(token_identifier_accessory, store.state.auth.inventory);
+              store.commit("setInventory", new_inventory);
+              selectedAccessory.value = undefined;
+              alert("Accessory has been successfully removed, congratulation ! Take a look at your avatar.");
+            }
+          } catch (e) {
+            waiting.value = false;
+            console.error(e);
+            alert(e);
           }
         }
       } else {
@@ -135,20 +140,25 @@ export default defineComponent({
           let actor = store.getters.getAuthenticatedActor_material;
           let token_identifier_avatar = store.state.auth.avatarInfo.token_identifier;
           let token_identifier_accessory = selectedAccessory.value.token_identifier;
-          const result = await actor.wearAccessory(token_identifier_accessory, token_identifier_avatar);
-          waiting.value = false;
-          if (result.hasOwnProperty("err")) {
-            alert(JSON.stringify(result.err));
-          } else {
-            selectedAccessory.value = {
-              ...selectedAccessory.value,
-              equipped: true,
-            };
-            let payload = { slot: nameToSlot(selectedAccessory.value.name), name: selectedAccessory.value.name };
-            store.commit("addAccessory", payload);
-            let new_inventory = changeInventory(token_identifier_accessory, store.state.auth.inventory);
-            store.commit("setInventory", new_inventory);
-            alert("Accessory has been successfully equipped, congratulation ! Take a look at your avatar.");
+          try {
+            const result = await actor.wearAccessory(token_identifier_accessory, token_identifier_avatar);
+            if (result.hasOwnProperty("err")) {
+              alert(JSON.stringify(result.err));
+            } else {
+              selectedAccessory.value = {
+                ...selectedAccessory.value,
+                equipped: true,
+              };
+              let payload = { slot: nameToSlot(selectedAccessory.value.name), name: selectedAccessory.value.name };
+              store.commit("addAccessory", payload);
+              let new_inventory = changeInventory(token_identifier_accessory, store.state.auth.inventory);
+              store.commit("setInventory", new_inventory);
+              alert("Accessory has been successfully equipped, congratulation ! Take a look at your avatar.");
+            }
+          } catch (e) {
+            waiting.value = false;
+            console.error(e);
+            alert(e);
           }
         }
       }
