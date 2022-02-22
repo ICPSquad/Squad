@@ -1,7 +1,8 @@
 <template>
-  <div class="flex flex-col mb-8">
+  <div class="flex flex-col mb-4">
     <div class="flex flex-row justify-around flex-wrap">
       <div class="flex flex-col items-center">
+        <h3 class="w-2/3 md:w-1/2 mx-auto text-center lg:text-3xl md:text-2xl text-xl font-bold mt-8 text-gray-800">Hat</h3>
         <div class="border-4 border-pink-400 w-44 mt-4">
           <svg viewBox="0 0 800 800">
             <use :href="Hat"></use>
@@ -9,6 +10,7 @@
         </div>
       </div>
       <div class="flex flex-col items-center">
+        <h3 class="w-2/3 md:w-1/2 mx-auto text-center lg:text-3xl md:text-2xl text-xl font-bold mt-8 text-gray-800">Eyes</h3>
         <div class="border-4 border-pink-400 w-44 mt-4">
           <svg viewBox="0 0 800 800">
             <use :href="Eyes"></use>
@@ -16,6 +18,7 @@
         </div>
       </div>
       <div class="flex flex-col items-center">
+        <h3 class="w-2/3 md:w-1/2 mx-auto text-center lg:text-3xl md:text-2xl text-xl font-bold mt-8 text-gray-800">Face</h3>
         <div class="border-4 border-pink-400 w-44 mt-4">
           <svg viewBox="0 0 800 800">
             <use :href="Face"></use>
@@ -25,6 +28,7 @@
     </div>
     <div class="flex flex-row justify-around flex-wrap">
       <div class="flex flex-col items-center">
+        <h3 class="w-2/3 md:w-1/2 mx-auto text-center lg:text-3xl md:text-2xl text-xl font-bold text-gray-800">Body</h3>
         <div class="border-4 border-pink-400 w-44 mt-4">
           <svg viewBox="0 0 800 800">
             <use :href="Body"></use>
@@ -32,6 +36,7 @@
         </div>
       </div>
       <div class="flex flex-col items-center">
+        <h3 class="w-2/3 md:w-1/2 mx-auto text-center lg:text-3xl md:text-2xl text-xl font-bold text-gray-800">Special</h3>
         <div class="border-4 border-pink-400 w-44 mt-4">
           <svg viewBox="0 0 800 800">
             <use :href="Misc"></use>
@@ -47,47 +52,47 @@ import { defineComponent, computed } from "vue";
 import { useStore } from "vuex";
 
 export default defineComponent({
+  props: {},
   setup() {
     const store = useStore();
-    const equiped = computed(() => store.getters.getEquipedAccessory);
 
     const Hat = computed(() => {
-      if (equiped.value.Hat[0]) {
-        return `#${equiped.value.Hat[0]}`;
+      if (store.state.auth.avatarInfo !== null) {
+        return `#${store.state.auth.avatarInfo.slots.Hat[0]}`;
       } else {
-        return store.getters.getHatId;
+        return "#empty";
       }
     });
 
     const Eyes = computed(() => {
-      if (equiped.value.Eyes[0]) {
-        return `#${equiped.value.Eyes[0]}`;
+      if (store.state.auth.avatarInfo !== null) {
+        return `#${store.state.auth.avatarInfo.slots.Eyes[0]}`;
       } else {
-        return store.getters.getEyesId;
+        return "#empty";
       }
     });
 
     const Face = computed(() => {
-      if (equiped.value.Face[0]) {
-        return `#${equiped.value.Face[0]}`;
+      if (store.state.auth.avatarInfo !== null) {
+        return `#${store.state.auth.avatarInfo.slots.Face[0]}`;
       } else {
-        return store.getters.getFaceId;
+        return "#empty";
       }
     });
 
     const Body = computed(() => {
-      if (equiped.value.Body[0]) {
-        return `#${equiped.value.Body[0]}`;
+      if (store.state.auth.avatarInfo !== null) {
+        return `#${store.state.auth.avatarInfo.slots.Body[0]}`;
       } else {
-        return store.getters.getBodyId;
+        return "#empty";
       }
     });
 
     const Misc = computed(() => {
-      if (equiped.value.Misc[0]) {
-        return `#${equiped.value.Misc[0]}`;
+      if (store.state.auth.avatarInfo !== null) {
+        return `#${store.state.auth.avatarInfo.slots.Misc[0]}`;
       } else {
-        return store.getters.getMiscId;
+        return "#empty";
       }
     });
 

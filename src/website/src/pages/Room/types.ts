@@ -12,44 +12,37 @@ export const list_types_accessories: TypesAccessories[] = [
   {
     name: "Hat 🧢",
     slots: ["Hat"],
-    message:
-      "This is everything that you can wear on top of your head. Those accessories take only one slot : Hat.",
+    message: "This is everything that you can wear on top of your head. Those accessories take only one slot : Hat.",
   },
   {
     name: "Glasses 👓",
     slots: ["Eyes"],
-    message:
-      "This is everything that you can wear on your eyes. Those accessories take only one slot : Eyes.",
+    message: "This is everything that you can wear on your eyes. Those accessories take only one slot : Eyes.",
   },
   {
     name: "Face 😶",
     slots: ["Face"],
-    message:
-      "This is everything that you can wear on your face. Those accessories take only one slot : Face.",
+    message: "This is everything that you can wear on your face. Those accessories take only one slot : Face.",
   },
   {
     name: "Clothes 🧥",
     slots: ["Body"],
-    message:
-      "This is everything that you can wear on your body. Those accessories take only one slot : Body.",
+    message: "This is everything that you can wear on your body. Those accessories take only one slot : Body.",
   },
   {
     name: "Special ✨",
     slots: ["Misc"],
-    message:
-      "This is the special slot, accessories that don't fit in any other categories end up here. Those accessories take only one slot : Special.",
+    message: "This is the special slot, accessories that don't fit in any other categories end up here. Those accessories take only one slot : Special.",
   },
   {
     name: "Head 👱",
     slots: ["Face", "Eyes"],
-    message:
-      "Those accessories take two slots : Face and Eyes. You cannot wear glasses with those accessories.",
+    message: "Those accessories take two slots : Face and Eyes. You cannot wear glasses with those accessories.",
   },
   {
     name: "Masks 🎭",
     slots: ["Face", "Eyes", "Hat"],
-    message:
-      "Those accessories take three slots : Face, Eyes and Hat. You cannot wear glasses or hat with those accessories.",
+    message: "Those accessories take three slots : Face, Eyes and Hat. You cannot wear glasses or hat with those accessories.",
   },
 ];
 
