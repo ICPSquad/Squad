@@ -12,6 +12,6 @@ export type Accessory = {
   name: string;
   description: string;
   slot: string;
-  blueprint: string[];
+  recipe: string[];
   components: ComponentSingle[];
 };

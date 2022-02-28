@@ -842,7 +842,7 @@ shared({ caller = hub }) actor class Hub() = this {
     //  Doesn't seem to really need the metada so just put null to save calculations.
     public query func getTokens() : async [(TokenIndex, Metadata)] {
         var results = Buffer.Buffer<(TokenIndex, Metadata)>(0);
-        for (token_index in _tokenListing.keys()){
+        for (token_index in _registry.keys()){
             results.add((token_index,#nonfungible({ metadata = null })));
         };
         return(results.toArray());
@@ -946,7 +946,22 @@ shared({ caller = hub }) actor class Hub() = this {
     public shared ({caller}) func addElements (name : Text, content : Template) : async Result.Result<Text, Text> {
         assert(_isAdmin(caller));
         switch(_templates.get(name)){
-            case(?template) return #err("A template already exists for : " #name);
+            case(?template) {
+                switch(content){
+                    case(#Accessory(infos)) {
+                        if(not(_verifyRecipe(infos.recipe))){
+                            return #err("Recipe is not correct");
+                        } else {
+                            _templates.put(name, content);
+                            return #ok(name # " has been replaced");
+                        };
+                    };
+                    case(_) {
+                        _templates.put(name, content);
+                        return #ok(name # " has been replaced");
+                    };
+                };
+            };
             case(null) {
                 switch(content){
                     case(#Accessory(infos)) {
@@ -964,6 +979,13 @@ shared({ caller = hub }) actor class Hub() = this {
                 };
             };
         };
+    };
+
+    //  Get name of all elements inside _template
+    // @auth : admin
+    public shared query ({caller}) func getAllElements() : async [Text] {
+        assert(_isAdmin(caller));
+        return(Iter.toArray(_templates.keys()));
     };
 
     //  Returns an array of all recipes : (name, recipe)

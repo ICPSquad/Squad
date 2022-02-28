@@ -620,6 +620,33 @@ let this = actor {
         };
     };
 
+    public shared({caller}) func modifyRank(p : Principal, new_rank : Nat64) : async Result.Result<(), Text> {
+        assert(_isAdmin(caller));
+        switch(users.get(p)){
+            case(null) return #err("No user found for principal : " #Principal.toText(p));
+            case(?user){
+                let new_user : User = { avatar = user.avatar; wallet = user.wallet; discord = user.discord; twitter = user.twitter; email = user.email; airdrop = user.airdrop; height = user.height; status = user.status; rank = ?new_rank};
+                users.put(p, new_user);
+                return #ok;
+            };
+        };
+    };
+
+    public shared({caller}) func modifyHeight(p : Principal, new_height : Nat64) : async Result.Result<(), Text> {
+        assert(_isAdmin(caller));
+        switch(users.get(p)){
+            case(null) return #err("No user found for principal : " #Principal.toText(p));
+            case(?user){
+                let new_user : User = { avatar = user.avatar; wallet = user.wallet; discord = user.discord; twitter = user.twitter; email = user.email; airdrop = user.airdrop; height = ?new_height; status = user.status; rank = user.rank};
+                users.put(p, new_user);
+                return #ok;
+            };
+        };
+    };
+
+
+
+
     // Allow us to remove people form the list 
     //@auth : admin
     public shared({caller}) func removeUser(p : Principal) : async Result.Result<Text,Text> {
@@ -700,7 +727,7 @@ let this = actor {
     //Check all subaccounts to see if their balance is non-null, returns the list of those were the balance is not null!
     //@auth : canister
     public shared ({caller}) func verification () : async () {
-        assert(caller == Principal.fromActor(this));
+        assert(caller == Principal.fromActor(this) or _isAdmin(caller));
         var robbers : [SubAccount] = [];
         for (subaccount in subaccount_to_check.vals()){
             let account_to_check = {account = _myAccountIdentifier(?subaccount)};
@@ -715,19 +742,19 @@ let this = actor {
     };
 
     public shared query ({caller}) func show_robbers() : async [SubAccount] {
-        assert(caller == Principal.fromActor(this));
+        assert(caller == Principal.fromActor(this) or _isAdmin(caller));
         subaccounts_robber;
     };
 
     //Process to the paiement of the concerned subbaccounts
 
-    // public shared ({caller}) func process () : async () {
-    //     assert(caller == Principal.fromActor(this));
-    //     for (subaccount in subaccounts_robber.vals()){
-    //         await (_sendBackFrom(subaccount));
-    //     };
-    //     subaccounts_robber := [];
-    // };
+    public shared ({caller}) func process () : async () {
+        assert(caller == Principal.fromActor(this) or _isAdmin(caller));
+        for (subaccount in subaccounts_robber.vals()){
+            await (_sendBackFrom(subaccount));
+        };
+        subaccounts_robber := [];
+    };
 
 
     /////////////
@@ -812,25 +839,7 @@ let this = actor {
         return Cycles.balance();
     };
 
-    ///////////////////////////
-    // ACTIVITY & TRACKING ///
-    /////////////////////////
-
-    let Transaction = {
-        token : TokenIdentifier;
-        seller : Principal;
-        price : Nat64;
-        buyer : AccountIdentifier;
-        time : Time;
-    };
-
-    let 
-
-    let EXTActivityInterface = actor {
-        transactions : query () -> async [Transaction];
-        listings : query () -> async[(TokenIndex, Listing, Metadata)];
-    };
-
+   
 
 
 };

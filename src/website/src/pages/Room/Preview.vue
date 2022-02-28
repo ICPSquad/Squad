@@ -19,7 +19,7 @@
           <h2 class="text-center 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-bold text-gray-800 font-marker mt-8">Accessories 🎩</h2>
           <div class="grid md:grid-cols-3 grid-cols-1 gap-x-4 gap-y-6 px-8 mt-8" v-if="accessoryList.length > 0">
             <li v-for="accessory in accessoryList" :key="accessory.name" class="list-none">
-              <div class="cursor-pointer w-56" :class="[selectedAccessory != undefined && selectedAccessory.name === accessory.name ? 'recipe-border' : '']" @click="clickAccessory(accessory)">
+              <div class="cursor-pointer w-44" :class="[selectedAccessory != undefined && selectedAccessory.name === accessory.name ? 'recipe-border' : '']" @click="clickAccessory(accessory)">
                 <img :src="`https://po6n2-uiaaa-aaaaj-qaiua-cai.raw.ic0.app/?&tokenid=${accessory.token_identifier}`" alt="Accessory_card" />
               </div>
             </li>

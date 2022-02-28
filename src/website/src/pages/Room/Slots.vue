@@ -26,7 +26,7 @@
         </div>
       </div>
     </div>
-    <div class="flex flex-row justify-around flex-wrap">
+    <div class="flex flex-row justify-around flex-wrap mt-6">
       <div class="flex flex-col items-center">
         <h3 class="w-2/3 md:w-1/2 mx-auto text-center lg:text-3xl md:text-2xl text-xl font-bold text-gray-800">Body</h3>
         <div class="border-4 border-pink-400 w-44 mt-4">

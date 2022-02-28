@@ -100,6 +100,7 @@ export interface Hub {
     ) => Promise<Result_6>,
   'eventsSize' : () => Promise<bigint>,
   'extensions' : () => Promise<Array<Extension>>,
+  'getAllElements' : () => Promise<Array<string>>,
   'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
       [] | [CanisterMetrics]
     >,

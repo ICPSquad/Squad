@@ -297,6 +297,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'eventsSize' : IDL.Func([], [IDL.Nat], ['query']),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
+    'getAllElements' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'getCanisterMetrics' : IDL.Func(
         [GetMetricsParameters],
         [IDL.Opt(CanisterMetrics)],
