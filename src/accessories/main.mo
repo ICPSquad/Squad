@@ -15,6 +15,7 @@ import ExperimentalCycles "mo:base/ExperimentalCycles";
 import ExtAllowance "../dependencies/ext/Allowance";
 import ExtCommon "../dependencies/ext/Common";
 import ExtCore "../dependencies/ext/Core";
+import Float "mo:base/Float";
 import Hash "mo:base/Hash";
 import HashMap "mo:base/HashMap";
 import Http "types/http";
@@ -770,7 +771,7 @@ shared({ caller = hub }) actor class Hub() = this {
             case(null) return #err(#Other("Nothing to settle"));
             case(?settlement){
                 let account_seller = AID.fromPrincipal(settlement.seller, ?settlement.subaccount);
-                let owner = AID.fromPrincipal(settlement.seller, null); // Cannot sell from 
+                let owner = AID.fromPrincipal(settlement.seller, null);  
                 let response : ICPTs = await LEDGER_CANISTER.account_balance_dfx({account = account_seller});
                 switch(_tokenSettlement.get(token_index)){
                     case(null) return #err(#Other("Nothing to settle"));
@@ -792,8 +793,8 @@ shared({ caller = hub }) actor class Hub() = this {
                             _tokenListing.delete(token_index);
                             _tokenSettlement.delete(token_index);
                             let event : IndefiniteEvent = {
-                                operation = "transfer";
-                                details = [("from", #Text(owner)),("to", #Text(settlement.buyer)), ("token", #Text(token_identifier)), ("price", #U64(settlement.price))]; 
+                                operation = "Sale";
+                                details = [("from", #Text(owner)),("to", #Text(settlement.buyer)), ("token", #Text(token_identifier)), ("price_decimals", #U64(8)),("price_currency", #Text("ICP")), ("price", #U64(settlement.price))]; 
                                 caller = msg.caller;
                             };
                             ignore(_registerEvent(event));
