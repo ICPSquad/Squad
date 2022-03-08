@@ -1098,8 +1098,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
                             _tokenSettlement.delete(token);
                             //  Report event to CAP
                             let event : IndefiniteEvent = {
-                                operation = "transfer";
-                                details = [("token", #Text(tokenid)), ("from", #Text(account)), ("to", #Text(settlement.buyer)), ("price", #U64(settlement.price))];
+                                operation = "Sale";
+                                details = [("token", #Text(tokenid)), ("from", #Text(account)), ("to", #Text(settlement.buyer)),("price_decimals", #U64(8)),("price_currency", #Text("ICP")), ("price", #U64(settlement.price))];
                                 caller = msg.caller;
                             };
                             ignore(_registerEvent(event));
