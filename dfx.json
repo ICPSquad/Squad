@@ -12,6 +12,10 @@
       "type": "motoko",
       "main": "./src/accessories/main.mo"
     },
+    "invoice": {
+      "type": "motoko",
+      "main": "./src/invoice/main.mo"
+    },
     "website": {
       "frontend": {
         "entrypoint": "src/website/src/index.html"

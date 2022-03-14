@@ -23,6 +23,8 @@ import AvatarModule "types/avatar";
 import AirdropModule "types/airdrop";
 import Inventory "types/inventory";
 import Canistergeek "../dependencies/canistergeek/canistergeek";
+import InvoiceType "../invoice/Types";
+
 
 let this = actor {
 
@@ -839,6 +841,68 @@ let this = actor {
         return Cycles.balance();
     };
 
+    ///////////////
+    // NEW API  //
+    /////////////
+
+    type CreateInvoiceArgs = InvoiceType.CreateInvoiceArgs;
+    type CreateInvoiceResult = InvoiceType.CreateInvoiceResult;
+    type GetInvoiceArgs = InvoiceType.GetInvoiceArgs;
+    type GetInvoiceResult = InvoiceType.GetInvoiceResult;
+    type GetBalanceArgs = InvoiceType.GetBalanceArgs;
+    type GetBalanceResult = InvoiceType.GetBalanceResult;
+    type VerifyInvoiceArgs = InvoiceType.VerifyInvoiceArgs;
+    type VerifyInvoiceResult = InvoiceType.VerifyInvoiceResult;
+    type TransferArgs = InvoiceType.TransferArgs;
+    type TransferResult = InvoiceType.TransferResult;
+    type Token = InvoiceType.Token;
+    type Permissions = InvoiceType.Permissions;
+    type Details = InvoiceType.Details;
+
+
+    type InvoiceInterface = actor {
+        create_invoice : shared(CreateInvoiceArgs) -> async CreateInvoiceResult;
+        get_invoice : query (GetInvoiceArgs) -> async GetInvoiceResult;
+        get_balance : shared (GetBalanceArgs) -> async GetBalanceResult;
+        verify_invoice : shared(VerifyInvoiceArgs) -> async VerifyInvoiceResult;
+        transfer :  shared(TransferArgs) -> async TransferResult;
+    };
+
+    let INVOICE : InvoiceInterface = actor("if27l-eyaaa-aaaaj-qaq5a-cai");
+
+    public shared ({caller}) func prejoin_new (
+        wallet : Text, 
+        email : ?Text, 
+        discord : ?Text, 
+        twitter : ?Text
+        ) : async Result.Result<CreateInvoiceResult, Text> {
+        if(Principal.isAnonymous(caller)){
+            return #err("Need to be authenticated");
+        };
+        if(Option.isSome(users.get(caller))){
+            return #err("Already joined");
+        };
+        if (wallet != "Plug" and wallet != "Stoic") {
+            return #err("Wallet not compatible");
+        };
+        // Create an invoice and associate the user with it.
+        try {
+            let ICP : Token = {symbol = "ICP"};
+            let args : CreateInvoiceArgs = {
+                amount = 1;
+                token = ICP;
+                permissions = ?{ 
+                    canGet = admins; //TODO 
+                    canVerify = admins;
+                };
+                details = null;
+            };
+            let invoice_result = await INVOICE.create_invoice(args);
+            return #ok(invoice_result);
+        } catch (e) {
+            return #err("Error creating invoice. Please try again.");
+        };
+    };
    
 
 

@@ -1144,7 +1144,7 @@ shared({ caller = hub }) actor class Hub() = this {
             };
         };
         if(_isLocked(token_index)){
-            return #err("Cannot equip an accessory that is listed. Please delist it trying again.");
+            return #err("Cannot equip an accessory that is currently listed.");
         };
         switch(_items.get(token_index)){
             case(?#Accessory(item)){

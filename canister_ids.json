@@ -1,12 +1,15 @@
 {
-  "hub": {
-    "ic": "p4y2d-yyaaa-aaaaj-qaixa-cai"
-  },
   "accessories": {
     "ic": "po6n2-uiaaa-aaaaj-qaiua-cai"
   },
   "avatar": {
     "ic": "jmuqr-yqaaa-aaaaj-qaicq-cai"
+  },
+  "hub": {
+    "ic": "p4y2d-yyaaa-aaaaj-qaixa-cai"
+  },
+  "invoice": {
+    "ic": "if27l-eyaaa-aaaaj-qaq5a-cai"
   },
   "website": {
     "ic": "p3z4x-vaaaa-aaaaj-qaixq-cai"
