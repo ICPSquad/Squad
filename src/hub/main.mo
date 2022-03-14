@@ -148,6 +148,9 @@ shared ({caller = creator}) actor class Hub() = this {
         mint : shared MintRequest -> async Result.Result<AvatarInformation,Text>;
         supply : shared () -> async Nat;
         availableCycles : shared () -> async Nat;
+        collectCanisterMetrics : shared () -> async ();
+        verificationEvents : shared () -> async ();
+        init_cap : shared () -> async Result.Result<(), Text>;
     };
 
     // Mint 
@@ -308,6 +311,9 @@ shared ({caller = creator}) actor class Hub() = this {
         airdrop : shared (AirdropObject) -> async Result.Result<(), Text>;
         supply: shared () -> async Nat;
         availableCycles : shared () -> async Nat;
+        collectCanisterMetrics : shared () -> async ();
+        verificationEvents : shared () -> async ();
+        init_cap : shared () -> async Result.Result<(), Text>;
     };
 
     //TODO replace 
@@ -682,38 +688,6 @@ shared ({caller = creator}) actor class Hub() = this {
        errorsPaymentsEntries := [];
     };
 
-    ///////////////
-    // HEARTBEAT //
-    ///////////////
-
-    // A count represents one second
-    stable var count = 0;
-
-    public query func showCount() : async Nat {
-        count;
-    };
-
-    public func resetCount() : async () {
-        count := 0;
-    };
-
-    system func heartbeat () : async () {
-        count += 1;
-        //  Every 5min
-        if(count % 300 == 0){
-            await collectCanisterMetrics();
-        };
-        //  Every day 
-        if(count % 86_400 == 0){
-            await (verification());
-        };
-        //  Every week (and ten seconds!)
-        if(count % 604_810 == 0) {
-            await (audit());
-            await (recipe());
-            count := 0
-        };
-    };
 
     ///////////////////
     // VERIFICATION //
@@ -763,41 +737,44 @@ shared ({caller = creator}) actor class Hub() = this {
     public type Audit = {time : Int; new_users : Int; new_icps : Ledger.ICP; new_avatar : Int; new_items : Int};
     stable var audits : [Audit] = [];
 
-    //Value : 19th of January at 8PM - Paris Time
-    stable var users_nb = users.size();
-    stable var icps = {e8s = 3_499_650_000 : Nat64};
-    stable var avatars = 3_368;
-    stable var items = 5_419;
+    //Initial value : 14th of March at 7PM - Lisbon Time.
+    stable var users_nb = 5_260;
+    stable var icps = {e8s = 0 : Nat64};
+    stable var avatars = 3_940;
+    stable var items = 6_525;
 
     //Run an internal audits and updates values
     //@auth : canister
-    public shared ({caller}) func audit () : async () {
-        //Get updated values
+    public shared ({caller}) func audit() : async () {
         let new_value_users = users.size();
-        let new_value_icps = await balance();
         let new_value_avatar = await actorAvatar.supply();
         let new_value_items = await actorItems.supply();
-
-        //Remove trap warning for ICPs
-        let value : Int = (Nat64.toNat(new_value_icps.e8s)) - (Nat64.toNat(icps.e8s));
-        let value_converted : Nat64 = Nat64.fromNat(Int.abs(value));
-
-        //Create the audit 
-        let audit = {
-            time : Int = Time.now(); new_users = (new_value_users : Int - users_nb : Int); 
-            new_icps : Ledger.ICP = {e8s = value_converted};
-            new_avatar : Int = (new_value_avatar - avatars); 
-            new_items : Int = (new_value_items - items);
+        switch(await INVOICE.get_balance({ token = ICP })){
+            case(#ok(answer)){
+                let value : Int = answer.balance - (Nat64.toNat(icps.e8s));
+                //Remove trap warning for ICPs
+                let value_converted : Nat64 = Nat64.fromNat(Int.abs(value));
+                //Create the audit 
+                let audit = {
+                    time : Int = Time.now(); new_users = (new_value_users : Int - users_nb : Int); 
+                    new_icps : Ledger.ICP = {e8s = value_converted};
+                    new_avatar : Int = (new_value_avatar - avatars); 
+                    new_items : Int = (new_value_items - items);
+                };
+                audits := Array.append<Audit>(audits, [audit]);
+                users_nb := new_value_users;
+                icps := { e8s = Nat64.fromNat(answer.balance) };
+                avatars := new_value_avatar;
+                items := new_value_items;
+                return;
+            };
+            case(#err(e)) {
+                return;
+            }
         };
-        audits := Array.append<Audit>(audits, [audit]);
-        users_nb := new_value_users;
-        icps := new_value_icps;
-        avatars := new_value_avatar;
-        items := new_value_items;
-        return;
     };  
 
-    //Send list of all audits
+    //Send list of all audits.
     //@auth : admin
     public shared query ({caller}) func show_audits () : async [Audit] {
         assert(_admins.isAdmin(caller));
@@ -807,20 +784,42 @@ shared ({caller = creator}) actor class Hub() = this {
     /////////////
     // RECIPE //
     ///////////
+
+    public type RecipeInfos = {
+        block : Nat64;
+        amount : Nat; //e8s
+    };
     
     let principal_wallet : Principal = Principal.fromText("rj53v-z27so-pkgug-6rcn4-3axje-ecooy-w26n2-ios6v-wxfrg-knwaj-jae");
+    let TEST_WALLET : InvoiceType.AccountIdentifier = #text("0b0a0d93991445d0b833084257bcb21a8dd4b42fec0f775d3bf7bd8e3751bc9a");
 
-    //Send recipe of the week to the wallet
-    //@auth : canister
-    public shared ({caller}) func recipe() : async () {
+    //Send recipe of the week to the wallet specified.
+    //@auth : canister.
+    public shared ({caller}) func recipe() : async Result.Result<RecipeInfos, Text> {
         assert(caller == Principal.fromActor(this));
-        let balance : Ledger.ICP = await actorLedger.account_balance({
-            account = _myAccountIdentifier(null);
-        });
-        let amount = balance.e8s;
-        let amount_minus_fee = amount - 10_000;
-        let result = await(transfer({e8s = amount_minus_fee}, principal_wallet));
-        return;
+        switch(await INVOICE.get_balance({ token = ICP })){
+            case(#ok(answer)){
+                let transferArgs : InvoiceType.TransferArgs = {
+                    amount = answer.balance;
+                    token = ICP;
+                    destination = TEST_WALLET;
+                };
+                switch(await INVOICE.transfer(transferArgs)){
+                    case(#ok(height)) {
+                        return #ok({
+                            block = height.blockHeight;
+                            amount = answer.balance;
+                        });
+                    };
+                    case(#err(transfer_error)){
+                        return #err("Error when transfering funds.");
+                    };
+                };
+            };
+            case(#err(e)) {
+                return #err("Error when checking balance.");
+            };
+        };
     };
 
 
@@ -873,6 +872,8 @@ shared ({caller = creator}) actor class Hub() = this {
     type Token = InvoiceType.Token;
     type Permissions = InvoiceType.Permissions;
     type Details = InvoiceType.Details;
+    type TransferError = InvoiceType.TransferError;
+    type GetBalanceErr = InvoiceType.GetBalanceErr;
 
     type InvoiceInterface = actor {
         create_invoice : shared(CreateInvoiceArgs) -> async CreateInvoiceResult;
@@ -891,7 +892,6 @@ shared ({caller = creator}) actor class Hub() = this {
     };
 
     let INVOICE : InvoiceInterface = actor("if27l-eyaaa-aaaaj-qaq5a-cai");
-    let ONE_WEEK : Nat = 1_000_000_000 * 60 * 60 * 24 * 7;
     let ICP : Token = { symbol = "ICP" };
 
     private stable var _registrationsEntries : [(Principal, Registration)] = [];
@@ -1055,11 +1055,205 @@ shared ({caller = creator}) actor class Hub() = this {
         return #NotRegistered;
     };
 
-    // public shared ({caller}) func verification() : async  {
-    //     // Verify all invoices that are not yet verified.
-    //     // Delete all invoices that are more than a week old.
-    // };
-   
+    private func verify_registration(p : Principal) : async Result.Result<(), Text> {
+        switch(_registrations.get(p)){
+            case(null) return #err("No registration found for this principal");
+            case(?registration){
+                try {
+                switch(await INVOICE.verify_invoice({ id = registration.invoice_id })){
+                    case(#ok(some)){
+                        let new_user = {
+                            wallet = registration.infos.wallet;
+                            email = registration.infos.email;
+                            discord = registration.infos.discord;
+                            twitter = registration.infos.twitter;
+                            rank = ?Nat64.fromNat(users.size());
+                            height = null;
+                            avatar = null;
+                            airdrop = null;
+                            status = #Level1;
+                        };
+                        users.put(p, new_user);
+                        _registrations.delete(p);
+                        let event : Event = {
+                            time = Nat64.fromIntWrap(Time.now());
+                            operation = "add_user";
+                            details = [("User", #Principal(p))];
+                            caller = Principal.fromActor(this) ;
+                            category = #Operation;
+                        };
+                        return #ok;
+                    };
+                    case(#err(e)){
+                        let event : Event = {
+                            time = Nat64.fromIntWrap(Time.now());
+                            operation = "verify_invoice";
+                            details = [("User", #Principal(p))];
+                            caller = Principal.fromActor(this);
+                            category = #ErrorResult;
+                        };
+                        _logs.addLog(event);
+                        return #err("Error when confirming your invoice. Make sure you've processed the payment and try again. If this issue persits, please contact us.");
+                    };
+                };
+            } catch(e) {
+                let event : Event = {
+                    time = Nat64.fromIntWrap(Time.now());
+                    operation = "verify_invoice";
+                    details = [("User", #Principal(p))];
+                    caller = Principal.fromActor(this);
+                    category = #ErrorSystem;
+                };
+                _logs.addLog(event);
+                throw e;
+            };
+            };
+        };
+    };
 
+    //  Called regularly to verify all pendings registrations. Drop registration older than 1 week.
+    //  @auth : admin & canister
+    public shared ({caller}) func verification_registrations() : async () {
+        assert(_admins.isAdmin(caller) or caller == Principal.fromActor(this));
+        for(user in _registrations.keys()){
+            switch(await verify_registration(user)){
+                case(#ok) {};
+                case(#err(e)){
+                    ignore do ? {
+                        //  Drop registration older than 1 week.
+                        let registration = _registrations.get(user)!;
+                        if (Time.now() > registration.time + ONE_WEEK) {
+                            _registrations.delete(user);
+                        };
+                    };
+                };
+            };
+        };
+    };
+
+
+    ///////////////
+    // HEARTBEAT //
+    ///////////////
+
+    // Cronic tasks planned for this canister ⏰
+
+    // Every hour : collect metrics on all canisters (avatar, accessory & hub).
+    // Every 6 hours : verify registration.
+    // Every day : verify CAP registration and events on all canisters (avatar & accessory).
+    // Every 7 days : audit & send recipe.
+
+    let ONE_HOUR : Nat = 1_000_000_000 * 60 * 60;
+    let ONE_DAY : Nat = ONE_HOUR * 24;
+    let ONE_WEEK : Nat = ONE_DAY * 7;
+
+
+    stable var time_canister = Time.now();
+    stable var count_hour : Nat = 0;
+
+    system func heartbeat() : async () {
+        //  Every hour we increase the count by one. Does not depend on the number of blocks.
+        if(Time.now() - time_canister > ONE_HOUR){
+            time_canister := Time.now();
+            count_hour += 1;
+            //  Every 7 days 
+            if(count_hour % 168 == 0) {
+                //  Process audit. Do not await.
+                ignore(audit());
+                _logs.addLog({
+                    time = Nat64.fromIntWrap(Time.now());
+                    operation = "Audit";
+                    details = [];
+                    caller = Principal.fromActor(this);
+                    category = #Cronic;
+                });
+                //  Process recipe of the week. Await.
+                switch(await recipe()){
+                    case(#ok(infos)){
+                        _logs.addLog({
+                            time = Nat64.fromIntWrap(Time.now());
+                            operation = "Recipe";
+                            details = [("Block",#U64(infos.block)), ("Amount", #U64(Nat64.fromNat(infos.amount)))];
+                            caller = Principal.fromActor(this);
+                            category = #Cronic;
+                        });
+                    };
+                    case(#err(e)){
+                        _logs.addLog({
+                            time = Nat64.fromIntWrap(Time.now());
+                            operation = "Recipe";
+                            details = [("Err", #True)];
+                            caller = Principal.fromActor(this);
+                            category = #Cronic;
+                        });
+                    };
+                };
+            };
+            //  Every day 
+            if (count_hour % 24 == 0) {
+                // Verification that CAP is initialized and process events.
+                // Avatar
+                switch(await actorAvatar.init_cap()){
+                    case(#ok){
+                        _logs.addLog({
+                            time = Nat64.fromIntWrap(Time.now());
+                            operation = "init_cap";
+                            details = [("Canister", #Principal(Principal.fromText("jmuqr-yqaaa-aaaaj-qaicq-cai")))];
+                            caller = Principal.fromActor(this);
+                            category = #Cronic;
+                        });
+                        ignore(actorAvatar.verificationEvents());
+                    };
+                    case(#err(message)){
+                        _logs.addLog({
+                            time = Nat64.fromIntWrap(Time.now());
+                            operation = "init_cap";
+                            details = [("Canister", #Principal(Principal.fromText("jmuqr-yqaaa-aaaaj-qaicq-cai"))), ("Error", #Text(message))];
+                            caller = Principal.fromActor(this);
+                            category = #Cronic;
+                        });
+                    }
+                };
+                // Accessory
+                switch(await actorItems.init_cap()){
+                    case(#ok){
+                        _logs.addLog({
+                            time = Nat64.fromIntWrap(Time.now());
+                            operation = "init_cap";
+                            details = [("Canister", #Principal(Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai")))];
+                            caller = Principal.fromActor(this);
+                            category = #Cronic;
+                        });
+                        ignore(actorItems.verificationEvents());
+                    };
+                    case(#err(message)){
+                        _logs.addLog({
+                            time = Nat64.fromIntWrap(Time.now());
+                            operation = "init_cap";
+                            details = [("Canister", #Principal(Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai"))), ("Error", #Text(message))];
+                            caller = Principal.fromActor(this);
+                            category = #Cronic;
+                        });
+                    };
+                };
+            };
+            //  Every 6 hours
+            if(count_hour % 6 == 0){
+                await (verification_registrations());
+                _logs.addLog({
+                    time = Nat64.fromIntWrap(Time.now());
+                    operation = "verification_registrations";
+                    details = [];
+                    caller = Principal.fromActor(this);
+                    category = #Cronic;
+                });
+            };
+            // Every 1 hour
+            ignore(actorAvatar.collectCanisterMetrics());
+            ignore(actorItems.collectCanisterMetrics());
+            ignore(collectCanisterMetrics());
+        };
+    };
+   
 
 };

@@ -26,6 +26,7 @@ module {
         #ErrorResult;
         #Result : Text;
         #Operation;
+        #Cronic;
     };
 
     public type State = {
