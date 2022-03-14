@@ -369,7 +369,6 @@ actor Invoice {
                 e8s = Nat64.sub(Nat64.fromNat(args.amount), 10000);
               };
               from_subaccount = ?A.principalToSubaccount(caller);
-
               to = destination;
               created_at_time = null;
             });

@@ -859,7 +859,6 @@ let this = actor {
     type Permissions = InvoiceType.Permissions;
     type Details = InvoiceType.Details;
 
-
     type InvoiceInterface = actor {
         create_invoice : shared(CreateInvoiceArgs) -> async CreateInvoiceResult;
         get_invoice : query (GetInvoiceArgs) -> async GetInvoiceResult;
@@ -868,40 +867,143 @@ let this = actor {
         transfer :  shared(TransferArgs) -> async TransferResult;
     };
 
-    let INVOICE : InvoiceInterface = actor("if27l-eyaaa-aaaaj-qaq5a-cai");
+    type InfosNew = Users.InfosNew;
+    type Registration = {
+        time : Time;
+        infos : InfosNew;
+        invoice_id : Nat;
+        account_to_send : Text; // The invoice canister always send the destination account as text.
+    };
 
-    public shared ({caller}) func prejoin_new (
+    let INVOICE : InvoiceInterface = actor("if27l-eyaaa-aaaaj-qaq5a-cai");
+    let ONE_WEEK : Nat = 1_000_000_000 * 60 * 60 * 24 * 7;
+    let ICP : Token = { symbol = "ICP" };
+
+    private stable var _registrationsEntries : [(Principal, Registration)] = [];
+    let _registrations : HashMap.HashMap<Principal, Registration> = HashMap.fromIter(_registrationsEntries.vals(), _registrationsEntries.size(), Principal.equal, Principal.hash);
+
+
+    public shared ({caller}) func register (
         wallet : Text, 
         email : ?Text, 
         discord : ?Text, 
         twitter : ?Text
-        ) : async Result.Result<CreateInvoiceResult, Text> {
+        ) : async Result.Result<Text, Text> {
         if(Principal.isAnonymous(caller)){
-            return #err("Need to be authenticated");
+            return #err("You need to be authenticated.");
         };
         if(Option.isSome(users.get(caller))){
-            return #err("Already joined");
+            return #err("You are already registered.");
         };
         if (wallet != "Plug" and wallet != "Stoic") {
-            return #err("Wallet not compatible");
+            return #err("Your wallet is not compatible");
         };
-        // Create an invoice and associate the user with it.
+        if(Option.isSome(_registrations.get(caller))){
+            return #err("You already have a registration that is being processed.");
+        };
         try {
-            let ICP : Token = {symbol = "ICP"};
             let args : CreateInvoiceArgs = {
                 amount = 1;
                 token = ICP;
-                permissions = ?{ 
-                    canGet = admins; //TODO 
-                    canVerify = admins;
-                };
+                permissions = ?{ canGet = admins; canVerify = admins }; //TODO modify permissions
                 details = null;
             };
-            let invoice_result = await INVOICE.create_invoice(args);
-            return #ok(invoice_result);
+            switch(await INVOICE.create_invoice(args)){
+                case(#err(e)) return #err("Error when creating invoice. Please try again.");
+                case(#ok({invoice})){
+                    switch(invoice.destination){
+                        case(#text(account)){
+                            let registration = {
+                                time = Time.now();
+                                infos = {
+                                    wallet = wallet;
+                                    email = email;
+                                    discord = discord;
+                                    twitter = twitter;
+                                };
+                                invoice_id = invoice.id;
+                                account_to_send = account;
+                            };  
+                            _registrations.put(caller, registration);
+                            return #ok(account);
+                        };
+                        case(_) {
+                            assert(false);  
+                            return #err("Unreachable");
+                        };
+                    };
+                };
+            };
         } catch (e) {
-            return #err("Error creating invoice. Please try again.");
+            throw e
         };
+    };
+
+    public shared ({caller}) func confirm_new() : async Result.Result<(), Text> {
+        if(Principal.isAnonymous(caller)){
+            return #err("You need to be authenticated.");
+        };
+        if(Option.isNull(_registrations.get(caller))){
+            return #err("You don't have a registration.");
+        };
+        if(Option.isSome(users.get(caller))){
+            return #err("You are already registered.");
+        };
+        ignore do ? {
+            let registration = _registrations.get(caller) !;
+            let args : VerifyInvoiceArgs = {
+                id = registration.invoice_id;
+            };
+            try {
+            switch(await INVOICE.verify_invoice(args)){
+                case(#ok(some)){
+                    let new_user = {
+                        wallet = registration.infos.wallet;
+                        email = registration.infos.email;
+                        discord = registration.infos.discord;
+                        twitter = registration.infos.twitter;
+                        rank = ?Nat64.fromNat(users.size());
+                        height = null;
+                        avatar = null;
+                        airdrop = null;
+                        status = #Level1;
+                    };
+                    users.put(caller, new_user);
+                    _registrations.delete(caller);
+                    return #ok;
+                };
+                case(#err(e)){
+                    return #err("Error when confirming your invoice. Make sure you've processed the payment and try again. If this issue persits, please contact us.");
+                };
+            }
+            } catch(e) {
+                throw e;
+            };
+        };
+        assert(false);
+        return #err("Unreacheable");
+    };
+    public type StatusRegistration = {
+        #NotAuthenticated;
+        #NotRegistered;
+        #NotConfirmed : Registration ;
+        #Member;
+    };
+
+    public query ({caller}) func status() : async StatusRegistration {
+        if(Principal.isAnonymous(caller)){
+            return #NotAuthenticated;
+        };
+        if(Option.isSome(users.get(caller))){
+            return #Member;
+        };
+        if(Option.isSome(_registrations.get(caller))){
+        ignore do ? {
+                let registration = _registrations.get(caller)!;
+                return #NotConfirmed(registration);
+            };
+        };
+        return #NotRegistered;
     };
    
 

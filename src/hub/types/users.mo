@@ -55,6 +55,13 @@ module {
         memo : Nat64;
    };
 
+   public type InfosNew = {
+        wallet : Text;
+        email : ?Text;
+        discord : ?Text;
+        twitter : ?Text;
+   };
+
    public type JoiningError = {
         caller : Principal;
         error_message : Text;
