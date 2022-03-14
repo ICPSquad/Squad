@@ -140,6 +140,8 @@ export interface _SERVICE {
   'getRank' : (arg_0: Principal) => Promise<[] | [bigint]>,
   'isUserAuthorized' : () => Promise<Result>,
   'mintRequest' : (arg_0: MintRequest) => Promise<AvatarResponse>,
+  'modifyHeight' : (arg_0: Principal, arg_1: bigint) => Promise<Result>,
+  'modifyRank' : (arg_0: Principal, arg_1: bigint) => Promise<Result>,
   'modifyUser' : (arg_0: Principal, arg_1: User) => Promise<Result>,
   'numberUsers' : () => Promise<bigint>,
   'prejoin' : (
@@ -149,6 +151,7 @@ export interface _SERVICE {
       arg_3: [] | [string],
       arg_4: SubAccount,
     ) => Promise<Result_2>,
+  'process' : () => Promise<undefined>,
   'recipe' : () => Promise<undefined>,
   'removeUser' : (arg_0: Principal) => Promise<Result_1>,
   'resetCount' : () => Promise<undefined>,

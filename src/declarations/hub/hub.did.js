@@ -164,6 +164,8 @@ export const idlFactory = ({ IDL }) => {
     'getRank' : IDL.Func([IDL.Principal], [IDL.Opt(IDL.Nat)], ['query']),
     'isUserAuthorized' : IDL.Func([], [Result], ['query']),
     'mintRequest' : IDL.Func([MintRequest], [AvatarResponse], []),
+    'modifyHeight' : IDL.Func([IDL.Principal, IDL.Nat64], [Result], []),
+    'modifyRank' : IDL.Func([IDL.Principal, IDL.Nat64], [Result], []),
     'modifyUser' : IDL.Func([IDL.Principal, User], [Result], []),
     'numberUsers' : IDL.Func([], [IDL.Nat], ['query']),
     'prejoin' : IDL.Func(
@@ -177,6 +179,7 @@ export const idlFactory = ({ IDL }) => {
         [Result_2],
         [],
       ),
+    'process' : IDL.Func([], [], []),
     'recipe' : IDL.Func([], [], []),
     'removeUser' : IDL.Func([IDL.Principal], [Result_1], []),
     'resetCount' : IDL.Func([], [], []),

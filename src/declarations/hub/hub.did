@@ -202,9 +202,12 @@ service : {
   getRank: (principal) -> (opt nat) query;
   isUserAuthorized: () -> (Result) query;
   mintRequest: (MintRequest) -> (AvatarResponse);
+  modifyHeight: (principal, nat64) -> (Result);
+  modifyRank: (principal, nat64) -> (Result);
   modifyUser: (principal, User) -> (Result);
   numberUsers: () -> (nat) query;
   prejoin: (text, opt text, opt text, opt text, SubAccount) -> (Result_2);
+  process: () -> ();
   recipe: () -> ();
   removeUser: (principal) -> (Result_1);
   resetCount: () -> ();

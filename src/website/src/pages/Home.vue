@@ -1,161 +1,64 @@
 <template>
   <div class="flex flex-col">
     <div>
-      <h2
-        class="
-          py-12
-          text-center
-          font-marker
-          text-gray-800
-          lg:text-5xl
-          md:text-3xl
-          text-2xl
-          font-bold
-          mt-8
-        "
-      >
-        Season 0 : <span> squad loading 🌍 </span>
-      </h2>
+      <h2 class="py-12 text-center font-marker text-gray-800 lg:text-4xl md:text-3xl text-2xl font-bold mt-8">Season 0 : <span> squad loading 🌍 </span></h2>
     </div>
-    <div
-      class="
-        flex flex-row
-        md:px-24
-        px-6
-        w-full
-        md:gap-x-12
-        gap-x-6
-        justify-around
-      "
-    >
-      <div class="w-56 hidden lg:block" v-if="!isMobileRef">
+    <div class="flex flex-row md:px-24 px-6 w-full md:gap-x-12 gap-x-6 justify-around">
+      <div class="w-40 hidden lg:block" v-if="!isMobileRef">
         <img src="others/characters/Seb.svg" alt="Seb" class="rounded-2xl" />
       </div>
       <div class="w-60 hidden md:block" v-if="!isMobileRef">
         <img src="others/characters/Arun.svg" alt="Arun" class="rounded-2xl" />
       </div>
       <div class="w-64">
-        <img src="others/characters/Business.svg" alt="" class="rounded-2xl" />
+        <img src="others/characters/Business.svg" alt="Business" class="rounded-2xl" />
       </div>
       <div class="w-72">
-        <img src="others/characters/Miss.svg" alt="" class="rounded-2xl" />
+        <img src="others/characters/Miss.svg" alt="Miss" class="rounded-2xl" />
       </div>
       <div class="w-64">
-        <img src="others/characters/Punk.svg" alt="" class="rounded-2xl" />
+        <img src="others/characters/Punk.svg" alt="Punk" class="rounded-2xl" />
       </div>
       <div class="w-60 hidden md:block" v-if="!isMobileRef">
-        <img
-          src="others/characters/Isaac.svg"
-          alt="Isaac"
-          class="rounded-2xl"
-        />
+        <img src="others/characters/Isaac.svg" alt="Isaac" class="rounded-2xl" />
       </div>
-      <div class="w-56 hidden lg:block" v-if="!isMobileRef">
+      <div class="w-40 hidden lg:block" v-if="!isMobileRef">
         <img src="others/characters/Duke.svg" alt="Duke" class="rounded-2xl" />
       </div>
     </div>
     <div class="flex flex-row w-full justify-center">
-      <h2
-        class="
-          text-center
-          2xl:text-5xl
-          lg:text-4xl
-          md:text-3xl
-          text-2xl text-gray-800
-          md:my-12
-          mt-6
-          mb-6
-        "
-      >
-        <span class="font-marker" :class="!updated ? 'animate-pulse' : ''">
-          Members :
-        </span>
+      <h2 class="text-center 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl text-gray-800 md:my-12 mt-6 mb-6">
+        <span class="font-marker" :class="!updated ? 'animate-pulse' : ''"> Members : </span>
         {{ numberOfMembers }}
       </h2>
     </div>
     <div class="flex flex-row justify-center">
       <router-link to="/preorder">
-        <button
-          class="
-            lg:text-3xl
-            md:text-2xl
-            text-xl
-            shadow-2xl
-            font-marker
-            text-white
-            bg-pink-600
-            rounded
-            py-6
-            px-8
-            mb-8
-            mt-4
-            cursor-pointer
-            mx-auto
-          "
-        >
-          👉 Join
-        </button>
+        <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mb-8 mt-4 cursor-pointer mx-auto">👉 Join</button>
       </router-link>
     </div>
 
-    <div
-      class="
-        flex flex-col
-        2xl:text-5xl
-        lg:text-4xl
-        md:text-3xl
-        text-2xl
-        font-semibold
-        bg-gradient-to-l
-        from-gray-600
-        via-gray-900
-        to-black
-        text-white
-        md:py-24 md:px-28
-        py-8
-        px-6
-        justify-around
-      "
-    >
-      <h3 class="text-center md:mb-16 mb-6 font-marker">
-        The first engage-to-earn NFT game 🎯
-      </h3>
+    <div class="flex flex-col 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-semibold bg-gradient-to-l from-gray-600 via-gray-900 to-black text-white md:py-24 md:px-28 py-8 px-6 justify-around">
+      <h3 class="text-center md:mb-16 mb-6 font-marker">The first engage-to-earn NFT game 🎯</h3>
       <div class="flex flex-row w-full justify-around items-center md:py-12">
         <p class="lg:text-4xl md:text-2xl text-xl">
           We believe the Internet Computer will change the world.
           <br />
           <br />
-          Create your avatar, get involved, contribute to the expansion of the
-          ecosystem and earn rewards.
+          Create your avatar, get involved, contribute to the expansion of the ecosystem and earn rewards.
           <br />
           <br />
         </p>
       </div>
     </div>
-    <div
-      class="
-        flex flex-col
-        2xl:text-5xl
-        lg:text-4xl
-        md:text-3xl
-        text-2xl
-        font-semibold
-        text-gray-800
-        md:py-24 md:px-28
-        py-8
-        px-6
-        justify-around
-      "
-    >
+    <div class="flex flex-col 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-semibold text-gray-800 md:py-24 md:px-28 py-8 px-6 justify-around">
       <h3 class="text-center md:mb-16 mb-6 font-marker">Your avatar. 🦸</h3>
       <div class="flex md:flex-row flex-col w-full justify-around items-center">
         <p class="lg:text-4xl md:text-2xl text-xl">
-          A fully customizable NFT that you can use on different platforms
-          across the Internet Computer.
+          A fully customizable NFT that you can use on different platforms across the Internet Computer.
           <br />
           <br />
-          Take your time to choose among the multiples variations, colors and
-          styles available.
+          Take your time to choose among the multiples variations, colors and styles available.
           <br />
           <br />
           Your avatar : your creativity. 🎨
@@ -165,51 +68,11 @@
         </div>
       </div>
       <router-link to="/center">
-        <button
-          class="
-            lg:text-3xl
-            md:text-2xl
-            text-xl
-            shadow-2xl
-            font-marker
-            text-white
-            bg-pink-600
-            rounded
-            py-6
-            px-8
-            mt-8
-            cursor-pointer
-            hidden
-            md:block
-            mx-auto
-          "
-        >
-          Create 🖍
-        </button>
+        <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mt-8 cursor-pointer hidden md:block mx-auto">Create 🖍</button>
       </router-link>
     </div>
-    <div
-      class="
-        flex flex-col
-        2xl:text-5xl
-        lg:text-4xl
-        md:text-3xl
-        text-2xl
-        font-semibold
-        bg-gradient-to-l
-        from-gray-600
-        via-gray-900
-        to-black
-        text-white
-        md:py-24 md:px-28
-        py-8
-        px-6
-        justify-around
-      "
-    >
-      <h3 class="text-center md:mb-16 mb-6 font-marker md:mt-16">
-        Accessory 🎩
-      </h3>
+    <div class="flex flex-col 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-semibold bg-gradient-to-l from-gray-600 via-gray-900 to-black text-white md:py-24 md:px-28 py-8 px-6 justify-around">
+      <h3 class="text-center md:mb-16 mb-6 font-marker md:mt-16">Accessory 🎩</h3>
       <div class="flex md:flex-row flex-col w-full justify-around items-center">
         <p class="lg:text-4xl md:text-2xl text-xl mx-auto">
           Collect and wear special accessories to enhance your style.
@@ -220,19 +83,7 @@
           <br />
         </p>
       </div>
-      <div
-        class="
-          flex
-          md:flex-row
-          flex-col
-          w-full
-          justify-center
-          items-center
-          mt-8
-          mb-8
-          gap-x-40
-        "
-      >
+      <div class="flex md:flex-row flex-col w-full justify-center items-center mt-8 mb-8 gap-x-40">
         <div class="w-60">
           <img src="Accessory.svg" alt="Card" class="rounded-2xl" />
         </div>
@@ -244,100 +95,31 @@
         </div>
       </div>
     </div>
-    <div
-      class="
-        flex flex-col
-        2xl:text-5xl
-        lg:text-4xl
-        md:text-3xl
-        text-2xl
-        font-semibold
-        text-gray-800
-        md:py-24 md:px-28
-        py-8
-        px-6
-        justify-around
-      "
-    >
+    <div class="flex flex-col 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-semibold text-gray-800 md:py-24 md:px-28 py-8 px-6 justify-around">
       <h3 class="text-center md:mb-16 mb-6 font-marker">Community 🫂</h3>
       <div class="flex flex-col items-center w-full">
         <p class="lg:text-4xl md:text-2xl text-xl mx-auto">
-          Join a vibrant community of people who are passionate about the
-          Internet Computer, all over the world.
+          Join a vibrant community of people who are passionate about the Internet Computer, all over the world.
           <br />
           <br />
-          Community neuron, exclusive content, events, educational resources and
-          more to come.
+          Community neuron, exclusive content, events, educational resources and more to come.
         </p>
         <a href="https://discord.gg/icpsquad" target="_blank">
-          <button
-            class="
-              lg:text-3xl
-              md:text-2xl
-              text-xl
-              shadow-2xl
-              font-marker
-              text-white
-              bg-pink-600
-              rounded
-              py-6
-              px-8
-              md:mt-16
-              mt-8
-              cursor-pointer
-            "
-          >
-            Join 👋
-          </button>
+          <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 md:mt-16 mt-8 cursor-pointer">Join 👋</button>
         </a>
       </div>
     </div>
-    <div
-      class="
-        flex flex-col
-        2xl:text-5xl
-        lg:text-4xl
-        md:text-3xl
-        text-2xl
-        font-semibold
-        bg-gradient-to-l
-        from-gray-600
-        via-gray-900
-        to-black
-        text-white
-        md:py-24 md:px-28
-        py-8
-        px-6
-        justify-around
-      "
-    >
-      <h3 class="text-center md:mb-16 mb-6 font-marker md:mt-16">
-        Legendary characters 🦄
-      </h3>
+    <div class="flex flex-col 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-semibold bg-gradient-to-l from-gray-600 via-gray-900 to-black text-white md:py-24 md:px-28 py-8 px-6 justify-around">
+      <h3 class="text-center md:mb-16 mb-6 font-marker md:mt-16">Legendary characters 🦄</h3>
       <div class="flex md:flex-row flex-col w-full items-center justify-around">
         <p class="lg:text-4xl md:text-2xl text-xl">
           Those avatars are unique, made for you and cannot be minted again.
           <br />
           <br />
-          Get you hands on those through meaningful contributions or special
-          events.
+          Get you hands on those through meaningful contributions or special events.
         </p>
         <div>
-          <img
-            src="others/characters/Igor.svg"
-            alt="Igor"
-            class="
-              md:w-80
-              w-2/3
-              mx-auto
-              rounded-2xl
-              md:mb-16
-              mb-8
-              mt-6
-              transform
-              hover:scale-110
-            "
-          />
+          <img src="others/characters/Igor.svg" alt="Igor" class="md:w-80 w-2/3 mx-auto rounded-2xl md:mb-16 mb-8 mt-6 transform hover:scale-110" />
         </div>
       </div>
     </div>

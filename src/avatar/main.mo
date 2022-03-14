@@ -991,6 +991,9 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
 			return #err(#InvalidToken(request.token));
 		};
+        if(_isEquipped(request.token)){
+            return #err(#Other("Avatar cannnot be listed when equipped"));
+        };
         let token = ExtCore.TokenIdentifier.getIndex(request.token);
         if(_isLocked(token)){
             return #err(#Other("Listing is locked"));
@@ -1227,6 +1230,16 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         };
     };
 
+    //  Check if an avatar is equipped with at least one accessory.
+    func _isEquipped(token_identifier : TokenIdentifier) : Bool {
+        switch(avatars.get(token_identifier)){
+            case(null) return false;
+            case(?avatar){
+                return(AvatarModule.isEmpty(avatar.getSlots()));
+            };
+        };  
+    };
+
     // Check if a subaccount has a 0 among it's firsts 30-bytes (to avoid Entrepot issue)
     private func _isSubaccountIncorrect (subaccount : SubAccount) : Bool {
         var c : Nat = 0;
@@ -1382,7 +1395,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         };
     };
 
-    // Method used by Plug wallet to query tokens for the EXT standard.
+
     public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
         let tokens = _generateTokensExt(account);
         if (tokens.size() == 0) {
