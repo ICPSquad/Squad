@@ -458,7 +458,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
     public shared (msg) func wearAccessory (token_avatar : TokenIdentifier, name : Text, principal_caller : Principal) : async Result.Result<(), Text> {
-        assert(msg.caller == Principal.fromText ("po6n2-uiaaa-aaaaj-qaiua-cai")); //Only this canister can use this method!
+        assert(msg.caller == Principal.fromText ("po6n2-uiaaa-aaaaj-qaiua-cai")); 
         switch(_accessoryVerification(token_avatar, name, principal_caller)){
             case (#err(msg)) return #err(msg);
             case (#ok) {
@@ -710,6 +710,9 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
                     var message : Text = "This avatar : " # token_avatar # " .";
                     message #=  "Does not belong to this principal : " # principal_caller_textual # " .";
                     return #err(message);
+                };
+                if(_isListed(token_avatar)){
+                    return #err("Cannot equip an avatar that is being listed.");
                 };
                 switch(accessories.get(name)){
                     case(null) return #err("No accessory found for this name : " # name);
@@ -1230,7 +1233,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         };
     };
 
-    //  Check if an avatar is equipped with at least one accessory.
+    //  Returns a boolean indicating if an avatar is equipped with at least one accessory.
     func _isEquipped(token_identifier : TokenIdentifier) : Bool {
         switch(avatars.get(token_identifier)){
             case(null) return false;
@@ -1238,6 +1241,12 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
                 return(AvatarModule.isEmpty(avatar.getSlots()));
             };
         };  
+    };
+
+    //  Returns a boolean indicating if an avatar is listed.
+    func _isListed(token_identifier : TokenIdentifier) : Bool {
+        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+        return(Option.isSome(_tokenListing.get(token_index)));
     };
 
     // Check if a subaccount has a 0 among it's firsts 30-bytes (to avoid Entrepot issue)
