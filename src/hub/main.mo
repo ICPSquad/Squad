@@ -11,6 +11,7 @@ import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Cycles "mo:base/ExperimentalCycles";
+import List "mo:base/List";
 import Nat8 "mo:base/Nat8";
 import Buffer "mo:base/Buffer";
 import AccountIdentifier "../dependencies/util/AccountIdentifier";
@@ -24,9 +25,12 @@ import AirdropModule "types/airdrop";
 import Inventory "types/inventory";
 import Canistergeek "../dependencies/canistergeek/canistergeek";
 import InvoiceType "../invoice/Types";
+import Logs "Logs";
+import LogsTypes "Logs/types";
+import Admins "Admins";
 
 
-let this = actor {
+shared ({caller = creator}) actor class Hub() = this {
 
 
     //////////////
@@ -47,7 +51,7 @@ let this = actor {
     // Updates the access rights of one of the admin data.
     //@auth : admin
     public shared({caller}) func updateAdminsData(user : Principal, isAuthorized : Bool) : async Result.Result<(), Text> {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         switch(isAuthorized) {
             case (true) {
                 adminsData := Array.append(
@@ -84,29 +88,22 @@ let this = actor {
     public type ResultRequest = Users.ResultRequest;
 
 
-    /////////////////
-    // MANAGEMENT //
-    ////////////////
 
-    let dfxIdentityPrincipalSeb : Principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae");
-    let internetIdentityPrincipalSeb : Principal = Principal.fromText ("7djq5-fyci5-b7ktq-gaff6-m4m6b-yfncf-pywb3-r2l23-iv3v4-w2lcl-aqe");
-    let internetIdentityPrincipalSeb_local : Principal = Principal.fromText("otgm5-k6dim-kjitv-7qlzk-72rd5-3hrec-fwaks-mogju-hn7o7-6ocnv-6ae");
+    //////////////
+    // ADMINS ///
+    ////////////
 
-    stable var admins : [Principal] = [dfxIdentityPrincipalSeb, internetIdentityPrincipalSeb, internetIdentityPrincipalSeb_local]; 
+    stable var stableAdmins : [Principal] = [creator];
+    let _admins = Admins.Admins({
+        admins = stableAdmins;
+    });
 
-    private func _isAdmin (p: Principal) : Bool {
-        return(Utils.contains<Principal>(admins, p, Principal.equal))
+    public query func is_admin(p : Principal) : async Bool {
+        _admins.isAdmin(p);
     };
 
-    // Any admin can add others as admin
-    public shared(msg) func addAdmin (p : Principal) : async Result.Result<(), Text> {
-        if (_isAdmin(msg.caller)) {
-            admins := Array.append<Principal>(admins, [p]);
-            return #ok ();
-        } else {
-            return #err ("You are not authorized !");
-        }
-
+    public shared ({caller}) func add_admin(p : Principal) : async () {
+        _admins.addAdmin(p, caller);
     };
 
     ////////////////////
@@ -220,7 +217,7 @@ let this = actor {
     // Return recorded errors during minting
     //@auth : admin
     public shared query ({caller}) func showErrors () : async [(Time,MintingError)] {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         let array = Iter.toArray(errorsMinting.entries());
         return array;
     };
@@ -444,7 +441,7 @@ let this = actor {
     // @auth : admin
 
     public shared ({caller}) func transfer (amount : Ledger.ICP, receiver : Principal) : async Ledger.TransferResult {
-        assert(_isAdmin(caller) or caller == Principal.fromActor(this));
+        assert(_admins.isAdmin(caller) or caller == Principal.fromActor(this));
         let account_raw : [Nat8] = AccountIdentifier.fromPrincipal_raw(receiver, null);
         await actorLedger.transfer({
             memo = 1998;
@@ -537,7 +534,7 @@ let this = actor {
     
 
     public shared query ({caller}) func showPaymentErrors() : async [(Time,PaymentError)] {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         return(Iter.toArray(errorsPayments.entries()));
     };
 
@@ -588,7 +585,7 @@ let this = actor {
     // Get user informations of the specified principal
     //@auth : admin
     public shared query ({caller}) func showUser (p : Principal) : async ?User {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         switch(users.get(p)){
             case(null) return null;
             case(?user) return ?user;
@@ -599,7 +596,7 @@ let this = actor {
     // Allow us to whitelist people and add people who have issue with the payment flow. 
     // @auth : admin
     public shared({caller}) func addUser ( p : Principal, user : User) : async Result.Result<(),Text> {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         switch(users.get(p)){
             case(?user) return #err("An user already exists for this principal.");
             case(null) {
@@ -612,7 +609,7 @@ let this = actor {
     //Allow us to modify entries for an already existing user
     //@auth : admin
     public shared ({caller}) func modifyUser (p : Principal, user : User) : async Result.Result<(),Text> {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         switch(users.get(p)){
             case(null) return #err("No user found for principal : " #Principal.toText(p));
             case(?someone){
@@ -623,7 +620,7 @@ let this = actor {
     };
 
     public shared({caller}) func modifyRank(p : Principal, new_rank : Nat64) : async Result.Result<(), Text> {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         switch(users.get(p)){
             case(null) return #err("No user found for principal : " #Principal.toText(p));
             case(?user){
@@ -635,7 +632,7 @@ let this = actor {
     };
 
     public shared({caller}) func modifyHeight(p : Principal, new_height : Nat64) : async Result.Result<(), Text> {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         switch(users.get(p)){
             case(null) return #err("No user found for principal : " #Principal.toText(p));
             case(?user){
@@ -652,7 +649,7 @@ let this = actor {
     // Allow us to remove people form the list 
     //@auth : admin
     public shared({caller}) func removeUser(p : Principal) : async Result.Result<Text,Text> {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         switch(users.remove(p)){
             case(null) return #err("No user found with this principal : " # Principal.toText(p));
             case(?user) return #ok("User with principal : " # Principal.toText(p) # " has been removed.");
@@ -663,7 +660,7 @@ let this = actor {
     // To query our database and extract data. 
     // @auth : admin 
     public shared({caller}) func getInformations() : async [(Principal,User)] {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         return(Iter.toArray(users.entries()));
     };
 
@@ -729,7 +726,7 @@ let this = actor {
     //Check all subaccounts to see if their balance is non-null, returns the list of those were the balance is not null!
     //@auth : canister
     public shared ({caller}) func verification () : async () {
-        assert(caller == Principal.fromActor(this) or _isAdmin(caller));
+        assert(caller == Principal.fromActor(this) or _admins.isAdmin(caller));
         var robbers : [SubAccount] = [];
         for (subaccount in subaccount_to_check.vals()){
             let account_to_check = {account = _myAccountIdentifier(?subaccount)};
@@ -744,14 +741,14 @@ let this = actor {
     };
 
     public shared query ({caller}) func show_robbers() : async [SubAccount] {
-        assert(caller == Principal.fromActor(this) or _isAdmin(caller));
+        assert(caller == Principal.fromActor(this) or _admins.isAdmin(caller));
         subaccounts_robber;
     };
 
     //Process to the paiement of the concerned subbaccounts
 
     public shared ({caller}) func process () : async () {
-        assert(caller == Principal.fromActor(this) or _isAdmin(caller));
+        assert(caller == Principal.fromActor(this) or _admins.isAdmin(caller));
         for (subaccount in subaccounts_robber.vals()){
             await (_sendBackFrom(subaccount));
         };
@@ -803,7 +800,7 @@ let this = actor {
     //Send list of all audits
     //@auth : admin
     public shared query ({caller}) func show_audits () : async [Audit] {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         audits;
     };
     
@@ -840,6 +837,24 @@ let this = actor {
     public query func wallet_available() : async Nat {
         return Cycles.balance();
     };
+
+    ////////////
+    // LOGS ///
+    ///////////
+
+    public type Event = LogsTypes.Event;
+
+    stable var stableEvents : [Event] = [];
+
+    let _logs = Logs.Logs({
+        events =  stableEvents;
+    });
+
+    public shared query ({caller}) func show_logs() : async List.List<Event>{
+        assert(_admins.isAdmin(caller));
+        return _logs.getLogs();
+    };
+
 
     ///////////////
     // NEW API  //
@@ -905,11 +920,21 @@ let this = actor {
             let args : CreateInvoiceArgs = {
                 amount = 1;
                 token = ICP;
-                permissions = ?{ canGet = admins; canVerify = admins }; //TODO modify permissions
+                permissions = ?{ canGet = _admins.getStateStable(); canVerify = _admins.getStateStable() }; //TODO modify permissions
                 details = null;
             };
             switch(await INVOICE.create_invoice(args)){
-                case(#err(e)) return #err("Error when creating invoice. Please try again.");
+                case(#err(e)) {
+                    let event : Event = {
+                        time = Nat64.fromIntWrap(Time.now());
+                        operation = "create_invoice";
+                        details = [];
+                        caller = caller;
+                        category = #ErrorResult;
+                    };
+                    _logs.addLog(event);
+                    return #err("Error when creating invoice. Please try again.");
+                };
                 case(#ok({invoice})){
                     switch(invoice.destination){
                         case(#text(account)){
@@ -935,6 +960,14 @@ let this = actor {
                 };
             };
         } catch (e) {
+            let event : Event = {
+                time = Nat64.fromIntWrap(Time.now());
+                operation = "create_invoice";
+                details = [];
+                caller = caller;
+                category = #ErrorSystem;
+            };
+            _logs.addLog(event);
             throw e
         };
     };
@@ -955,28 +988,44 @@ let this = actor {
                 id = registration.invoice_id;
             };
             try {
-            switch(await INVOICE.verify_invoice(args)){
-                case(#ok(some)){
-                    let new_user = {
-                        wallet = registration.infos.wallet;
-                        email = registration.infos.email;
-                        discord = registration.infos.discord;
-                        twitter = registration.infos.twitter;
-                        rank = ?Nat64.fromNat(users.size());
-                        height = null;
-                        avatar = null;
-                        airdrop = null;
-                        status = #Level1;
+                switch(await INVOICE.verify_invoice(args)){
+                    case(#ok(some)){
+                        let new_user = {
+                            wallet = registration.infos.wallet;
+                            email = registration.infos.email;
+                            discord = registration.infos.discord;
+                            twitter = registration.infos.twitter;
+                            rank = ?Nat64.fromNat(users.size());
+                            height = null;
+                            avatar = null;
+                            airdrop = null;
+                            status = #Level1;
+                        };
+                        users.put(caller, new_user);
+                        _registrations.delete(caller);
+                        return #ok;
                     };
-                    users.put(caller, new_user);
-                    _registrations.delete(caller);
-                    return #ok;
+                    case(#err(e)){
+                        let event : Event = {
+                            time = Nat64.fromIntWrap(Time.now());
+                            operation = "verify_invoice";
+                            details = [];
+                            caller = caller;
+                            category = #ErrorResult;
+                        };
+                        _logs.addLog(event);
+                        return #err("Error when confirming your invoice. Make sure you've processed the payment and try again. If this issue persits, please contact us.");
+                    };
                 };
-                case(#err(e)){
-                    return #err("Error when confirming your invoice. Make sure you've processed the payment and try again. If this issue persits, please contact us.");
-                };
-            }
             } catch(e) {
+                let event : Event = {
+                    time = Nat64.fromIntWrap(Time.now());
+                    operation = "verify_invoice";
+                    details = [];
+                    caller = caller;
+                    category = #ErrorSystem;
+                };
+                _logs.addLog(event);
                 throw e;
             };
         };
@@ -1005,6 +1054,11 @@ let this = actor {
         };
         return #NotRegistered;
     };
+
+    // public shared ({caller}) func verification() : async  {
+    //     // Verify all invoices that are not yet verified.
+    //     // Delete all invoices that are more than a week old.
+    // };
    
 
 
