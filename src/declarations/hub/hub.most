@@ -1,0 +1,43 @@
+type Audit =
+  {
+    new_avatar : Int;
+    new_icps : ICP;
+    new_items : Int;
+    new_users : Int;
+    time : Int
+  };
+type Event/2 = Event;
+type Infos/1 = Infos;
+type MintingError = {#Avatar : Text; #Verification : Text};
+type PaymentError/1 = PaymentError;
+type Registration =
+  {
+    account_to_send : Text;
+    infos : InfosNew/1;
+    invoice_id : Nat;
+    time : Time/1
+  };
+type SubAccount/3 = SubAccount;
+type Time/1 = Time;
+type UpgradeData/1 = UpgradeData;
+type User/1 = User;
+actor {
+  stable var _canistergeekMonitorUD : ?UpgradeData/1;
+  stable var _registrationsEntries : [(Principal, Registration)];
+  stable var adminsData : [Principal];
+  stable var audits : [Audit];
+  stable var avatars : Nat;
+  stable var count_hour : Nat;
+  stable var errorsMintingEntries : [(Time/1, MintingError)];
+  stable var errorsPaymentsEntries : [(Time/1, PaymentError/1)];
+  stable var icps : {e8s : Nat64};
+  stable var items : Nat;
+  stable var prejoinEntries : [(Principal, Infos/1)];
+  stable var stableAdmins : [Principal];
+  stable var stableEvents : [Event/2];
+  stable var subaccount_to_check : [SubAccount/3];
+  stable var subaccounts_robber : [SubAccount/3];
+  stable var time_canister : Int;
+  stable var usersEntries : [(Principal, User/1)];
+  stable var users_nb : Nat
+};

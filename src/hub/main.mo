@@ -1039,7 +1039,7 @@ shared ({caller = creator}) actor class Hub() = this {
         #Member;
     };
 
-    public query ({caller}) func status() : async StatusRegistration {
+    public query ({caller}) func check_status() : async StatusRegistration {
         if(Principal.isAnonymous(caller)){
             return #NotAuthenticated;
         };
@@ -1172,7 +1172,7 @@ shared ({caller = creator}) actor class Hub() = this {
                     case(#ok(infos)){
                         _logs.addLog({
                             time = Nat64.fromIntWrap(Time.now());
-                            operation = "Recipe";
+                            operation = "recipe";
                             details = [("Block",#U64(infos.block)), ("Amount", #U64(Nat64.fromNat(infos.amount)))];
                             caller = Principal.fromActor(this);
                             category = #Cronic;
@@ -1181,7 +1181,7 @@ shared ({caller = creator}) actor class Hub() = this {
                     case(#err(e)){
                         _logs.addLog({
                             time = Nat64.fromIntWrap(Time.now());
-                            operation = "Recipe";
+                            operation = "recipe";
                             details = [("Err", #True)];
                             caller = Principal.fromActor(this);
                             category = #Cronic;

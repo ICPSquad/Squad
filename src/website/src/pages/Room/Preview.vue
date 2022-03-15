@@ -157,7 +157,6 @@ export default defineComponent({
             }
           } catch (e) {
             waiting.value = false;
-            console.error(e);
             alert(e);
           }
         }

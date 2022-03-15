@@ -40,6 +40,22 @@ export interface DailyMetricsData {
   'canisterMemorySize' : NumericEntity,
   'timeMillis' : bigint,
 }
+export type DetailValue = { 'I64' : bigint } |
+  { 'U64' : bigint } |
+  { 'Vec' : Array<DetailValue> } |
+  { 'Slice' : Array<number> } |
+  { 'Text' : string } |
+  { 'True' : null } |
+  { 'False' : null } |
+  { 'Float' : number } |
+  { 'Principal' : Principal };
+export interface Event {
+  'time' : bigint,
+  'operation' : string,
+  'details' : Array<[string, DetailValue]>,
+  'category' : LogCategory,
+  'caller' : Principal,
+}
 export type ExtCoreUser = { 'principal' : Principal } |
   { 'address' : AccountIdentifier };
 export interface GetMetricsParameters {
@@ -54,11 +70,70 @@ export interface HourlyMetricsData {
   'canisterMemorySize' : CanisterMemoryAggregatedData,
   'timeMillis' : bigint,
 }
+export interface Hub {
+  'addUser' : (arg_0: Principal, arg_1: User) => Promise<Result>,
+  'add_admin' : (arg_0: Principal) => Promise<undefined>,
+  'airdrop' : () => Promise<AirdropResponse>,
+  'audit' : () => Promise<undefined>,
+  'balance' : () => Promise<ICP>,
+  'checkRegistration' : () => Promise<boolean>,
+  'collectCanisterMetrics' : () => Promise<undefined>,
+  'confirm' : (arg_0: bigint) => Promise<Result>,
+  'confirm_new' : () => Promise<Result>,
+  'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
+      [] | [CanisterMetrics]
+    >,
+  'getInformations' : () => Promise<Array<[Principal, User]>>,
+  'getRank' : (arg_0: Principal) => Promise<[] | [bigint]>,
+  'isUserAuthorized' : () => Promise<Result>,
+  'is_admin' : (arg_0: Principal) => Promise<boolean>,
+  'mintRequest' : (arg_0: MintRequest) => Promise<AvatarResponse>,
+  'modifyHeight' : (arg_0: Principal, arg_1: bigint) => Promise<Result>,
+  'modifyRank' : (arg_0: Principal, arg_1: bigint) => Promise<Result>,
+  'modifyUser' : (arg_0: Principal, arg_1: User) => Promise<Result>,
+  'numberUsers' : () => Promise<bigint>,
+  'prejoin' : (
+      arg_0: string,
+      arg_1: [] | [string],
+      arg_2: [] | [string],
+      arg_3: [] | [string],
+      arg_4: SubAccount,
+    ) => Promise<Result_3>,
+  'process' : () => Promise<undefined>,
+  'recipe' : () => Promise<Result_2>,
+  'register' : (
+      arg_0: string,
+      arg_1: [] | [string],
+      arg_2: [] | [string],
+      arg_3: [] | [string],
+    ) => Promise<Result_1>,
+  'removeUser' : (arg_0: Principal) => Promise<Result_1>,
+  'showErrors' : () => Promise<Array<[Time, MintingError]>>,
+  'showPaymentErrors' : () => Promise<Array<[Time, PaymentError]>>,
+  'showPrejoins' : () => Promise<Array<[Principal, Infos]>>,
+  'showUser' : (arg_0: Principal) => Promise<[] | [User]>,
+  'show_audits' : () => Promise<Array<Audit>>,
+  'show_logs' : () => Promise<List>,
+  'show_robbers' : () => Promise<Array<SubAccount>>,
+  'status' : () => Promise<StatusRegistration>,
+  'transfer' : (arg_0: ICP, arg_1: Principal) => Promise<TransferResult>,
+  'updateAdminsData' : (arg_0: Principal, arg_1: boolean) => Promise<Result>,
+  'verification' : () => Promise<undefined>,
+  'verification_registrations' : () => Promise<undefined>,
+  'wallet_available' : () => Promise<bigint>,
+  'wallet_receive' : () => Promise<undefined>,
+}
 export interface ICP { 'e8s' : bigint }
 export interface Infos {
   'subaccount_to_send' : Array<number>,
   'twitter' : [] | [string],
   'memo' : bigint,
+  'email' : [] | [string],
+  'discord' : [] | [string],
+  'wallet' : string,
+}
+export interface InfosNew {
+  'twitter' : [] | [string],
   'email' : [] | [string],
   'discord' : [] | [string],
   'wallet' : string,
@@ -71,6 +146,12 @@ export interface Infos__1 {
   'discord' : [] | [string],
   'wallet' : string,
 }
+export type List = [] | [[Event, List]];
+export type LogCategory = { 'Result' : string } |
+  { 'Operation' : null } |
+  { 'Cronic' : null } |
+  { 'ErrorSystem' : null } |
+  { 'ErrorResult' : null };
 export type MetricsGranularity = { 'hourly' : null } |
   { 'daily' : null };
 export interface MintRequest { 'to' : ExtCoreUser, 'metadata' : AvatarRequest }
@@ -88,11 +169,20 @@ export interface PaymentError {
   'error_message' : string,
   'caller' : Principal,
 }
+export interface RecipeInfos { 'block' : bigint, 'amount' : bigint }
+export interface Registration {
+  'invoice_id' : bigint,
+  'time' : Time,
+  'infos' : InfosNew,
+  'account_to_send' : string,
+}
 export type Result = { 'ok' : null } |
   { 'err' : string };
 export type Result_1 = { 'ok' : string } |
   { 'err' : string };
-export type Result_2 = { 'ok' : bigint } |
+export type Result_2 = { 'ok' : RecipeInfos } |
+  { 'err' : string };
+export type Result_3 = { 'ok' : bigint } |
   { 'err' : string };
 export type Status = { 'OG' : null } |
   { 'Staff' : null } |
@@ -100,6 +190,10 @@ export type Status = { 'OG' : null } |
   { 'Level2' : null } |
   { 'Level3' : null } |
   { 'Legendary' : null };
+export type StatusRegistration = { 'NotRegistered' : null } |
+  { 'Member' : null } |
+  { 'NotConfirmed' : Registration } |
+  { 'NotAuthenticated' : null };
 export type SubAccount = Array<number>;
 export type Time = bigint;
 export type TokenIdentifier = string;
@@ -124,47 +218,4 @@ export interface User {
   'wallet' : string,
   'avatar' : [] | [TokenIdentifier],
 }
-export interface _SERVICE {
-  'addAdmin' : (arg_0: Principal) => Promise<Result>,
-  'addUser' : (arg_0: Principal, arg_1: User) => Promise<Result>,
-  'airdrop' : () => Promise<AirdropResponse>,
-  'audit' : () => Promise<undefined>,
-  'balance' : () => Promise<ICP>,
-  'checkRegistration' : () => Promise<boolean>,
-  'collectCanisterMetrics' : () => Promise<undefined>,
-  'confirm' : (arg_0: bigint) => Promise<Result>,
-  'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
-      [] | [CanisterMetrics]
-    >,
-  'getInformations' : () => Promise<Array<[Principal, User]>>,
-  'getRank' : (arg_0: Principal) => Promise<[] | [bigint]>,
-  'isUserAuthorized' : () => Promise<Result>,
-  'mintRequest' : (arg_0: MintRequest) => Promise<AvatarResponse>,
-  'modifyHeight' : (arg_0: Principal, arg_1: bigint) => Promise<Result>,
-  'modifyRank' : (arg_0: Principal, arg_1: bigint) => Promise<Result>,
-  'modifyUser' : (arg_0: Principal, arg_1: User) => Promise<Result>,
-  'numberUsers' : () => Promise<bigint>,
-  'prejoin' : (
-      arg_0: string,
-      arg_1: [] | [string],
-      arg_2: [] | [string],
-      arg_3: [] | [string],
-      arg_4: SubAccount,
-    ) => Promise<Result_2>,
-  'process' : () => Promise<undefined>,
-  'recipe' : () => Promise<undefined>,
-  'removeUser' : (arg_0: Principal) => Promise<Result_1>,
-  'resetCount' : () => Promise<undefined>,
-  'showCount' : () => Promise<bigint>,
-  'showErrors' : () => Promise<Array<[Time, MintingError]>>,
-  'showPaymentErrors' : () => Promise<Array<[Time, PaymentError]>>,
-  'showPrejoins' : () => Promise<Array<[Principal, Infos]>>,
-  'showUser' : (arg_0: Principal) => Promise<[] | [User]>,
-  'show_audits' : () => Promise<Array<Audit>>,
-  'show_robbers' : () => Promise<Array<SubAccount>>,
-  'transfer' : (arg_0: ICP, arg_1: Principal) => Promise<TransferResult>,
-  'updateAdminsData' : (arg_0: Principal, arg_1: boolean) => Promise<Result>,
-  'verification' : () => Promise<undefined>,
-  'wallet_available' : () => Promise<bigint>,
-  'wallet_receive' : () => Promise<undefined>,
-}
+export interface _SERVICE extends Hub {}

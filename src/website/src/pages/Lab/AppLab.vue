@@ -42,7 +42,7 @@ export default defineComponent({
     };
 
     const accessoriesFiltered = computed(() => {
-      return accessories.filter((accessory) => {
+      return accessories.filter((accessory: any) => {
         return accessory.slot === picker.value;
       });
     });

@@ -8,8 +8,8 @@ export const ACCESSORIES_CANISTER_ID = "po6n2-uiaaa-aaaaj-qaiua-cai";
 export const HOST = "https://mainnet.dfinity.network";
 
 // Payment
-import { ICPTs, Memo } from "../types/Ledger/ledger.did.d";
-export { ICPTs, Memo } from "../types/Ledger/ledger.did.d";
+import { ICPTs, Memo } from "interfaces/ledger/ledger.did.d";
+export { ICPTs, Memo } from "interfaces/ledger/ledger.did.d";
 
 export const FEE: ICPTs = { e8s: BigInt(10000) };
 export const AMOUNT: ICPTs = { e8s: BigInt(100000000) }; //1 ICP

@@ -43,15 +43,10 @@ type Status =
    OG;
    Staff;
  };
-type Result_3 = 
- variant {
-   err: text;
-   ok: nat64;
- };
 type Result_2 = 
  variant {
    err: text;
-   ok: RecipeInfos;
+   ok: nat64;
  };
 type Result_1 = 
  variant {
@@ -69,11 +64,6 @@ type Registration =
    infos: InfosNew;
    invoice_id: nat;
    time: Time;
- };
-type RecipeInfos = 
- record {
-   amount: nat;
-   block: nat64;
  };
 type PaymentError = 
  record {
@@ -104,19 +94,6 @@ type MetricsGranularity =
    daily;
    hourly;
  };
-type LogCategory = 
- variant {
-   Cronic;
-   ErrorResult;
-   ErrorSystem;
-   Operation;
-   Result: text;
- };
-type List = 
- opt record {
-       Event;
-       List;
-     };
 type Infos__1 = 
  record {
    discord: opt text;
@@ -143,59 +120,6 @@ type Infos =
    wallet: text;
  };
 type ICP = record {e8s: nat64;};
-type Hub = 
- service {
-   addUser: (principal, User) -> (Result);
-   add_admin: (principal) -> ();
-   airdrop: () -> (AirdropResponse);
-   audit: () -> ();
-   balance: () -> (ICP);
-   checkRegistration: () -> (bool) query;
-   collectCanisterMetrics: () -> ();
-   confirm: (nat64) -> (Result);
-   confirm_new: () -> (Result);
-   getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
-   getInformations: () -> (vec record {
-                                 principal;
-                                 User;
-                               });
-   getRank: (principal) -> (opt nat) query;
-   isUserAuthorized: () -> (Result) query;
-   is_admin: (principal) -> (bool) query;
-   mintRequest: (MintRequest) -> (AvatarResponse);
-   modifyHeight: (principal, nat64) -> (Result);
-   modifyRank: (principal, nat64) -> (Result);
-   modifyUser: (principal, User) -> (Result);
-   numberUsers: () -> (nat) query;
-   prejoin: (text, opt text, opt text, opt text, SubAccount) -> (Result_3);
-   process: () -> ();
-   recipe: () -> (Result_2);
-   register: (text, opt text, opt text, opt text) -> (Result_1);
-   removeUser: (principal) -> (Result_1);
-   showErrors: () -> (vec record {
-                            Time;
-                            MintingError;
-                          }) query;
-   showPaymentErrors: () -> (vec record {
-                                   Time;
-                                   PaymentError;
-                                 }) query;
-   showPrejoins: () -> (vec record {
-                              principal;
-                              Infos;
-                            }) query;
-   showUser: (principal) -> (opt User) query;
-   show_audits: () -> (vec Audit) query;
-   show_logs: () -> (List) query;
-   show_robbers: () -> (vec SubAccount) query;
-   status: () -> (StatusRegistration) query;
-   transfer: (ICP, principal) -> (TransferResult);
-   updateAdminsData: (principal, bool) -> (Result);
-   verification: () -> ();
-   verification_registrations: () -> ();
-   wallet_available: () -> (nat) query;
-   wallet_receive: () -> ();
- };
 type HourlyMetricsData = 
  record {
    canisterCycles: CanisterCyclesAggregatedData;
@@ -214,29 +138,6 @@ type ExtCoreUser =
  variant {
    address: AccountIdentifier;
    "principal": principal;
- };
-type Event = 
- record {
-   caller: principal;
-   category: LogCategory;
-   details: vec record {
-                  text;
-                  DetailValue;
-                };
-   operation: text;
-   time: nat64;
- };
-type DetailValue = 
- variant {
-   False;
-   Float: float64;
-   I64: int64;
-   Principal: principal;
-   Slice: vec nat8;
-   Text: text;
-   True;
-   U64: nat64;
-   Vec: vec DetailValue;
  };
 type DailyMetricsData = 
  record {
@@ -305,4 +206,54 @@ type AirdropObject =
    recipient: principal;
  };
 type AccountIdentifier = text;
-service : () -> Hub
+service : {
+  addAdmin: (principal) -> (Result);
+  addUser: (principal, User) -> (Result);
+  airdrop: () -> (AirdropResponse);
+  audit: () -> ();
+  balance: () -> (ICP);
+  checkRegistration: () -> (bool) query;
+  collectCanisterMetrics: () -> ();
+  confirm: (nat64) -> (Result);
+  confirm_new: () -> (Result);
+  getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
+  getInformations: () -> (vec record {
+                                principal;
+                                User;
+                              });
+  getRank: (principal) -> (opt nat) query;
+  isUserAuthorized: () -> (Result) query;
+  mintRequest: (MintRequest) -> (AvatarResponse);
+  modifyHeight: (principal, nat64) -> (Result);
+  modifyRank: (principal, nat64) -> (Result);
+  modifyUser: (principal, User) -> (Result);
+  numberUsers: () -> (nat) query;
+  prejoin: (text, opt text, opt text, opt text, SubAccount) -> (Result_2);
+  process: () -> ();
+  recipe: () -> ();
+  register: (text, opt text, opt text, opt text) -> (Result_1);
+  removeUser: (principal) -> (Result_1);
+  resetCount: () -> ();
+  showCount: () -> (nat) query;
+  showErrors: () -> (vec record {
+                           Time;
+                           MintingError;
+                         }) query;
+  showPaymentErrors: () -> (vec record {
+                                  Time;
+                                  PaymentError;
+                                }) query;
+  showPrejoins: () -> (vec record {
+                             principal;
+                             Infos;
+                           }) query;
+  showUser: (principal) -> (opt User) query;
+  show_audits: () -> (vec Audit) query;
+  show_robbers: () -> (vec SubAccount) query;
+  status: () -> (StatusRegistration) query;
+  transfer: (ICP, principal) -> (TransferResult);
+  updateAdminsData: (principal, bool) -> (Result);
+  verification: () -> ();
+  wallet_available: () -> (nat) query;
+  wallet_receive: () -> ();
+}

@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const { VueLoaderPlugin } = require("vue-loader");
+const _default = require("copy-webpack-plugin");
 let localCanisters, prodCanisters, canisters;
 
 function initCanisterIds() {
@@ -48,6 +49,7 @@ module.exports = {
     extensions: [".js", ".ts", ".jsx", ".tsx"],
     alias: {
       declarations: path.resolve(__dirname, "src/declarations/"),
+      interfaces: path.resolve(__dirname, "src/website/src/interfaces/"),
     },
     fallback: {
       assert: require.resolve("assert/"),

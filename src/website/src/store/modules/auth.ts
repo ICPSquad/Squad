@@ -14,6 +14,8 @@ const state: {
   authenticatedActor_hub: Actor | null;
   authenticatedActor_nft: Actor | null;
   authenticatedActor_material: Actor | null;
+  authenticatedActor_ledger: Actor | null;
+  status: string;
   tokenIdentifier: string | null;
   rawAvatar: string | null;
   avatarInfo: AvatarPreviewNew | null;
@@ -25,6 +27,8 @@ const state: {
   authenticatedActor_nft: null,
   authenticatedActor_hub: null,
   authenticatedActor_material: null,
+  authenticatedActor_ledger: null,
+  status: "disconnected",
   tokenIdentifier: null,
   rawAvatar: null,
   avatarInfo: null,
@@ -46,6 +50,12 @@ const mutations = {
   },
   setAuthenticatedActor_material(state: State, authenticatedActor: Actor) {
     state.authenticatedActor_material = authenticatedActor;
+  },
+  setAuthenticatedActor_ledger(state: State, authenticatedActor: Actor) {
+    state.authenticatedActor_ledger = authenticatedActor;
+  },
+  setStatus(state: State, status: string) {
+    state.status = status;
   },
   setWallet(state: State, wallet: "Plug" | "Stoic") {
     state.wallet = wallet;
@@ -83,6 +93,8 @@ const getters = {
   getAuthenticatedActor_hub: (state: State) => state.authenticatedActor_hub,
   getAuthenticatedActor_nft: (state: State) => state.authenticatedActor_nft,
   getAuthenticatedActor_material: (state: State) => state.authenticatedActor_material,
+  getAuthenticatedActor_ledger: (state: State) => state.authenticatedActor_ledger,
+  getStatus: (state: State) => state.status,
   getInventory: (state: State) => state.inventory,
   getRawAvatar: (state: State) => state.rawAvatar,
   getWallet: (state: State) => state.wallet,

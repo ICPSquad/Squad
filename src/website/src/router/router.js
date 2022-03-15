@@ -18,7 +18,6 @@ const routes = [
   { path: "/airdrop", component: Airdrop },
   { path: "/lottery", component: Lottery },
   { path: "/education", component: Education },
-  { path: "/test", component: HomeMint },
   {
     path: "/minter",
     component: () => import("../pages/Mint/AppHomeMinter.vue"),
@@ -38,6 +37,10 @@ const routes = [
   {
     path: "/lab",
     component: () => import("../pages/Lab/AppLab.vue"),
+  },
+  {
+    path: "/test",
+    component: () => import("../pages/Preorder/Main.vue"),
   },
 ];
 
