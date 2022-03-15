@@ -50,6 +50,7 @@ module.exports = {
     alias: {
       declarations: path.resolve(__dirname, "src/declarations/"),
       interfaces: path.resolve(__dirname, "src/website/src/interfaces/"),
+      types: path.resolve(__dirname, "src/website/src/types/"),
     },
     fallback: {
       assert: require.resolve("assert/"),

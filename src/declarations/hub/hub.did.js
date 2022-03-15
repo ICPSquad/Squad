@@ -33,6 +33,25 @@ export const idlFactory = ({ IDL }) => {
     'err' : IDL.Text,
   });
   const ICP = IDL.Record({ 'e8s' : IDL.Nat64 });
+  const Time = IDL.Int;
+  const InfosNew = IDL.Record({
+    'twitter' : IDL.Opt(IDL.Text),
+    'email' : IDL.Opt(IDL.Text),
+    'discord' : IDL.Opt(IDL.Text),
+    'wallet' : IDL.Text,
+  });
+  const Registration = IDL.Record({
+    'invoice_id' : IDL.Nat,
+    'time' : Time,
+    'infos' : InfosNew,
+    'account_to_send' : IDL.Text,
+  });
+  const StatusRegistration = IDL.Variant({
+    'NotRegistered' : IDL.Null,
+    'Member' : IDL.Null,
+    'NotConfirmed' : Registration,
+    'NotAuthenticated' : IDL.Null,
+  });
   const MetricsGranularity = IDL.Variant({
     'hourly' : IDL.Null,
     'daily' : IDL.Null,
@@ -101,7 +120,6 @@ export const idlFactory = ({ IDL }) => {
   const RecipeInfos = IDL.Record({ 'block' : IDL.Nat64, 'amount' : IDL.Nat });
   const Result_2 = IDL.Variant({ 'ok' : RecipeInfos, 'err' : IDL.Text });
   const Result_1 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
-  const Time = IDL.Int;
   const MintingError = IDL.Variant({
     'Avatar' : IDL.Text,
     'Verification' : IDL.Text,
@@ -162,24 +180,6 @@ export const idlFactory = ({ IDL }) => {
     'caller' : IDL.Principal,
   });
   List.fill(IDL.Opt(IDL.Tuple(Event, List)));
-  const InfosNew = IDL.Record({
-    'twitter' : IDL.Opt(IDL.Text),
-    'email' : IDL.Opt(IDL.Text),
-    'discord' : IDL.Opt(IDL.Text),
-    'wallet' : IDL.Text,
-  });
-  const Registration = IDL.Record({
-    'invoice_id' : IDL.Nat,
-    'time' : Time,
-    'infos' : InfosNew,
-    'account_to_send' : IDL.Text,
-  });
-  const StatusRegistration = IDL.Variant({
-    'NotRegistered' : IDL.Null,
-    'Member' : IDL.Null,
-    'NotConfirmed' : Registration,
-    'NotAuthenticated' : IDL.Null,
-  });
   const BlockIndex = IDL.Nat64;
   const TransferError = IDL.Variant({
     'TxTooOld' : IDL.Record({ 'allowed_window_nanos' : IDL.Nat64 }),
@@ -199,6 +199,7 @@ export const idlFactory = ({ IDL }) => {
     'audit' : IDL.Func([], [], []),
     'balance' : IDL.Func([], [ICP], []),
     'checkRegistration' : IDL.Func([], [IDL.Bool], ['query']),
+    'check_status' : IDL.Func([], [StatusRegistration], ['query']),
     'collectCanisterMetrics' : IDL.Func([], [], []),
     'confirm' : IDL.Func([IDL.Nat64], [Result], []),
     'confirm_new' : IDL.Func([], [Result], []),
@@ -258,7 +259,6 @@ export const idlFactory = ({ IDL }) => {
     'show_audits' : IDL.Func([], [IDL.Vec(Audit)], ['query']),
     'show_logs' : IDL.Func([], [List], ['query']),
     'show_robbers' : IDL.Func([], [IDL.Vec(SubAccount)], ['query']),
-    'status' : IDL.Func([], [StatusRegistration], ['query']),
     'transfer' : IDL.Func([ICP, IDL.Principal], [TransferResult], []),
     'updateAdminsData' : IDL.Func([IDL.Principal, IDL.Bool], [Result], []),
     'verification' : IDL.Func([], [], []),

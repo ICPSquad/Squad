@@ -151,6 +151,7 @@ type Hub =
    audit: () -> ();
    balance: () -> (ICP);
    checkRegistration: () -> (bool) query;
+   check_status: () -> (StatusRegistration) query;
    collectCanisterMetrics: () -> ();
    confirm: (nat64) -> (Result);
    confirm_new: () -> (Result);
@@ -188,7 +189,6 @@ type Hub =
    show_audits: () -> (vec Audit) query;
    show_logs: () -> (List) query;
    show_robbers: () -> (vec SubAccount) query;
-   status: () -> (StatusRegistration) query;
    transfer: (ICP, principal) -> (TransferResult);
    updateAdminsData: (principal, bool) -> (Result);
    verification: () -> ();
