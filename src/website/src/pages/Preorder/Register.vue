@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col flex-1 w-full bg-gradient-to-l from-gray-600 via-gray-900 to-black lg:text-6xl md:text-4xl text-2xl font-semibold text-white justify-center">
-    <h1 class="text-center md:mb-16 mt-8 mb-8 font-marker">Inscription 🔥</h1>
+    <h1 class="text-center md:mb-16 mt-8 mb-8">Inscription 🔥</h1>
 
     <div class="flex flex-col justify-between items-center mb-8 mt-8 gap-y-8 w-full">
       <div>

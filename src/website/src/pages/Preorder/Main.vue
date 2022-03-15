@@ -1,20 +1,20 @@
 <template>
   <connect v-if="!connected"></connect>
-  <loading v-if="connected && status === 'Loading'"></loading>
-  <register v-else-if="connected && status === 'NotRegistered'" @submit="submit" :pulse="pulse"></register>
-  <confirm v-else-if="connected && status === 'NotConfirmed'"></confirm>
-  <member v-else-if="connected && status === 'Member'"></member>
+  <loading v-else-if="status === 'Loading'"></loading>
+  <confirm v-else-if="status === 'b'" :account="'aaa'"></confirm>
+  <register v-else-if="status === 'NotRegistered'" @submit="submit" :pulse="pulse"></register>
+  <member v-else-if="status === 'Member'"></member>
 </template>
 
 <script lang="ts">
 import { defineComponent, computed, watch, ref } from "vue";
 import { useStore } from "vuex";
 import Connect from "./Connect.vue";
-import Confirm from "./Connect.vue";
+import Confirm from "./Confirm.vue";
 import Member from "./Member.vue";
 import Loading from "./Loading.vue";
 import Register from "./Register.vue";
-import { RegistrationObject, FormObject } from "types/registration";
+import { FormObject } from "types/registration";
 
 export default defineComponent({
   setup() {
@@ -27,7 +27,7 @@ export default defineComponent({
         store.commit("setStatus", "Loading");
       }
       // checkStatus();
-      store.commit("setStatus", "NotRegistered");
+      store.commit("setStatus", "b");
     });
 
     async function checkStatus() {
@@ -56,7 +56,8 @@ export default defineComponent({
       if (result.hasOwnProperty("err")) {
         alert(result.err);
       } else {
-        // Process with the account and to the next component
+        account_to_send.value = result.account_to_send;
+        store.commit("setStatus", "NotConfirmed");
       }
     }
 
@@ -70,6 +71,8 @@ export default defineComponent({
       sendRegistration(form);
     }
 
+    const account_to_send = ref<string>("");
+
     return {
       status: computed(() => store.getters.getStatus),
       connected: computed(() => store.getters.getAuthenticatedActor_hub != null && store.getters.getAuthenticatedActor_hub != null),
@@ -79,10 +82,10 @@ export default defineComponent({
   },
   components: {
     Connect,
-    Confirm,
     Member,
     Loading,
     Register,
+    Confirm,
   },
   inheritAttrs: false,
 });

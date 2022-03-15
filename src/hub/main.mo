@@ -953,6 +953,7 @@ shared ({caller = creator}) actor class Hub() = this {
                             return #ok(account);
                         };
                         case(_) {
+                            //  The invoice canister always return an account identier as text for this endpoint.
                             assert(false);  
                             return #err("Unreachable");
                         };
