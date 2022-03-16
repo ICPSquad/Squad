@@ -1,15 +1,15 @@
 <template>
   <div class="flex flex-col relative">
-    <nav class="flex flex-row w-full py-2 px-4 bg-black md:py-6 md:px-12 justify-between items-center">
+    <nav class="flex flex-row w-full py-2 px-4 bg-black md:py-4 md:px-12 justify-between items-center">
       <h1 class="text-left font-marker text-xl md:text-xl lg:text-3xl 2lg:text-5xl font-bold cursor-pointer text-white">
         <router-link to="/"> ICP Squad </router-link>
       </h1>
       <div class="flex-row gap-x-3 xl:gap-x-6 hidden lg:flex">
-        <router-link to="/center"><button-cypher class="h-12 xl:w-56 xl:h-16 text-lg px-4" text="Avatar 👤"></button-cypher></router-link>
-        <router-link to="/accessory"> <button-cypher class="h-12 xl:w-56 xl:h-16 text-lg px-4" text="Accessory 🧢"></button-cypher></router-link>
-        <router-link to="/lottery"> <button-cypher class="h-12 xl:w-56 xl:h-16 text-lg px-4" text="Lottery 🎁"></button-cypher></router-link>
+        <router-link to="/center"><button-cypher class="h-12 xl:w-44 xl:h-12 px-4" text="Avatar 👤"></button-cypher></router-link>
+        <router-link to="/accessory"> <button-cypher class="h-12 xl:w-44 xl:h-12 px-4" text="Accessory 🧢"></button-cypher></router-link>
+        <router-link to="/lottery"> <button-cypher class="h-12 xl:w-44 xl:h-12 px-4" text="Mission 🎲"></button-cypher></router-link>
         <router-link to="/education">
-          <button-cypher class="block h-12 xl:w-56 xl:h-16 text-lg px-4" text="Education 💡"></button-cypher>
+          <button-cypher class="block h-12 xl:w-44 xl:h-12 px-4" text="Education 💡"></button-cypher>
         </router-link>
       </div>
 

@@ -7,6 +7,7 @@ import { AvatarPreviewNew, LayerId } from "@/declarations/avatar/avatar.did";
 import { Slots } from "declarations/avatar/avatar.did";
 import { addAccessoryLayers, removeAccessoryLayers } from "../../utils/svg_new";
 import store from "..";
+import router from "../../router/router";
 
 const state: {
   principal: Principal | null;
@@ -139,7 +140,8 @@ const actions = {
     const avatar_result = await actor.getAvatarInfos_new();
     console.log("avatar_result", avatar_result);
     if (avatar_result.err) {
-      //TODO : avatar not found
+      alert("Error loading your infos: " + avatar_result.err);
+      router.push("/");
       throw new Error(avatar_result.err);
     }
     let { token_identifier } = avatar_result.ok;

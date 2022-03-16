@@ -1,45 +1,43 @@
 <template>
   <div class="flex flex-col">
     <div>
-      <h2 class="py-12 text-center font-marker text-gray-800 lg:text-4xl md:text-3xl text-2xl font-bold mt-8">Season 0 : <span> squad loading 🌍 </span></h2>
+      <h2 class="text-center 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl text-gray-800 md:my-12 mt-6 mb-6">
+        <span class="font-marker"> Members : </span>
+        {{ numberOfMembers }}.
+      </h2>
     </div>
     <div class="flex flex-row md:px-24 px-6 w-full md:gap-x-12 gap-x-6 justify-around">
-      <div class="w-40 hidden lg:block" v-if="!isMobileRef">
+      <div class="w-44 hidden lg:block" v-if="!isMobileRef">
         <img src="others/characters/Seb.svg" alt="Seb" class="rounded-2xl" />
       </div>
-      <div class="w-60 hidden md:block" v-if="!isMobileRef">
+      <div class="w-48 hidden md:block" v-if="!isMobileRef">
         <img src="others/characters/Arun.svg" alt="Arun" class="rounded-2xl" />
       </div>
-      <div class="w-64">
+      <div class="w-56">
         <img src="others/characters/Business.svg" alt="Business" class="rounded-2xl" />
       </div>
-      <div class="w-72">
+      <div class="w-64">
         <img src="others/characters/Miss.svg" alt="Miss" class="rounded-2xl" />
       </div>
-      <div class="w-64">
+      <div class="w-56">
         <img src="others/characters/Punk.svg" alt="Punk" class="rounded-2xl" />
       </div>
-      <div class="w-60 hidden md:block" v-if="!isMobileRef">
+      <div class="w-48 hidden md:block" v-if="!isMobileRef">
         <img src="others/characters/Isaac.svg" alt="Isaac" class="rounded-2xl" />
       </div>
-      <div class="w-40 hidden lg:block" v-if="!isMobileRef">
+      <div class="w-44 hidden lg:block" v-if="!isMobileRef">
         <img src="others/characters/Duke.svg" alt="Duke" class="rounded-2xl" />
       </div>
     </div>
-    <div class="flex flex-row w-full justify-center">
-      <h2 class="text-center 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl text-gray-800 md:my-12 mt-6 mb-6">
-        <span class="font-marker" :class="!updated ? 'animate-pulse' : ''"> Members : </span>
-        {{ numberOfMembers }}
-      </h2>
-    </div>
-    <div class="flex flex-row justify-center">
+    <div class="flex flex-row w-full justify-center"></div>
+    <div class="flex flex-row justify-center py-10">
       <router-link to="/preorder">
-        <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mb-8 mt-4 cursor-pointer mx-auto">👉 Join</button>
+        <button class="text-2xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mb-8 mt-4 cursor-pointer mx-auto">👉 Join</button>
       </router-link>
     </div>
 
     <div class="flex flex-col 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-semibold bg-gradient-to-l from-gray-600 via-gray-900 to-black text-white md:py-24 md:px-28 py-8 px-6 justify-around">
-      <h3 class="text-center md:mb-16 mb-6 font-marker">The first engage-to-earn NFT game 🎯</h3>
+      <h3 class="text-center md:mb-16 mb-6 font-marker">1 <sup> st</sup> engage-to-earn NFT game 🎯</h3>
       <div class="flex flex-row w-full justify-around items-center md:py-12">
         <p class="lg:text-4xl md:text-2xl text-xl">
           We believe the Internet Computer will change the world.
@@ -87,7 +85,7 @@
         <div class="w-60">
           <img src="Accessory.svg" alt="Card" class="rounded-2xl" />
         </div>
-        <div class="transform rotate-90 md:rotate-0 w-2/3 md:h-60 md:w-44 my-8">
+        <div class="transform rotate-90 md:rotate-0 w-/3 md:h-60 md:w-44 my-8">
           <img src="Arrow.svg" alt="Arrow" />
         </div>
         <div class="md:w-72 w-64">
@@ -119,7 +117,7 @@
           Get you hands on those through meaningful contributions or special events.
         </p>
         <div>
-          <img src="others/characters/Igor.svg" alt="Igor" class="md:w-80 w-2/3 mx-auto rounded-2xl md:mb-16 mb-8 mt-6 transform hover:scale-110" />
+          <img src="others/characters/Igor.svg" alt="Igor" class="md:w-72 w-64 mx-auto rounded-2xl md:mb-16 mb-8 mt-6 transform hover:scale-110" />
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 <template>
-  <button class="text font-marker flex flex-col justify-center items-center">
+  <button class="font-bold flex flex-col justify-center items-center">
     {{ text }}
   </button>
 </template>
@@ -37,13 +37,7 @@ button::after {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    45deg,
-    transparent 3%,
-    #00e6f6 3%,
-    #00e6f6 5%,
-    #d51d81 5%
-  );
+  background: linear-gradient(45deg, transparent 3%, #00e6f6 3%, #00e6f6 5%, #d51d81 5%);
   text-shadow: -3px -3px 0px #f8f005, 3px 3px 0px #00e6f6;
   clip-path: var(--slice-0);
 }

@@ -29,7 +29,7 @@
           {{ message }}
         </h2>
         <button
-          class="text-2xl shadow-xl text-black font-bold bg-pink-600 rounded px-8 py-4 w-44 mt-8"
+          class="text-2xl shadow-xl text-black font-bold bg-pink-600 rounded px-8 py-4 w-44 mt-8 mb-8"
           :class="[waiting ? 'animate-pulse cursor-wait' : '']"
           @click="buttonAction"
           v-if="buttonState.show"
@@ -48,7 +48,7 @@ import RoomConnexion from "../../components/Connexion/RoomConnexion.vue";
 import LoadingAvatar from "./LoadingAvatar.vue";
 import Avatar from "./Avatar.vue";
 import SlotComponent from "./Slots.vue";
-import { nameToSlot, nameToAccessory } from "../../utils/list";
+import { nameToSlot } from "../../utils/list";
 import { AccessoryListFromInventory, AccesoryInfos, changeInventory } from "../../types/inventory";
 export default defineComponent({
   inheritAttrs: false,
