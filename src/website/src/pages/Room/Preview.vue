@@ -120,6 +120,7 @@ export default defineComponent({
             waiting.value = false;
             if (result.hasOwnProperty("err")) {
               alert(JSON.stringify(result.err));
+              waiting.value = false;
             } else {
               let payload = { slot: nameToSlot(selectedAccessory.value.name), name: selectedAccessory.value.name };
               store.commit("removeAccessory", payload);
@@ -144,6 +145,7 @@ export default defineComponent({
             const result = await actor.wearAccessory(token_identifier_accessory, token_identifier_avatar);
             if (result.hasOwnProperty("err")) {
               alert(JSON.stringify(result.err));
+              waiting.value = false;
             } else {
               selectedAccessory.value = {
                 ...selectedAccessory.value,

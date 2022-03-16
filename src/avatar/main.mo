@@ -506,6 +506,9 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
                     message #=  "Does not belong to this principal : " # principal_caller_textual # " .";
                     return #err(message);
                 };
+                  if(_isListed(token_avatar)){
+                    return #err("Cannot desequip an avatar that is being listed.");
+                };
                 // Check the accessory exists
                 switch(accessories.get(name)){
                     case(null) return #err("No accessory found for name : " #name);
@@ -995,7 +998,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
 			return #err(#InvalidToken(request.token));
 		};
         if(_isEquipped(request.token)){
-            return #err(#Other("Avatar cannnot be listed when equipped"));
+            return #err(#Other("Avatar cannnot be listed when equipped."));
         };
         let token = ExtCore.TokenIdentifier.getIndex(request.token);
         if(_isLocked(token)){
@@ -1004,7 +1007,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         switch(_tokenSettlement.get(token)){
             case(?settlement){
                 switch(await settle(request.token)){
-                    case(#ok) return #err(#Other("Listing as sold"));
+                    case(#ok) return #err(#Other("Listing as sold."));
                     case(#err(_)) {};
                 };
             };
@@ -1238,7 +1241,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         switch(avatars.get(token_identifier)){
             case(null) return false;
             case(?avatar){
-                return(AvatarModule.isEmpty(avatar.getSlots()));
+                return(not AvatarModule.isEmpty(avatar.getSlots()));
             };
         };  
     };
