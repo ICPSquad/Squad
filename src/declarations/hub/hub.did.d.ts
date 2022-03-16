@@ -99,15 +99,15 @@ export interface Hub {
       arg_2: [] | [string],
       arg_3: [] | [string],
       arg_4: SubAccount,
-    ) => Promise<Result_3>,
+    ) => Promise<Result_4>,
   'process' : () => Promise<undefined>,
-  'recipe' : () => Promise<Result_2>,
+  'recipe' : () => Promise<Result_3>,
   'register' : (
       arg_0: string,
       arg_1: [] | [string],
       arg_2: [] | [string],
       arg_3: [] | [string],
-    ) => Promise<Result_1>,
+    ) => Promise<Result_2>,
   'removeUser' : (arg_0: Principal) => Promise<Result_1>,
   'showErrors' : () => Promise<Array<[Time, MintingError]>>,
   'showPaymentErrors' : () => Promise<Array<[Time, PaymentError]>>,
@@ -132,12 +132,6 @@ export interface Infos {
   'discord' : [] | [string],
   'wallet' : string,
 }
-export interface InfosNew {
-  'twitter' : [] | [string],
-  'email' : [] | [string],
-  'discord' : [] | [string],
-  'wallet' : string,
-}
 export interface Infos__1 {
   'subaccount_to_send' : Array<number>,
   'twitter' : [] | [string],
@@ -145,6 +139,12 @@ export interface Infos__1 {
   'email' : [] | [string],
   'discord' : [] | [string],
   'wallet' : string,
+}
+export interface InvoiceInfo {
+  'id' : bigint,
+  'expiration' : Time,
+  'account' : string,
+  'amount' : bigint,
 }
 export type List = [] | [[Event, List]];
 export type LogCategory = { 'Result' : string } |
@@ -170,19 +170,15 @@ export interface PaymentError {
   'caller' : Principal,
 }
 export interface RecipeInfos { 'block' : bigint, 'amount' : bigint }
-export interface Registration {
-  'invoice_id' : bigint,
-  'time' : Time,
-  'infos' : InfosNew,
-  'account_to_send' : string,
-}
 export type Result = { 'ok' : null } |
   { 'err' : string };
 export type Result_1 = { 'ok' : string } |
   { 'err' : string };
-export type Result_2 = { 'ok' : RecipeInfos } |
+export type Result_2 = { 'ok' : InvoiceInfo } |
   { 'err' : string };
-export type Result_3 = { 'ok' : bigint } |
+export type Result_3 = { 'ok' : RecipeInfos } |
+  { 'err' : string };
+export type Result_4 = { 'ok' : bigint } |
   { 'err' : string };
 export type Status = { 'OG' : null } |
   { 'Staff' : null } |
@@ -192,7 +188,7 @@ export type Status = { 'OG' : null } |
   { 'Legendary' : null };
 export type StatusRegistration = { 'NotRegistered' : null } |
   { 'Member' : null } |
-  { 'NotConfirmed' : Registration } |
+  { 'NotConfirmed' : InvoiceInfo } |
   { 'NotAuthenticated' : null };
 export type SubAccount = Array<number>;
 export type Time = bigint;

@@ -1,7 +1,7 @@
 <template>
   <connect v-if="!connected"></connect>
   <loading v-else-if="status === 'Loading'"></loading>
-  <confirm v-else-if="status === 'b'" :account="'aaa'"></confirm>
+  <confirm v-else-if="status === 'NotConfirmed'" :invoice="invoice" @success="success"></confirm>
   <register v-else-if="status === 'NotRegistered'" @submit="submit" :pulse="pulse"></register>
   <member v-else-if="status === 'Member'"></member>
 </template>
@@ -14,20 +14,20 @@ import Confirm from "./Confirm.vue";
 import Member from "./Member.vue";
 import Loading from "./Loading.vue";
 import Register from "./Register.vue";
-import { FormObject } from "types/registration";
+import { FormObject, InvoiceInfo } from "types/registration";
 
 export default defineComponent({
   setup() {
     const store = useStore();
     const ledgerActor = computed(() => store.getters.getAuthenticatedActor_ledger);
     const hubActor = computed(() => store.getters.getAuthenticatedActor_hub);
+    const invoice = ref<InvoiceInfo | null>(null);
 
     watch(hubActor, (_) => {
       if (ledgerActor.value && hubActor.value) {
         store.commit("setStatus", "Loading");
       }
-      // checkStatus();
-      store.commit("setStatus", "b");
+      checkStatus();
     });
 
     async function checkStatus() {
@@ -39,7 +39,8 @@ export default defineComponent({
         store.commit("setStatus", "Member");
       } else if (result.hasOwnProperty("NotRegistered")) {
         store.commit("setStatus", "NotRegistered");
-      } else if (result.hasOwnProperty("NotConfirmed ")) {
+      } else if (result.hasOwnProperty("NotConfirmed")) {
+        invoice.value = result.NotConfirmed;
         store.commit("setStatus", "NotConfirmed");
       } else {
         throw new Error("Unknown status");
@@ -56,7 +57,7 @@ export default defineComponent({
       if (result.hasOwnProperty("err")) {
         alert(result.err);
       } else {
-        account_to_send.value = result.account_to_send;
+        invoice.value = result.ok;
         store.commit("setStatus", "NotConfirmed");
       }
     }
@@ -71,13 +72,17 @@ export default defineComponent({
       sendRegistration(form);
     }
 
-    const account_to_send = ref<string>("");
+    function success() {
+      store.commit("setStatus", "Member");
+    }
 
     return {
       status: computed(() => store.getters.getStatus),
       connected: computed(() => store.getters.getAuthenticatedActor_hub != null && store.getters.getAuthenticatedActor_hub != null),
       submit,
       pulse,
+      invoice,
+      success,
     };
   },
   components: {

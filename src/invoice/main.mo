@@ -89,7 +89,6 @@ actor Invoice {
           id;
           creator = caller;
           details = args.details;
-          permissions = args.permissions;
           amount = args.amount;
           amountPaid = 0;
           token;
@@ -100,7 +99,7 @@ actor Invoice {
           destination;
         };
 
-        invoices.put(id, invoice);
+        s.put(id, invoice);
 
         #ok({invoice});
       };

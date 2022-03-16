@@ -31,7 +31,7 @@ type StatusRegistration =
  variant {
    Member;
    NotAuthenticated;
-   NotConfirmed: Registration;
+   NotConfirmed: InvoiceInfo;
    NotRegistered;
  };
 type Status = 
@@ -43,15 +43,20 @@ type Status =
    OG;
    Staff;
  };
-type Result_3 = 
+type Result_4 = 
  variant {
    err: text;
    ok: nat64;
  };
-type Result_2 = 
+type Result_3 = 
  variant {
    err: text;
    ok: RecipeInfos;
+ };
+type Result_2 = 
+ variant {
+   err: text;
+   ok: InvoiceInfo;
  };
 type Result_1 = 
  variant {
@@ -62,13 +67,6 @@ type Result =
  variant {
    err: text;
    ok;
- };
-type Registration = 
- record {
-   account_to_send: text;
-   infos: InfosNew;
-   invoice_id: nat;
-   time: Time;
  };
 type RecipeInfos = 
  record {
@@ -117,19 +115,19 @@ type List =
        Event;
        List;
      };
+type InvoiceInfo = 
+ record {
+   account: text;
+   amount: nat;
+   expiration: Time;
+   id: nat;
+ };
 type Infos__1 = 
  record {
    discord: opt text;
    email: opt text;
    memo: nat64;
    subaccount_to_send: vec nat8;
-   twitter: opt text;
-   wallet: text;
- };
-type InfosNew = 
- record {
-   discord: opt text;
-   email: opt text;
    twitter: opt text;
    wallet: text;
  };
@@ -168,10 +166,10 @@ type Hub =
    modifyRank: (principal, nat64) -> (Result);
    modifyUser: (principal, User) -> (Result);
    numberUsers: () -> (nat) query;
-   prejoin: (text, opt text, opt text, opt text, SubAccount) -> (Result_3);
+   prejoin: (text, opt text, opt text, opt text, SubAccount) -> (Result_4);
    process: () -> ();
-   recipe: () -> (Result_2);
-   register: (text, opt text, opt text, opt text) -> (Result_1);
+   recipe: () -> (Result_3);
+   register: (text, opt text, opt text, opt text) -> (Result_2);
    removeUser: (principal) -> (Result_1);
    showErrors: () -> (vec record {
                             Time;

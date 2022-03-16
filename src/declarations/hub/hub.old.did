@@ -43,10 +43,20 @@ type Status =
    OG;
    Staff;
  };
-type Result_2 = 
+type Result_4 = 
  variant {
    err: text;
    ok: nat64;
+ };
+type Result_3 = 
+ variant {
+   err: text;
+   ok: RecipeInfos;
+ };
+type Result_2 = 
+ variant {
+   err: text;
+   ok: InvoiceInfo;
  };
 type Result_1 = 
  variant {
@@ -64,6 +74,11 @@ type Registration =
    infos: InfosNew;
    invoice_id: nat;
    time: Time;
+ };
+type RecipeInfos = 
+ record {
+   amount: nat;
+   block: nat64;
  };
 type PaymentError = 
  record {
@@ -93,6 +108,26 @@ type MetricsGranularity =
  variant {
    daily;
    hourly;
+ };
+type LogCategory = 
+ variant {
+   Cronic;
+   ErrorResult;
+   ErrorSystem;
+   Operation;
+   Result: text;
+ };
+type List = 
+ opt record {
+       Event;
+       List;
+     };
+type InvoiceInfo = 
+ record {
+   account: text;
+   amount: nat;
+   expiration: Time;
+   id: nat;
  };
 type Infos__1 = 
  record {
@@ -138,6 +173,29 @@ type ExtCoreUser =
  variant {
    address: AccountIdentifier;
    "principal": principal;
+ };
+type Event = 
+ record {
+   caller: principal;
+   category: LogCategory;
+   details: vec record {
+                  text;
+                  DetailValue;
+                };
+   operation: text;
+   time: nat64;
+ };
+type DetailValue = 
+ variant {
+   False;
+   Float: float64;
+   I64: int64;
+   Principal: principal;
+   Slice: vec nat8;
+   Text: text;
+   True;
+   U64: nat64;
+   Vec: vec DetailValue;
  };
 type DailyMetricsData = 
  record {
@@ -207,12 +265,13 @@ type AirdropObject =
  };
 type AccountIdentifier = text;
 service : {
-  addAdmin: (principal) -> (Result);
   addUser: (principal, User) -> (Result);
+  add_admin: (principal) -> ();
   airdrop: () -> (AirdropResponse);
   audit: () -> ();
   balance: () -> (ICP);
   checkRegistration: () -> (bool) query;
+  check_status: () -> (StatusRegistration) query;
   collectCanisterMetrics: () -> ();
   confirm: (nat64) -> (Result);
   confirm_new: () -> (Result);
@@ -223,18 +282,17 @@ service : {
                               });
   getRank: (principal) -> (opt nat) query;
   isUserAuthorized: () -> (Result) query;
+  is_admin: (principal) -> (bool) query;
   mintRequest: (MintRequest) -> (AvatarResponse);
   modifyHeight: (principal, nat64) -> (Result);
   modifyRank: (principal, nat64) -> (Result);
   modifyUser: (principal, User) -> (Result);
   numberUsers: () -> (nat) query;
-  prejoin: (text, opt text, opt text, opt text, SubAccount) -> (Result_2);
+  prejoin: (text, opt text, opt text, opt text, SubAccount) -> (Result_4);
   process: () -> ();
-  recipe: () -> ();
-  register: (text, opt text, opt text, opt text) -> (Result_1);
+  recipe: () -> (Result_3);
+  register: (text, opt text, opt text, opt text) -> (Result_2);
   removeUser: (principal) -> (Result_1);
-  resetCount: () -> ();
-  showCount: () -> (nat) query;
   showErrors: () -> (vec record {
                            Time;
                            MintingError;
@@ -249,11 +307,12 @@ service : {
                            }) query;
   showUser: (principal) -> (opt User) query;
   show_audits: () -> (vec Audit) query;
+  show_logs: () -> (List) query;
   show_robbers: () -> (vec SubAccount) query;
-  status: () -> (StatusRegistration) query;
   transfer: (ICP, principal) -> (TransferResult);
   updateAdminsData: (principal, bool) -> (Result);
   verification: () -> ();
+  verification_registrations: () -> ();
   wallet_available: () -> (nat) query;
   wallet_receive: () -> ();
 }

@@ -796,7 +796,7 @@ shared ({caller = creator}) actor class Hub() = this {
     //Send recipe of the week to the wallet specified.
     //@auth : canister.
     public shared ({caller}) func recipe() : async Result.Result<RecipeInfos, Text> {
-        assert(caller == Principal.fromActor(this));
+        assert(caller == Principal.fromActor(this) or _admins.isAdmin(caller));
         switch(await INVOICE.get_balance({ token = ICP })){
             case(#ok(answer)){
                 let transferArgs : InvoiceType.TransferArgs = {
@@ -887,8 +887,13 @@ shared ({caller = creator}) actor class Hub() = this {
     type Registration = {
         time : Time;
         infos : InfosNew;
-        invoice_id : Nat;
-        account_to_send : Text; // The invoice canister always send the destination account as text.
+        invoice : InvoiceInfo;
+    };
+    type InvoiceInfo = {
+        id : Nat;
+        amount : Nat;
+        account : Text;
+        expiration : Time;
     };
 
     let INVOICE : InvoiceInterface = actor("if27l-eyaaa-aaaaj-qaq5a-cai");
@@ -903,7 +908,7 @@ shared ({caller = creator}) actor class Hub() = this {
         email : ?Text, 
         discord : ?Text, 
         twitter : ?Text
-        ) : async Result.Result<Text, Text> {
+        ) : async Result.Result<InvoiceInfo, Text> {
         if(Principal.isAnonymous(caller)){
             return #err("You need to be authenticated.");
         };
@@ -946,11 +951,15 @@ shared ({caller = creator}) actor class Hub() = this {
                                     discord = discord;
                                     twitter = twitter;
                                 };
-                                invoice_id = invoice.id;
-                                account_to_send = account;
+                                invoice = {
+                                    id = invoice.id;
+                                    amount = invoice.amount;
+                                    account = account;
+                                    expiration = invoice.expiration;
+                                };
                             };  
                             _registrations.put(caller, registration);
-                            return #ok(account);
+                            return #ok(registration.invoice);
                         };
                         case(_) {
                             //  The invoice canister always return an account identier as text for this endpoint.
@@ -986,7 +995,7 @@ shared ({caller = creator}) actor class Hub() = this {
         ignore do ? {
             let registration = _registrations.get(caller) !;
             let args : VerifyInvoiceArgs = {
-                id = registration.invoice_id;
+                id = registration.invoice.id;
             };
             try {
                 switch(await INVOICE.verify_invoice(args)){
@@ -1036,7 +1045,7 @@ shared ({caller = creator}) actor class Hub() = this {
     public type StatusRegistration = {
         #NotAuthenticated;
         #NotRegistered;
-        #NotConfirmed : Registration ;
+        #NotConfirmed : InvoiceInfo;
         #Member;
     };
 
@@ -1050,7 +1059,7 @@ shared ({caller = creator}) actor class Hub() = this {
         if(Option.isSome(_registrations.get(caller))){
         ignore do ? {
                 let registration = _registrations.get(caller)!;
-                return #NotConfirmed(registration);
+                return #NotConfirmed(registration.invoice);
             };
         };
         return #NotRegistered;
@@ -1061,7 +1070,7 @@ shared ({caller = creator}) actor class Hub() = this {
             case(null) return #err("No registration found for this principal");
             case(?registration){
                 try {
-                switch(await INVOICE.verify_invoice({ id = registration.invoice_id })){
+                switch(await INVOICE.verify_invoice({ id = registration.invoice.id })){
                     case(#ok(some)){
                         let new_user = {
                             wallet = registration.infos.wallet;
@@ -1086,14 +1095,6 @@ shared ({caller = creator}) actor class Hub() = this {
                         return #ok;
                     };
                     case(#err(e)){
-                        let event : Event = {
-                            time = Nat64.fromIntWrap(Time.now());
-                            operation = "verify_invoice";
-                            details = [("User", #Principal(p))];
-                            caller = Principal.fromActor(this);
-                            category = #ErrorResult;
-                        };
-                        _logs.addLog(event);
                         return #err("Error when confirming your invoice. Make sure you've processed the payment and try again. If this issue persits, please contact us.");
                     };
                 };

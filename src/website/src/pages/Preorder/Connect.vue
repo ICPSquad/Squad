@@ -1,7 +1,6 @@
 <template>
   <div class="flex flex-col md:grid grid-cols-3 grid-rows-1 flex-1 items-center justify-center gap-8">
-    <div class="flex flex-col items-center justify-center gap-y-8">
-      <h2 class="text-center 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-bold text-gray-800 font-marker">1</h2>
+    <div class="flex flex-col items-center justify-center gap-y-8 mt-12">
       <div class="w-1/3">
         <svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
           <!-- Uploaded to SVGRepo https://www.svgrepo.com -->
@@ -21,12 +20,11 @@
         Join the community 👥
         <br />
         <br />
-        Fill out a few informations and pay your inscription
+        Fill out a form and pay your registration
         <span class="font-extrabold text-purple-500 cursor-pointer" @click="messageFee"> fee</span>.
       </div>
     </div>
-    <div class="flex flex-col items-center justify-center gap-y-8">
-      <h2 class="text-center 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-bold text-gray-800 font-marker">2</h2>
+    <div class="flex flex-col items-center justify-center gap-y-8 mt-12">
       <div class="w-1/3">
         <img src="others/characters/Miss.svg" alt="Miss" class="rounded-2xl" />
       </div>
@@ -37,8 +35,7 @@
         Receive your avatar in your wallet immediately.
       </div>
     </div>
-    <div class="flex flex-col items-center justify-center gap-y-8">
-      <h2 class="text-center 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-bold text-gray-800 font-marker">3</h2>
+    <div class="flex flex-col items-center justify-center gap-y-8 mt-12">
       <div class="w-1/3">
         <img src="others/icons/engage.svg" alt="Engage" />
       </div>
@@ -52,7 +49,7 @@
       </div>
     </div>
     <div class="w-full md:col-span-3 flex-1 bg-gradient-to-l from-gray-600 via-gray-900 to-black 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-semibold text-white">
-      <h1 class="text-center mt-12 font-marker">Connect your wallet.</h1>
+      <h1 class="text-center mt-12">Connect your wallet.</h1>
 
       <div class="flex flex-row justify-around mb-12">
         <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mt-8 cursor-pointer hidden md:block" @click="plug">Plug</button>

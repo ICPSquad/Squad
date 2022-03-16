@@ -1,39 +1,27 @@
 <template>
-  <div class="flex flex-col flex-1 w-full bg-gradient-to-l from-gray-600 via-gray-900 to-black lg:text-6xl md:text-4xl text-2xl font-semibold text-white justify-center">
-    <h1 class="text-center md:mb-16 mt-8 mb-8">Inscription 🔥</h1>
+  <div class="flex flex-col flex-1 w-full bg-gradient-to-l from-gray-600 via-gray-900 to-black lg:text-6xl md:text-4xl text-2xl font-semibold text-white justify-cente items-center">
+    <h1 class="text-center md:mb-16 mt-8 mb-8">Registration</h1>
 
     <div class="flex flex-col justify-between items-center mb-8 mt-8 gap-y-8 w-full">
       <div>
-        <div class="mb-4">
-          <label class="lg:text-4xl md:text-3xl text-2xl text-white mb-8 mr-8" for="email"> Email Address 📬</label>
-        </div>
-
+        <label class="lg:text-4xl md:text-3xl text-2xl text-white mb-4 mr-8 block" for="email"> Email Address 📬</label>
         <input v-model="email" size="25" class="border-4 border-gray-800 rounded-xl p-2 outline-none focus:border-pink-600 md:text-3xl text-xl text-black font-bold" type="email" ref="emailField" />
       </div>
-      <div class="mb-4">
-        <div>
-          <label class="lg:text-4xl md:text-3xl text-2xl text-white mb-8 mr-6"> Twitter (or WeChat ID) 🐥</label>
-        </div>
-
+      <div>
+        <label class="lg:text-4xl md:text-3xl text-2xl text-white mr-6 mb-4 block"> Twitter (or WeChat ID) 🐥</label>
         <input v-model="twitter" size="25" class="border-4 border-gray-800 rounded-xl p-2 outline-none focus:border-pink-600 md:text-3xl text-xl text-black font-bold" type="text" />
       </div>
       <div>
-        <div class="mb-4">
-          <label class="lg:text-4xl md:text-3xl text-2xl text-white mb-8 mr-4"> Discord Username 🎮</label>
-        </div>
-
+        <label class="lg:text-4xl md:text-3xl text-2xl text-white mr-4 block mb-4"> Discord Username 🎮</label>
         <input v-model="discord" size="25" class="border-4 border-gray-800 rounded-xl p-2 outline-none focus:border-pink-600 md:text-3xl text-xl text-black font-bold" type="text" />
-        <div class="flex flex-row mt-8 justify-center">
-          <label class="lg:text-2xl md:text-xl text-base text-white my-4 mr-4"> Enter the text in this image</label>
-        </div>
-        <div>
-          <captcha class="my-4" @newCaptcha="changeCaptcha" />
-        </div>
-        <div class="flex flex-row justify-center">
-          <input v-model="captchaText" size="10" class="border-4 border-gray-800 rounded-xl p-2 outline-none focus:border-pink-600 md:text-3xl text-xl text-black font-bold mb-8" type="text" />
-        </div>
       </div>
-      <h3 class="mb-4 mx-auto lg:text-lg md:text-base text-sm font-normal text-white md:w-3/12 w-9/12">
+      <div>
+        <label class="lg:text-2xl md:text-xl text-base text-white my-4 mr-4"> Enter the text in this image</label>
+        <captcha class="my-4 mx-auto" @newCaptcha="changeCaptcha" />
+        <input v-model="captchaText" size="10" class="border-4 border-gray-800 rounded-xl p-2 outline-none focus:border-pink-600 md:text-3xl text-xl text-black font-bold mb-8" type="text" />
+      </div>
+
+      <h3 class="mb-4 mx-auto lg:text-lg md:text-base text-sm font-normal text-white md:w-4/12 w-9/12">
         🚨 <strong>Only 1 entry allowed per person.</strong><br />There's no gameplay advantage to owning more than one character. Cheaters risk being banned from the game.<br />
       </h3>
       <button
@@ -43,7 +31,7 @@
       >
         {{ pulse ? "Wait..." : "Submit" }}
       </button>
-      <h3 class="mb-8 mx-auto lg:text-base md:text-sm text-xs font-normal text-white md:w-3/12 w-9/12">
+      <h3 class="mb-8 mx-auto lg:text-base md:text-sm text-xs font-normal text-white md:w-4/12 w-9/12">
         ⚠️ <strong class="text-center">Disclaimer</strong> ⚠️<br />
         <u>Please do not invest money you cannot afford to lose!</u><br />
         The Internet Computer is still a new technology and NFT markets are unpredictable. The last thing we want is to have any of our dear supporters experience financial hardship due to unexpected

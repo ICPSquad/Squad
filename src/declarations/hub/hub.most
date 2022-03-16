@@ -11,12 +11,7 @@ type Infos/1 = Infos;
 type MintingError = {#Avatar : Text; #Verification : Text};
 type PaymentError/1 = PaymentError;
 type Registration =
-  {
-    account_to_send : Text;
-    infos : InfosNew/1;
-    invoice_id : Nat;
-    time : Time/1
-  };
+  {infos : InfosNew/1; invoice : InvoiceInfo; time : Time/1};
 type SubAccount/3 = SubAccount;
 type Time/1 = Time;
 type UpgradeData/1 = UpgradeData;

@@ -34,22 +34,16 @@ export const idlFactory = ({ IDL }) => {
   });
   const ICP = IDL.Record({ 'e8s' : IDL.Nat64 });
   const Time = IDL.Int;
-  const InfosNew = IDL.Record({
-    'twitter' : IDL.Opt(IDL.Text),
-    'email' : IDL.Opt(IDL.Text),
-    'discord' : IDL.Opt(IDL.Text),
-    'wallet' : IDL.Text,
-  });
-  const Registration = IDL.Record({
-    'invoice_id' : IDL.Nat,
-    'time' : Time,
-    'infos' : InfosNew,
-    'account_to_send' : IDL.Text,
+  const InvoiceInfo = IDL.Record({
+    'id' : IDL.Nat,
+    'expiration' : Time,
+    'account' : IDL.Text,
+    'amount' : IDL.Nat,
   });
   const StatusRegistration = IDL.Variant({
     'NotRegistered' : IDL.Null,
     'Member' : IDL.Null,
-    'NotConfirmed' : Registration,
+    'NotConfirmed' : InvoiceInfo,
     'NotAuthenticated' : IDL.Null,
   });
   const MetricsGranularity = IDL.Variant({
@@ -116,9 +110,10 @@ export const idlFactory = ({ IDL }) => {
     'err' : IDL.Text,
   });
   const SubAccount = IDL.Vec(IDL.Nat8);
-  const Result_3 = IDL.Variant({ 'ok' : IDL.Nat64, 'err' : IDL.Text });
+  const Result_4 = IDL.Variant({ 'ok' : IDL.Nat64, 'err' : IDL.Text });
   const RecipeInfos = IDL.Record({ 'block' : IDL.Nat64, 'amount' : IDL.Nat });
-  const Result_2 = IDL.Variant({ 'ok' : RecipeInfos, 'err' : IDL.Text });
+  const Result_3 = IDL.Variant({ 'ok' : RecipeInfos, 'err' : IDL.Text });
+  const Result_2 = IDL.Variant({ 'ok' : InvoiceInfo, 'err' : IDL.Text });
   const Result_1 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
   const MintingError = IDL.Variant({
     'Avatar' : IDL.Text,
@@ -229,14 +224,14 @@ export const idlFactory = ({ IDL }) => {
           IDL.Opt(IDL.Text),
           SubAccount,
         ],
-        [Result_3],
+        [Result_4],
         [],
       ),
     'process' : IDL.Func([], [], []),
-    'recipe' : IDL.Func([], [Result_2], []),
+    'recipe' : IDL.Func([], [Result_3], []),
     'register' : IDL.Func(
         [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text), IDL.Opt(IDL.Text)],
-        [Result_1],
+        [Result_2],
         [],
       ),
     'removeUser' : IDL.Func([IDL.Principal], [Result_1], []),
