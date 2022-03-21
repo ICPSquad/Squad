@@ -31,7 +31,7 @@ type StatusRegistration =
  variant {
    Member;
    NotAuthenticated;
-   NotConfirmed: Registration;
+   NotConfirmed: InvoiceInfo;
    NotRegistered;
  };
 type Status = 
@@ -67,13 +67,6 @@ type Result =
  variant {
    err: text;
    ok;
- };
-type Registration = 
- record {
-   account_to_send: text;
-   infos: InfosNew;
-   invoice_id: nat;
-   time: Time;
  };
 type RecipeInfos = 
  record {
@@ -135,13 +128,6 @@ type Infos__1 =
    email: opt text;
    memo: nat64;
    subaccount_to_send: vec nat8;
-   twitter: opt text;
-   wallet: text;
- };
-type InfosNew = 
- record {
-   discord: opt text;
-   email: opt text;
    twitter: opt text;
    wallet: text;
  };

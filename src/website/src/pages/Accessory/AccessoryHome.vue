@@ -26,7 +26,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
   setup() {
     const labMessage = () => {
-      alert("Coming soon ! 🧑‍🔬");
+      alert("Coming this month. 🧑‍🔬");
     };
     return {
       labMessage,

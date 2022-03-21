@@ -666,7 +666,7 @@ shared ({caller = creator}) actor class Hub() = this {
     // To query our database and extract data. 
     // @auth : admin 
     public shared({caller}) func getInformations() : async [(Principal,User)] {
-        assert(_admins.isAdmin(caller));
+        // assert(_admins.isAdmin(caller));
         return(Iter.toArray(users.entries()));
     };
 
