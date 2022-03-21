@@ -97,16 +97,24 @@ Materials are the starting point of our economy, they are used to create accesso
     <td> <img src="cards/materials/Cronic.png" width="100px" height="auto"> </img> </td>
     <td> 5/5 </td>
     <td> Cronic </td>
+    <td> ? </td>
+    <td> ? </td>
   </tr>
    <tr>
     <td> ICPunk essence </td>
     <td> <img src="cards/materials/ICPunk.png" width="100px" height="auto"> </img> </td>
     <td> 5/5 </td>
     <td> ICPunks </td>
+    <td>  ? </td>
+    <td> ? </td>
   </tr>
 </table>
 
-## Recipes
+## Star system & rarity index
+
+TODO
+
+## Recipe
 
 <table>
   <tr>
@@ -122,59 +130,126 @@ Materials are the starting point of our economy, they are used to create accesso
   </tr>
   <tr>
     <td> Eyes 👀 </td>
-    <td> Dfinity-eyemask</td>
-    <td> <img src="cards/accessories/eyes/Dfinity-eyemask.svg" width="100px" height="auto"> </img> </td>
-    <td> Cloth : 3 <br/> Wood : 2 <br/> Dfinity-stone : 1 <total> </td>
-    <td> 5/5</td>
-    <td> None </td>
-    <td> TODO </td>
-    <td> Yes </td>
-   </tr>
-  <tr>
-    <td> Eyes 👀 </td>
     <td> Lab-glasses</td>
     <td> <img src="cards/accessories/eyes/Lab-glasses.svg" width="100px" height="auto"> </img> </td>
-    <td> Glass : 2 <br/> Circuit : 2 <br/> Metal : 1 </td>
+    <td> Cloth : 3 </br> Glass : 2 <br/> Metal : 1 <br/>
+    <td> 2/5</td>
+    <td> None </td>
+    <td> TODO </td>
+    <td> Yes </td>
+    <td> 11 </td>
+   </tr>
+  <tr>
+  </tr>
+   <tr>
+    <td> Eyes 👀 </td>
+    <td> Monocle </td>
+    <td> <img src="cards/accessories/eyes/Monocle.svg" width="100px" height="auto"> </img> </td>
+    <td> Cloth : 2 <br/> Metal : 2 <br/> Glass : 2 </td>
+    <td> 3/5</td>
+    <td> None </td>
+    <td> TODO </td>
+    <td> Yes </td>
+    <td> 18  </td>
+  </tr>
+  <tr>
+    <td> Eyes 👀 </td>
+    <td> Matrix-glasses </td>
+    <td> <img src="cards/accessories/eyes/Matrix-glasses.svg" width="100px" height="auto"> </img> </td>
+    <td> Wood : 2 <br/> Glass : 2 <br/> Metal : 1 </br> Circuit : 1 </td>
     <td> 5/5</td>
     <td> None </td>
     <td> TODO </td>
     <td> Yes </td>
+    <td> 32 </td>
   </tr>
-   <tr>
-    <td> Glass </td>
-    <td> <img src="cards/materials/Glass.jpg" width="100px" height="auto"> </img> </td>
+  <tr>
+    <td> Eyes 👀 </td>
+    <td> Dfinity-eyemask</td>
+    <td> <img src="cards/accessories/eyes/Dfinity-eyemask.svg" width="100px" height="auto"> </img> </td>
+    <td> Cloth : 3 <br/> Wood : 2 <br/> Dfinity-stone : 1 </td>
+    <td> 5/5</td>
+    <td> None </td>
+    <td> TODO </td>
+    <td> Yes </td>
+    <td> 51 </td>
+  </tr>
+  <tr>
+    <td> Hat 🎩 </td>
+    <td> Helicap </td>
+    <td> <img src="cards/accessories/hat/Helicap.svg" width="100px" height="auto"> </img> </td>
+    <td> Cloth : 4 <br/> Wood : 3  </td>
+    <td> 2/5</td>
+    <td> None </td>
+    <td> TODO </td>
+    <td> Yes </td>
+    <td> 10 </td>
+  </tr>
+    <tr>
+    <td> Hat 🎩 </td>
+    <td> Marshall-hat </td>
+    <td> <img src="cards/accessories/hat/Marshall-hat.svg" width="100px" height="auto"> </img> </td>
+    <td> Cloth : 3 <br/> Metal : 3  </td>
     <td> 3/5</td>
     <td> None </td>
+    <td> TODO </td>
+    <td> Yes </td>
+    <td> 15 </td>
   </tr>
-   <tr>
-    <td> Metal </td>
-    <td> <img src="cards/materials/Metal.jpg" width="100px" height="auto"> </img> </td>
+  <tr>
+    <td> Hat 🎩 </td>
+    <td> Assassin-hat </td>
+    <td> <img src="cards/accessories/hat/Assassin-hat.svg" width="100px" height="auto"> </img> </td>
+    <td> Cloth : 3 <br/> Metal : 4 <br/> 
     <td> 3/5</td>
     <td> None </td>
+    <td> TODO </td>
+    <td> No </td>
+    <td> 19 </td>
   </tr>
-   <tr>
-    <td> Circuit </td>
-    <td> <img src="cards/materials/Circuit.jpg" width="100px" height="auto"> </img> </td>
+  <tr>
+    <td> Hat 🎩 </td>
+    <td> Ninja-headband </td>
+    <td> <img src="cards/accessories/hat/Ninja-headband.svg" width="100px" height="auto"> </img> </td>
+    <td> Wood : 3 <br/>  Glass : 1 <br> Metal : 3 </td>
+    <td> 3/5</td>
+    <td> None </td>
+    <td> TODO </td>
+    <td> Yes </td>
+    <td> 22 </td>
+  </tr>
+  <tr>
+    <td> Hat 🎩 </td>
+    <td> Shinobi-hat </td>
+    <td> <img src="cards/accessories/hat/Shinobi-strawhat.svg" width="100px" height="auto"> </img> </td>
+    <td> Cloth : 2 <br/> Wood : 2 <br/> Metal : 5 </td>
     <td> 4/5</td>
     <td> None </td>
+    <td> TODO </td>
+    <td> No </td>
+    <td> 26 </td>
   </tr>
-   <tr>
-    <td> Dfinity-stone </td>
-    <td> <img src="cards/materials/Dfinity-stone.jpg" width="100px" height="auto"> </img> </td>
-    <td> 5/5 </td>
+  <tr>
+    <td> Hat 🎩 </td>
+    <td> Dark-magic-hood </td>
+    <td> <img src="cards/accessories/hat/Dark-magic-hood.svg" width="100px" height="auto"> </img> </td>
+    <td> Cloth : 1 <br/> Metal : 8  <br/> Dfinity-stone : 1 </td>>
+    <td> 5/5</td>
     <td> None </td>
+    <td> TODO </td>
+    <td> Yes </td>
+    <td> 81 </td>
   </tr>
-   <tr>
-    <td> Cronic essence </td>
-    <td> <img src="cards/materials/Cronic.png" width="100px" height="auto"> </img> </td>
-    <td> 5/5 </td>
-    <td> Cronic </td>
-  </tr>
-   <tr>
-    <td> ICPunk essence </td>
-    <td> <img src="cards/materials/ICPunk.png" width="100px" height="auto"> </img> </td>
-    <td> 5/5 </td>
-    <td> ICPunks </td>
+  <tr>
+    <td> Hat 🎩 </td>
+    <td> Astro-helmet </td>
+    <td> <img src="cards/accessories/hat/Astro-helmet.svg" width="100px" height="auto"> </img> </td>
+    <td> Glass : 2 <br/> Metal : 3 <br/> Circuit : 2 <br/> Dfinity-stone : 1 </td>
+    <td> 5/5</td>
+    <td> None </td>
+    <td> TODO </td>
+    <td> No </td>
+    <td> 100 </td>
   </tr>
 </table>
 
