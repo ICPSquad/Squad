@@ -48,7 +48,6 @@ Materials are the starting point of our economy, they are used to create accesso
     <td> Cloth </td>
     <td> <img src="cards/materials/Cloth.jpg" width="100px" height="auto"> </img> </td>
     <td> 1/5</td>
-    <td> None </td>
     <td> 48 %</td>
     <td> 1  </td>
   </tr>
@@ -56,7 +55,6 @@ Materials are the starting point of our economy, they are used to create accesso
     <td> Wood </td>
     <td> <img src="cards/materials/Wood.jpg" width="100px" height="auto"> </img> </td>
     <td> 2/5</td>
-    <td> None </td>
     <td> 24 %</td>
     <td> 2  </td>
   </tr>
@@ -64,7 +62,6 @@ Materials are the starting point of our economy, they are used to create accesso
     <td> Glass </td>
     <td> <img src="cards/materials/Glass.jpg" width="100px" height="auto"> </img> </td>
     <td> 3/5</td>
-    <td> None </td>
     <td> 12 %</td>
     <td> 4 </td>
   </tr>
@@ -72,7 +69,6 @@ Materials are the starting point of our economy, they are used to create accesso
     <td> Metal </td>
     <td> <img src="cards/materials/Metal.jpg" width="100px" height="auto"> </img> </td>
     <td> 3/5</td>
-    <td> None </td>
     <td> 12 %</td>
     <td> 4  </td>
   </tr>
@@ -80,7 +76,6 @@ Materials are the starting point of our economy, they are used to create accesso
     <td> Circuit </td>
     <td> <img src="cards/materials/Circuit.jpg" width="100px" height="auto"> </img> </td>
     <td> 4/5</td>
-    <td> None </td>
     <td> 3 %</td>
     <td> 16  </td>
   </tr>
@@ -88,7 +83,6 @@ Materials are the starting point of our economy, they are used to create accesso
     <td> Dfinity-stone </td>
     <td> <img src="cards/materials/Dfinity-stone.jpg" width="100px" height="auto"> </img> </td>
     <td> 5/5 </td>
-    <td> None </td>
     <td> 1 %</td>
     <td> 48 </td>
   </tr>
@@ -150,10 +144,9 @@ The star system for accessories has the following meaning.
   </tr>
 </table>
 
-The start system will determine the bonus given by the accessory so it is of **paramount** importance. <br/>
-TODO
+The start system will determine the bonus given by the accessory so it is of **paramount** importance.
 
-## Recipe
+## Recipe (traditional)
 
 <table>
   <tr>
@@ -162,7 +155,6 @@ TODO
     <th>Picture</th>
     <th>Recipe</th>
     <th>Rarity (expected) </th>
-    <th>Partnership</th>
     <th>Live</th>
     <th>Rarity (index) </th>
   </tr>
@@ -170,21 +162,17 @@ TODO
     <td> Eyes 👀 </td>
     <td> Lab-glasses</td>
     <td> <img src="cards/accessories/eyes/Lab-glasses.svg" width="100px" height="auto"> </img> </td>
-    <td> Cloth : 3 </br> Glass : 2 <br/> Metal : 1 <br/>
+    <td> Cloth : 3 <br/> Glass : 2 <br/> Metal : 1 </td>
     <td> 2/5</td>
-    <td> None </td>
     <td> Yes </td>
     <td> 11 </td>
    </tr>
   <tr>
-  </tr>
-   <tr>
     <td> Eyes 👀 </td>
     <td> Monocle </td>
     <td> <img src="cards/accessories/eyes/Monocle.svg" width="100px" height="auto"> </img> </td>
     <td> Cloth : 2 <br/> Metal : 2 <br/> Glass : 3 </td>
     <td> 3/5</td>
-    <td> None </td>
     <td> Yes </td>
     <td> 22  </td>
   </tr>
@@ -194,7 +182,6 @@ TODO
     <td> <img src="cards/accessories/eyes/Matrix-glasses.svg" width="100px" height="auto"> </img> </td>
     <td> <br/> Glass : 2 <br/> Metal : 1 </br> Circuit : 1 </td>
     <td> 3/5</td>
-    <td> None </td>
     <td> Yes </td>
     <td> 28 </td>
   </tr>
@@ -204,7 +191,6 @@ TODO
     <td> <img src="cards/accessories/eyes/Dfinity-eyemask.svg" width="100px" height="auto"> </img> </td>
     <td> Cloth : 3 <br/> Wood : 2 <br/> Dfinity-stone : 1 </td>
     <td> 5/5</td>
-    <td> None </td>
     <td> Yes </td>
     <td> 51 </td>
   </tr>
@@ -214,17 +200,15 @@ TODO
     <td> <img src="cards/accessories/hat/Helicap.svg" width="100px" height="auto"> </img> </td>
     <td> Cloth : 4 <br/> Wood : 3  </td>
     <td> 2/5</td>
-    <td> None </td>
     <td> Yes </td>
     <td> 10 </td>
   </tr>
-    <tr>
+  <tr>
     <td> Hat 🎩 </td>
     <td> Marshall-hat </td>
     <td> <img src="cards/accessories/hat/Marshall-hat.svg" width="100px" height="auto"> </img> </td>
     <td> Cloth : 3 <br/> Metal : 3  </td>
     <td> 3/5</td>
-    <td> None </td>
     <td> Yes </td>
     <td> 15 </td>
   </tr>
@@ -234,7 +218,6 @@ TODO
     <td> <img src="cards/accessories/hat/Assassin-hat.svg" width="100px" height="auto"> </img> </td>
     <td> Cloth : 4 <br/> Metal : 4 <br/> 
     <td> 3/5</td>
-    <td> None </td>
     <td> No </td>
     <td> 20 </td>
   </tr>
@@ -244,17 +227,16 @@ TODO
     <td> <img src="cards/accessories/hat/Ninja-headband.svg" width="100px" height="auto"> </img> </td>
     <td> Wood : 3 <br/>  Glass : 1 <br> Metal : 3 </td>
     <td> 3/5</td>
-    <td> None </td>
     <td> Yes </td>
     <td> 22 </td>
   </tr>
+
   <tr>
     <td> Hat 🎩 </td>
     <td> Shinobi-hat </td>
     <td> <img src="cards/accessories/hat/Shinobi-strawhat.svg" width="100px" height="auto"> </img> </td>
     <td>  Wood : 5 <br/> Metal : 5 </td>
     <td> 4/5</td>
-    <td> None </td>
     <td> No </td>
     <td> 30 </td>
   </tr>
@@ -262,9 +244,8 @@ TODO
     <td> Hat 🎩 </td>
     <td> Dark-magic-hood </td>
     <td> <img src="cards/accessories/hat/Dark-magic-hood.svg" width="100px" height="auto"> </img> </td>
-    <td> Cloth : 1 <br/> Metal : 8  <br/> Dfinity-stone : 1 </td>>
+    <td> Cloth : 1 <br/> Metal : 8  <br/> Dfinity-stone : 1 </td>
     <td> 5/5</td>
-    <td> None </td>
     <td> No </td>
     <td> 81 </td>
   </tr>
@@ -274,7 +255,6 @@ TODO
     <td> <img src="cards/accessories/hat/Astro-helmet.svg" width="100px" height="auto"> </img> </td>
     <td> Glass : 2 <br/> Metal : 3 <br/> Circuit : 2 <br/> Dfinity-stone : 1 </td>
     <td> 5/5</td>
-    <td> None </td>
     <td> No </td>
     <td> 100 </td>
   </tr>
@@ -284,7 +264,6 @@ TODO
     <td> <img src="cards/accessories/face/Oni-half-mask.svg" width="100px" height="auto"> </img> </td>
     <td> Wood : 4 <br/> Metal : 4 </td>
     <td> 3/5</td>
-    <td> None </td>
     <td> Yes </td>
     <td> 100 </td>
   </tr>
@@ -294,19 +273,8 @@ TODO
     <td> <img src="cards/accessories/face/Facemask.svg" width="100px" height="auto"> </img> </td>
     <td> Cloth : 4 <br/> Metal : 6 </td>
     <td> 3/5</td>
-    <td> None </td>
     <td> Yes </td>
     <td> 28 </td>
-  </tr>
-  <tr>
-    <td> Face 👦 </td>
-    <td> Astro-helmet </td>
-    <td> <img src="cards/accessories/face/Punk-mask.svg" width="100px" height="auto"> </img> </td>
-    <td> ? </td>
-    <td> 5/5</td>
-    <td> ICPunks </td>
-    <td> No </td>
-    <td> ? </td>
   </tr>
   <tr>
     <td> Body 👤 </td>
@@ -314,7 +282,6 @@ TODO
     <td> <img src="cards/accessories/body/Helicap-tshirt.svg" width="100px" height="auto"> </img> </td>
     <td> Cloth : 4 <br/> Wood : 4 </td>
     <td> 2/5</td>
-    <td> None </td>
     <td> No </td>
     <td> 12 </td>
   </tr>
@@ -324,17 +291,24 @@ TODO
     <td> <img src="cards/accessories/body/Assassin-cap.svg" width="100px" height="auto"> </img> </td>
     <td> Cloth : 4 <br/> Glass : 3 <br/> Metal : 2 </td>
     <td> 3/5</td>
-    <td> None </td>
     <td> No </td>
     <td> 24 </td>
+  </tr>
+   <tr>
+    <td> Body 👤 </td>
+    <td> Yakuza-oni-jacket </td>
+    <td> <img src="cards/accessories/body/Yakuza-oni-jacket.svg" width="100px" height="auto"> </img> </td>
+    <td> Cloth : 2 <br/> Glass : 3 <br/> Metal : 3 </td>
+    <td> 3/5</td>
+    <td> No </td>
+    <td> 26 </td>
   </tr>
   <tr>
     <td> Body 👤 </td>
     <td> Lab-coat </td>
     <td> <img src="cards/accessories/body/lab-coat.svg" width="100px" height="auto"> </img> </td>
-     <td> Glass : 3  <br/> Circuit : 1 </td>
+    <td> Glass : 3  <br/> Circuit : 1 </td>
     <td> 3/5</td>
-    <td> None </td>
     <td> No </td>
     <td> 28 </td>
   </tr>
@@ -342,62 +316,125 @@ TODO
     <td> Body 👤 </td>
     <td> Shinobi-jacket </td>
     <td> <img src="cards/accessories/body/Shinobi-jacket.svg" width="100px" height="auto"> </img> </td>
-    <td> ? </td>
-    <td> 5/5</td>
-    <td> None </td>
+    <td> Cloth : 2 <br/> Wood : 2 <br/> Metal : 3 <br/> Circuit : 1  </td>
+    <td> 4/5</td>
     <td> No </td>
-    <td> ? </td>
-  </tr>
-  <tr>
-    <td> Body 👤 </td>
-    <td> Yakuza-oni-jacket </td>
-    <td> <img src="cards/accessories/body/Yakuza-oni-jacket.svg" width="100px" height="auto"> </img> </td>
-    <td> ? </td>
-    <td> 5/5</td>
-    <td> None </td>
-    <td> No </td>
-    <td> ? </td>
+    <td> 32 </td>
   </tr>
   <tr>
     <td> Body 👤 </td>
     <td> Devil-jacket </td>
     <td> <img src="cards/accessories/body/Devil-jacket.svg" width="100px" height="auto"> </img> </td>
-    <td> ? </td>
-    <td> 5/5</td>
-    <td> None </td>
+    <td> Cloth : 6 <br/> Wood : 6 <br/> Metal : 6 <br/>  </td>
+    <td> 4/5</td>
     <td> No </td>
-    <td> ? </td>
+    <td> 42 </td>
   </tr>
   <tr>
     <td> Body 👤 </td>
     <td> Dystopian-jacket </td>
     <td> <img src="cards/accessories/body/Dystopian-jacket.svg" width="100px" height="auto"> </img> </td>
-    <td> ? </td>
-    <td> 5/5</td>
-    <td> None </td>
+    <td> Cloth : 7 <br/> Glass : 1 </br> Circuit : 2 </td>
+    <td> 4/5 </td>
     <td> No </td>
-    <td> ? </td>
+    <td> 43 </td>
   </tr>
   <tr>
     <td> Body 👤 </td>
     <td> Magic-cap </td>
     <td> <img src="cards/accessories/body/Dark-magic-body.svg" width="100px" height="auto"> </img> </td>
-    <td> ? </td>
+    <td> Cloth : 9 <br/> Dfinity-stone : 1 </td>
     <td> 5/5</td>
-    <td> None </td>
     <td> No </td>
-    <td> ? </td>
+    <td> 57 </td>
   </tr>
   <tr>
     <td> Body 👤 </td>
     <td> Astro-body </td>
     <td> <img src="cards/accessories/body/Astro-body.svg" width="100px" height="auto"> </img> </td>
-    <td> ? </td>
+    <td> Metal : 4 <br/> Glass : 3 <br/> Circuit : 2 <br/> Dfinity-stone : 1 </td>
     <td> 5/5</td>
-    <td> None </td>
+    <td> No </td>
+    <td> 98 </td>
+  </tr>
+</table>
+
+## Recipe (special edition)
+
+<table>
+  <tr>
+    <th>Slot</th>
+    <th>Name</th>
+    <th>Picture</th>
+    <th>Recipe</th>
+    <th> Partnership </th>
+    <th>Live</th>
+    <th> Supply </th>
+  </tr>
+  <tr>
+    <td> Hat 🎩 </td>
+    <td> Bootcamp-hat </td>
+    <td> <img src="cards/accessories/special/Bootcamp-hat.svg" width="100px" height="auto"> </img> </td>
+    <td> Airdropped. </td>
+    <td> Motoko-bootcamp </td>
     <td> No </td>
     <td> ? </td>
   </tr>
+  <tr>
+    <td> Body 👤 </td>
+    <td> Cronic-tshirt </td>
+    <td> <img src="cards/accessories/special/Cronic-tshirt.svg" width="100px" height="auto"> </img> </td>
+    <td> ? </td>
+    <td> Cronic </td>
+    <td> No </td>
+    <td> Limited </td>
+  </tr>
+  <tr>
+    <td> Eyes 👀 </td>
+    <td> Cronic-eyepatch </td>
+    <td> <img src="cards/accessories/special/Cronic-eyepatch.svg" width="100px" height="auto"> </img> </td>
+    <td> ? </td>
+    <td> Cronic </td>
+    <td> No </td>
+    <td> Limited </td>
+  </tr>
+    <tr>
+    <td> Special 🌈</td>
+    <td> Cronic-universe </td>
+    <td> <img src="cards/accessories/special/Cronic-eyepatch.svg" width="100px" height="auto"> </img> </td>
+    <td> ? </td>
+    <td> Cronic </td>
+    <td> No </td>
+    <td> Limited </td>
+  </tr>
+    <tr>
+    <td> Special 🌈 </td>
+    <td> Cronic-background </td>
+    <td> <img src="cards/accessories/special/Cronic-eyepatch.svg" width="100px" height="auto"> </img> </td>
+    <td> ? </td>
+    <td> Cronic </td>
+    <td> No </td>
+    <td> Limited </td>
+  </tr>
+  <tr>
+    <td> Face 👦 </td>
+    <td> Punk-mask </td>
+    <td> <img src="cards/accessories/special/Punk-mask.svg" width="100px" height="auto"> </img> </td>
+    <td> ? </td>
+    <td> ICPunk </td>
+    <td> No </td>
+    <td> Limited </td>
+  </tr>
+  <tr>
+    <td> Eyes 👀 </td>
+    <td> Punk-glasses </td>
+    <td> <img src="cards/accessories/special/Punk-glasses.svg" width="100px" height="auto"> </img> </td>
+    <td> ? </td>
+    <td> ICPunk </td>
+    <td> No </td>
+    <td> Limited </td>
+  </tr>
+
 </table>
 
 ## Minting fee
@@ -410,6 +447,6 @@ TODO
 
 ## Active income (missions)
 
-## Our vision
+## Goals
 
 ## Burning
