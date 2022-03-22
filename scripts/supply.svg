@@ -1,0 +1,1 @@
+dfx canister --network ic call accessories stats_circulation >> circulation.txt

@@ -1,14 +1,14 @@
-# Economy of ICP Squad 💸
+# **ICP Squad : gameplay & economy**
 
-The goal of this paper is to create a summary of all aspects of the ICP Squad economy so we can take the right decision to bring the economy as close as what we are targetting as possible, in the end the market will probably decide but good decision will reinforce the possibility of a positive outcome.
+The goal of this paper is to create a summary of all aspects of the ICP Squad economy so we can take the right decision to bring the economy as close as what we are targetting as possible, in the end the market will decide but good decision will reinforce the possibility of a positive outcome.
 
-## Overview
+## **Overview** 👀
 
 One of the main goal for all members of the squad should be to accumulate as much accessories as possible.
 <br/> Accessories will give special bonus, passive income and can be seen as the speculative aspect of the game.
 Accessories can only be created using materials (see recipes) and paying the minting fee or airdropped.
 
-## Accessories
+## **Accessories** 🧢
 
 The accessories are divided into 5 categories depending on the slot they equip.
 
@@ -18,7 +18,7 @@ The accessories are divided into 5 categories depending on the slot they equip.
 - Body 👤
 - Special/Misc (Background, jewelry, discussion bubble..) 🌈
 
-💡 Each accessory take only one slot. Multi-slot accessories have been discussed at one point, but they are not possible to implement in the current version of icpsquad.
+💡 Each accessory take only one slot. Multi-slot accessories have been discussed at one point, but they are not possible to implement with the current source code.
 
 Once the gampeplay will be activated : for each day an accessory is equipped, it's wear value will be decreased by one; once it reachs 0 the accessory is automatically burned and desequipped from the avatar.
 New accessories are minted with a wear value of 100.
@@ -31,16 +31,15 @@ New accessories are minted with a wear value of 100.
 
 🤔 I think that our accessories should provite more benefits.
 
-## Materials
+## **Materials** 🧱
 
 Materials are the starting point of our economy, they are used to create accessories.
 
 <table>
   <tr>
-    <th>Name</th>
-    <th>Picture</th>
-    <th>  Rarity </th>
-    <th> Partnership </th>
+    <th> Name </th>
+    <th> Picture </th>
+    <th> Rarity </th>
     <th> Supply </th>
     <th> Rarity index </th>
   </tr>
@@ -92,7 +91,7 @@ Materials are the starting point of our economy, they are used to create accesso
     <td> 5/5 </td>
     <td> Cronic </td>
     <td> ? </td>
-    <td> ? </td>
+    <td> No </td>
   </tr>
    <tr>
     <td> ICPunk essence </td>
@@ -100,22 +99,21 @@ Materials are the starting point of our economy, they are used to create accesso
     <td> 5/5 </td>
     <td> ICPunks </td>
     <td> ? </td>
-    <td> ? </td>
+    <td> No </td>
   </tr>
 </table>
 
-## Star system & rarity index
+## **Star system & rarity index** ✨
 
-Each material has a rarity index associated with it, this index in inversely proportional to the supply percentage of that materials among all other materials (not taking into account partership materials).
-
-The start system for materials is mainly cosmetic.
+Each material has a rarity index associated with it, this index in inversely proportional to the supply percentage of that materials among all other materials.
 
 Each accessory has a rarity index associated with it, the rarity index is calculated using the recipe, by summing all the rarity indexs of the materials used to create the accessory.
 
-Example : To create **Lab-glasses** you need **3** cloth, **2** wood and **1** metal. <br/>
-The rarity index of lab-glasses is hence : 3 x 1 + 2 x 2 + 1 x 4 = **11**.
+For instance : to create **Lab-glasses** you need **3** cloth, **2** wood and **1** metal. <br/>
+The rarity index of **Lab-glasses** is : 3 x 1 + 2 x 2 + 1 x 4 = **11**.
 
-The star system for accessories has the following meaning.
+Each range of rarity index corresponds to a number of starts. <br/>
+The start system will determine the bonus given by the accessory.
 
 <table>
   <tr>
@@ -144,9 +142,14 @@ The star system for accessories has the following meaning.
   </tr>
 </table>
 
-The start system will determine the bonus given by the accessory so it is of **paramount** importance.
+## **Recipe** 🧪
 
-## Recipe (traditional)
+Acessories can be minted following a recipe : combining some materials and paying the minting fee.
+Some accessories have fixed supply, others have a rarity index that depends on the materials needed to create them.
+
+The number of accessories in circulation will be greatly dependent on the number of materials airdropped monthly.
+
+### <u> **Traditional** </u>
 
 <table>
   <tr>
@@ -359,7 +362,7 @@ The start system will determine the bonus given by the accessory so it is of **p
   </tr>
 </table>
 
-## Recipe (special edition)
+### <u> **Limited edition** </u>
 
 <table>
   <tr>
@@ -437,16 +440,94 @@ The start system will determine the bonus given by the accessory so it is of **p
 
 </table>
 
-## Minting fee
+## Minting fee 💲
 
-## Legendary accessories
+Before minting an accessory, a **minting fee** will be asked. <br/>
+This fee has been voted on by the community to be initialized at **0.5 ICP**. <br/>
+The fee will evolve to adjust the rate of accessories and can be used to adujst our economy when needed to avoir hyper-inflation of accessories.
 
-## ICP Squad neuron
+## ICP Squad neuron 🧠
+
+An 8-years locked neuron.
+
+**How do we fund it ?**
+
+- Minting fee
+- Legendary accessories sale.
+- Other : mission fee ?
+
+**How do we harvest it and how do we distribute rewards ?**
+
+- Harvested every month / every week ?
+- Rewards put in a pool that is distributed to all accessory holders ?
+- Passive rewards only ?
+
+**How is it governed ?**
+
+We currently don't have a governance framework, we will probably follow a known actor of the NNS (Dfinity foundation/ ICA / Maximalist network) until we developed our own governance board (as discussed with missions/motoko bootcamp).
 
 ## Passive income
 
-## Active income (missions)
+Every month/week/day ?
 
-## Goals
+Passive income for accessory holders only ?
+Prize pool coming from the neuron harvested rewards.
 
-## Burning
+How much ?
+Depends on number of starts + random factor.
+
+## Active income
+
+Every month
+
+- Missions : ICP Squad or others : quizz/tasks.
+- Application score : DSCVR/Gigaverse Labs/Cronic
+
+Prize pool : materials and accessories only ?
+
+## Targets 🎯
+
+- Low barrier to entry : this project aims to promote engagement on the Internet Computer to outside persons and should stay accessible to anyone who wants to support the ecosystem.
+
+  - Avatar minting should remain at low price : **1 ICP**.
+  - Accessories/materials should remain at low entry as well, especially for the most commons one so that everyone can get a chance and try out some accessories.
+
+- Fair rewards to strategic contributors : early contributors, heavy and curious IC users and invested users deserve advantages in our game. <br/> However bots, insiders and whales should never be able to ruin the fun for everyone else and take all the rewards for themselves.
+
+  - Fixed cap between the "lowest ranked player" and the "highest ranked player".
+  - Protection against bots and penalty for suspicious behaviours.
+  - Legendary accessories : a way for whales to get involved without ruining the rest of the economy.
+
+- Long term market stability : TODO
+
+## Max advantage ✋
+
+- Lowest ranked player : This player is the
+- Highest ranked player : Maximum score + accessory boost combined.
+
+The potential chance of rewards between the lowest ranked player and the highest ranked player will never be above 200x. <br/> This might seems a lot but it represents the maximum gap between the **most** active player and the **less** active one; also taking into account eventual accessories boosts.
+
+- Action gap : scores & missions.
+
+The action gap represents the maximum increase in chance of getting rewards that one can reach by maximizing it's scores in all dapps and completing a maximum number of mission this month. <br/>
+
+The action gap is 20x. This means you can give yourself an up to 20x higher chance of winning a reward vs the lowest active player.
+
+- Boost gap : accessories.
+
+The boost gap represents the maximum increase in chance of getting rewards that one can reach trough maximizing accessories bonus.
+
+This boost gap is 10x. This means a fully equipped player can get up to 10x higher chance of winning a reward vs a non-equipped player.
+
+## Legendary accessories 🧙
+
+Legendary auctions will be held to get your hands on the **legendary accessories** that **never** wear out !
+
+Here are some benefits of holding legenday accessories :
+
+- They never wear out, which guarantees continous rewards from ICP Squad Neuron as well as a boost for additional engage-to-earn rewards.
+- They will be **extremly rare** with less than 400 minted each year, it will take at least 12.5 years to reach a supply of 5000.
+- Membership perks for the DAO to come such as private DSCVR portal.
+- In the future we plan to enable features that will you safely rent / lend your accessories to other users for passive income while keeping them in your wallet; legendary accessories will be the most valuable assets to borrow.
+
+Legendary auctions : TODO
