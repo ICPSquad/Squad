@@ -85,7 +85,7 @@ Materials are the starting point of our economy, they are used to create accesso
     <td> 1 %</td>
     <td> 48 </td>
   </tr>
-   <tr>
+   <!-- <tr>
     <td> Cronic essence </td>
     <td> <img src="cards/materials/Cronic.png" width="100px" height="auto"> </img> </td>
     <td> 5/5 </td>
@@ -99,7 +99,7 @@ Materials are the starting point of our economy, they are used to create accesso
     <td> 5/5 </td>
     <td> ICPunks </td>
     <td> ? </td>
-    <td> No </td>
+    <td> No </td> -->
   </tr>
 </table>
 
