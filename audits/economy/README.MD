@@ -309,7 +309,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Body 👤 </td>
     <td> Lab-coat </td>
-    <td> <img src="cards/accessories/body/lab-coat.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="cards/accessories/body/Lab-coat.svg" width="100px" height="auto"> </img> </td>
     <td> Glass : 3  <br/> Circuit : 1 </td>
     <td> 3/5</td>
     <td> No </td>
