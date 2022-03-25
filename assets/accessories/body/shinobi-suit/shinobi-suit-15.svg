@@ -1,0 +1,25 @@
+<svg
+  width="100%"
+  height="100%"
+  viewBox="0 0 800 800"
+  version="1.1"
+  xmlns="http://www.w3.org/2000/svg"
+  style="fill-rule: evenodd; clip-rule: evenodd; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 1.5"
+>
+  <g transform="matrix(1.02852,0,0,1,-6.99002,-39.6109)">
+    <g id="accessories-back">
+      <g id="shinobi-dress-back">
+        <ellipse cx="395.803" cy="443.109" rx="258.132" ry="45.134" style="fill: rgb(237, 30, 121)" />
+        <clipPath id="Shinobi-suit_0">
+          <ellipse cx="395.803" cy="443.109" rx="258.132" ry="45.134" />
+        </clipPath>
+        <g clip-path="url(#Shinobi-suit_0)">
+          <g transform="matrix(1,0,0,1,0,6.02362)">
+            <ellipse cx="395.803" cy="443.109" rx="258.132" ry="45.134" style="fill: rgb(119, 57, 106)" />
+          </g>
+        </g>
+        <ellipse cx="395.803" cy="443.109" rx="258.132" ry="45.134" style="fill: none; stroke: black; stroke-width: 2.1px" />
+      </g>
+    </g>
+  </g>
+</svg>
