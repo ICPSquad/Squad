@@ -1,0 +1,69 @@
+Type, name, layers
+Background,Background-base,5
+Body,Business-body,20
+Body,Miss-body,20
+Body,Punk-body,20
+Ears,Business-ears,30
+Ears,Punk-ears,30
+Ears,Miss-ears,30
+Head,Business-head,35
+Head,Punk-head,35
+Head,Miss-head,35
+Profile,Business-profile,25 35
+Profile,Punk-profile,25 35
+Profile,Miss-profile,25 35
+Mouth,Business-angry-mouth,45
+Mouth,Business-confused-mouth,45
+Mouth,Business-mouth,45
+Mouth,Business-scheming-mouth,45
+Mouth,Business-tired-mouth,45
+Mouth,Business-uninterested-mouth,45
+Mouth,Miss-annoyed-mouth,45
+Mouth,Miss-confident-mouth,45
+Mouth,Miss-disgusted-mouth,45
+Mouth,Miss-mouth,45
+Mouth,Miss-scheming-mouth,45
+Mouth,Miss-surprised-mouth,45
+Mouth,Miss-surprised-mouth,45
+Mouth,Punk-annoyed-mouth,45
+Mouth,Punk-confident-mouth,45
+Mouth,Punk-crying-mouth,45
+Mouth,Punk-disgusted-mouth,45
+Mouth,Punk-embarassed-mouth,45
+Mouth,Punk-mouth,45
+Eyes,Business-angry-eyes,50
+Eyes,Business-confused-eyes,50
+Eyes,Business-scheming-eyes,50
+Eyes,Business-tired-eyes,50
+Eyes,Business-uninterested-eyes,50
+Eyes,Miss-annoyed-eyes,50
+Eyes,Miss-confident-eyes,50
+Eyes,Miss-disgusted-eyes,50
+Eyes,Miss-scheming-eyes,50
+Eyes,Miss-surprised-eyes,50
+Eyes,Punk-annoyed-eyes,50
+Eyes,Punk-confident-eyes,50
+Eyes,Punk-crying-eyes,50
+Eyes,Punk-disgusted-eyes,50
+Eyes,Punk-embarassed-eyes,50
+Nose,Business-nose,55
+Nose,Miss-nose,55
+Nose,Punk-nose,55
+Hair,Hair-1-base,75
+Hair,Hair-1,75
+Hair,Hair-2-,10 75
+Hair,Hair-2-base,10 75
+Hair,Hair-3,75
+Hair,Hair-4, 10 75
+Hair,Hair-5,10 75
+Hair,Hair-6, 10 75
+Hair,Hair-6-base,10 75
+Hair,Hair-7,10 75
+Hair,Hair-8,10 75
+Hair,Hair-9,10 75
+Hair,Hair-10,75
+Hair,Hair-11,75
+Hair,Hair-12,75
+Hair,Hair-13,10 75 90
+Hair,Hair-14,10 75
+Hair,Hair-15,10 75

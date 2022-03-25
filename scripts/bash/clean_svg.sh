@@ -1,6 +1,6 @@
 #!/bin/bash
 # The goal of this script is to clean all svgs files to prevents the clip_path conflits by adding names to the clip_paths
-for f in assets/accessories/misc/*.svg
+for f in assets/cards/template/*.svg
 # Loop trough all the svg files 
 do 
     echo "Cleaning the file: $f"
