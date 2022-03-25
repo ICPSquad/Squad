@@ -363,7 +363,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
                                switch(accessories.get(name)){
                                    case(null){};
                                    case(?accessory){
-                                       svg #= AvatarModule.wrapAccessory(accessory.slot, accessory.content);
+                                       svg #= AvatarModule.wrapAccessory(name, accessory.content);
                                    };
                                };
                             };
@@ -474,7 +474,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
                                         let layer_id : Nat8 = accessory.layer;
                                         let layer : LayerAvatar = #Accessory(accessory.name);
                                         avatar.addLayer(Nat8.toNat(layer_id), layer);
-                                        // TODO : add eventual modifications!
+                                        // TODO : multi layers accessories (layer)
                                         switch(_draw(token_avatar)){
                                             case(#err(msg)) {
                                                 ignore(avatar.removeFromSlot(accessory.slot));
@@ -537,6 +537,15 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
                 };
             };
         };
+    };
+
+
+    public shared ({caller}) func burn(token_identifier : TokenIdentifier) : async () {
+        assert(_isAdmin(caller));
+        _blobs.delete(token_identifier);
+        avatars.delete(token_identifier);
+        let index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+        _registry.delete(index);
     };
 
     // Verify that the accessory is already equipped in the slot. Returns a boolean.
@@ -623,10 +632,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
                 switch(avatars.get(token)){
                     case(null) return #err ("There is no avatar associated for this tokenIdentifier (strange) " # token);
                     case(?avatar) { 
-
-                        //Need to rebuild the avatar in case we haven't done so after previous upgrades... (Wasn't the best choice)
                         avatar.buildSvg();
-
                         let preview : AvatarPreview = {
                             token_identifier = token;
                             avatar_svg = avatar.getFullSvg();
@@ -1453,9 +1459,9 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
     
     public query func bearer(token : TokenIdentifier) : async Result.Result<AccountIdentifier, CommonError> {
-        if (ExtCore.TokenIdentifier.isPrincipal(token, Principal.fromActor(this)) == false) {
-            return #err(#InvalidToken(token));
-        };
+        // if (ExtCore.TokenIdentifier.isPrincipal(token, Principal.fromActor(this)) == false) {
+        //     return #err(#InvalidToken(token));
+        // };
         let tokenind = ExtCore.TokenIdentifier.getIndex(token);
         switch (_registry.get(tokenind)) {
             case (?token_owner) {
@@ -1608,7 +1614,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         legendaryEntries := Iter.toArray(legendaries.entries());
 
         //  Entrepot 
-        _tokenListingState := Iter.toArray(_tokenListing.entries());
+        // _tokenListingState := Iter.toArray(_tokenListing.entries());
         _tokenSettlementState := Iter.toArray(_tokenSettlement.entries());
         _paymentsState := Iter.toArray(_payments.entries());
         _refundsState := Iter.toArray(_refunds.entries());
@@ -1829,39 +1835,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         };
     };
 
-
-    // This patch was used to remove accessories from people that had already equipped them, the previous patch are removed them from the "slot" but not remove it from the layers!
-
-    // public shared ({caller}) func patch() : async () {
-    //     for ((token,avatar) in avatars.entries()){
-    //         let slots = avatar.getSlots();
-    //         let layers = avatar.getLayers();
-    //         if(AvatarModule.isEmpty(slots) and (avatar.isLayer(80) or avatar.isLayer(85))){
-    //             avatar.removeLayer(80);
-    //             avatar.removeLayer(85);
-    //             let result = _draw(token);
-    //         };
-    //     };
-    // };
-
-    // This patch was used to redraw the hairstyle that was broken (Hair-6)
-    // public shared ({caller}) func patch() : async () {
-    //     assert(_isAdmin(caller));
-    //     for ((token, avatar) in avatars.entries()){
-    //         switch(avatar.getLayer(75)){
-    //             case(null){};
-    //             case(?layer){
-    //                 switch(layer){
-    //                     case(#Component(name)){
-    //                         if(name == "Hair-6" or name == "Hair-6-base"){
-    //                             let result = _draw(token);
-    //                         };
-    //                     };
-    //                 };
-    //             };
-    //         };
-    //     };
-    // };
 
 
 };

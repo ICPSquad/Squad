@@ -281,15 +281,18 @@ module  {
             case(90) {
                 return(_wrapClass(component, "Hair-above", name));
             };
+            case(95){
+                return(_wrapClass(component, "Suit", name));
+            };
             case(_) {
                 return(component);
             };
         } ;
     };
 
-    public func wrapAccessory (slot : Text, accessory_content : Text) : Text {
+    public func wrapAccessory (name : Text, accessory_content : Text) : Text {
         var accessory_wrapped = "<g class='";
-        accessory_wrapped #= slot;
+        accessory_wrapped #= name;
         accessory_wrapped #= "'>";
         accessory_wrapped #= accessory_content;
         accessory_wrapped #= "</g>";
