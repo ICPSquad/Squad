@@ -533,13 +533,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
 
-    public shared ({caller}) func burn(token_identifier : TokenIdentifier) : async () {
-        assert(_admins.isAdmin(caller));
-        _blobs.delete(token_identifier);
-        avatars.delete(token_identifier);
-        let index = ExtCore.TokenIdentifier.getIndex(token_identifier);
-        _registry.delete(index);
-    };
 
     // Verify that the accessory is already equipped in the slot. Returns a boolean.
     private func _verifySlot(slots : Slots, slot_to_check : Text, name_accessory : Text) : Bool {
@@ -1012,10 +1005,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     // Ext-query //
     //////////////
 
-    public query func getMinter() : async [Principal] {
-        _minter;
-    };
-
     public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
         Iter.toArray(_registry.entries());
     };
@@ -1125,17 +1114,12 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         };
     };
 
-    public query func tokenIdentifier (tindex : TokenIndex) : async TokenIdentifier {
-        let token_identifier = _getTokenIdentifier(tindex);
-        return token_identifier;
-    };
-
     public query func details(token : TokenIdentifier) : async Result.Result<(AccountIdentifier, ?Listing), CommonError> {
 		if (ExtCore.TokenIdentifier.isPrincipal(token, Principal.fromActor(this)) == false) {
 			return #err(#InvalidToken(token));
 		};
 		let tokenind = ExtCore.TokenIdentifier.getIndex(token);
-        switch (_getBearer(tokenind)) {
+        switch (_registry.get(tokenind)) {
             case (?token_owner) {
                         return #ok((token_owner, null));
             };
@@ -1145,9 +1129,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         };
 	};
 
-    private func _getBearer(token : TokenIndex) : ?AccountIdentifier {
-        _registry.get(token);
-    };
 
     //////////
     // CAP //
@@ -1378,6 +1359,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         cid = Principal.fromText("jmuqr-yqaaa-aaaaj-qaicq-cai"); 
         registry = Iter.toArray(_registry.entries());
     });
+
+
 
 
 

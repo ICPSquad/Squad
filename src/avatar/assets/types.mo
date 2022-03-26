@@ -39,6 +39,7 @@ module Assets {
     public type Parameters = State and Dependencies;
 
     public type Interface = {
+        
         // Upload bytes into the buffer.
         // @auth : admin
         upload : (caller : Principal, bytes : [Blob]) -> ();

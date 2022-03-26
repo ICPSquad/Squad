@@ -61,6 +61,10 @@ module {
 
         // Mint a new token.
         mint : MintRequest -> ();
+        
+        // Returns the whole registry.
+        getRegistry : () -> [(TokenIndex, AccountIdentifier)];
+
 
     };
 
