@@ -25,5 +25,21 @@ let additions = [
       , repo = "https://github.com/usergeek/canistergeek-ic-motoko"
       , version = "v0.0.3"
       , dependencies = ["base"] : List Text
-    }] : List Package
+    },
+    { name = "ext"
+      , repo = "https://github.com/aviate-labs/ext.std"
+      , version = "v0.2.0"
+      , dependencies = [ "array", "base", "encoding", "principal" ]
+    },
+    { name = "principal"
+      , repo = "https://github.com/aviate-labs/principal.mo"
+      , version = "v0.2.5"
+      , dependencies = [ "array", "crypto", "base", "encoding", "hash" ]
+    },
+    { name = "crypto"
+    , repo = "https://github.com/aviate-labs/crypto.mo"
+    , version = "v0.1.1"
+    , dependencies = [ "base", "encoding" ]
+    },
+    ] : List Package
 in upstream # additions

@@ -13,6 +13,7 @@ import Debug "mo:base/Debug";
 import ExtAllowance "../dependencies/ext/Allowance";
 import ExtCommon "../dependencies/ext/Common";
 import ExtCore "../dependencies/ext/Core";
+import ExtModule "ext";
 import Hash "mo:base/Hash";
 import HashMap "mo:base/HashMap";
 import Http "types/http";
@@ -1368,6 +1369,16 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         }  
         
     };
+
+    ///////////
+    // EXT ////
+    ///////////
+
+    let _EXT = ExtModule.make({
+        cid = Principal.fromText("jmuqr-yqaaa-aaaaj-qaicq-cai"); 
+        registry = Iter.toArray(_registry.entries());
+    });
+
 
 
     
