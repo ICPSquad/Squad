@@ -1,4 +1,5 @@
 import AID "../dependencies/util/AccountIdentifier";
+import Admins "admins";
 import Array "mo:base/Array";
 import AvatarModule "types/avatar";
 import Blob "mo:base/Blob";
@@ -36,7 +37,6 @@ import Canistergeek "../dependencies/canistergeek/canistergeek";
 
 
 shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = this {
-
 
     //////////////
     // METRICS //
@@ -91,6 +91,26 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     // ADMIN //
     ///////////
 
+    let SQUAD_IDENTITY_DFX : Principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae");
+    stable var stableAdmins : [Principal] = [SQUAD_IDENTITY_DFX];
+
+    let _admins = Admins.Admins({
+        admins = stableAdmins;
+    });
+
+    public query func is_admin(p : Principal) : async Bool {
+        _admins.isAdmin(p);
+    };
+
+    public shared ({caller}) func add_admin(p : Principal) : async () {
+        _admins.addAdmin(p, caller);
+    };
+
+
+    ////////////////
+    // ADMIN_OLD //
+    ///////////////
+
     let dfxIdentityPrincipalSeb : Principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae");
     let internetIdentityPrincipalSeb : Principal = Principal.fromText ("7djq5-fyci5-b7ktq-gaff6-m4m6b-yfncf-pywb3-r2l23-iv3v4-w2lcl-aqe");
     let internetIdentityPrincipalSeb_local : Principal = Principal.fromText("otgm5-k6dim-kjitv-7qlzk-72rd5-3hrec-fwaks-mogju-hn7o7-6ocnv-6ae");
@@ -125,8 +145,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     stable var componentsEntries : [(Text,Component)] = [];
     let components : HashMap.HashMap<Text,Component> = HashMap.fromIter(componentsEntries.vals(), 0, Text.equal, Text.hash);    
     
-    public shared (msg) func addListComponent (list : [(Text,Component)]) : async Result.Result<Text,Text> {
-        assert(_isAdmin(msg.caller));
+    public shared ({caller}) func addListComponent (list : [(Text,Component)]) : async Result.Result<Text,Text> {
+        assert(_admins.isAdmin(caller));
         for (val in list.vals()) {
             components.put(val.0, val.1);
         };
@@ -134,8 +154,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
     // Might broke if payload is heavier than 2 MB !
-    public query (msg) func getAllComponents () : async [(Text,Component)] {
-        assert(_isAdmin(msg.caller));
+    public query ({caller}) func getAllComponents () : async [(Text,Component)] {
+        assert(_admins.isAdmin(caller));
         var allComponent : [(Text,Component)] = Iter.toArray(components.entries());
         return allComponent;
     };
@@ -151,14 +171,12 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     // Accessory ///
     ////////////////
     
-    //TODO -> Accept multiple slots accessory
-
     public type Accessory = AvatarModule.Accessory;
     stable var accessoriesEntries : [(Text,Accessory)] = [];
     let accessories : HashMap.HashMap<Text,Accessory> = HashMap.fromIter(accessoriesEntries.vals(), 0, Text.equal, Text.hash);
 
     public shared ({caller}) func addAccessory (name : Text, accessory : Accessory) : async Result.Result<Text, Text> {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         switch(accessories.get(name)){
             case(?something) {
                 accessories.put(name, accessory);
@@ -172,7 +190,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
     public shared ({caller}) func addListAccessory (list : [Accessory]) : async Result.Result<Text,Text> {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         for (accessory in list.vals()){
             let name = accessory.name;
             accessories.put(name, accessory);
@@ -181,7 +199,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
     public shared query ({caller}) func getAllAccessories () : async [(Text,Accessory)] {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         let list : [(Text,Accessory)] = Iter.toArray(accessories.entries());
         return list;
     };
@@ -210,8 +228,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
 
     //Style that will be added to all avatars (to ajust components to the right body)
     stable var style_to_add : Text = "";
-    public shared(msg) func modify_style (text : Text) : async Text {
-        assert(_isAdmin(msg.caller));
+    public shared ({caller}) func modify_style (text : Text) : async Text {
+        assert(_admins.isAdmin(caller));
         style_to_add := text;
         return (style_to_add);
     };
@@ -416,9 +434,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         };
     };
          
-    public shared(msg) func mint (request : MintRequest) : async Result.Result<AvatarInformations,Text> {
-        assert(msg.caller == Principal.fromText("p4y2d-yyaaa-aaaaj-qaixa-cai")); //Only the hub canister has the right to mint.
-
+    public shared ({caller}) func mint (request : MintRequest) : async Result.Result<AvatarInformations,Text> {
+        assert(caller == Principal.fromText("p4y2d-yyaaa-aaaaj-qaixa-cai")); 
         // Create the avatar and returns it (see _createAvatar)
         switch(_createAvatar(request.metadata)){
             case(#err(message)) return #err(message);
@@ -447,7 +464,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
                 let event : IndefiniteEvent = {
                     operation = "mint";
                     details = [("token", #Text(token_identifier)), ("to", #Text(receiver))];
-                    caller = msg.caller;
+                    caller = caller;
                 };
                 ignore(_registerEvent(event));
 
@@ -457,8 +474,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         };
     };
 
-    public shared (msg) func wearAccessory (token_avatar : TokenIdentifier, name : Text, principal_caller : Principal) : async Result.Result<(), Text> {
-        assert(msg.caller == Principal.fromText ("po6n2-uiaaa-aaaaj-qaiua-cai")); 
+    public shared ({caller}) func wearAccessory (token_avatar : TokenIdentifier, name : Text, principal_caller : Principal) : async Result.Result<(), Text> {
+        assert(caller == Principal.fromText ("po6n2-uiaaa-aaaaj-qaiua-cai")); 
         switch(_accessoryVerification(token_avatar, name, principal_caller)){
             case (#err(msg)) return #err(msg);
             case (#ok) {
@@ -494,8 +511,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
 
-    public shared (msg) func removeAccessory (token_avatar : TokenIdentifier, name : Text, principal_caller : Principal) : async Result.Result<(), Text> {
-        assert(msg.caller == Principal.fromText ("po6n2-uiaaa-aaaaj-qaiua-cai")); //Only this canister can use this method!
+    public shared ({caller}) func removeAccessory (token_avatar : TokenIdentifier, name : Text, principal_caller : Principal) : async Result.Result<(), Text> {
+        assert(caller == Principal.fromText ("po6n2-uiaaa-aaaaj-qaiua-cai")); 
         //  Check the avatar is owned by the principal_caller.
         switch(avatars.get(token_avatar)){
             case (null) return #err("No avatar found for this token identifier : " # token_avatar);
@@ -541,7 +558,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
 
 
     public shared ({caller}) func burn(token_identifier : TokenIdentifier) : async () {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         _blobs.delete(token_identifier);
         avatars.delete(token_identifier);
         let index = ExtCore.TokenIdentifier.getIndex(token_identifier);
@@ -605,8 +622,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     private stable var _blobsEntries : [(TokenIdentifier, Blob)] = [];
     private var _blobs : HashMap.HashMap<TokenIdentifier, Blob> = HashMap.fromIter(_blobsEntries.vals(), 0 , Text.equal, Text.hash);
   
-    public shared(msg) func draw (token : TokenIdentifier) : async Result.Result<(), Text> {
-        assert(_isAdmin(msg.caller));
+    public shared ({caller}) func draw(token : TokenIdentifier) : async Result.Result<(), Text> {
+        assert(_admins.isAdmin(caller));
         switch(avatars.get(token)) {
             case (null) return #err ("Avatar not found");
             case (?avatar) {
@@ -929,7 +946,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     // Add an asset for a legendary avatar, each asset is a svg file stored as string and is identified a unique name.
     // @auth : admin
     public shared ({caller}) func addLegendary (name : Text, asset : Text) : async Result.Result<Text, Text> {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         switch(legendaries.get(name)){
             case(?avatar){
                 return #err("An avatar already exists for : " # name);
@@ -944,7 +961,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     //Mint a legendary avatar for a specified wallet 
     // @auth : admin
     public shared ({caller}) func mintLegendary (name : Text, address_receiver : AccountIdentifier) : async Result.Result <Text, Text> {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         switch(legendaries.get(name)){
             case(null) return #err ("No legendary avatar found for name : " # name);
             case(?avatar) {
@@ -1459,9 +1476,9 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
     
     public query func bearer(token : TokenIdentifier) : async Result.Result<AccountIdentifier, CommonError> {
-        // if (ExtCore.TokenIdentifier.isPrincipal(token, Principal.fromActor(this)) == false) {
-        //     return #err(#InvalidToken(token));
-        // };
+        if (ExtCore.TokenIdentifier.isPrincipal(token, Principal.fromActor(this)) == false) {
+            return #err(#InvalidToken(token));
+        };
         let tokenind = ExtCore.TokenIdentifier.getIndex(token);
         switch (_registry.get(tokenind)) {
             case (?token_owner) {
@@ -1512,7 +1529,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     // Call the handshake function on CAP which will ask the Router canister to create a new Root canister specifically for this token smart contract.
     // @auth : owner
     public shared ({caller}) func init_cap() : async Result.Result<(), Text> {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         let tokenContractId = Principal.toText(Principal.fromActor(this));
         try {
             let handshake = await cap.handshake(
@@ -1544,7 +1561,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
 
     // It should almost always be 0
     public shared query ({caller}) func eventsSize() : async Nat {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         _events.size();
     };
 
@@ -1679,26 +1696,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     // PATCH //
     ///////////
 
-    public shared (msg) func removeMouth (token : TokenIdentifier) : async Result.Result<(), Text> {
-        assert(_isAdmin(msg.caller));
-        switch(avatars.get(token)){
-            case(null) return #err ("Avatar not found");
-            case(?avatar){
-                avatar.removeLayer(45);
-                return #ok;
-            };
-        };
-    };
 
-    public query func howManyEquipped() : async Nat {
-        var count = 0;
-        for (avatar in avatars.vals()){
-            let slot = avatar.getSlots();
-            let number = _slotToNat(slot);
-            count := count + number; 
-        };
-        return count;
-    };
 
 
     private func _slotToNat(slots : Slots) : Nat {
@@ -1742,16 +1740,16 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         recreateAccessories : shared [(AccountIdentifier, Text)] -> async (Nat, Nat);
     };
 
-    public shared ({caller}) func saveAccessories () : async (Nat,Nat) {
-        return(await ITEMS_CANISTER.recreateAccessories(storageOwner));
-    };
+    // public shared ({caller}) func saveAccessories () : async (Nat,Nat) {
+    //     return(await ITEMS_CANISTER.recreateAccessories(storageOwner));
+    // };
 
 
     stable var storageData : [(TokenIdentifier, Text)] = [];
     stable var storageOwner : [(AccountIdentifier, Text)] = [];
 
     public shared ({caller}) func transform_data() : async Nat {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         for ((token_identifier, name) in storageData.vals()){
             let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
             let owner = Option.unwrap(_registry.get(token_index));
@@ -1761,17 +1759,17 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
     public shared query ({caller}) func transform_show() : async [(AccountIdentifier, Text)] {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         return storageOwner;
     };
 
     public shared query ({caller}) func reset_data() : async [(TokenIdentifier, Text)] {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         return storageData;
     };
 
     public shared ({caller}) func reset() : async Nat {
-        assert(_isAdmin(caller));
+        assert(_admins.isAdmin(caller));
         for ((tokenidentifier , avatar) in avatars.entries()){
             let slot = avatar.getSlots();
             if(_slotToNat(slot) != 0) {
