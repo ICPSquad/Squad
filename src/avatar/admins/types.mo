@@ -17,6 +17,9 @@ module Admins {
         removeAdmin : (p : Principal, caller : Principal) -> ();
 
         //  Get the state of the module.Interface
-        getStateStable : () -> [Principal];
+        toStableState : () -> [Principal];
+
+        // Initialize the module.
+        fromStableState : (state : [Principal]) -> ();
     };
 }

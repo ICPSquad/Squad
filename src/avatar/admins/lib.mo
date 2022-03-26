@@ -10,14 +10,17 @@ module {
         //////////
 
         private var admins : Buffer.Buffer<Principal> = Buffer.Buffer(0);
-        for (admin in state.admins.vals()){
-            admins.add(admin);
-        };
 
-        public func getStateStable() : [Principal] {
+        public func toStableState() : [Principal] {
             admins.toArray();
         };
 
+        public func fromStableState(state : [Principal]) {
+            for (admin in state.vals()){
+                admins.add(admin);
+            };
+        };
+        fromStableState(state.admins);
 
         //////////
         // API //

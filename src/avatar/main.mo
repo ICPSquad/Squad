@@ -1,13 +1,13 @@
 import AID "../dependencies/util/AccountIdentifier";
 import Admins "admins";
+import Assets "assets";
+import AssetsTypes "assets/types";
 import Array "mo:base/Array";
 import AvatarModule "types/avatar";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
 import ColorModule "types/color";
 import CombinationModule "types/combination";
-import CAPTypes "mo:cap/Types";
-import Cap "mo:cap/Cap";
 import Cycles "mo:base/ExperimentalCycles";
 import Debug "mo:base/Debug";
 import ExtAllowance "../dependencies/ext/Allowance";
@@ -16,6 +16,7 @@ import ExtCore "../dependencies/ext/Core";
 import Hash "mo:base/Hash";
 import HashMap "mo:base/HashMap";
 import Http "types/http";
+import HttpModule "http";
 import Iter "mo:base/Iter";
 import Int "mo:base/Int";
 import Nat "mo:base/Nat";
@@ -25,14 +26,13 @@ import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import PrincipalImproved "../dependencies/util/Principal";
 import Result "mo:base/Result";
-import Root "mo:cap/Root";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Utils "../dependencies/helpers/Array";
-
-// Entrepot integration
 import Entrepot "../dependencies/entrepot";
-//Canister geek
+import Cap "mo:cap/Cap";
+import CAPTypes "mo:cap/Types";
+import Root "mo:cap/Root";
 import Canistergeek "mo:canistergeek/canistergeek";
 
 
@@ -45,7 +45,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     public type Time = Time.Time;
     public type Metadata = Entrepot.Metadata;
     public type Listing = Entrepot.Listing;
-
 
     ///////////
     // ADMIN //
@@ -110,8 +109,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         assert(_admins.isAdmin(caller));
         canistergeekLogger.getLog(request);
     };
-
-
 
     ///////////////
     // AVATAR ////
@@ -882,34 +879,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
 
-    ///////////
-    // HTTP //
-    //////////
-
-    public query func http_request (request : Http.HttpRequest) : async Http.HttpResponse {
-        let iterator = Text.split(request.url, #text("tokenid="));
-        let array = Iter.toArray(iterator);
-        let token = array[array.size() - 1];
-        switch(_blobs.get(token)){
-            case(null) {
-                {
-                    body = Blob.toArray(Text.encodeUtf8("Not found"));
-                    headers = [("Content-Type", "text/html; charset=UTF-8")];
-                    streaming_strategy = null;
-                    status_code = 200;
-                }
-            };
-            case(?blob) {
-                {
-                    body = Blob.toArray(blob);
-                    headers = [("Content-Type", "image/svg+xml")];
-                    streaming_strategy = null;
-                    status_code = 200;
-                };
-            };
-        };
-    };
-
+  
 
     ///////////////
     // LEGENDARY //
@@ -1247,7 +1217,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
 
 
 
-
     /////////////
     // UPGRADE //
     /////////////
@@ -1344,5 +1313,62 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     public query func availableCycles() : async Nat {
         return Cycles.balance();
     };
+
+    ////////////
+    // ASSET //
+    ///////////
+
+    public type FilePath = AssetsTypes.FilePath;
+    public type Record = AssetsTypes.Record;
+
+    stable var stableRecord : [(FilePath, Record)] = [];
+    let _Assets = Assets.Assets({
+        _Admins = _admins;
+        record = stableRecord;
+    });
+
+    ///////////
+    // HTTP //
+    //////////
+
+    let _HttpHandler = HttpModule.HttpHandler({
+        _Admins = _admins;
+        _Assets = _Assets;
+    });
+
+    public query func http_request (request : Http.HttpRequest) : async Http.HttpResponse {
+        if(Text.contains(request.url, #text("tokenid"))) {
+            let iterator = Text.split(request.url, #text("tokenid="));
+            let array = Iter.toArray(iterator);
+            let token = array[array.size() - 1];
+            switch(_blobs.get(token)){
+                case(null) {
+                    return(
+                        {
+                            body = Text.encodeUtf8("Avatar not found");
+                            headers = [("Content-Type", "text/html; charset=UTF-8")];
+                            streaming_strategy = null;
+                            status_code = 200;
+                        }
+                    );
+                };
+                case(?blob) {
+                    return(
+                        {
+                            body = blob;
+                            headers = [("Content-Type", "image/svg+xml")];
+                            streaming_strategy = null;
+                            status_code = 200;
+                        }
+                    );
+                };
+            };
+        }  else {
+            _HttpHandler.request(request);
+        }  
+        
+    };
+
+
     
 };

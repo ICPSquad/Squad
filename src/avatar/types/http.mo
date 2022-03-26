@@ -5,12 +5,12 @@ module {
     public type HttpRequest = {
         url : Text;
         method : Text;
-        body : [Nat8];
+        body : Blob;
         headers : [HeaderField];
     };
 
     public type HttpResponse = {
-        body : [Nat8];
+        body : Blob;
         headers : [HeaderField];
         streaming_strategy : ?HttpStreamingStrategy;
         status_code : Nat16;
