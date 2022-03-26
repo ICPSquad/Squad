@@ -20,5 +20,10 @@ let additions = [
     , repo = "https://github.com/aviate-labs/encoding.mo"
     , version = "v0.3.1"
     , dependencies = [ "array", "base" ]
+    },
+    { name = "canistergeek"
+      , repo = "https://github.com/usergeek/canistergeek-ic-motoko"
+      , version = "v0.0.3"
+      , dependencies = ["base"] : List Text
     }] : List Package
 in upstream # additions

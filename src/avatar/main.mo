@@ -33,59 +33,10 @@ import Utils "../dependencies/helpers/Array";
 // Entrepot integration
 import Entrepot "../dependencies/entrepot";
 //Canister geek
-import Canistergeek "../dependencies/canistergeek/canistergeek";
+import Canistergeek "mo:canistergeek/canistergeek";
 
 
 shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = this {
-
-    //////////////
-    // METRICS //
-    ////////////
-
-    private let canistergeekMonitor = Canistergeek.Monitor();
-    stable var _canistergeekMonitorUD: ? Canistergeek.UpgradeData = null;
-    stable var adminsData : [Principal] = [Principal.fromText("whzaw-wqyku-y3ssi-nvyzq-m6iaq-aqh7x-v4a4e-ijlft-x4jjg-ymism-oae")];
-
-    private func _isAdminData(p : Principal) : Bool {
-        switch(Array.find<Principal>(adminsData, func(v) {return v == p})) {
-            case (null) { false; };
-            case (? v)  { true; };
-        };
-    };
-
-    // Updates the access rights of one of the admin data.
-    //@auth : admin
-    public shared({caller}) func updateAdminsData(user : Principal, isAuthorized : Bool) : async Result.Result<(), Text> {
-        assert(_isAdmin(caller));
-        switch(isAuthorized) {
-            case (true) {
-                adminsData := Array.append(
-                    adminsData,
-                    [user],
-                );
-            };
-            case (false) {
-                adminsData := Array.filter<Principal>(
-                    adminsData, 
-                    func(v) { v != user; },
-                );
-            };
-        };
-        #ok();
-    };
-
-    //  Returns collected data based on passed parameters. Called from browser.
-    public query ({caller}) func getCanisterMetrics(parameters: Canistergeek.GetMetricsParameters): async ?Canistergeek.CanisterMetrics {
-        assert(_isAdminData(caller));
-        canistergeekMonitor.getMetrics(parameters);
-    };
-
-    //  Force collecting the data at current time. Called from browser or by heartbeat.
-    public shared ({caller}) func collectCanisterMetrics(): async () {
-        assert(_isAdminData(caller));
-        canistergeekMonitor.collectMetrics();
-    };
-
 
     ///////////
     // ADMIN //
@@ -106,31 +57,52 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         _admins.addAdmin(p, caller);
     };
 
-
-    ////////////////
-    // ADMIN_OLD //
     ///////////////
+    // METRICS ///
+    /////////////
 
-    let dfxIdentityPrincipalSeb : Principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae");
-    let internetIdentityPrincipalSeb : Principal = Principal.fromText ("7djq5-fyci5-b7ktq-gaff6-m4m6b-yfncf-pywb3-r2l23-iv3v4-w2lcl-aqe");
-    let internetIdentityPrincipalSeb_local : Principal = Principal.fromText("otgm5-k6dim-kjitv-7qlzk-72rd5-3hrec-fwaks-mogju-hn7o7-6ocnv-6ae");
+    stable var _canistergeekMonitorUD: ? Canistergeek.UpgradeData = null;
+    private let canistergeekMonitor = Canistergeek.Monitor();
 
-    var admins : [Principal] = [dfxIdentityPrincipalSeb, internetIdentityPrincipalSeb, internetIdentityPrincipalSeb_local]; 
+    /**
+    * Returns collected data based on passed parameters.
+    * Called from browser.
+    * @auth : admin
+    */
+    public query ({caller}) func getCanisterMetrics(parameters: Canistergeek.GetMetricsParameters): async ?Canistergeek.CanisterMetrics {
+        assert(_admins.isAdmin(caller));
 
-    private func _isAdmin (p: Principal) : Bool {
-        return(Utils.contains<Principal>(admins, p, Principal.equal))
+        canistergeekMonitor.getMetrics(parameters);
     };
 
-    // Any admin can add others as admin
-    public shared(msg) func addAdmin (p : Principal) : async Result.Result<(), Text> {
-        if (_isAdmin(msg.caller)) {
-            admins := Array.append<Principal>(admins, [p]);
-            return #ok ();
-        } else {
-            return #err ("You are not authorized !");
-        }
-
+    /**
+    * Force collecting the data at current time.
+    * Called from browser or any canister "update" method.
+    * @auth : admin 
+    */
+    public shared ({caller}) func collectCanisterMetrics(): async () {
+        assert(_admins.isAdmin(caller));
+        canistergeekMonitor.collectMetrics();
     };
+
+    ////////////
+    // LOGS ///
+    //////////
+
+    stable var _canistergeekLoggerUD: ? Canistergeek.LoggerUpgradeData = null;
+    private let canistergeekLogger = Canistergeek.Logger();
+
+    /**
+    * Returns collected log messages based on passed parameters.
+    * Called from browser.
+    * @auth : admin
+    */
+    public query ({caller}) func getCanisterLog(request: ?Canistergeek.CanisterLogRequest) : async ?Canistergeek.CanisterLogResponse {
+        assert(_admins.isAdmin(caller));
+        canistergeekLogger.getLog(request);
+    };
+
+
 
     ///////////////
     // AVATAR ////
@@ -1578,20 +1550,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
 
-    ///////////////
-    // HEARTBEAT //
-    ///////////////
 
-    // A count represents approximately one second
-    stable var count = 0;
-
-    system func heartbeat () : async () {
-        count += 1;
-        //  Every 5 minutes 
-        if( count % 300 == 0){
-            await collectCanisterMetrics();
-        };
-    };
 
     /////////////
     // UPGRADE //
@@ -1605,6 +1564,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
     system func preupgrade() {
+        _canistergeekMonitorUD := ? canistergeekMonitor.preupgrade();
+        _canistergeekLoggerUD := ? canistergeekLogger.preupgrade();
 
         // Avatar deserialization
         let buffer_token = Buffer.Buffer<TokenIdentifier>(0);
@@ -1645,6 +1606,12 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
     system func postupgrade() {
+
+        canistergeekMonitor.postupgrade(_canistergeekMonitorUD);
+        _canistergeekMonitorUD := null;
+
+        canistergeekLogger.postupgrade(_canistergeekLoggerUD);
+        _canistergeekLoggerUD := null;
 
         let iterator = Iter.range(0, layerStorage.size() - 1);
         for (i in iterator) {
