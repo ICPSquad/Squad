@@ -39,6 +39,15 @@ import Canistergeek "mo:canistergeek/canistergeek";
 shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = this {
 
     ///////////
+    // TYPES //
+    ///////////
+
+    public type Time = Time.Time;
+    public type Metadata = Entrepot.Metadata;
+    public type Listing = Entrepot.Listing;
+
+
+    ///////////
     // ADMIN //
     ///////////
 
@@ -495,9 +504,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
                     message #=  "Does not belong to this principal : " # principal_caller_textual # " .";
                     return #err(message);
                 };
-                  if(_isListed(token_avatar)){
-                    return #err("Cannot desequip an avatar that is being listed.");
-                };
                 // Check the accessory exists
                 switch(accessories.get(name)){
                     case(null) return #err("No accessory found for name : " #name);
@@ -708,9 +714,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
                     var message : Text = "This avatar : " # token_avatar # " .";
                     message #=  "Does not belong to this principal : " # principal_caller_textual # " .";
                     return #err(message);
-                };
-                if(_isListed(token_avatar)){
-                    return #err("Cannot equip an avatar that is being listed.");
                 };
                 switch(accessories.get(name)){
                     case(null) return #err("No accessory found for this name : " # name);
@@ -960,322 +963,11 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
 
-    //////////////
-    // ENTREPOT //
-    //////////////
-    
-    type Time = Time.Time;
-    type ListRequest = Entrepot.ListRequest;
-    type Listing = Entrepot.Listing;
-    type Metadata = Entrepot.Metadata;
-    type Settlement = Entrepot.Settlement;
-    type Transaction = Entrepot.Transaction;
-    type AccountBalanceArgs = Entrepot.AccountBalanceArgs;
-    type ICPTs = Entrepot.ICPTs;
 
-    private stable var _tokenListingState : [(TokenIndex, Listing)] = [];
-	private stable var _tokenSettlementState : [(TokenIndex, Settlement)] = [];
-	private stable var _paymentsState : [(Principal, [SubAccount])] = [];
-	private stable var _refundsState : [(Principal, [SubAccount])] = [];
 
-    private var _tokenListing : HashMap.HashMap<TokenIndex, Listing> = HashMap.fromIter(_tokenListingState.vals(), 0, ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
-    private var _tokenSettlement : HashMap.HashMap<TokenIndex, Settlement> = HashMap.fromIter(_tokenSettlementState.vals(), 0, ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
-    private var _payments : HashMap.HashMap<Principal, [SubAccount]> = HashMap.fromIter(_paymentsState.vals(), 0, Principal.equal, Principal.hash);
-    private var _refunds : HashMap.HashMap<Principal, [SubAccount]> = HashMap.fromIter(_refundsState.vals(), 0, Principal.equal, Principal.hash);
+  
 
-    private stable var _usedPaymentAddressess : [(AccountIdentifier, Principal, SubAccount)] = [];
-	private stable var _transactions : [Transaction] = [];
-    private var ESCROWDELAY : Time = 10 * 60 * 1_000_000_000;
-    let LEDGER_CANISTER = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor { account_balance_dfx : shared query AccountBalanceArgs -> async ICPTs };
 
-    public shared(msg) func list (request : ListRequest) : async Result.Result<(), CommonError> {
-        if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
-			return #err(#InvalidToken(request.token));
-		};
-        if(_isEquipped(request.token)){
-            return #err(#Other("Avatar cannnot be listed when equipped."));
-        };
-        let token = ExtCore.TokenIdentifier.getIndex(request.token);
-        if(_isLocked(token)){
-            return #err(#Other("Listing is locked"));
-        };
-        switch(_tokenSettlement.get(token)){
-            case(?settlement){
-                switch(await settle(request.token)){
-                    case(#ok) return #err(#Other("Listing as sold."));
-                    case(#err(_)) {};
-                };
-            };
-            case(_){};
-        };
-        let owner = AID.fromPrincipal(msg.caller, request.from_subaccount);
-        switch(_registry.get(token)){
-            case(null) return #err(#InvalidToken(request.token));
-            case(?token_owner){
-                if(AID.equal(owner, token_owner) == false){
-                    return #err(#Other("Not authorized"));
-                };
-                switch(request.price){
-                    case(null){
-                        _tokenListing.delete(token);
-                    };
-                    case(?price){
-                        _tokenListing.put(token, {seller = msg.caller; price = price; locked = null;});
-                    };
-                };
-                if(Option.isSome(_tokenSettlement.get(token))){
-                    _tokenSettlement.delete(token);
-                };
-                return #ok;
-            };
-        };
-    };
-
-    public shared (msg) func lock (tokenid : TokenIdentifier, price : Nat64, address : AccountIdentifier, subaccount : SubAccount) : async Result.Result<AccountIdentifier, CommonError> {
-        if (ExtCore.TokenIdentifier.isPrincipal(tokenid, Principal.fromActor(this)) == false) {
-			return #err(#InvalidToken(tokenid));
-		};
-        if(_isSubaccountIncorrect(subaccount)){
-            return #err(#Other("Invalid subaccount"));
-        };
-        if(subaccount.size() != 32) {
-            return #err(#Other("Wrong subaccount"));
-        };
-        let token = ExtCore.TokenIdentifier.getIndex(tokenid);
-        if(_isLocked(token)) {
-            return #err(#Other("Listing is locked"));
-        };
-        switch(_tokenListing.get(token)){
-            case(null) return #err(#Other("No listing!"));
-            case(?listing){
-                if(listing.price != price){
-                    return #err(#Other("Price has changed!"));
-                } else {
-                    let paymentAddress : AccountIdentifier = AID.fromPrincipal(listing.seller, ?subaccount);
-                    if(Option.isSome(Array.find<(AccountIdentifier, Principal, SubAccount)>(_usedPaymentAddressess, func (a : (AccountIdentifier, Principal, SubAccount)) : Bool { a.0 == paymentAddress}))){
-                        return #err(#Other("Payment address has been used"));
-                    };
-                    _tokenListing.put(token, {seller = listing.seller; price = listing.price; locked = ?(Time.now() + ESCROWDELAY);});
-                    switch(_tokenSettlement.get(token)){
-                        case(null){};
-                        case(?settlement){
-                            let resp : Result.Result<(), CommonError> = await settle(tokenid);
-                            switch(resp) {
-                                case(#ok) return #err(#Other("Listing as sold"));
-                                case(#err _) {
-                                    if (Option.isNull(_tokenListing.get(token))) {
-                                        return #err(#Other("Listing as sold"))
-                                    };   
-                                };
-                            };
-                        };
-                    };
-                    _usedPaymentAddressess := Array.append<(AccountIdentifier, Principal, SubAccount)>(_usedPaymentAddressess, [(paymentAddress, listing.seller, subaccount)]);
-                    _tokenSettlement.put(token, {seller = listing.seller; price = listing.price; subaccount = subaccount; buyer = address;});
-                    return #ok(paymentAddress);
-                };
-            };
-        };
-    };
-
-    public shared (msg) func settle (tokenid : TokenIdentifier) : async Result.Result<(), CommonError> {
-        if (ExtCore.TokenIdentifier.isPrincipal(tokenid, Principal.fromActor(this)) == false) {
-			return #err(#InvalidToken(tokenid));
-		};
-		let token = ExtCore.TokenIdentifier.getIndex(tokenid);
-        switch(_tokenSettlement.get(token)){
-            case(null) return #err(#Other("Nothing to settle"));
-            case(?settlement){
-                    let account = AID.fromPrincipal(settlement.seller, ?settlement.subaccount);
-                    let response : ICPTs = await LEDGER_CANISTER.account_balance_dfx({account});
-                    switch(_tokenSettlement.get(token)) {
-                        case(null) return #err(#Other("Nothing to settle"));
-                        case(?settlement) {
-                            if (response.e8s >= settlement.price){
-                                _payments.put(settlement.seller, switch(_payments.get(settlement.seller)) {
-                                case(?p) Array.append(p, [settlement.subaccount]);
-                                case(_) [settlement.subaccount];
-                            });
-                            _transferTokenToUser(token, settlement.buyer);
-                            _transactions := Array.append(_transactions, [{ token = tokenid; seller = settlement.seller; price = settlement.price; buyer = settlement.buyer; time = Time.now();}]);
-                            _tokenListing.delete(token);
-                            _tokenSettlement.delete(token);
-                            //  Report event to CAP
-                            let event : IndefiniteEvent = {
-                                operation = "Sale";
-                                details = [("token", #Text(tokenid)), ("from", #Text(account)), ("to", #Text(settlement.buyer)),("price_decimals", #U64(8)),("price_currency", #Text("ICP")), ("price", #U64(settlement.price))];
-                                caller = msg.caller;
-                            };
-                            ignore(_registerEvent(event));
-                            return #ok();
-                            } else {
-                                return #err(#Other("Insufficient funds sent"));
-                            };
-                    };
-                };
-            };
-        };
-    };
-
-    public shared(msg) func clearPayments(seller : Principal, payments : [SubAccount]) : async () {
-        var removedPayments : [SubAccount] = [];
-        for (p in payments.vals()){
-            let response : ICPTs = await LEDGER_CANISTER.account_balance_dfx({account = AID.fromPrincipal(seller, ?p)});
-            if (response.e8s < 10_000){
-                removedPayments := Array.append(removedPayments, [p]);
-            };
-        };
-        switch(_payments.get(seller)) {
-        case(?sellerPayments) {
-            var newPayments : [SubAccount] = [];
-            for (p in sellerPayments.vals()){
-                if (Option.isNull(Array.find(removedPayments, func(a : SubAccount) : Bool {Array.equal(a, p, Nat8.equal);}))) {
-                    newPayments := Array.append(newPayments, [p]);
-                };
-            };
-            _payments.put(seller, newPayments)
-        };
-        case(_){};
-        };
-    };
-
-    /////////////////////
-    // Entrepot_query //
-    ////////////////////
-
-    public query func transactions() : async [Transaction] {
-        _transactions;
-    };
-
-    public query(msg) func payments() : async ?[SubAccount] {
-        _payments.get(msg.caller);
-    };
-
-    public query(msg) func allSettlements() : async [(TokenIndex, Settlement)] {
-        Iter.toArray(_tokenSettlement.entries())
-    };
-
-    public query(msg) func allPayments() : async [(Principal, [SubAccount])] {
-        Iter.toArray(_payments.entries())
-    };
-
-    public query func listings() : async [(TokenIndex, Listing, Metadata)] {
-        var results : [(TokenIndex, Listing, Metadata)] = [];
-        for(a in _tokenListing.entries()) {
-        results := Array.append(results, [(a.0, a.1, #nonfungible({ metadata = null }))]);
-        };
-        results;
-    };
-
-    public query func settlements() : async [(TokenIndex, AccountIdentifier, Nat64)] {
-        var result : [(TokenIndex, AccountIdentifier, Nat64)] = [];
-        for((token, listing) in _tokenListing.entries()) {
-            if(_isLocked(token)){
-                switch(_tokenSettlement.get(token)) {
-                case(?settlement) {
-                    result := Array.append(result, [(token, AID.fromPrincipal(settlement.seller, ?settlement.subaccount), settlement.price)]);
-                };
-                case(_) {};
-                };
-            };
-        };
-        result;
-    };
-
-    public query func stats() : async (Nat64, Nat64, Nat64, Nat64, Nat, Nat, Nat) {
-        var res : (Nat64, Nat64, Nat64) = Array.foldLeft<Transaction, (Nat64, Nat64, Nat64)>(_transactions, (0,0,0), func (b : (Nat64, Nat64, Nat64), a : Transaction) : (Nat64, Nat64, Nat64) {
-        var total : Nat64 = b.0 + a.price;
-        var high : Nat64 = b.1;
-        var low : Nat64 = b.2;
-        if (high == 0 or a.price > high) {
-            high := a.price;
-        };
-        if (low == 0 or a.price < low) {
-            low := a.price;
-        }; 
-        (total, high, low);
-        });
-        var floor : Nat64 = 0;
-        for (a in _tokenListing.entries()){
-            if (floor == 0 or a.1.price < floor) {
-                floor := a.1.price;
-            };
-        };
-        (res.0, res.1, res.2, floor, _tokenListing.size(), _registry.size(), _transactions.size());
-    };
-    
-    //////////////////////
-    // Entrepot_private //
-    /////////////////////
-
-    // Check if a token is locked
-    private func _isLocked (token : Nat32) : Bool {
-        switch(_tokenListing.get(token)){
-            case(?listing){
-                switch(listing.locked){
-                    case(?time) {
-                        if(time > Time.now()){
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    };
-                    case(_) {
-                        return false;
-                    };
-                };
-            };
-            case(_) {
-                return false;
-            };
-        };
-    };
-
-    //  Returns a boolean indicating if an avatar is equipped with at least one accessory.
-    func _isEquipped(token_identifier : TokenIdentifier) : Bool {
-        switch(avatars.get(token_identifier)){
-            case(null) return false;
-            case(?avatar){
-                return(not AvatarModule.isEmpty(avatar.getSlots()));
-            };
-        };  
-    };
-
-    //  Returns a boolean indicating if an avatar is listed.
-    func _isListed(token_identifier : TokenIdentifier) : Bool {
-        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
-        return(Option.isSome(_tokenListing.get(token_index)));
-    };
-
-    // Check if a subaccount has a 0 among it's firsts 30-bytes (to avoid Entrepot issue)
-    private func _isSubaccountIncorrect (subaccount : SubAccount) : Bool {
-        var c : Nat = 0;
-        var failed : Bool = true;
-        while(c < 29){
-            if (failed) {
-                if (subaccount[c] > 0) { 
-                failed := false;
-                };
-            };
-            c += 1;
-        };
-        failed;
-    };
-
-    private func _getBearer(token : TokenIndex) : ?AccountIdentifier {
-        _registry.get(token);
-    };
-
-    private func _removeTokenFromUser(token : TokenIndex) : () {
-        let owner : ?AccountIdentifier = _getBearer(token);
-        _registry.delete(token);
-    };
-
-    private func _transferTokenToUser(token : TokenIndex, receiver : AccountIdentifier) : () {
-        let owner : ?AccountIdentifier = _getBearer(token);
-        _registry.put(token, receiver);
-    };
-    
 
     //////////////////
     // EXT - ERC721 //
@@ -1419,7 +1111,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         for ((token_index,account) in _registry.entries()){
             if(a == account) {
                 let token_identifier = _getTokenIdentifier(token_index);
-                let new_element = (token_index, _tokenListing.get(token_index), _blobs.get(token_identifier));
+                let new_element = (token_index, null, _blobs.get(token_identifier));
                 tokens.add(new_element);
             };
         };
@@ -1474,13 +1166,17 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
 		let tokenind = ExtCore.TokenIdentifier.getIndex(token);
         switch (_getBearer(tokenind)) {
             case (?token_owner) {
-                        return #ok((token_owner, _tokenListing.get(tokenind)));
+                        return #ok((token_owner, null));
             };
             case (_) {
                 return #err(#InvalidToken(token));
             };
-    };
+        };
 	};
+
+    private func _getBearer(token : TokenIndex) : ?AccountIdentifier {
+        _registry.get(token);
+    };
 
     //////////
     // CAP //
@@ -1591,11 +1287,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         accessoriesEntries := Iter.toArray(accessories.entries());
         legendaryEntries := Iter.toArray(legendaries.entries());
 
-        //  Entrepot 
-        // _tokenListingState := Iter.toArray(_tokenListing.entries());
-        _tokenSettlementState := Iter.toArray(_tokenSettlement.entries());
-        _paymentsState := Iter.toArray(_payments.entries());
-        _refundsState := Iter.toArray(_refunds.entries());
         //  NFT 
         _principalToAccountsIdentifierState := Iter.toArray(_principalToAccountsIdentifier.entries());
         _registryState := Iter.toArray(_registry.entries());
@@ -1631,10 +1322,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         accessoriesEntries := [];
         legendaryEntries := [];
         _registryState := [];
-        _tokenListingState := [];
-        _tokenSettlementState := [];
-        _paymentsState := [];
-        _refundsState := [];
         _principalToAccountsIdentifierState := [];
         _blobsEntries := [];
         layerStorage := [];
