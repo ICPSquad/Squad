@@ -11,30 +11,14 @@ module {
     public type TokenIdentifier = Ext.TokenIdentifier;
 
     public type Component = {
-        layers : [Nat],
+        name : Text;
+        layers : [Nat];
         category : ComponentCategory;
     };
 
     public type ComponentCategory = {
-        #Accessory : Accessory;
-        #Background;
-        #Body;
-        #Clothing;
-        #Ears;
-        #Eyes;
-        #Nose;
-        #Mouth;
-        #Hair;
-        #Profile;
-        #Other;
-    };
-
-    public type Accessory = {
-        #Hat;
-        #Eyes;
-        #Misc;
-        #Body;
-        #Face;
+        #Avatar ;
+        #Accessory;
         #Other;
     };
 
@@ -49,12 +33,20 @@ module {
     public type Layers = [(LayerId, Text)];
     public type Colors = [{spot : Text, color : Color}];
 
-    public type Avatar = {
-        layers : Layers;
-        colors : Colors;
+
+
+    public type AvatarN = {
+        background  : Text;
+        profile : Text;
+        ears : Text;
+        mouth : Text;
+        eyes : Text;
+        nose : Text;
+        hair : Text;
+        cloth : Text;
         slots : Slots;
-        level : Level;
-        blob : Blob;
+        colors : Colors;
+        levels : Level;
     };
 
     public type Level = {
@@ -66,6 +58,7 @@ module {
 
     public type State = {
         avatars : [(TokenIdentifier, Avatar)]; 
+        blobs : [(TokenIdentifier, Blob)];
         components : [(TokenIdentifier, Component)];
     };
 
@@ -98,5 +91,6 @@ module {
         removeAllAccessories : TokenIdentifier -> Result<(), Text>;
         toStableState : () -> State;
     };
+
 
 }
