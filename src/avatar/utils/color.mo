@@ -1,21 +1,15 @@
 import Nat8 "mo:base/Nat8";
 import Float "mo:base/Float";
 
-module {
+module  {
     public type Color = (Nat8, Nat8, Nat8, Nat8);
     public type Colors = [{spot : Text; color : Color}];
 
+    //////////
+    // API //
+    ////////
 
-    private func _createColorTextual (color : Color) : Text {
-        var text : Text = "";
-        text := text # "rgb(";
-        text := text # Nat8.toText(color.0) # ",";
-        text := text # Nat8.toText(color.1) # ",";
-        text := text # Nat8.toText(color.2) # ");";
-
-        return text;
-    };
-
+    // Create the <style> tag that we need to add at the top of the svg based on the colors passed as argument.
     public func createStyle (colors : Colors) :  Text {
         var style : Text = "<style> :root {";
         for (val in colors.vals()) {
@@ -90,4 +84,15 @@ module {
         style := style # "} </style>";
         return style;
     };
+
+
+    ////////////////
+    // Utilities //
+    ///////////////
+
+    // Retturns the textual representation of color that can be added to the <style> based on the color paramater.
+    func _createColorTextual (color : Color) : Text {
+        "rgb(" # Nat8.toText(color.0) # "," # Nat8.toText(color.1) # "," # Nat8.toText(color.2) # ");";
+    };
+
 };

@@ -46,9 +46,12 @@ module {
         Face : ?Text;
     };
 
+    public type Layers = [(LayerId, Text)];
+    public type Colors = [{spot : Text, color : Color}];
+
     public type Avatar = {
-        layers : [(LayerId, Text)];
-        color : [{spot : Text, color : Color}];
+        layers : Layers;
+        colors : Colors;
         slots : Slots;
         level : Level;
         blob : Blob;
@@ -79,7 +82,7 @@ module {
 
     public type AvatarRequest = {
         components : [ComponentRequest];
-        colors : [{spot : Text; color : Color}];
+        colors : Colors;
     };
 
     public type ComponentRequest = {

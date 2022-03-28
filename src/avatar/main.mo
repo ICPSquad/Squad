@@ -199,7 +199,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     type AvatarResponse = AvatarModule.AvatarResponse;
     type AvatarPreview = AvatarModule.AvatarPreview;
     type ComponentRequest = AvatarModule.ComponentRequest;
-    type ColorList = ColorModule.ColorList;
+    type Colors = ColorModule.Colors;
     public type MintRequest = {
         to : ExtCore.User;
         metadata : AvatarRequest;
