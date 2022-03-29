@@ -3,9 +3,11 @@ import Buffer "mo:base/Buffer";
 import Blob "mo:base/Blob";
 import Text "mo:base/Text";
 import HashMap "mo:base/HashMap";
+import Nat "mo:base/Nat";
 import Result "mo:base/Result";
 import Iter "mo:base/Iter";
 import Array "mo:base/Array";
+import SVG "../utils/svg";
 
 module {
     
@@ -95,8 +97,21 @@ module {
             }
         };
 
-
-
+        public func getComponent(
+            name : Text,
+            layerId : Nat
+        ) : Result<Text,Text> {
+            let filePath = name # "-" # Nat.toText(layerId);
+            switch(files.get(filePath)){
+                case(null) return #err("Asset not found for : " # filePath);
+                case(?file) {
+                    switch(Text.decodeUtf8(file.asset.payload)){
+                        case(null) return #err("Error during decodeUtf8 : " # filePath);
+                        case(?svg) return #ok(SVG.unwrap(svg));
+                    };
+                };  
+            };
+        };
 
         ////////////////
         // Utilities //

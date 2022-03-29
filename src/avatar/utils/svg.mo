@@ -1,69 +1,62 @@
 import Text "mo:base/Text";
+import Iter "mo:base/Iter";
 
 module {
 
-    let SVG_LEADING_PATTERN : Pattern = #text("<svg xmlns=\"http://www.w3.org/2000/svg\">");
-    let SVG_TRAILING_PATTERN : Pattern = #text("</svg>");
+    let SVG_LEADING_PATTERN = #text("<svg xmlns=\"http://www.w3.org/2000/svg\">");
+    let SVG_TRAILING_PATTERN = #text("</svg>");
 
-    public func getTextualComponent(svg : Blob) ->  {
-        switch(Text.decodeUtf8(svg)){
-            case(null) return #err;
-            case(? svg_textual){
-                return(Text.trimEnd(Text.trimEnd(svg_textual, SVG_LEADING_PATTERN), SVG_TRAILING_PATTERN));
-            };
-        };
+    ////////
+    //API //
+    ////////
+
+    public func unwrap(svg : Text) : Text  {
+        Text.trimEnd(Text.trimEnd(svg, SVG_LEADING_PATTERN), SVG_TRAILING_PATTERN);
     };
 
-    ////////////////////////////
-    // Wrappers for CSS class //
-    ///////////////////////////
-
-    public func wrapComponent(component : Text, layerId : LayerId, name : Text ) : Text {
-        switch(layer){
+    public func wrap(component : Text, layerId : Nat, name : Text ) : Text {
+        switch(layerId){
              case (5) {
-                return (_wrapClass(component, "Background", name));
+                return (_wrap(component, "Background", name));
             };
             case(10) {
-                return(_wrapClass(component, "Hair-behind" , name ));
+                return(_wrap(component, "Hair-behind" , name ));
             };
             case (20) {
-                return(_wrapClass(component, "Body" , name ));
+                return(_wrap(component, "Body" , name ));
             };
             case (30) {
-                return(_wrapClass(component, "Ears" , name ));
+                return(_wrap(component, "Ears" , name ));
             };
             case(35) {
-                return(_wrapClass(component, "Head", name ));
+                return(_wrap(component, "Head", name ));
             };
             case(45){
-                return(_wrapClass(component, "Mouth", name ));
+                return(_wrap(component, "Mouth", name ));
             };
             case(50) {
-                return(_wrapClass(component, "Eyes", name ));
+                return(_wrap(component, "Eyes", name ));
             };
             case(55) {
-                return(_wrapClass(component, "Nose", name ));
+                return(_wrap(component, "Nose", name ));
             };
             case(70) {
-                return(_wrapClass(component, "clothing", name ));
+                return(_wrap(component, "clothing", name ));
             };
             case(75) {
-                return(_wrapClass(component, "Hair", name));
+                return(_wrap(component, "Hair", name));
             };
             case(90) {
-                return(_wrapClass(component, "Hair-above", name));
+                return(_wrap(component, "Hair-above", name));
             };
             case(95){
-                return(_wrapClass(component, "Suit", name));
+                return(_wrap(component, "Suit", name));
             };
+            // For accessories 
             case(_) {
-                return(component);
+                return(_wrap(component, "", name));
             };
-        }:
-    };
-
-    public func wrapAccessory(name : Text, content : Text ) : Text {
-        "<g class='" + name + "'>" + content + "</g>";
+        };
     };
 
     /////////////////
@@ -78,7 +71,7 @@ module {
 
     // Wrap the component according to its name and its category. Needed for applying the CSS rules.
     // @todo : Clean this mess.
-    func _wrapClass(name : Text, category : Text, content : Text ) : Text {
+    func _wrap(name : Text, category : Text, content : Text ) : Text {
         let names = _nameSplit(name);
         var component_wrapped =  "<g class='" # category # " ";
         if(category == "clothing") {

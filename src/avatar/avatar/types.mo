@@ -31,11 +31,9 @@ module {
     };
 
     public type Layers = [(LayerId, Text)];
-    public type Colors = [{spot : Text, color : Color}];
+    public type Colors = [{spot : Text; color : Color}];
 
-
-
-    public type AvatarN = {
+    public type Avatar = {
         background  : Text;
         profile : Text;
         ears : Text;
@@ -46,7 +44,7 @@ module {
         cloth : Text;
         slots : Slots;
         colors : Colors;
-        levels : Level;
+        level : Level;
     };
 
     public type Level = {
@@ -60,11 +58,12 @@ module {
         avatars : [(TokenIdentifier, Avatar)]; 
         blobs : [(TokenIdentifier, Blob)];
         components : [(TokenIdentifier, Component)];
+        style : Text;
     };
 
     public type Dependencies = {
-        _Admins = Admins.Admins;
-        _Assets = Assets.Assets;
+        _Admins : Admins.Admins;
+        _Assets : Assets.Assets;
     };
 
     public type Parameters = State and Dependencies;

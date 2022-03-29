@@ -2,6 +2,7 @@ import AID "../dependencies/util/AccountIdentifier";
 import Admins "admins";
 import Assets "assets";
 import AssetsTypes "assets/types";
+import AvatarNewModule "avatar";
 import Array "mo:base/Array";
 import AvatarModule "types/avatar";
 import Blob "mo:base/Blob";
@@ -1360,6 +1361,19 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         registry = Iter.toArray(_registry.entries());
     });
 
+
+    ///////////////
+    // Avatar ////
+    /////////////
+
+    let _Avatar = AvatarNewModule.Factory({
+        avatars = [];
+        blobs = [];
+        components = [];
+        style = "";
+        _Admins = _admins;
+        _Assets = _Assets;
+    })
 
 
 
