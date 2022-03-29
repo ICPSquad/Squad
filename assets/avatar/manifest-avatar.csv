@@ -1,17 +1,11 @@
 Type, name, layers
 Background,Background-base,5
-Body,Business-body,20
-Body,Miss-body,20
-Body,Punk-body,20
+Profile,Business-profile,20 35
+Profile,Punk-profile,20 35
+Profile,Miss-profile,20 35
 Ears,Business-ears,30
 Ears,Punk-ears,30
 Ears,Miss-ears,30
-Head,Business-head,35
-Head,Punk-head,35
-Head,Miss-head,35
-Profile,Business-profile,25 35
-Profile,Punk-profile,25 35
-Profile,Miss-profile,25 35
 Mouth,Business-angry-mouth,45
 Mouth,Business-confused-mouth,45
 Mouth,Business-mouth,45
@@ -68,3 +62,6 @@ Hair,Hair-13,10 75 90
 Hair,Hair-14,10 75
 Hair,Hair-15,10 75
 Clothes,1,
+Clothes,2
+Clothes,3
+Clothes,4
