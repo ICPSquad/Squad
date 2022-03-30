@@ -1,67 +1,67 @@
 Type, name, layers
-Background,Background-base,5
-Profile,Business-profile,20 35
-Profile,Punk-profile,20 35
-Profile,Miss-profile,20 35
-Ears,Business-ears,30
-Ears,Punk-ears,30
-Ears,Miss-ears,30
-Mouth,Business-angry-mouth,45
-Mouth,Business-confused-mouth,45
-Mouth,Business-mouth,45
-Mouth,Business-scheming-mouth,45
-Mouth,Business-tired-mouth,45
-Mouth,Business-uninterested-mouth,45
-Mouth,Miss-annoyed-mouth,45
-Mouth,Miss-confident-mouth,45
-Mouth,Miss-disgusted-mouth,45
-Mouth,Miss-mouth,45
-Mouth,Miss-scheming-mouth,45
-Mouth,Miss-surprised-mouth,45
-Mouth,Miss-surprised-mouth,45
-Mouth,Punk-annoyed-mouth,45
-Mouth,Punk-confident-mouth,45
-Mouth,Punk-crying-mouth,45
-Mouth,Punk-disgusted-mouth,45
-Mouth,Punk-embarassed-mouth,45
-Mouth,Punk-mouth,45
-Eyes,Business-angry-eyes,50
-Eyes,Business-confused-eyes,50
-Eyes,Business-scheming-eyes,50
-Eyes,Business-tired-eyes,50
-Eyes,Business-uninterested-eyes,50
-Eyes,Miss-annoyed-eyes,50
-Eyes,Miss-confident-eyes,50
-Eyes,Miss-disgusted-eyes,50
-Eyes,Miss-scheming-eyes,50
-Eyes,Miss-surprised-eyes,50
-Eyes,Punk-annoyed-eyes,50
-Eyes,Punk-confident-eyes,50
-Eyes,Punk-crying-eyes,50
-Eyes,Punk-disgusted-eyes,50
-Eyes,Punk-embarassed-eyes,50
-Nose,Business-nose,55
-Nose,Miss-nose,55
-Nose,Punk-nose,55
-Hair,Hair-1-base,75
-Hair,Hair-1,75
-Hair,Hair-2-,10 75
-Hair,Hair-2-base,10 75
-Hair,Hair-3,75
-Hair,Hair-4, 10 75
-Hair,Hair-5,10 75
-Hair,Hair-6, 10 75
-Hair,Hair-6-base,10 75
-Hair,Hair-7,10 75
-Hair,Hair-8,10 75
-Hair,Hair-9,10 75
-Hair,Hair-10,75
-Hair,Hair-11,75
-Hair,Hair-12,75
-Hair,Hair-13,10 75 90
-Hair,Hair-14,10 75
-Hair,Hair-15,10 75
-Clothes,1,70
-Clothes,2,70
-Clothes,3,70
-Clothes,4,70
+background,background-base,5
+profile,business-profile,20 35
+profile,punk-profile,20 35
+profile,miss-profile,20 35
+ears,business-ears,30
+ears,punk-ears,30
+ears,miss-ears,30
+mouth,business-angry-mouth,45
+mouth,business-confused-mouth,45
+mouth,business-mouth,45
+mouth,business-scheming-mouth,45
+mouth,business-tired-mouth,45
+mouth,business-uninterested-mouth,45
+mouth,miss-annoyed-mouth,45
+mouth,miss-confident-mouth,45
+mouth,miss-disgusted-mouth,45
+mouth,miss-mouth,45
+mouth,miss-scheming-mouth,45
+mouth,miss-surprised-mouth,45
+mouth,miss-surprised-mouth,45
+mouth,punk-annoyed-mouth,45
+mouth,punk-confident-mouth,45
+mouth,punk-crying-mouth,45
+mouth,punk-disgusted-mouth,45
+mouth,punk-embarassed-mouth,45
+mouth,punk-mouth,45
+eyes,business-angry-eyes,50
+eyes,business-confused-eyes,50
+eyes,business-scheming-eyes,50
+eyes,business-tired-eyes,50
+eyes,business-uninterested-eyes,50
+eyes,miss-annoyed-eyes,50
+eyes,miss-confident-eyes,50
+eyes,miss-disgusted-eyes,50
+eyes,miss-scheming-eyes,50
+eyes,miss-surprised-eyes,50
+eyes,punk-annoyed-eyes,50
+eyes,punk-confident-eyes,50
+eyes,punk-crying-eyes,50
+eyes,punk-disgusted-eyes,50
+eyes,punk-embarassed-eyes,50
+nose,business-nose,55
+nose,miss-nose,55
+nose,punk-nose,55
+hair,hair-1-base,75
+hair,hair-1,75
+hair,hair-2-,10 75
+hair,hair-2-base,10 75
+hair,hair-3,75
+hair,hair-4, 10 75
+hair,hair-5,10 75
+hair,hair-6, 10 75
+hair,hair-6-base,10 75
+hair,hair-7,10 75
+hair,hair-8,10 75
+hair,hair-9,10 75
+hair,hair-10,75
+hair,hair-11,75
+hair,hair-12,75
+hair,hair-13,10 75 90
+hair,hair-14,10 75
+hair,hair-15,10 75
+clothes,1,70
+clothes,2,70
+clothes,3,70
+clothes,4,70
