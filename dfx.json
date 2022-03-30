@@ -18,9 +18,9 @@
     },
     "website": {
       "frontend": {
-        "entrypoint": "src/website/src/index.html"
+        "entrypoint": "dist/index.html"
       },
-      "source": ["src/website/assets", "dist/website"],
+      "source": ["dist/"],
       "type": "assets"
     }
   },
