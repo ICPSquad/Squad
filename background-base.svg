@@ -1,0 +1,11 @@
+<svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+  <g id="bg" transform="matrix(1,0,0,1,-0.625027,9.95672)">
+    <rect
+      x="-48.418"
+      y="-9.957"
+      width="931.967"
+      height="871.066"
+      style="fill: rgba(var(--color_background_r, 143), var(--color_background_g, 203), var(--color_background_b, 193), var(--color_background_a, 0.8))"
+    />
+  </g>
+</svg>

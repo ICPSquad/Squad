@@ -1,4 +1,6 @@
 import Admins "../admins";
+import CanisterGeek "mo:canistergeek/canistergeek";
+import Canistergeek "mo:canistergeek/canistergeek";
 import Result "mo:base/Result";
 module Assets {
 
@@ -42,7 +44,7 @@ module Assets {
         
         // Upload bytes into the buffer.
         // @auth : admin
-        upload : (caller : Principal, bytes : [Blob]) -> ();
+        upload : (caller : Principal, bytes : [Nat8]) -> ();
 
         // Finalize the buffer into an asset.
         // @auth : admin

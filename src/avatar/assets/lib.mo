@@ -22,7 +22,7 @@ module {
         type Result<T,E> = Result.Result<T,E>;
 
         // The upload buffer, for adding additional assets.
-        private let buffer : Buffer.Buffer<Blob> = Buffer.Buffer(0);
+        private let buffer : Buffer.Buffer<Nat8> = Buffer.Buffer(0);
 
         // The records that have been uploaded, stored by filePath.
         private let files : HashMap.HashMap<FilePath,Record> = HashMap.HashMap(0, Text.equal, Text.hash);
@@ -47,7 +47,7 @@ module {
         // @auth : admin
         public func upload(
             caller : Principal,
-            bytes : [Blob],
+            bytes : [Nat8],
         ) : () {
             assert(parameters._Admins.isAdmin(caller));
             for(byte in bytes.vals()){
@@ -67,7 +67,7 @@ module {
 
             let asset = {
                 contentType = contentType;
-                payload = _flattenPayload(buffer.toArray());
+                payload = Blob.fromArray(buffer.toArray());
             };
             let record = {
                 asset = asset;
@@ -107,7 +107,7 @@ module {
             }
         };
 
-        // TODO
+        // Retrieve a comoponet as textual <g> element.
         public func getComponent(
             name : Text,
             layerId : Nat

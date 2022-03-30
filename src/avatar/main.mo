@@ -1,16 +1,20 @@
 import AID "../dependencies/util/AccountIdentifier";
 import Admins "admins";
+import Array "mo:base/Array";
 import Assets "assets";
 import AssetsTypes "assets/types";
-import AvatarNewModule "avatar";
-import Array "mo:base/Array";
 import AvatarModule "types/avatar";
+import AvatarNewModule "avatar";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
+import CAPTypes "mo:cap/Types";
+import Canistergeek "mo:canistergeek/canistergeek";
+import Cap "mo:cap/Cap";
 import ColorModule "types/color";
 import CombinationModule "types/combination";
 import Cycles "mo:base/ExperimentalCycles";
 import Debug "mo:base/Debug";
+import Entrepot "../dependencies/entrepot";
 import ExtAllowance "../dependencies/ext/Allowance";
 import ExtCommon "../dependencies/ext/Common";
 import ExtCore "../dependencies/ext/Core";
@@ -19,8 +23,8 @@ import Hash "mo:base/Hash";
 import HashMap "mo:base/HashMap";
 import Http "types/http";
 import HttpModule "http";
-import Iter "mo:base/Iter";
 import Int "mo:base/Int";
+import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat8 "mo:base/Nat8";
@@ -28,14 +32,11 @@ import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import PrincipalImproved "../dependencies/util/Principal";
 import Result "mo:base/Result";
+import Root "mo:cap/Root";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Utils "../dependencies/helpers/Array";
-import Entrepot "../dependencies/entrepot";
-import Cap "mo:cap/Cap";
-import CAPTypes "mo:cap/Types";
-import Root "mo:cap/Root";
-import Canistergeek "mo:canistergeek/canistergeek";
+import _Monitor "mo:canistergeek/typesModule";
 
 
 shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = this {
@@ -1247,10 +1248,11 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         //  CAP
         _eventsEntries := Iter.toArray(_events.entries());
 
+        // Admin module
+        stableAdmins := _Admins.toStableState();
     };
 
     system func postupgrade() {
-        _Logs.logMessage("Post-upgrade");
 
         _Monitor.postupgrade(_MonitorUD);
         _MonitorUD := null;
@@ -1282,6 +1284,9 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         styleStorage := [];
         slotsStorage := [];
 
+        // Admin module
+        stableAdmins := [];
+
     };
 
     //////////////
@@ -1308,9 +1313,40 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     stable var stableRecord : [(FilePath, Record)] = [];
     let _Assets = Assets.Assets({
         _Admins = _Admins;
-        _Logs = _Logs;
         record = stableRecord;
     });
+
+    public shared ({caller}) func upload(
+        bytes : [Nat8]
+    ) : async () {
+        _Monitor.collectMetrics();
+        _Assets.upload(caller, bytes);
+    };
+
+    public shared ({caller}) func uploadFinalize (
+        contentType : Text,
+        meta : AssetsTypes.Meta,
+        filePath : Text,
+    ) : async Result.Result<(), Text> {
+        _Monitor.collectMetrics();
+        switch(_Assets.uploadFinalize(caller, contentType,meta,filePath)){
+            case(#ok(())){
+                _Logs.logMessage("Uploaded file: " # filePath);
+                return #ok(());
+            };
+            case(#err(message)){
+                _Logs.logMessage("Failed to upload file: " # filePath);
+                return #err(message);
+            };
+        }
+    };
+
+    public shared ({caller}) func uploadClear() : async () {
+        _Monitor.collectMetrics();
+        _Assets.uploadClear(caller);
+    };
+
+
 
     ///////////
     // HTTP //
