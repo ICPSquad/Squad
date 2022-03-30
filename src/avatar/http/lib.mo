@@ -5,6 +5,7 @@ import Iter "mo:base/Iter";
 import Array "mo:base/Array";
 import Principal "mo:base/Principal";
 import Nat "mo:base/Nat";
+import AssetTypes "../assets/types";
 module {
 
     public class HttpHandler(state : Types.Dependencies) {
@@ -13,8 +14,28 @@ module {
         // Path Handlers //
         //////////////////
 
+        public func request(request : Types.Request) : Types.Response {
+            let path = Iter.toArray(Text.tokens(request.url, #text("/")));
+            switch(path.size()){
+                case 0 return _httpIndex();
+                case 1 {
+                    for((key, handler) in Iter.fromArray(paths)){
+                        if(path[0] == key) return handler(null);
+                    };
+                    return _http404(?("No handler for path: " # path[0]));
+                };
+                case 2 {
+                    for((key, handler) in Iter.fromArray(paths)){
+                        if(path[0] == key) return handler(?path[1]);
+                    };
+                    return _http404(?("No handler for path: " # path[0] # "/" # path[1]));
+                };
+                case _ return _http404(?"Path not found");
+            }
+        };
+
         // A 404 response with an optional error message.
-        private func http404(msg : ?Text) : Types.Response {
+        func _http404(msg : ?Text) : Types.Response {
             {
                 body = Text.encodeUtf8(
                     switch (msg) {
@@ -31,7 +52,7 @@ module {
         };
 
         // @path: /
-        private func httpIndex() : Types.Response {
+        func _httpIndex() : Types.Response {
             //TODO : more informations.
           {
             body = Text.encodeUtf8(
@@ -48,15 +69,61 @@ module {
           };
         };
 
-        public func request(request : Types.Request) : Types.Response {
-            let path = Iter.toArray(Text.tokens(request.url, #text("/")));
-            switch(path.size()){
-                case 0 return httpIndex();
-                case _ return http404(?"Path not found.");
+        // @path : /assets/<text>
+        // @path : /asset/<text>
+        // Serves an sset based on filename.
+        func _httpAssetFilename(path : ?Text) : Types.Response {
+            switch(path){
+                case(?path){
+                    switch(state._Assets.getFileByName(path)){
+                        case(?record) _renderAsset(record);
+                        case _ _http404(?"Asset not found.");
+                    };
+                };
+                case _ return _httpAssetManifest(null);
+            };
+        };
+
+        func _httpAssetManifest(path : ?Text) : Types.Response {
+            {
+                body = Text.encodeUtf8("Asset manifest");
+                headers = [
+                    ("Content-Type", "text/plain"),
+                ];
+                status_code = 200;
+                streaming_strategy = null;
             }
         };
 
 
+        ////////////////
+        // Renderers //
+        //////////////
+
+        // Create an HTTP response from an Asset Record.
+        func _renderAsset(
+            record : AssetTypes.Record,
+        ) : Types.Response {
+            {
+                body = record.asset.payload;
+                headers = [
+                    ("Content-Type", record.asset.contentType),
+                    ("Access-Control-Allow-Origin", "*"),
+                ];
+                status_code = 200;
+                streaming_strategy = null;
+            }
+        };
+
+        //////////////////
+        // Path Config //
+        ////////////////
+
+        let paths : [(Text , (path : ?Text) -> Types.Response)] = [
+            ("asset", _httpAssetFilename),
+            ("assets", _httpAssetFilename),
+            ("asset-manifest", _httpAssetManifest),
+        ];
 
     };
 

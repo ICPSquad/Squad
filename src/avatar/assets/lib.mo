@@ -97,6 +97,17 @@ module {
             }
         };
 
+        // Retrieve a record using the filePath.
+        public func getFileByName(
+            filePath : FilePath
+        ) : ?Types.Record {
+            switch(files.get(filePath)){
+                case(?record) return ?record;
+                case(null) return null;
+            }
+        };
+
+        // TODO
         public func getComponent(
             name : Text,
             layerId : Nat

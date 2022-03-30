@@ -100,7 +100,7 @@ module {
                 case (?t) t;
                 case _ return #err(#Other("Token owner doesn't exist."));
             };
-            let callerAccount = AccountIdentifier.fromPrincipal(caller, request.subaccount);
+            let callerAccount = Ext.AccountIdentifier.fromPrincipal(caller, request.subaccount);
             let from = Ext.User.toAccountIdentifier(request.from);
             let to = Ext.User.toAccountIdentifier(request.to);
             if(owner != from) {
