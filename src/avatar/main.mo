@@ -55,24 +55,25 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     let SQUAD_IDENTITY_DFX : Principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae");
     stable var stableAdmins : [Principal] = [SQUAD_IDENTITY_DFX];
 
-    let _admins = Admins.Admins({
+    let _Admins = Admins.Admins({
         admins = stableAdmins;
     });
 
     public query func is_admin(p : Principal) : async Bool {
-        _admins.isAdmin(p);
+        _Admins.isAdmin(p);
     };
 
     public shared ({caller}) func add_admin(p : Principal) : async () {
-        _admins.addAdmin(p, caller);
+        _Admins.addAdmin(p, caller);
+        _Logs.logMessage("Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
     };
 
     ///////////////
     // METRICS ///
     /////////////
 
-    stable var _canistergeekMonitorUD: ? Canistergeek.UpgradeData = null;
-    private let canistergeekMonitor = Canistergeek.Monitor();
+    stable var _MonitorUD: ? Canistergeek.UpgradeData = null;
+    private let _Monitor = Canistergeek.Monitor();
 
     /**
     * Returns collected data based on passed parameters.
@@ -80,9 +81,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     * @auth : admin
     */
     public query ({caller}) func getCanisterMetrics(parameters: Canistergeek.GetMetricsParameters): async ?Canistergeek.CanisterMetrics {
-        assert(_admins.isAdmin(caller));
-
-        canistergeekMonitor.getMetrics(parameters);
+        assert(_Admins.isAdmin(caller));
+        _Monitor.getMetrics(parameters);
     };
 
     /**
@@ -91,16 +91,16 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     * @auth : admin 
     */
     public shared ({caller}) func collectCanisterMetrics(): async () {
-        assert(_admins.isAdmin(caller));
-        canistergeekMonitor.collectMetrics();
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
     };
 
     ////////////
     // LOGS ///
     //////////
 
-    stable var _canistergeekLoggerUD: ? Canistergeek.LoggerUpgradeData = null;
-    private let canistergeekLogger = Canistergeek.Logger();
+    stable var _LogsUD: ? Canistergeek.LoggerUpgradeData = null;
+    private let _Logs = Canistergeek.Logger();
 
     /**
     * Returns collected log messages based on passed parameters.
@@ -108,8 +108,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     * @auth : admin
     */
     public query ({caller}) func getCanisterLog(request: ?Canistergeek.CanisterLogRequest) : async ?Canistergeek.CanisterLogResponse {
-        assert(_admins.isAdmin(caller));
-        canistergeekLogger.getLog(request);
+        assert(_Admins.isAdmin(caller));
+        _Logs.getLog(request);
     };
 
     ///////////////
@@ -126,7 +126,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     let components : HashMap.HashMap<Text,Component> = HashMap.fromIter(componentsEntries.vals(), 0, Text.equal, Text.hash);    
     
     public shared ({caller}) func addListComponent (list : [(Text,Component)]) : async Result.Result<Text,Text> {
-        assert(_admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         for (val in list.vals()) {
             components.put(val.0, val.1);
         };
@@ -135,7 +135,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
 
     // Might broke if payload is heavier than 2 MB !
     public query ({caller}) func getAllComponents () : async [(Text,Component)] {
-        assert(_admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         var allComponent : [(Text,Component)] = Iter.toArray(components.entries());
         return allComponent;
     };
@@ -156,7 +156,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     let accessories : HashMap.HashMap<Text,Accessory> = HashMap.fromIter(accessoriesEntries.vals(), 0, Text.equal, Text.hash);
 
     public shared ({caller}) func addAccessory (name : Text, accessory : Accessory) : async Result.Result<Text, Text> {
-        assert(_admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         switch(accessories.get(name)){
             case(?something) {
                 accessories.put(name, accessory);
@@ -170,7 +170,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
     public shared ({caller}) func addListAccessory (list : [Accessory]) : async Result.Result<Text,Text> {
-        assert(_admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         for (accessory in list.vals()){
             let name = accessory.name;
             accessories.put(name, accessory);
@@ -179,7 +179,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
     public shared query ({caller}) func getAllAccessories () : async [(Text,Accessory)] {
-        assert(_admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         let list : [(Text,Accessory)] = Iter.toArray(accessories.entries());
         return list;
     };
@@ -209,7 +209,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     //Style that will be added to all avatars (to ajust components to the right body)
     stable var style_to_add : Text = "";
     public shared ({caller}) func modify_style (text : Text) : async Text {
-        assert(_admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         style_to_add := text;
         return (style_to_add);
     };
@@ -593,7 +593,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     private var _blobs : HashMap.HashMap<TokenIdentifier, Blob> = HashMap.fromIter(_blobsEntries.vals(), 0 , Text.equal, Text.hash);
   
     public shared ({caller}) func draw(token : TokenIdentifier) : async Result.Result<(), Text> {
-        assert(_admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         switch(avatars.get(token)) {
             case (null) return #err ("Avatar not found");
             case (?avatar) {
@@ -886,7 +886,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     // Add an asset for a legendary avatar, each asset is a svg file stored as string and is identified a unique name.
     // @auth : admin
     public shared ({caller}) func addLegendary (name : Text, asset : Text) : async Result.Result<Text, Text> {
-        assert(_admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         switch(legendaries.get(name)){
             case(?avatar){
                 return #err("An avatar already exists for : " # name);
@@ -901,7 +901,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     //Mint a legendary avatar for a specified wallet 
     // @auth : admin
     public shared ({caller}) func mintLegendary (name : Text, address_receiver : AccountIdentifier) : async Result.Result <Text, Text> {
-        assert(_admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         switch(legendaries.get(name)){
             case(null) return #err ("No legendary avatar found for name : " # name);
             case(?avatar) {
@@ -1150,7 +1150,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     // Call the handshake function on CAP which will ask the Router canister to create a new Root canister specifically for this token smart contract.
     // @auth : owner
     public shared ({caller}) func init_cap() : async Result.Result<(), Text> {
-        assert(_admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         let tokenContractId = Principal.toText(Principal.fromActor(this));
         try {
             let handshake = await cap.handshake(
@@ -1182,7 +1182,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
 
     // It should almost always be 0
     public shared query ({caller}) func eventsSize() : async Nat {
-        assert(_admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         _events.size();
     };
 
@@ -1212,8 +1212,9 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
     system func preupgrade() {
-        _canistergeekMonitorUD := ? canistergeekMonitor.preupgrade();
-        _canistergeekLoggerUD := ? canistergeekLogger.preupgrade();
+        _Logs.logMessage("Pre-upgrade");
+        _MonitorUD := ? _Monitor.preupgrade();
+        _LogsUD := ? _Logs.preupgrade();
 
         // Avatar deserialization
         let buffer_token = Buffer.Buffer<TokenIdentifier>(0);
@@ -1249,12 +1250,12 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
     system func postupgrade() {
+        _Logs.logMessage("Post-upgrade");
 
-        canistergeekMonitor.postupgrade(_canistergeekMonitorUD);
-        _canistergeekMonitorUD := null;
-
-        canistergeekLogger.postupgrade(_canistergeekLoggerUD);
-        _canistergeekLoggerUD := null;
+        _Monitor.postupgrade(_MonitorUD);
+        _MonitorUD := null;
+        _Logs.postupgrade(_LogsUD);
+        _LogsUD := null;
 
         let iterator = Iter.range(0, layerStorage.size() - 1);
         for (i in iterator) {
@@ -1306,7 +1307,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
 
     stable var stableRecord : [(FilePath, Record)] = [];
     let _Assets = Assets.Assets({
-        _Admins = _admins;
+        _Admins = _Admins;
+        _Logs = _Logs;
         record = stableRecord;
     });
 
@@ -1315,7 +1317,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     //////////
 
     let _HttpHandler = HttpModule.HttpHandler({
-        _Admins = _admins;
+        _Admins = _Admins;
         _Assets = _Assets;
     });
 
@@ -1371,7 +1373,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         blobs = [];
         components = [];
         style = "";
-        _Admins = _admins;
+        _Admins = _Admins;
         _Assets = _Assets;
     })
 
