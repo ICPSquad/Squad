@@ -27,7 +27,7 @@ echo $log_line
 
 
 echo "$log_line ...Emptying buffer"
-dfx canister --network $network call $canister uploadClear >> upload_log.txt
+dfx canister --network $network call $canister uploadClear >> /dev/null
 
 
 echo "$log_line ...Uploading file"
@@ -39,7 +39,7 @@ while [ $i -le $byteSize ]; do
         payload+="${byte};"
     done
     payload+="}"
-    dfx canister --network $network call $canister upload "($payload)" >> upload_log.txt
+    dfx canister --network $network call $canister upload "($payload)" >> /dev/null
     i=$(($i+$threshold))
 done
 
@@ -52,5 +52,5 @@ meta="record {
     category = $categoryCandid
 }"
 finalizeArg="\"$contentType\",$meta,\"$name\""
-dfx canister --network $network call $canister uploadFinalize "($finalizeArg)" >> upload_log.txt
+dfx canister --network $network call $canister uploadFinalize "($finalizeArg)" >> /dev/null
 echo "$log_line ...Done"
