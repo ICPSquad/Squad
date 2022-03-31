@@ -37,9 +37,16 @@ IFS=','
         for layer in "${list[@]}"
         do
             file="assets/avatar/$Type/$name/$name-$layer.svg"
+            tag_layer=$layer
+            tag_component=$Type
             echo "Uploading $file to canister $canister on network $network"
             [ ! -f $file ] && { echo "$file file not found"; exit 99; }
+            # Upload file
+            bash ./scripts/bash/upload_file.zsh $file $canister $network "AvatarComponent" $tag_component $tag_layer "Test"
+
         done
 	done
 } < $manifest
 IFS=$OLDIFS
+
+
