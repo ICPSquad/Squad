@@ -1,8 +1,8 @@
 Type, name, layers
 background,background-base,5
-profile,business-profile,20 35
-profile,punk-profile,20 35
-profile,miss-profile,20 35
+profile,business-profile,20/35
+profile,punk-profile,20/35
+profile,miss-profile,20/35
 ears,business-ears,30
 ears,punk-ears,30
 ears,miss-ears,30
@@ -45,22 +45,22 @@ nose,miss-nose,55
 nose,punk-nose,55
 hair,hair-1-base,75
 hair,hair-1,75
-hair,hair-2-,10 75
-hair,hair-2-base,10 75
+hair,hair-2,10/75
+hair,hair-2-base,10/75
 hair,hair-3,75
-hair,hair-4, 10 75
-hair,hair-5,10 75
-hair,hair-6, 10 75
-hair,hair-6-base,10 75
-hair,hair-7,10 75
-hair,hair-8,10 75
-hair,hair-9,10 75
+hair,hair-4,10/75
+hair,hair-5,10/75
+hair,hair-6,10/75
+hair,hair-6-base,10/75
+hair,hair-7,10/75
+hair,hair-8,10/75
+hair,hair-9,10/75
 hair,hair-10,75
 hair,hair-11,75
 hair,hair-12,75
-hair,hair-13,10 75 90
-hair,hair-14,10 75
-hair,hair-15,10 75
+hair,hair-13,10/75/90
+hair,hair-14,75
+hair,hair-15,75
 clothes,1,70
 clothes,2,70
 clothes,3,70
