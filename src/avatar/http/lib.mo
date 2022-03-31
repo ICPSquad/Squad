@@ -84,16 +84,40 @@ module {
             };
         };
 
-        func _httpAssetManifest(path : ?Text) : Types.Response {
+       // @path: /asset-manifest
+        // Serves a JSON list of all assets in the canister.
+        func _httpAssetManifest (path : ?Text) : Types.Response {
             {
-                body = Text.encodeUtf8("Asset manifest");
+                body = Text.encodeUtf8(
+                    "[\n" #
+                    Array.foldLeft<AssetTypes.Record, Text>(state._Assets.getManifest(), "", func (a, b) {
+                        let comma = switch (a == "") {
+                            case true "\t";
+                            case false ", ";
+                        };
+                        a # comma # "{\n" #
+                            "\t\t\"filename\": \"" # b.meta.name # "\",\n" #
+                            "\t\t\"url\": \"/assets/" # b.meta.name # "\",\n" #
+                            "\t\t\"description\": \"" # b.meta.description # "\",\n" #
+                            "\t\t\"tags\": [" # Array.foldLeft<Text, Text>(b.meta.tags, "", func (a, b) {
+                                let comma = switch (a == "") {
+                                    case true "";
+                                    case false ", ";
+                                };
+                                a # comma # "\"" # b # "\""
+                            }) # "]\n" #
+                        "\t}";
+                    }) #
+                    "\n]"
+                );
                 headers = [
-                    ("Content-Type", "text/plain"),
+                    ("Content-Type", "application/json"),
                 ];
                 status_code = 200;
                 streaming_strategy = null;
             }
         };
+
 
 
         ////////////////

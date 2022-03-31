@@ -54,7 +54,7 @@ module Assets {
         // @auth : admin
         uploadClear: (caller : Principal) -> ();
 
-
-
+        // Retrieves the aset manifest (all assets).
+        getManifest : () -> [Record];
     };
 }

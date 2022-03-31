@@ -41,7 +41,7 @@ IFS=','
             echo "Uploading $file to canister $canister on network $network"
             [ ! -f $file ] && { echo "$file file not found"; exit 99; }
             # Upload file
-            bash ./scripts/bash/upload_file.bash $file $canister $network "AvatarComponent" $tag_component $tag_layer ""
+            bash ./scripts/bash/upload_file.bash $file $canister $network "Accessori" $tag_component $tag_layer ""
 
         done
 	done

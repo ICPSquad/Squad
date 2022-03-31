@@ -124,6 +124,10 @@ module {
             };
         };
 
+        public func getManifest() : [Record] {
+            Iter.toArray(files.vals())
+        };
+
         ////////////////
         // Utilities //
         //////////////
