@@ -13,16 +13,14 @@ extension="${file##*.}"
 contentType=$(file --mime-type -b $file)
 categoryCandid="variant {$category}"
 
-byteArray=$(od -An -v -tuC $file)
-byteSize=0;
-payload="vec {"
-for byte in ${byteArray[@]}; do
-    byteSize=$((byteSize+1))
-    payload+="${byte};"
-done
-payload+="}"
 
+# Upper limit for chunks due to shell restrictions.
+threshold=250000
 
+# Only work if byte size is less than 250Kb.
+byteArray=( $(od -An -v -tuC $file))
+byteSize=${#byteArray[*]}
+threshold=250000
 
 log_line="Uploading $file of category $category with name $name and size $(( $byteSize / 1024 )) kb to canister $canister on network $network."
 echo $log_line
@@ -33,7 +31,17 @@ dfx canister --network $network call $canister uploadClear >> upload_log.txt
 
 
 echo "$log_line ...Uploading file"
-dfx canister --network $network call $canister upload "($payload)" >> upload_log.txt
+i=0
+while [ $i -le $byteSize ]; do
+    echo "$log_line ...Uploading #$(($i/$threshold+1))/$(($byteSize/$threshold+1))"
+    payload="vec {"
+    for byte in ${byteArray[@]:$i:$threshold}; do
+        payload+="${byte};"
+    done
+    payload+="}"
+    dfx canister --network $network call $canister upload "($payload)" >> upload_log.txt
+    i=$(($i+$threshold))
+done
 
 echo "$log_line ...Finalizing"
 
