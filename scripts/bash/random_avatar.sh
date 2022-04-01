@@ -72,5 +72,3 @@ echo "nose: $avatar_nose"
 echo "hair: $avatar_hair"
 echo "clothes: $avatar_clothes"
 
-
-

@@ -8,13 +8,14 @@ module {
     
     public type UpgradeData = Types.UpgradeData;
 
-    public class Admins() : Types.Interface {
+    public class Admins(creator : Principal) : Types.Interface {
 
         ////////////
         // State //
         //////////
 
         private var admins : Buffer.Buffer<Principal> = Buffer.Buffer(0);
+        admins.add(creator);
 
         public func preupgrade() : UpgradeData {
             {

@@ -1290,8 +1290,8 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     // ADMIN //
     ///////////
 
-    stable var _AdminsUD : ?Admins.UpgradeData = ?{admins = [creator]};
-    let _Admins = Admins.Admins();
+    stable var _AdminsUD : ?Admins.UpgradeData = null;
+    let _Admins = Admins.Admins(creator);
 
     public query func is_admin(p : Principal) : async Bool {
         _Admins.isAdmin(p);
