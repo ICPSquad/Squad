@@ -342,7 +342,7 @@ module {
                     switch(_Assets.getComponent(layer.1, layer.0)){
                         case(#err(message)){};
                         case(#ok(component)){
-                            svg #= SVG.wrap(component,layer.0, layer.1);
+                            svg #= SVG.wrap(component, layer.0 , layer.1);
                         };
                     };
                 };

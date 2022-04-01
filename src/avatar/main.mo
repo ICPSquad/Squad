@@ -31,6 +31,7 @@ import Principal "mo:base/Principal";
 import PrincipalImproved "../dependencies/util/Principal";
 import Result "mo:base/Result";
 import Root "mo:cap/Root";
+import SVG "utils/svg";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Utils "../dependencies/helpers/Array";
@@ -1406,7 +1407,8 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     // More errors
     public shared ({caller}) func mint_new(request : MintRequest) : async Result.Result<TokenIdentifier,Text> {
         _Monitor.collectMetrics();
-        let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId);
+        let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId + 10);
+        _nextTokenId := _nextTokenId + 1;
         switch(_Avatar.createAvatar(request.metadata, token_identifier)){
             case(#ok) return #ok(token_identifier);
             case(#err(message)) return #err(message);
@@ -1456,6 +1458,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         
     };
 
+    public func test_unwrap(svg : Text) : async Text {
+        SVG.unwrap(svg);
+    }
 
 
 

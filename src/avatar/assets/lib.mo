@@ -1,13 +1,14 @@
-import Types "types";
-import Buffer "mo:base/Buffer";
+import Array "mo:base/Array";
 import Blob "mo:base/Blob";
-import Text "mo:base/Text";
+import Buffer "mo:base/Buffer";
 import HashMap "mo:base/HashMap";
+import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Result "mo:base/Result";
-import Iter "mo:base/Iter";
-import Array "mo:base/Array";
 import SVG "../utils/svg";
+import Debug "mo:base/Debug";
+import Text "mo:base/Text";
+import Types "types";
 
 module {
     
@@ -122,7 +123,10 @@ module {
                 case(?file) {
                     switch(Text.decodeUtf8(file.asset.payload)){
                         case(null) return #err("Error during decodeUtf8 : " # filePath);
-                        case(?svg) return #ok(SVG.unwrap(svg));
+                        case(?svg) {
+                            Debug.print("Asset" # filePath);
+                            return #ok(svg);
+                        }
                     };
                 };  
             };
@@ -154,6 +158,8 @@ module {
                 })
             );
         };
+
+
 
 
     };
