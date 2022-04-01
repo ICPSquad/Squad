@@ -21,7 +21,7 @@ module {
     public type BearerResponse = Ext.NonFungible.BearerResponse;
     public type MintRequest = Ext.NonFungible.MintRequest;
 
-    public type State = {
+    public type UpgradeData = {
         cid : Principal;
         registry : [(TokenIndex, AccountIdentifier)]
     };

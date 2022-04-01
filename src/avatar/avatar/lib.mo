@@ -10,8 +10,18 @@ import SVG "../utils/svg";
 import ColorModule "../utils/color";
 import Assets "../assets";
 import Ext "mo:ext/Ext";
+import Prim "mo:prim";
 module {
-    public class Factory(params : Types.Parameters) : Types.Interface {
+
+    ////////////
+    // Types //
+    //////////
+    
+    public type UpgradeData = Types.UpgradeData;
+    public type Component = Types.Component;
+
+
+    public class Factory(state : Types.State) : Types.Interface {
 
         ////////////
         // State //
@@ -20,7 +30,6 @@ module {
         public type Result<A,B> = Result.Result<A,B>;
         public type Slots = Types.Slots;
         public type Level = Types.Level;
-        public type Component = Types.Component;
         public type ComponentRequest = Types.ComponentRequest;
         public type Layers = Types.Layers;
         public type Colors = Types.Colors;
@@ -29,24 +38,22 @@ module {
         public type LayerId = Types.LayerId;
         public type TokenIdentifier = Ext.TokenIdentifier;
 
-        private let _components : HashMap.HashMap<Text, Component> = HashMap.fromIter(params.components.vals(), params.components.size(), Text.equal, Text.hash);
-        private let _avatars : HashMap.HashMap<TokenIdentifier,Avatar> = HashMap.fromIter(params.avatars.vals(), params.avatars.size(), Text.equal, Text.hash);
-        private let _blobs : HashMap.HashMap<TokenIdentifier, Blob> = HashMap.fromIter(params.blobs.vals(), params.blobs.size(), Text.equal, Text.hash);
+        private let _components : HashMap.HashMap<Text, Component> = HashMap.fromIter(state.components.vals(), state.components.size(), Text.equal, Text.hash);
+        private let _avatars : HashMap.HashMap<TokenIdentifier,Avatar> = HashMap.fromIter(state.avatars.vals(), state.avatars.size(), Text.equal, Text.hash);
+        private let _blobs : HashMap.HashMap<TokenIdentifier, Blob> = HashMap.fromIter(state.blobs.vals(), state.blobs.size(), Text.equal, Text.hash);
 
-        private let CSS_STYLE : Text = params.style;
+        private var css_style : Text = state.style;
 
         // Dependencies
-        private let _Assets = params._Assets;
-        private let _Admins = params._Admins;
+        private let _Assets = state._Assets;
+        private let _Admins = state._Admins;
 
-
-
-        public func toStableState() : Types.State {
+        public func preupgrade() : UpgradeData {
             return({
                 avatars = Iter.toArray(_avatars.entries());
                 components = Iter.toArray(_components.entries());
                 blobs = Iter.toArray(_blobs.entries());
-                style = CSS_STYLE;
+                style = css_style;
             })
         };
 
@@ -54,11 +61,28 @@ module {
         // API ////
         ///////////
 
+        // Add a component into the state
+        public func addComponent(
+            name : Text,
+            component : Component 
+        ) : Result.Result<(), Text> {
+            switch(_components.get(name)){
+                case(? component) return #err("Component : " # name # " already exists");
+                case _  {
+                    _components.put(name, component);
+                    return #ok(());
+                };
+            };
+        };
+
+        public func changeCSS(style : Text) : () {
+            css_style := style;
+        };
+
         // Returns an optional avatar for the given token identifier.
         public func getAvatar(tokenId : TokenIdentifier) : ?Avatar {
             return _avatars.get(tokenId);
         };
-
 
         public func createAvatar(
             request : AvatarRequest,
@@ -67,7 +91,11 @@ module {
             switch(_avatars.get(tokenId)){
                 case(? avatar) return #err("There is already an avatar for this tokenIdentifier");
                 case(null){
-                    //TODO
+
+                    let avatar = _createAvatarOld(request);
+                    let blob = _createBlob(avatar);
+                    _avatars.put(tokenId, avatar);
+                    _blobs.put(tokenId, blob);
                     return #ok;
                 };
             };
@@ -291,7 +319,7 @@ module {
                 var svg = "<svg viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg' class='" # avatar.profile # "'>";
 
                 // Add style general, style for colors and potentially style for hiding clothes when a body accessory is equipped.
-                svg #= CSS_STYLE # ColorModule.createStyle(avatar.colors) # _getStyleOptionalAccessory(avatar);
+                svg #= css_style # ColorModule.createStyle(avatar.colors) # _getStyleOptionalAccessory(avatar);
 
                 // Get the layers and order them, then add components for each layer.
                 let layers = _orderLayers(_createLayers(avatar));
@@ -315,49 +343,49 @@ module {
             request : AvatarRequest,
         ) : Avatar {
             let background = switch(_findBackground(request)){
-                case(?background) background;
+                case(?background) Text.map(background , Prim.charToLower);
                 case(_) {
                     assert(false);
                     "Unreachable";
                 }
             };
             let profile = switch(_findProfile(request)){
-                case(?profile) profile;
+                case(?profile) Text.map(profile , Prim.charToLower);
                  case(_) {
                     assert(false);
                     "Unreachable";
                 }
             };
             let ears = switch(_findEars(request)){
-                case(?ears) ears;
+                case(?ears) Text.map(ears , Prim.charToLower);
                  case(_) {
                     assert(false);
                     "Unreachable";
                 }
             };
             let mouth = switch(_findMouth(request)){
-                case(?mouth) mouth;
+                case(?mouth) Text.map(mouth , Prim.charToLower);
                  case(_) {
                     assert(false);
                     "Unreachable";
                 }
             };
             let eyes = switch(_findEyes(request)){
-                case(?eyes) eyes;
+                case(?eyes) Text.map(eyes , Prim.charToLower);
                  case(_) {
                     assert(false);
                     "Unreachable";
                 }
             };
             let nose = switch(_findNose(request)){
-                case(?nose) nose;
+                case(?nose) Text.map(nose , Prim.charToLower);
                  case(_) {
                     assert(false);
                     "Unreachable";
                 }
             };
             let hair = switch(_findHair(request)){
-                case(?hair) hair;
+                case(?hair) Text.map(hair , Prim.charToLower);
                  case(_) {
                     assert(false);
                     "Unreachable";

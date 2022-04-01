@@ -11,60 +11,69 @@ import SVG "../utils/svg";
 
 module {
     
-    public class Assets(parameters : Types.Parameters) : Types.Interface {
+    
+    ////////////
+    // Types //
+    //////////
+
+    public type FilePath = Types.FilePath;
+    public type Record = Types.Record;
+    public type UpgradeData = Types.UpgradeData;
+    public type Meta = Types.Meta;
+
+
+
+    public class Assets() : Types.Interface {
         
         ////////////
         // State //
         //////////
 
-        type FilePath = Types.FilePath;
-        type Record = Types.Record;
         type Result<T,E> = Result.Result<T,E>;
 
-        // The upload buffer, for adding additional assets.
+        // The upload buffer, to add chunks of assets.
         private let buffer : Buffer.Buffer<Nat8> = Buffer.Buffer(0);
 
         // The records that have been uploaded, stored by filePath.
         private let files : HashMap.HashMap<FilePath,Record> = HashMap.HashMap(0, Text.equal, Text.hash);
 
-        public func toStableState() : [(FilePath, Record)] {
-            return(Iter.toArray(files.entries()))
+        public func preupgrade() : UpgradeData {
+            {
+                record = Iter.toArray(files.entries());
+            }
         };
 
-        public func fromStableState(stableState : [(FilePath, Record)]) {
-            for ((filePath,record) in stableState.vals()) {
-                files.put(filePath, record);
+        public func postupgrade(state : ?UpgradeData) : () {
+            switch(state) {
+                case (?state) {
+                    for ((filePath,record) in state.record.vals()) {
+                        files.put(filePath, record);
+                    };
+                };
+                case _ {};
             };
         };
-
-        fromStableState(parameters.record);
 
         //////////
         // API ///
         /////////
 
         // Upload bytes into the buffer.
-        // @auth : admin
+
         public func upload(
-            caller : Principal,
             bytes : [Nat8],
         ) : () {
-            assert(parameters._Admins.isAdmin(caller));
             for(byte in bytes.vals()){
                 buffer.add(byte);
             };
         };
 
         // Finalize the upload buffer into an asset, and store a record with the filePath.
-        // @auth : admin
         public func uploadFinalize(
-            caller : Principal,
             contentType : Text,
             meta : Types.Meta,
             filePath : FilePath
         ) : Result<(), Text> {
-            assert(parameters._Admins.isAdmin(caller));
-
             let asset = {
                 contentType = contentType;
                 payload = Blob.fromArray(buffer.toArray());
@@ -79,11 +88,7 @@ module {
         };
 
         // Clear the upload buffer.
-        // @auth : admin
-        public func uploadClear(
-            caller : Principal
-        ): () {
-            assert(parameters._Admins.isAdmin(caller));
+        public func uploadClear(): () {
             buffer.clear();
         };
 
@@ -126,6 +131,16 @@ module {
 
         public func getManifest() : [Record] {
             Iter.toArray(files.vals())
+        };
+
+        public func getStats() : (Nat,Nat) {
+            var assets_count = 0;
+            var assets_size = 0;
+            for (record in files.vals()) {
+                assets_count += 1;
+                assets_size += record.asset.payload.size();
+            };
+            return(assets_count, assets_size);
         };
 
         ////////////////

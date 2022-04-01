@@ -30,31 +30,34 @@ module Assets {
         #LegendaryCharacter;
     };
 
-    public type State = {
+    public type UpgradeData = {
         record : [(FilePath, Record)];
     };
-
-    public type Dependencies = {
-        _Admins : Admins.Admins;
-    };
-
-    public type Parameters = State and Dependencies;
 
     public type Interface = {
         
         // Upload bytes into the buffer.
-        // @auth : admin
-        upload : (caller : Principal, bytes : [Nat8]) -> ();
+        upload : (bytes : [Nat8]) -> ();
 
         // Finalize the buffer into an asset.
-        // @auth : admin
-        uploadFinalize: (caller : Principal, contentType : Text, meta : Meta, filePath : FilePath) -> Result<(), Text>;
+        uploadFinalize: (contentType : Text, meta : Meta, filePath : FilePath) -> Result<(), Text>;
 
         // Clear the buffer.
         // @auth : admin
-        uploadClear: (caller : Principal) -> ();
+        uploadClear: () -> ();
 
         // Retrieves the aset manifest (all assets).
         getManifest : () -> [Record];
+
+        // Get the number of uploaded assets and the total size.
+        getStats : () -> (count : Nat, size : Nat);
+
+        // Get the UD before upgrading
+        preupgrade : () -> UpgradeData;
+
+        // Reinitialize the state of the module after upgrading.
+        postupgrade : (data : ?UpgradeData) -> ();
+
+
     };
 }

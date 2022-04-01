@@ -5,6 +5,7 @@ import Iter "mo:base/Iter";
 import Array "mo:base/Array";
 import Principal "mo:base/Principal";
 import Nat "mo:base/Nat";
+import Float "mo:base/Float";
 import AssetTypes "../assets/types";
 module {
 
@@ -53,14 +54,15 @@ module {
 
         // @path: /
         func _httpIndex() : Types.Response {
-            //TODO : more informations.
+            let assets_stats = state._Assets.getStats();
           {
             body = Text.encodeUtf8(
                 "ICP Squad Season #0 : the incredible Internet Computer community.\n"
                 # "---\n"
-                # "Minted Avatar : ?" # "\n"
                 # "Cycle Balance: " # Nat.toText(Cycles.balance() / 1_000_000_000_000) # "T\n"
-                # "Admins  : " # Text.join(" /", Array.map<Principal,Text>(state._Admins.toStableState(), Principal.toText).vals()) # "\n");
+                # "Minted Avatar : ?" # "\n"
+                # "Admins  : " # Text.join(" /", Array.map<Principal,Text>(state._Admins.getAdmins(), Principal.toText).vals()) # "\n"
+                # "Asset uploaded : " # Nat.toText(assets_stats.0) # " for size " # Nat.toText(assets_stats.1) # " bytes" # " ( " # Float.toText(Float.fromInt(assets_stats.1) / (1024 * 1024))  # "Mb" # " )\n");
             headers = [
                 ("Content-Type", "text/plain"),
             ];

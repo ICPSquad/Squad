@@ -1,6 +1,6 @@
 module Admins {
 
-    public type State = {
+    public type UpgradeData = {
         admins : [Principal];
     };
 
@@ -16,10 +16,13 @@ module Admins {
         //  @auth : admin
         removeAdmin : (p : Principal, caller : Principal) -> ();
 
-        //  Get the state of the module.Interface
-        toStableState : () -> [Principal];
+        // Get the list of admins.
+        getAdmins : () -> [Principal];
 
-        // Initialize the module.
-        fromStableState : (state : [Principal]) -> ();
+        //  Get the UD before upgrading. 
+        preupgrade : () -> UpgradeData;
+
+        // Reinitialize the state of the module after upgrading.
+        postupgrade : (ud : ?UpgradeData) -> ();
     };
 }

@@ -8,7 +8,15 @@ import AccountIdentifier "mo:principal/AccountIdentifier";
 import Result "mo:base/Result";
 
 module {
-    public class make(state : Types.State) : Types.Interface {
+
+    ////////////
+    // Types //
+    //////////
+    
+    public type UpgradeData = Types.UpgradeData;
+
+
+    public class Factory(state : Types.UpgradeData) : Types.Interface {
 
         ////////////
         // State //
@@ -31,8 +39,11 @@ module {
         let CANISTER_ID = state.cid;
         private let _registry_module : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.fromIter<TokenIndex,AccountIdentifier>(state.registry.vals(), state.registry.size(), Ext.TokenIndex.equal, Ext.TokenIndex.hash);
 
-        public func toStableState() : [(TokenIndex,AccountIdentifier)] {
-            Iter.toArray(_registry_module.entries());
+        public func preupgrade() : UpgradeData {
+            {
+                cid = CANISTER_ID;
+                registry = Iter.toArray(_registry_module.entries());
+            }
         };
 
         ////////////////

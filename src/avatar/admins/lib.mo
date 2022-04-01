@@ -1,9 +1,14 @@
 import Types "types";
 import Buffer "mo:base/Buffer";
 module {
-    public class Admins(state : Types.State) : Types.Interface {
-        //  Make sure that there is always at least one admin at initialization.
-        assert(state.admins.size() != 0);
+
+    ////////////
+    // Types //
+    //////////
+    
+    public type UpgradeData = Types.UpgradeData;
+
+    public class Admins() : Types.Interface {
 
         ////////////
         // State //
@@ -11,16 +16,22 @@ module {
 
         private var admins : Buffer.Buffer<Principal> = Buffer.Buffer(0);
 
-        public func toStableState() : [Principal] {
-            admins.toArray();
+        public func preupgrade() : UpgradeData {
+            {
+                admins = admins.toArray();
+            }
         };
 
-        public func fromStableState(state : [Principal]) {
-            for (admin in state.vals()){
-                admins.add(admin);
+        public func postupgrade(ud : ?UpgradeData) {
+            switch(ud){
+                case(? ud) {
+                    for (admin in ud.admins.vals()){
+                        admins.add(admin);
+                    };
+                };
+                case _ {};
             };
         };
-        fromStableState(state.admins);
 
         //////////
         // API //
@@ -52,6 +63,10 @@ module {
             for (principal in newAdmins.vals()){
                 admins.add(principal);
             };
+        };
+
+        public func getAdmins() : [Principal] {
+            admins.toArray();
         };
     }
 }

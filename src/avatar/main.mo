@@ -2,12 +2,10 @@ import AID "../dependencies/util/AccountIdentifier";
 import Admins "admins";
 import Array "mo:base/Array";
 import Assets "assets";
-import AssetsTypes "assets/types";
 import AvatarModule "types/avatar";
 import AvatarNewModule "avatar";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
-import CAPTypes "mo:cap/Types";
 import Canistergeek "mo:canistergeek/canistergeek";
 import Cap "mo:cap/Cap";
 import ColorModule "types/color";
@@ -48,26 +46,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     public type Time = Time.Time;
     public type Metadata = Entrepot.Metadata;
     public type Listing = Entrepot.Listing;
-
-    ///////////
-    // ADMIN //
-    ///////////
-
-    let SQUAD_IDENTITY_DFX : Principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae");
-    stable var stableAdmins : [Principal] = [SQUAD_IDENTITY_DFX];
-
-    let _Admins = Admins.Admins({
-        admins = stableAdmins;
-    });
-
-    public query func is_admin(p : Principal) : async Bool {
-        _Admins.isAdmin(p);
-    };
-
-    public shared ({caller}) func add_admin(p : Principal) : async () {
-        _Admins.addAdmin(p, caller);
-        _Logs.logMessage("Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
-    };
 
     ///////////////
     // METRICS ///
@@ -454,6 +432,8 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
             };
         };
     };
+
+    
 
     public shared ({caller}) func wearAccessory (token_avatar : TokenIdentifier, name : Text, principal_caller : Principal) : async Result.Result<(), Text> {
         assert(caller == Principal.fromText ("po6n2-uiaaa-aaaaj-qaiua-cai")); 
@@ -1217,6 +1197,11 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
 
+        _AdminsUD := ? _Admins.preupgrade();
+        _AssetsUD := ? _Assets.preupgrade();
+        _AvatarUD := ? _Avatar.preupgrade();
+        _EXTUD := ? _EXT.preupgrade();
+
         // Avatar deserialization
         let buffer_token = Buffer.Buffer<TokenIdentifier>(0);
         let buffer_layer = Buffer.Buffer<[(LayerId,LayerAvatar)]>(0);
@@ -1248,16 +1233,26 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         //  CAP
         _eventsEntries := Iter.toArray(_events.entries());
 
-        // Admin module
-        stableAdmins := _Admins.toStableState();
     };
 
     system func postupgrade() {
 
-        _Monitor.postupgrade(_MonitorUD);
-        _MonitorUD := null;
+        // CanisterGeek
         _Logs.postupgrade(_LogsUD);
         _LogsUD := null;
+        _Monitor.postupgrade(_MonitorUD);
+        _MonitorUD := null;
+
+        // Internal modules that have a postupgrade api
+        _Admins.postupgrade(_AdminsUD);
+        _AdminsUD := null;
+        _Assets.postupgrade(_AssetsUD);
+        _AssetsUD := null;
+
+        // Those modules are initialized with the state directly; they don't have postupgrade api. (⚠️ Ask for the best method)
+        _AvatarUD := null;
+        _EXTUD := null;
+
 
         let iterator = Iter.range(0, layerStorage.size() - 1);
         for (i in iterator) {
@@ -1284,9 +1279,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         styleStorage := [];
         slotsStorage := [];
 
-        // Admin module
-        stableAdmins := [];
-
     };
 
     //////////////
@@ -1303,33 +1295,50 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         return Cycles.balance();
     };
 
+    ///////////
+    // ADMIN //
+    ///////////
+
+    let SQUAD_IDENTITY_DFX : Principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae");
+    stable var _AdminsUD : ?Admins.UpgradeData = ?{admins = [SQUAD_IDENTITY_DFX]};
+    let _Admins = Admins.Admins();
+
+    public query func is_admin(p : Principal) : async Bool {
+        _Admins.isAdmin(p);
+    };
+
+    public shared ({caller}) func add_admin(p : Principal) : async () {
+        _Admins.addAdmin(p, caller);
+        _Monitor.collectMetrics();
+        _Logs.logMessage("Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
+    };
+
     ////////////
     // ASSET //
     ///////////
 
-    public type FilePath = AssetsTypes.FilePath;
-    public type Record = AssetsTypes.Record;
+    public type FilePath = Assets.FilePath;
+    public type Record = Assets.Record;
 
-    stable var stableRecord : [(FilePath, Record)] = [];
-    let _Assets = Assets.Assets({
-        _Admins = _Admins;
-        record = stableRecord;
-    });
+    stable var _AssetsUD : ?Assets.UpgradeData = null;
+    let _Assets = Assets.Assets();
 
     public shared ({caller}) func upload(
         bytes : [Nat8]
     ) : async () {
+        assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        _Assets.upload(caller, bytes);
+        _Assets.upload(bytes);
     };
 
     public shared ({caller}) func uploadFinalize (
         contentType : Text,
-        meta : AssetsTypes.Meta,
+        meta : Assets.Meta,
         filePath : Text,
     ) : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        switch(_Assets.uploadFinalize(caller, contentType,meta,filePath)){
+        switch(_Assets.uploadFinalize(contentType,meta,filePath)){
             case(#ok(())){
                 _Logs.logMessage("Uploaded file: " # filePath);
                 return #ok(());
@@ -1342,8 +1351,9 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
     public shared ({caller}) func uploadClear() : async () {
+        assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        _Assets.uploadClear(caller);
+        _Assets.uploadClear();
     };
 
 
@@ -1390,11 +1400,12 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         
     };
 
-    ///////////
+    ////////////
     // EXT ////
     ///////////
 
-    let _EXT = ExtModule.make({
+    stable var _EXTUD : ?ExtModule.UpgradeData = null;
+    let _EXT = ExtModule.Factory({
         cid = Principal.fromText("jmuqr-yqaaa-aaaaj-qaicq-cai"); 
         registry = Iter.toArray(_registry.entries());
     });
@@ -1404,6 +1415,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     // Avatar ////
     /////////////
 
+    stable var _AvatarUD : ?AvatarNewModule.UpgradeData = null;
     let _Avatar = AvatarNewModule.Factory({
         avatars = [];
         blobs = [];
@@ -1411,7 +1423,48 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         style = "";
         _Admins = _Admins;
         _Assets = _Assets;
-    })
+    });
+
+    public shared ({caller}) func addComponent_new(
+        name : Text,
+        component : AvatarNewModule.Component
+    ) : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        switch(_Avatar.addComponent(name, component)){
+            case(#ok(())){
+                _Logs.logMessage("Added component: " # name);
+                return #ok(());
+            };
+            case(#err(message)){
+                _Logs.logMessage("Failed to add component: " # name);
+                return #err(message);
+            };
+        };
+    };
+
+    public shared ({caller}) func changeCSS(
+        style : Text 
+    ) : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Avatar.changeCSS(style);
+        _Logs.logMessage("Changed CSS");
+    };
+
+    // TODO
+    // Create the avatar and the blob
+    // Get the right tokenIdentifier and put the request user as owner
+    // Log
+    // More errors
+    public shared ({caller}) func mint_new(request : MintRequest) : async Result.Result<TokenIdentifier,Text> {
+        _Monitor.collectMetrics();
+        let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId);
+        switch(_Avatar.createAvatar(request.metadata, token_identifier)){
+            case(#ok) return #ok(token_identifier);
+            case(#err(message)) return #err(message);
+        }
+    };
 
 
 

@@ -21,7 +21,7 @@ then
     esac
 fi
 
-manifest="./assets/avatar/manifest-accessories.csv"
+manifest="./assets/accessories/manifest-accessories.csv"
 [ ! -f $manifest ] && { echo "$manifest file not found"; exit 99; }
 
 OLDIFS=$IFS
@@ -35,13 +35,13 @@ IFS=','
         IFS=$OLDIFS
         for layer in "${list[@]}"
         do
-            file="assets/avatar/$Type/$name/$name-$layer.svg"
+            file="assets/accessories/$Type/$name/$name-$layer.svg"
             tag_layer=$layer
-            tag_component=$Type
+            tag_slot=$Type
             echo "Uploading $file to canister $canister on network $network"
             [ ! -f $file ] && { echo "$file file not found"; exit 99; }
             # Upload file
-            bash ./scripts/bash/upload_file.bash $file $canister $network "Accessori" $tag_component $tag_layer ""
+            bash ./scripts/bash/upload_file.sh $file $canister $network "AccessoryComponent" $tag_slot $tag_layer ""
 
         done
 	done

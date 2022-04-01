@@ -54,7 +54,7 @@ module {
         #Legendary;
     };
 
-    public type State = {
+    public type UpgradeData = {
         avatars : [(TokenIdentifier, Avatar)]; 
         blobs : [(TokenIdentifier, Blob)];
         components : [(TokenIdentifier, Component)];
@@ -66,7 +66,7 @@ module {
         _Assets : Assets.Assets;
     };
 
-    public type Parameters = State and Dependencies;
+    public type State = UpgradeData and Dependencies; 
 
     ////////////
     // OLD ////
@@ -88,7 +88,7 @@ module {
         wearAccessory : (TokenIdentifier, Text) -> Result<(), Text>;
         removeAccessory : (TokenIdentifier, Text) -> Result<(), Text>;
         removeAllAccessories : TokenIdentifier -> Result<(), Text>;
-        toStableState : () -> State;
+        preupgrade : () -> UpgradeData;
     };
 
 
