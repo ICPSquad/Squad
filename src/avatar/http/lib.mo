@@ -6,6 +6,7 @@ import Array "mo:base/Array";
 import Principal "mo:base/Principal";
 import Nat "mo:base/Nat";
 import Float "mo:base/Float";
+import Ext "mo:ext/Ext";
 import AssetTypes "../assets/types";
 module {
 
@@ -122,6 +123,22 @@ module {
 
 
 
+        // @path: /new/<tokenId>
+        // Serve an avatar based on tokenId using the svg format. 
+        func _httpAvatar(
+            tokenId : ?Ext.TokenIdentifier,
+        ) : Types.Response {
+            switch(tokenId){
+                case(?tokenId){
+                    switch(state._Avatar.getAvatar(tokenId)){
+                        case(?avatar) _renderBlob(avatar.blob, "image/xml+svg");
+                        case _ _http404(?"Asset not found.");
+                    };
+                };
+                case _ return _http404(?"No avatar specified.");
+            };
+        };
+
         ////////////////
         // Renderers //
         //////////////
@@ -141,6 +158,23 @@ module {
             }
         };
 
+        // Create an HTTP response from an blob.
+        func _renderBlob(
+            blob : Blob,
+            contentType : Text,
+        ) : Types.Response {
+            {
+                body = blob;
+                headers = [
+                    ("Content-Type", contentType),
+                    ("Access-Control-Allow-Origin", "*"),
+                ];
+                status_code = 200;
+                streaming_strategy = null;
+            }
+        };
+
+
         //////////////////
         // Path Config //
         ////////////////
@@ -149,6 +183,7 @@ module {
             ("asset", _httpAssetFilename),
             ("assets", _httpAssetFilename),
             ("asset-manifest", _httpAssetManifest),
+            ("new", _httpAvatar)
         ];
 
     };

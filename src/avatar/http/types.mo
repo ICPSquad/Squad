@@ -1,11 +1,13 @@
 import Admins "../admins";
 import Assets "../assets";
+import Avatar "../avatar";
 
 module HTTP {
 
     public type Dependencies = {
         _Admins : Admins.Admins;
         _Assets : Assets.Assets;
+        _Avatar : Avatar.Factory;
     };
 
     public type HeaderField = (Text,Text);

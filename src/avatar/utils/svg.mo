@@ -3,7 +3,7 @@ import Iter "mo:base/Iter";
 
 module {
 
-    let SVG_LEADING_PATTERN = #text("<svg xmlns=\"http://www.w3.org/2000/svg\">");
+    let SVG_LEADING_PATTERN = #text("<svg viewBox=\"0 0 800 800\" xmlns=\"http://www.w3.org/2000/svg\">");
     let SVG_TRAILING_PATTERN = #text("</svg>");
 
     ////////
@@ -81,7 +81,7 @@ module {
                 component_wrapped #= " " # name;
             };
         };
-        component_wrapped #= " " # name # "'>" # content # "</g>";
+        component_wrapped #= "" # name # "'>" # content # "</g>";
         return(component_wrapped);
     };
 

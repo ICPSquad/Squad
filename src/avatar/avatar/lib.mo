@@ -4,6 +4,7 @@ import Text "mo:base/Text";
 import Result "mo:base/Result";
 import Buffer "mo:base/Buffer";
 import Nat "mo:base/Nat";
+import Blob "mo:base/Blob";
 import Array "mo:base/Array";
 import Iter "mo:base/Iter";
 import SVG "../utils/svg";
@@ -11,6 +12,7 @@ import ColorModule "../utils/color";
 import Assets "../assets";
 import Ext "mo:ext/Ext";
 import Prim "mo:prim";
+import AvatarOld "../types/avatar";
 module {
 
     ////////////
@@ -19,9 +21,10 @@ module {
     
     public type UpgradeData = Types.UpgradeData;
     public type Component = Types.Component;
+    public type Avatar = Types.Avatar;
 
 
-    public class Factory(state : Types.State) : Types.Interface {
+    public class Factory(dependencies : Types.Dependencies) : Types.Interface {
 
         ////////////
         // State //
@@ -38,23 +41,36 @@ module {
         public type LayerId = Types.LayerId;
         public type TokenIdentifier = Ext.TokenIdentifier;
 
-        private let _components : HashMap.HashMap<Text, Component> = HashMap.fromIter(state.components.vals(), state.components.size(), Text.equal, Text.hash);
-        private let _avatars : HashMap.HashMap<TokenIdentifier,Avatar> = HashMap.fromIter(state.avatars.vals(), state.avatars.size(), Text.equal, Text.hash);
-        private let _blobs : HashMap.HashMap<TokenIdentifier, Blob> = HashMap.fromIter(state.blobs.vals(), state.blobs.size(), Text.equal, Text.hash);
+        private let _avatars : HashMap.HashMap<TokenIdentifier,Avatar> = HashMap.HashMap<TokenIdentifier,Avatar>(0, Text.equal, Text.hash);
+        private let _components : HashMap.HashMap<Text, Component> = HashMap.HashMap<Text,Component>(0 , Text.equal, Text.hash);
 
-        private var css_style : Text = state.style;
+        private var css_style : Text = "";
 
         // Dependencies
-        private let _Assets = state._Assets;
-        private let _Admins = state._Admins;
+        private let _Assets = dependencies._Assets;
+        private let _Admins = dependencies._Admins;
 
         public func preupgrade() : UpgradeData {
             return({
                 avatars = Iter.toArray(_avatars.entries());
                 components = Iter.toArray(_components.entries());
-                blobs = Iter.toArray(_blobs.entries());
                 style = css_style;
             })
+        };
+
+        public func postupgrade(ud : ?UpgradeData) : () {
+            switch(ud){
+                case(? ud){
+                    for((tokenId, avatar) in ud.avatars.vals()){
+                        _avatars.put(tokenId, avatar);
+                    };
+                    for ((name, component) in ud.components.vals()){
+                        _components.put(name, component);
+                    };
+                    css_style := ud.style;
+                };
+                case _ {};
+            };
         };
 
         ////////////
@@ -95,7 +111,6 @@ module {
                     let avatar = _createAvatarOld(request);
                     let blob = _createBlob(avatar);
                     _avatars.put(tokenId, avatar);
-                    _blobs.put(tokenId, blob);
                     return #ok;
                 };
             };
@@ -398,6 +413,20 @@ module {
                     "Unreachable";
                 }
             };
+            let avatar_without_blob = {
+                background = background;
+                profile = profile;
+                ears = ears;
+                mouth = mouth;
+                eyes = eyes;
+                nose = nose;
+                hair = hair;
+                cloth = cloth;
+                slots = _createNewSlot();
+                colors = request.colors;
+                level = _getLevel();
+                blob = Blob.fromArray([0]);
+            };
             let avatar = {
                 background = background;
                 profile = profile;
@@ -410,6 +439,7 @@ module {
                 slots = _createNewSlot();
                 colors = request.colors;
                 level = _getLevel();
+                blob = _createBlob(avatar_without_blob);
             };
             avatar;
         };
@@ -490,6 +520,18 @@ module {
             };
             null
         };
+
+
+        type LayerAvatar = AvatarOld.LayerAvatar;
+        public func fromOld(
+            token : TokenIdentifier,
+            layers : [(LayerId, LayerAvatar)],
+            style : Text,
+            slots : Slots,
+        ) : () {
+
+        };
+
         
 
     };

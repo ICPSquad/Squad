@@ -37,7 +37,7 @@ import Utils "../dependencies/helpers/Array";
 import _Monitor "mo:canistergeek/typesModule";
 
 
-shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = this {
+shared ({ caller = creator }) actor class ICPSquadNFT() = this {
 
     ///////////
     // TYPES //
@@ -1185,13 +1185,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     // UPGRADE //
     /////////////
 
-    stable var version = 1;
-
-    // Returns size of data strucutres as a simple way to check state of the canister after upgrade.
-    private func read() : (Nat, Nat, Nat, Nat) {
-        (version, _registry.size(), avatars.size(), _blobs.size());
-    };
-
     system func preupgrade() {
         _Logs.logMessage("Pre-upgrade");
         _MonitorUD := ? _Monitor.preupgrade();
@@ -1200,7 +1193,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         _AdminsUD := ? _Admins.preupgrade();
         _AssetsUD := ? _Assets.preupgrade();
         _AvatarUD := ? _Avatar.preupgrade();
-        _EXTUD := ? _EXT.preupgrade();
+        // _EXTUD := ? _EXT.preupgrade();
 
         // Avatar deserialization
         let buffer_token = Buffer.Buffer<TokenIdentifier>(0);
@@ -1248,9 +1241,10 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
         _AdminsUD := null;
         _Assets.postupgrade(_AssetsUD);
         _AssetsUD := null;
+        _Avatar.postupgrade(_AvatarUD);
+        _AvatarUD := null;
 
         // Those modules are initialized with the state directly; they don't have postupgrade api. (⚠️ Ask for the best method)
-        _AvatarUD := null;
         _EXTUD := null;
 
 
@@ -1262,10 +1256,6 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
             let slots : Slots = slotsStorage[i];
             let avatar : Avatar = Avatar(layersEntries, style, slots);
             avatars.put(tokenIdentifier, avatar);
-        };
-
-        if (upgradeMode == #verify){
-            Debug.trap(debug_show(#verify(read())));
         };
 
         componentsEntries := [];
@@ -1299,8 +1289,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     // ADMIN //
     ///////////
 
-    let SQUAD_IDENTITY_DFX : Principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae");
-    stable var _AdminsUD : ?Admins.UpgradeData = ?{admins = [SQUAD_IDENTITY_DFX]};
+    stable var _AdminsUD : ?Admins.UpgradeData = ?{admins = [creator]};
     let _Admins = Admins.Admins();
 
     public query func is_admin(p : Principal) : async Bool {
@@ -1357,48 +1346,7 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     };
 
 
-
-    ///////////
-    // HTTP //
-    //////////
-
-    let _HttpHandler = HttpModule.HttpHandler({
-        _Admins = _Admins;
-        _Assets = _Assets;
-    });
-
-    public query func http_request (request : Http.HttpRequest) : async Http.HttpResponse {
-        if(Text.contains(request.url, #text("tokenid"))) {
-            let iterator = Text.split(request.url, #text("tokenid="));
-            let array = Iter.toArray(iterator);
-            let token = array[array.size() - 1];
-            switch(_blobs.get(token)){
-                case(null) {
-                    return(
-                        {
-                            body = Text.encodeUtf8("Avatar not found");
-                            headers = [("Content-Type", "text/html; charset=UTF-8")];
-                            streaming_strategy = null;
-                            status_code = 200;
-                        }
-                    );
-                };
-                case(?blob) {
-                    return(
-                        {
-                            body = blob;
-                            headers = [("Content-Type", "image/svg+xml")];
-                            streaming_strategy = null;
-                            status_code = 200;
-                        }
-                    );
-                };
-            };
-        }  else {
-            _HttpHandler.request(request);
-        }  
-        
-    };
+    
 
     ////////////
     // EXT ////
@@ -1415,12 +1363,11 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
     // Avatar ////
     /////////////
 
+    type Avatar_New = AvatarNewModule.Avatar;
+    type Component_New = AvatarNewModule.Component;
+
     stable var _AvatarUD : ?AvatarNewModule.UpgradeData = null;
     let _Avatar = AvatarNewModule.Factory({
-        avatars = [];
-        blobs = [];
-        components = [];
-        style = "";
         _Admins = _Admins;
         _Assets = _Assets;
     });
@@ -1464,6 +1411,49 @@ shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = th
             case(#ok) return #ok(token_identifier);
             case(#err(message)) return #err(message);
         }
+    };
+
+    ///////////
+    // HTTP //
+    //////////
+
+    let _HttpHandler = HttpModule.HttpHandler({
+        _Admins = _Admins;
+        _Assets = _Assets;
+        _Avatar = _Avatar;
+    });
+
+    public query func http_request (request : Http.HttpRequest) : async Http.HttpResponse {
+        if(Text.contains(request.url, #text("tokenid"))) {
+            let iterator = Text.split(request.url, #text("tokenid="));
+            let array = Iter.toArray(iterator);
+            let token = array[array.size() - 1];
+            switch(_blobs.get(token)){
+                case(null) {
+                    return(
+                        {
+                            body = Text.encodeUtf8("Avatar not found");
+                            headers = [("Content-Type", "text/html; charset=UTF-8")];
+                            streaming_strategy = null;
+                            status_code = 200;
+                        }
+                    );
+                };
+                case(?blob) {
+                    return(
+                        {
+                            body = blob;
+                            headers = [("Content-Type", "image/svg+xml")];
+                            streaming_strategy = null;
+                            status_code = 200;
+                        }
+                    );
+                };
+            };
+        }  else {
+            _HttpHandler.request(request);
+        }  
+        
     };
 
 

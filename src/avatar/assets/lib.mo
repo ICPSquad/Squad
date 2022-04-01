@@ -11,7 +11,6 @@ import SVG "../utils/svg";
 
 module {
     
-    
     ////////////
     // Types //
     //////////
@@ -112,7 +111,7 @@ module {
             }
         };
 
-        // Retrieve a comoponet as textual <g> element.
+        // Retrieve a comoponent as textual <g> element.
         public func getComponent(
             name : Text,
             layerId : Nat

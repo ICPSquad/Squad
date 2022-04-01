@@ -45,6 +45,7 @@ module {
         slots : Slots;
         colors : Colors;
         level : Level;
+        blob : Blob;
     };
 
     public type Level = {
@@ -56,8 +57,7 @@ module {
 
     public type UpgradeData = {
         avatars : [(TokenIdentifier, Avatar)]; 
-        blobs : [(TokenIdentifier, Blob)];
-        components : [(TokenIdentifier, Component)];
+        components : [(Text, Component)];
         style : Text;
     };
 
@@ -89,6 +89,7 @@ module {
         removeAccessory : (TokenIdentifier, Text) -> Result<(), Text>;
         removeAllAccessories : TokenIdentifier -> Result<(), Text>;
         preupgrade : () -> UpgradeData;
+        postupgrade : ?UpgradeData -> ();
     };
 
 
