@@ -1405,11 +1405,24 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     // Get the right tokenIdentifier and put the request user as owner
     // Log
     // More errors
-    public shared ({caller}) func mint_new(request : MintRequest) : async Result.Result<TokenIdentifier,Text> {
+    public shared ({caller}) func mint_old(request : MintRequest) : async Result.Result<TokenIdentifier,Text> {
         _Monitor.collectMetrics();
-        let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId + 10);
+        let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId);
         _nextTokenId := _nextTokenId + 1;
-        switch(_Avatar.createAvatar(request.metadata, token_identifier)){
+        switch(_Avatar.createAvatar_old(request.metadata, token_identifier)){
+            case(#ok) return #ok(token_identifier);
+            case(#err(message)) return #err(message);
+        }
+    };
+
+    type MintInformation = AvatarNewModule.MintInformation;
+    public shared ({caller}) func mint_new(
+        info : MintInformation
+    ) : async Result.Result<TokenIdentifier, Text> {
+        assert(_Admins.isAdmin(caller));
+        let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId);
+        _nextTokenId := _nextTokenId + 1;
+        switch(_Avatar.createAvatar(info, token_identifier)){
             case(#ok) return #ok(token_identifier);
             case(#err(message)) return #err(message);
         }

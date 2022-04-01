@@ -48,6 +48,18 @@ module {
         blob : Blob;
     };
 
+    public type MintInformation = {
+        background : Text;
+        profile : Text;
+        ears : Text;
+        mouth : Text;
+        eyes : Text;
+        nose : Text;
+        hair : Text;
+        cloth : Text;
+        colors : Colors;
+    };
+
     public type Level = {
         #Level1;
         #Level2;
@@ -84,7 +96,8 @@ module {
 
     public type Interface = {
         getAvatar : TokenIdentifier -> ?Avatar;
-        createAvatar : (AvatarRequest,TokenIdentifier) -> Result<(), Text>;
+        createAvatar_old : (AvatarRequest,TokenIdentifier) -> Result<(), Text>;
+        createAvatar : (MintInformation,TokenIdentifier) -> Result<(), Text>;
         wearAccessory : (TokenIdentifier, Text) -> Result<(), Text>;
         removeAccessory : (TokenIdentifier, Text) -> Result<(), Text>;
         removeAllAccessories : TokenIdentifier -> Result<(), Text>;

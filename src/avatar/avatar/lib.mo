@@ -22,6 +22,7 @@ module {
     public type UpgradeData = Types.UpgradeData;
     public type Component = Types.Component;
     public type Avatar = Types.Avatar;
+    public type MintInformation = Types.MintInformation;
 
 
     public class Factory(dependencies : Types.Dependencies) : Types.Interface {
@@ -100,7 +101,7 @@ module {
             return _avatars.get(tokenId);
         };
 
-        public func createAvatar(
+        public func createAvatar_old(
             request : AvatarRequest,
             tokenId : TokenIdentifier,
         ) : Result<(), Text> {
@@ -110,6 +111,20 @@ module {
 
                     let avatar = _createAvatarOld(request);
                     let blob = _createBlob(avatar);
+                    _avatars.put(tokenId, avatar);
+                    return #ok;
+                };
+            };
+        };
+
+        public func createAvatar(
+            info : MintInformation,
+            tokenId : TokenIdentifier,
+        ) : Result<(), Text> {
+            switch(_avatars.get(tokenId)){
+                case(? avatar) return #err("There is already an avatar for this tokenIdentifier");
+                case(null){
+                    let avatar = _createAvatar(info);
                     _avatars.put(tokenId, avatar);
                     return #ok;
                 };
@@ -348,6 +363,44 @@ module {
                 };
                 svg #= "</svg>";
                 return(Text.encodeUtf8(svg));
+        };
+
+        func _createAvatar(
+            info : MintInformation
+        ) : Avatar {
+            let new_level = _getLevel();
+            let new_slot = _createNewSlot();
+
+            let blob = _createBlob({
+                background = info.background;
+                profile = info.profile;
+                ears = info.ears;
+                mouth = info.mouth;
+                eyes = info.eyes;
+                nose = info.nose;
+                hair = info.hair;
+                cloth = info.cloth;
+                slots = new_slot;
+                colors = info.colors;
+                level = new_level;
+                blob = Blob.fromArray([0]);
+            });
+            return(
+                {
+                    background = info.background;
+                    profile = info.profile;
+                    ears = info.ears;
+                    mouth = info.mouth;
+                    eyes = info.eyes;
+                    nose = info.nose;
+                    hair = info.hair;
+                    cloth = info.cloth;
+                    colors = info.colors;
+                    slots = new_slot;
+                    level = new_level;
+                    blob = blob;
+                }
+            )
         };
 
         ////////////
