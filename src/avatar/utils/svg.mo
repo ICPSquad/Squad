@@ -11,6 +11,7 @@ module {
     ////////
 
     public func unwrap(svg : Text) : Text  {
+        Debug.print(debug_show(Iter.toArray(svg.chars())));
         let a_opt = Text.stripStart(svg, SVG_LEADING_PATTERN);
         switch(a_opt){
             case(null) {
@@ -20,15 +21,15 @@ module {
 
             };
             case(? a){
+                Debug.print("SVG.unwrap: a = " # a);
                 let b_opt = Text.stripEnd(a, SVG_TRAILING_PATTERN);
                 switch(b_opt){
-                    case(null) {
-                        Debug.print("SVG.unwrap: no trailing pattern found");
-                        assert(false);
-                        return "Unreachable";
-                    };
                     case(? b){
                         return b;
+                    };
+                    case(null) {
+                        assert(false);
+                        return "Unreachable";
                     };
                 };
             };
