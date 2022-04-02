@@ -384,6 +384,7 @@ module {
                 colors = info.colors;
                 level = new_level;
                 blob = Blob.fromArray([0]);
+                
             });
             return(
                 {
