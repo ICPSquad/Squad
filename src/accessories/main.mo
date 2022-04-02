@@ -1616,6 +1616,25 @@ shared({ caller = hub }) actor class Hub() = this {
         return(buffer.toArray());
     };
 
+    // Returns the number of accessories each account own.
+    public shared query ({caller}) func getHolders() : async [(AccountIdentifier,Nat)] {
+        assert(_isAdmin(caller));
+        let buffer : Buffer.Buffer<(AccountIdentifier,Nat)> = Buffer.Buffer(0);
+        for ((account, tokens) in _ownerships.entries()){
+            var count = 0;
+            for(token in tokens.vals()){
+                switch(_items.get(token)){
+                    case(?#Accessory(accessory)){
+                        count += 1;
+                    };
+                    case(_){};
+                };
+            };
+            buffer.add((account, count));
+        };
+        return(buffer.toArray());
+    };
+
 
     //////////////
     // UPGRADE //
