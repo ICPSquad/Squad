@@ -124,9 +124,8 @@ module {
                     switch(Text.decodeUtf8(file.asset.payload)){
                         case(null) return #err("Error during decodeUtf8 : " # filePath);
                         case(?svg) {
-                            Debug.print("File : " # filePath);
                             return #ok(SVG.unwrap(svg));
-                        }
+                        };
                     };
                 };  
             };

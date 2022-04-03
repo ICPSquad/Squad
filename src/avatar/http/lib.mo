@@ -131,7 +131,7 @@ module {
             switch(tokenId){
                 case(?tokenId){
                     switch(state._Avatar.getAvatar(tokenId)){
-                        case(?avatar) _renderBlob(avatar.blob, "image/xml+svg");
+                        case(?avatar) _renderBlob(avatar.blob, "image/svg+xml");
                         case _ _http404(?"Asset not found.");
                     };
                 };

@@ -7,6 +7,7 @@ import Nat "mo:base/Nat";
 import Blob "mo:base/Blob";
 import Array "mo:base/Array";
 import Iter "mo:base/Iter";
+import Debug "mo:base/Debug";
 import SVG "../utils/svg";
 import ColorModule "../utils/color";
 import Assets "../assets";
@@ -357,6 +358,7 @@ module {
                     switch(_Assets.getComponent(layer.1, layer.0)){
                         case(#err(message)){};
                         case(#ok(component)){
+                            Debug.print("Adding component " # layer.1);
                             svg #= SVG.wrap(component, layer.0 , layer.1);
                         };
                     };

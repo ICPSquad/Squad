@@ -1,40 +1,72 @@
 import Text "mo:base/Text";
 import Iter "mo:base/Iter";
+import Nat "mo:base/Nat";
+import Char "mo:base/Char";
+import Option "mo:base/Option";
 import Debug "mo:base/Debug";
+import Prim "mo:prim";
+
 module {
 
-    let SVG_LEADING_PATTERN = #text("<svg viewBox=\"0 0 800 800\" xmlns=\"http://www.w3.org/2000/svg\">");
-    let SVG_TRAILING_PATTERN = #text("</svg>");
+    let SVG_LEADING_PATTERN : Text = "<svg viewBox=\"0 0 800 800\" xmlns=\"http://www.w3.org/2000/svg\">";
+    let SVG_TRAILING_PATTERN : Text = "</svg>";
 
     ////////
     //API //
     ////////
 
-    public func unwrap(svg : Text) : Text  {
-        Debug.print(debug_show(Iter.toArray(svg.chars())));
-        let a_opt = Text.stripStart(svg, SVG_LEADING_PATTERN);
-        switch(a_opt){
-            case(null) {
-                Debug.print("SVG.unwrap: no leading pattern found");
-                assert(false);
-                return "Unreachable";
+    // ⚠️ This function quickly caused the heap to grow and cause the canister to run out of memory/to crash.
+    // public func unwrap(svg : Text) : Text  {
+    //     let a_opt = Text.stripStart(svg, SVG_LEADING_PATTERN);
+    //     switch(a_opt){
+    //         case(null) {
+    //             Debug.print("SVG.unwrap: no leading pattern found");
+    //             assert(false);
+    //             return "Unreachable";
 
-            };
-            case(? a){
-                Debug.print("SVG.unwrap: a = " # a);
-                let b_opt = Text.stripEnd(a, SVG_TRAILING_PATTERN);
-                switch(b_opt){
-                    case(? b){
-                        return b;
-                    };
-                    case(null) {
-                        assert(false);
-                        return "Unreachable";
-                    };
-                };
-            };
-        };
+    //         };
+    //         case(? a){
+    //             let b_opt = Text.stripEnd(a, SVG_TRAILING_PATTERN);
+    //             switch(b_opt){
+    //                 case(? b){
+    //                     return b;
+    //                 };
+    //                 case(null) {
+    //                     assert(false);
+    //                     return "Unreachable";
+    //                 };
+    //             };
+    //         };
+    //     };
+    // };
+
+    public func unwrap(svg : Text) : Text {
+        extract(svg, SVG_LEADING_PATTERN.size(), svg.size()  - SVG_LEADING_PATTERN.size() - SVG_TRAILING_PATTERN.size())
     };
+
+    /* From https://github.com/dfinity/motoko-base/blob/master/src/Text.mo */
+    private func extract(t : Text, i : Nat, j : Nat) : Text {
+        let size = t.size();
+        if (i == 0 and j == size) return t;
+        assert (j <= size);
+        let cs = t.chars();
+        var r = "";
+        var n = i;
+        while (n > 0) {
+            Debug.print("Dumped : " # Nat.toText(n) # " " #  Char.toText(Option.unwrap(cs.next())));
+            n -= 1;
+        };
+        n := j;
+        while (n > 0) {
+        switch (cs.next()){
+            case (?c) { Debug.print(debug_show(c)); r #= Prim.charToText(c) };
+            case null { Debug.print(debug_show(n)); assert false };
+        };
+        n -= 1;
+        };
+        return r;
+    };
+
 
     public func wrap(content : Text, layerId : Nat, name : Text ) : Text {
         switch(layerId){
@@ -103,7 +135,7 @@ module {
                 component_wrapped #= " " # name;
             };
         };
-        component_wrapped #= "" # name # "'>" # content # "</g>";
+        component_wrapped #= " " # name # "'>" # content # "</g>";
         return(component_wrapped);
     };
 

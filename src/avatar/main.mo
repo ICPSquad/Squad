@@ -1419,7 +1419,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     public shared ({caller}) func mint_new(
         info : MintInformation
     ) : async Result.Result<TokenIdentifier, Text> {
-        assert(_Admins.isAdmin(caller));
+        // assert(_Admins.isAdmin(caller));
         let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId);
         _nextTokenId := _nextTokenId + 1;
         switch(_Avatar.createAvatar(info, token_identifier)){
@@ -1471,11 +1471,5 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         
     };
 
-    public func test_unwrap(svg : Text) : async Text {
-        SVG.unwrap(svg);
-    }
 
-
-
-    
 };
