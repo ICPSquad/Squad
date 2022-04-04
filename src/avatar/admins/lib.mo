@@ -27,7 +27,7 @@ module {
             switch(ud){
                 case(? ud) {
                     for (admin in ud.admins.vals()){
-                        if(admins != creator){
+                        if(admin != creator){
                             admins.add(admin);
                         }
                     };

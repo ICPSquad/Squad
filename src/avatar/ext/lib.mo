@@ -2,10 +2,11 @@ import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Nat32 "mo:base/Nat32";
 import Text "mo:base/Text";
-import Types "types";
-import Ext "mo:ext/Ext";
-import AccountIdentifier "mo:principal/AccountIdentifier";
 import Result "mo:base/Result";
+import Buffer "mo:base/Buffer";
+import AccountIdentifier "mo:principal/AccountIdentifier";
+import Ext "mo:ext/Ext";
+import Types "types";
 
 module {
 
@@ -14,7 +15,7 @@ module {
     //////////
     
     public type UpgradeData = Types.UpgradeData;
-
+    public type Listing = Types.Listing;
 
     public class Factory(state : Types.UpgradeData) : Types.Interface {
 
@@ -192,15 +193,12 @@ module {
             var tokens : Buffer.Buffer<Ext.TokenIndex> = Buffer.Buffer(0);
             var i : Nat32 = 0;
             for ((token, owner) in _registry_module.entries()) {
-                        if (Ext.AccountIdentifier.equal(accountId, owner)) {
-                            tokens.add(i);
-                        };
-                    };
-                    case _ ();
+                if (Ext.AccountIdentifier.equal(accountId, owner)) {
+                    tokens.add(i);
                 };
                 i += 1;
             };
-            #ok(buffer.toArray());
+            #ok(tokens.toArray());
         };
 
         public func tokens_ext(
@@ -209,15 +207,12 @@ module {
             var tokens : Buffer.Buffer<(Ext.TokenIndex, ?Types.Listing, ?Blob)> = Buffer.Buffer(0);
             var i : Nat32 = 0;
             for ((token, owner) in _registry_module.entries()) {
-                        if (Ext.AccountIdentifier.equal(accountId, owner)) {
-                            tokens.add((i, null, ?Text.encodeUtf8("ICPSquad")));
-                        };
-                    };
-                    case _ ();
+                if (Ext.AccountIdentifier.equal(accountId, owner)) {
+                    tokens.add((i, null, ?Text.encodeUtf8("ICPSquad")));
                 };
                 i += 1;
             };
-            #ok(buffer.toArray());
+            #ok(tokens.toArray());
         };
 
         ////////////////////////////////
@@ -226,7 +221,7 @@ module {
 
         public func details(
             tokenId : TokenIdentifier
-        ) : Result.Result<(AccountIdentifier, ?Listing), CommonError> {
+        ) : Result.Result<(AccountIdentifier, ?Types.Listing), CommonError> {
             let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
                 case (#err(_)) { return #err(#InvalidToken(tokenId)); };
                 case (#ok(_, tokenIndex)) { tokenIndex; };
