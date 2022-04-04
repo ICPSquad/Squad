@@ -1,6 +1,6 @@
 import Admins "../admins";
 import CanisterGeek "mo:canistergeek/canistergeek";
-import Canistergeek "mo:canistergeek/canistergeek";
+
 import Result "mo:base/Result";
 module Assets {
 

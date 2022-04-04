@@ -8,6 +8,7 @@ import Nat "mo:base/Nat";
 import Float "mo:base/Float";
 import Ext "mo:ext/Ext";
 import AssetTypes "../assets/types";
+import SVG "../utils/svg";
 module {
 
     public class HttpHandler(state : Types.Dependencies) {
@@ -79,7 +80,13 @@ module {
             switch(path){
                 case(?path){
                     switch(state._Assets.getFileByName(path)){
-                        case(?record) _renderAsset(record);
+                        case(?record) {
+                            if(record.meta.category == #AvatarComponent or record.meta.category == #AccessoryComponent){
+                                _renderComponent(record.asset.payload);
+                            } else {
+                                _renderAsset(record);
+                            }
+                        };
                         case _ _http404(?"Asset not found.");
                     };
                 };
@@ -156,6 +163,16 @@ module {
                 status_code = 200;
                 streaming_strategy = null;
             }
+        };
+
+        // Create an HTTP from a component
+        func _renderComponent(
+            payload : Blob
+        ) : Types.Response {
+            switch(Text.decodeUtf8(payload)){
+                case(?svg) _renderBlob(Text.encodeUtf8(SVG.addHeader(svg)), "image/svg+xml");
+                case _ _http404(?"Asset not found.");
+            };
         };
 
         // Create an HTTP response from an blob.

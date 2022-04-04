@@ -219,9 +219,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
           return;  
         };
 
-        public func isLayer (id : LayerId) : Bool {
-            return(Option.isSome(layers.get(id)));
-        };
 
         public func changeSlots(slots : Slots) : () {
             slots_in_memory := slots;
@@ -233,10 +230,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
 
         public func getRawStyle () : Text {
             return style_in_memory;
-        };
-
-        public func getRawSvg (): Text {
-            svg;
         };
 
         
@@ -283,11 +276,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
             content #= svg;
             content #= "</svg>";
             return content;
-        };
-
-        //  Return a list of all layers that are populated associated with their layer object (see Avatar.mo).
-        public func getLayers () : [(LayerId,LayerAvatar)] {
-            return Iter.toArray(layers.entries());
         };
 
         //  Return a list of all layers that are populated associated with their wrapped <g> element.
@@ -984,12 +972,31 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     };
 
 
+    stable var _EXTUD : ?ExtModule.UpgradeData = null;
+    let _Ext = ExtModule.Factory({
+        cid = Principal.fromText("jmuqr-yqaaa-aaaaj-qaicq-cai"); 
+        registry = Iter.toArray(_registry.entries());
+    });
+
+    public shared ({caller}) func transfer_new(request : TransferRequest) : async TransferResponse {
+        _Monitor.collectMetrics();
+        _Ext.transfer(caller, request);
+    };
+
+
+
+
     ////////////////
     // Ext-query //
     //////////////
 
     public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
         Iter.toArray(_registry.entries());
+    };
+
+    public query func getRegistry_new() : async [(TokenIndex, AccountIdentifier)] {
+        _Monitor.collectMetrics();
+        _Ext.getRegistry();
     };
 
     public query func getTokens() : async [(TokenIndex, Metadata)]{
@@ -1001,13 +1008,22 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         };
         buffer.toArray();
     };
+
+    //TODO
     
     public query func supply(token : TokenIdentifier) : async Result.Result<Balance,CommonError> {
         #ok(_supply);
     };
 
+    //TODO
+    
     public query func extensions() : async [Extension] {
         EXTENSIONS;
+    };
+
+    public query func extensions_new() : async [Extension] {
+        _Monitor.collectMetrics();
+        _Ext.extensions();
     };
       
     public query func metadata(token : TokenIdentifier): async Result.Result<ExtCommon.Metadata, ExtCore.CommonError> {
@@ -1020,6 +1036,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
                 return #ok(a);
             };
         };
+    };
+
+    public query func metadata_new(tokenId : TokenIdentifier): async Result.Result<ExtCommon.Metadata, ExtCore.CommonError> {
+        _Monitor.collectMetrics();
+        _Ext.metadata(tokenId);
     };
 
     //  Method used by Entrepot to query the tokens of an account.
@@ -1037,18 +1058,12 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         };
     };
 
-
-    public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
-        let tokens = _generateTokensExt(account);
-        if (tokens.size() == 0) {
-            return #err(#Other ("No token detected for this user."));
-        } else {
-            let answer = #ok(tokens);
-            return answer;
-        }
+    public shared query ({caller}) func tokens_new(aid : AccountIdentifier) : async Result.Result<[TokenIndex], CommonError> {
+        _Monitor.collectMetrics();
+        _Ext.tokens(aid);
     };
 
-    
+
     private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?Listing, ?Blob)] {
         var tokens = Buffer.Buffer<(TokenIndex, ?Listing, ?Blob)>(0);
         for ((token_index,account) in _registry.entries()){
@@ -1061,6 +1076,21 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         let array = tokens.toArray();
         return array;
     };
+    public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
+        let tokens = _generateTokensExt(account);
+        if (tokens.size() == 0) {
+            return #err(#Other ("No token detected for this user."));
+        } else {
+            let answer = #ok(tokens);
+            return answer;
+        }
+    };
+
+    public shared query ({caller}) func tokens_ext_new(account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
+        _Monitor.collectMetrics();
+        _Ext.tokens_ext(account);
+    };
+
 
     public query func balance(request : BalanceRequest) : async BalanceResponse {
             if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
@@ -1081,6 +1111,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
             };
         };
     };
+
+    public query func balance_new(request : BalanceRequest) : async BalanceResponse {
+        _Monitor.collectMetrics();
+        _Ext.balance(request);
+    };
     
     public query func bearer(token : TokenIdentifier) : async Result.Result<AccountIdentifier, CommonError> {
         if (ExtCore.TokenIdentifier.isPrincipal(token, Principal.fromActor(this)) == false) {
@@ -1095,6 +1130,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
                 return #err(#InvalidToken(token));
             };
         };
+    };
+
+    public query func bearer_new(tokenId : TokenIdentifier) : async Result.Result<AccountIdentifier, CommonError> {
+        _Monitor.collectMetrics();
+        _Ext.bearer(tokenId);
     };
 
     public query func details(token : TokenIdentifier) : async Result.Result<(AccountIdentifier, ?Listing), CommonError> {
@@ -1112,6 +1152,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         };
 	};
 
+    public shared query ({caller}) func details(tokenId : TokenIdentifier) : async Result.Result<(AccountIdentifier, ?Listing), CommonError> {
+        _Monitor.collectMetrics();
+        _Ext.details(tokenId);
+    };
 
     //////////
     // CAP //
@@ -1194,7 +1238,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _AdminsUD := ? _Admins.preupgrade();
         _AssetsUD := ? _Assets.preupgrade();
         _AvatarUD := ? _Avatar.preupgrade();
-        // _EXTUD := ? _EXT.preupgrade();
+        _EXTUD := ? _EXT.preupgrade();
 
         // Avatar deserialization
         let buffer_token = Buffer.Buffer<TokenIdentifier>(0);
@@ -1245,7 +1289,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Avatar.postupgrade(_AvatarUD);
         _AvatarUD := null;
 
-        // Those modules are initialized with the state directly; they don't have postupgrade api. (⚠️ Ask for the best method)
+        // This module is initialized directly with the state; they don't have a postupgrade api. (⚠️ Ask for the best method).
         _EXTUD := null;
 
 
@@ -1345,19 +1389,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Monitor.collectMetrics();
         _Assets.uploadClear();
     };
-
-
-    
-
-    ////////////
-    // EXT ////
-    ///////////
-
-    stable var _EXTUD : ?ExtModule.UpgradeData = null;
-    let _EXT = ExtModule.Factory({
-        cid = Principal.fromText("jmuqr-yqaaa-aaaaj-qaicq-cai"); 
-        registry = Iter.toArray(_registry.entries());
-    });
 
 
     ///////////////
@@ -1470,6 +1501,13 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         }  
         
     };
+
+    ///////////////////////
+    // BACKUP & UPGRADE //
+    //////////////////////
+
+
+
 
 
 };

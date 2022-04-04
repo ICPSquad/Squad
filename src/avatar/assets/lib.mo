@@ -112,7 +112,7 @@ module {
             }
         };
 
-        // Retrieve a comoponent as textual <g> element.
+        // Retrieve a component as textual <g> element.
         public func getComponent(
             name : Text,
             layerId : Nat
@@ -124,7 +124,7 @@ module {
                     switch(Text.decodeUtf8(file.asset.payload)){
                         case(null) return #err("Error during decodeUtf8 : " # filePath);
                         case(?svg) {
-                            return #ok(SVG.unwrap(svg));
+                            return #ok(svg);
                         };
                     };
                 };  

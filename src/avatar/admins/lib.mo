@@ -27,10 +27,14 @@ module {
             switch(ud){
                 case(? ud) {
                     for (admin in ud.admins.vals()){
-                        admins.add(admin);
+                        if(admins != creator){
+                            admins.add(admin);
+                        }
                     };
                 };
-                case _ {};
+                case _ {
+                    admins.add(creator);
+                };
             };
         };
 

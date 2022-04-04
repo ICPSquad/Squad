@@ -32,6 +32,10 @@ module {
 
     public type Layers = [(LayerId, Text)];
     public type Colors = [{spot : Text; color : Color}];
+    public type Style = {
+        #Old : Text; // To easily convert old avatars to new format.
+        #Colors : Colors;
+    };
 
     public type Avatar = {
         background  : Text;
@@ -43,10 +47,11 @@ module {
         hair : Text;
         cloth : Text;
         slots : Slots;
-        colors : Colors;
+        style : Style;
         level : Level;
         blob : Blob;
     };
+
 
     public type MintInformation = {
         background : Text;

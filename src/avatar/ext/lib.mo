@@ -186,24 +186,56 @@ module {
         // @ext:stoic integration //
         ///////////////////////////
 
-        // public func tokens(
-        //     caller  : Principal,
-        //     accountId : Ext.AccountIdentifier
-        // ) : Result.Result<[Ext.TokenIndex], Ext.CommonError> {
-        //     var tokens : [Ext.TokenIndex] = [];
-        //     var i : Nat32 = 0;
-        //     for ((token, owner) in _registry_module.entries()) {
-        //                 if (Ext.AccountIdentifier.equal(accountId, t.owner)) {
-        //                     tokens := Array.append(tokens, [i]);
-        //                 };
-        //             };
-        //             case _ ();
-        //         };
-        //         i += 1;
-        //     };
-        //     #ok(tokens);
-        // };
+        public func tokens(
+            accountId : Ext.AccountIdentifier
+        ) : Result.Result<[Ext.TokenIndex], Ext.CommonError> {
+            var tokens : Buffer.Buffer<Ext.TokenIndex> = Buffer.Buffer(0);
+            var i : Nat32 = 0;
+            for ((token, owner) in _registry_module.entries()) {
+                        if (Ext.AccountIdentifier.equal(accountId, owner)) {
+                            tokens.add(i);
+                        };
+                    };
+                    case _ ();
+                };
+                i += 1;
+            };
+            #ok(buffer.toArray());
+        };
 
+        public func tokens_ext(
+            accountId : Ext.AccountIdentifier
+        ) : Result.Result<[(Ext.TokenIndex, ?Types.Listing, ?Blob)], CommonError> {
+            var tokens : Buffer.Buffer<(Ext.TokenIndex, ?Types.Listing, ?Blob)> = Buffer.Buffer(0);
+            var i : Nat32 = 0;
+            for ((token, owner) in _registry_module.entries()) {
+                        if (Ext.AccountIdentifier.equal(accountId, owner)) {
+                            tokens.add((i, null, ?Text.encodeUtf8("ICPSquad")));
+                        };
+                    };
+                    case _ ();
+                };
+                i += 1;
+            };
+            #ok(buffer.toArray());
+        };
+
+        ////////////////////////////////
+        // @ext:entrepot integration //
+        ///////////////////////////////
+
+        public func details(
+            tokenId : TokenIdentifier
+        ) : Result.Result<(AccountIdentifier, ?Listing), CommonError> {
+            let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
+                case (#err(_)) { return #err(#InvalidToken(tokenId)); };
+                case (#ok(_, tokenIndex)) { tokenIndex; };
+            };
+            switch (_registry_module.get(index)) {
+                case (null)    { #err(#InvalidToken(tokenId)); };
+                case (? owner) { #ok(owner, null)};
+            };
+        };
 
 
 

@@ -21,6 +21,13 @@ module {
     public type BearerResponse = Ext.NonFungible.BearerResponse;
     public type MintRequest = Ext.NonFungible.MintRequest;
 
+    public type Listing = {
+        locked      : ?Time.Time;
+        price       : Nat64;  // ICPe8
+        seller      : Principal;
+        subaccount  : ?Ext.SubAccount;
+    };
+
     public type UpgradeData = {
         cid : Principal;
         registry : [(TokenIndex, AccountIdentifier)]
@@ -64,6 +71,20 @@ module {
         
         // Returns the whole registry.
         getRegistry : () -> [(TokenIndex, AccountIdentifier)];
+
+        /////////////////////////////
+        // @ext:stoic integration //
+        ///////////////////////////
+
+        tokens : AccountIdentifier -> Result<[TokenIndex], CommonError>;
+        tokens_ext : AccountIdentifier -> Result<[(TokenIndex, ?Listing, ?Blob)], CommonError>
+
+        ////////////////////////////////
+        // @ext:entrepot integration //
+        ///////////////////////////////
+
+        details : TokenIdentifier -> Result<(AccountIdentifier, ?Listing), CommonError>;
+
 
 
     };

@@ -24,7 +24,7 @@ module {
     public type Component = Types.Component;
     public type Avatar = Types.Avatar;
     public type MintInformation = Types.MintInformation;
-
+    public type Style = Types.Style;
 
     public class Factory(dependencies : Types.Dependencies) : Types.Interface {
 
@@ -347,21 +347,22 @@ module {
             ) : Blob {
 
                 // Create the header and add the profile name for applying the css rules later.
-                var svg = "<svg viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg' class='" # avatar.profile # "'>";
+                var svg = "<svg viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg' class='" # _profileToCSSBody(avatar.profile) # "'>";
 
                 // Add style general, style for colors and potentially style for hiding clothes when a body accessory is equipped.
-                svg #= css_style # ColorModule.createStyle(avatar.colors) # _getStyleOptionalAccessory(avatar);
+                svg #= css_style # ColorModule.createStyle(avatar.style) # _getStyleOptionalAccessory(avatar);
 
                 // Get the layers and order them, then add components for each layer.
                 let layers = _orderLayers(_createLayers(avatar));
                 for (layer in layers.vals()){
                     switch(_Assets.getComponent(layer.1, layer.0)){
-                        case(#err(message)){};
-                        case(#ok(component)){
-                            Debug.print("Adding component " # layer.1);
-                            svg #= SVG.wrap(component, layer.0 , layer.1);
+                        case(#err(message)) {
+                            assert(false);
                         };
-                    };
+                        case(#ok(component)) {
+                            svg #= SVG.wrap(component, layer.0, SVG.capitalize(layer.1));
+                        };
+                    }
                 };
                 svg #= "</svg>";
                 return(Text.encodeUtf8(svg));
@@ -383,7 +384,7 @@ module {
                 hair = info.hair;
                 cloth = info.cloth;
                 slots = new_slot;
-                colors = info.colors;
+                style = #Colors(info.colors);
                 level = new_level;
                 blob = Blob.fromArray([0]);
                 
@@ -398,7 +399,7 @@ module {
                     nose = info.nose;
                     hair = info.hair;
                     cloth = info.cloth;
-                    colors = info.colors;
+                    style = #Colors(info.colors);
                     slots = new_slot;
                     level = new_level;
                     blob = blob;
@@ -479,7 +480,7 @@ module {
                 hair = hair;
                 cloth = cloth;
                 slots = _createNewSlot();
-                colors = request.colors;
+                style = #Colors(request.colors);
                 level = _getLevel();
                 blob = Blob.fromArray([0]);
             };
@@ -493,7 +494,7 @@ module {
                 hair = hair;
                 cloth = cloth;
                 slots = _createNewSlot();
-                colors = request.colors;
+                style = #Colors(request.colors);
                 level = _getLevel();
                 blob = _createBlob(avatar_without_blob);
             };
@@ -588,7 +589,16 @@ module {
 
         };
 
-        
-
+        func _profileToCSSBody(profile : Text) : Text {
+            switch(profile){
+                case("business-profile") return "Business-body";
+                case("miss-profile") return "Miss-body";
+                case("punk-profile") return "Punk-body";
+                case(_) {
+                    assert(false);
+                    "Unreachable";
+                };
+            }
+        };
     };
 };

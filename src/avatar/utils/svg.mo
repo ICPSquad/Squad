@@ -15,7 +15,7 @@ module {
     //API //
     ////////
 
-    // ⚠️ This function quickly caused the heap to grow and cause the canister to run out of memory/to crash.
+    // ⚠️ This function quickly caused the heap to grow and leading the canister to run out of memory/to crash.
     // public func unwrap(svg : Text) : Text  {
     //     let a_opt = Text.stripStart(svg, SVG_LEADING_PATTERN);
     //     switch(a_opt){
@@ -40,31 +40,28 @@ module {
     //     };
     // };
 
+    public func capitalize(text : Text) : Text {
+        var r = "";
+        let cs = text.chars();
+        switch(cs.next()){
+            case(? c){
+                r := Text.fromChar(Prim.charToUpper(c));
+            };
+            case(null) {
+                return("")
+            };
+        };
+        r #= Text.fromIter(cs);
+        return(r);
+    };
+
     public func unwrap(svg : Text) : Text {
         extract(svg, SVG_LEADING_PATTERN.size(), svg.size()  - SVG_LEADING_PATTERN.size() - SVG_TRAILING_PATTERN.size())
     };
 
-    /* From https://github.com/dfinity/motoko-base/blob/master/src/Text.mo */
-    private func extract(t : Text, i : Nat, j : Nat) : Text {
-        let size = t.size();
-        if (i == 0 and j == size) return t;
-        assert (j <= size);
-        let cs = t.chars();
-        var r = "";
-        var n = i;
-        while (n > 0) {
-            Debug.print("Dumped : " # Nat.toText(n) # " " #  Char.toText(Option.unwrap(cs.next())));
-            n -= 1;
-        };
-        n := j;
-        while (n > 0) {
-        switch (cs.next()){
-            case (?c) { Debug.print(debug_show(c)); r #= Prim.charToText(c) };
-            case null { Debug.print(debug_show(n)); assert false };
-        };
-        n -= 1;
-        };
-        return r;
+
+    public func addHeader(svg : Text) : Text {
+        return SVG_LEADING_PATTERN # svg # SVG_TRAILING_PATTERN;
     };
 
 
@@ -127,7 +124,7 @@ module {
     // @todo : Clean this mess.
     func _wrap(content : Text, category : Text, name : Text ) : Text {
         let names = _nameSplit(name);
-        var component_wrapped =  "<g class='" # category # " ";
+        var component_wrapped =  "<g class='" # category # "";
         if(category == "clothing") {
             component_wrapped #= " " # category # "-" # name;
         } else {
@@ -138,6 +135,31 @@ module {
         component_wrapped #= " " # name # "'>" # content # "</g>";
         return(component_wrapped);
     };
+
+    /* From https://github.com/dfinity/motoko-base/blob/master/src/Text.mo */
+    func extract(t : Text, i : Nat, j : Nat) : Text {
+        let size = t.size();
+        if (i == 0 and j == size) return t;
+        assert (j <= size);
+        let cs = t.chars();
+        var r = "";
+        var n = i;
+        while (n > 0) {
+            Debug.print("Dumped : " # Nat.toText(n) # " " #  Char.toText(Option.unwrap(cs.next())));
+            n -= 1;
+        };
+        n := j;
+        while (n > 0) {
+        switch (cs.next()){
+            case (?c) { Debug.print(debug_show(c)); r #= Prim.charToText(c) };
+            case null { Debug.print(debug_show(n)); assert false };
+        };
+        n -= 1;
+        };
+        return r;
+    };
+
+
 
 
 }
