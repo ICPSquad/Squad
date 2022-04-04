@@ -13,10 +13,9 @@ import CombinationModule "types/combination";
 import Cycles "mo:base/ExperimentalCycles";
 import Debug "mo:base/Debug";
 import Entrepot "../dependencies/entrepot";
-import ExtAllowance "../dependencies/ext/Allowance";
-import ExtCommon "../dependencies/ext/Common";
 import ExtCore "../dependencies/ext/Core";
 import ExtModule "ext";
+import Ext "mo:ext/Ext";
 import Hash "mo:base/Hash";
 import HashMap "mo:base/HashMap";
 import Http "types/http";
@@ -395,7 +394,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
                 _registry.put(token, receiver);
 
                 // Generate the next TokenIdentifier from the internal TokenId then associate the Avatar with this TokenIdentifier.
-                let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId);
+                let token_identifier : TokenIdentifier = Ext.TokenIdentifier.encode(Principal.fromActor(this), token);
                 avatars.put(token_identifier, avatar);
 
                 // Generate svg and blob from Avatar and also associate the TokenIdentifier with them.
@@ -701,51 +700,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         };
     };
 
- 
-    ///////////////////////////////////
-    // TOKEN ID <-> TOKEN IDENTIFIER //
-    //////////////////////////////////
-    //TODO : Can be cleaned and moduled
-
-    // Get TokenIdentifier from TokenIndex by assemblid 'tid' + Principal(canister) + Nat32(TokenIndex) 
-    private func _getTokenIdentifier (nat : TokenIndex) : Text {
-        let padding : [Nat8] = [10, 116, 105, 100];
-        let principalBlob : [Nat8] = Blob.toArray(Principal.toBlob(Principal.fromActor(this)));
-        let index : [Nat8] = nat32tobytes(nat);
-        var array : [Nat8] = Array.append<Nat8>(padding, principalBlob);
-        array := Array.append<Nat8>(array, index);
-        let p : Principal = _fromBlob(Blob.fromArray(array));
-        let text : Text = Principal.toText(p);
-        return text;
-    };
-
-    // Converts a Nat32 to a [Nat8] of size 4 containing the 4 bytes
-    private func nat32tobytes(n : Nat32) : [Nat8] {
-      if (n < 256) {
-        return [0,0,0, Nat8.fromNat(Nat32.toNat(n))];
-      } else if (n < 65536) {
-        return [
-          0,
-          0,
-          Nat8.fromNat(Nat32.toNat((n >> 8) & 0xFF)), 
-          Nat8.fromNat(Nat32.toNat((n) & 0xFF))
-        ];
-      } else if (n < 16777216) {
-        return [
-          0,
-          Nat8.fromNat(Nat32.toNat((n >> 16) & 0xFF)), 
-          Nat8.fromNat(Nat32.toNat((n >> 8) & 0xFF)), 
-          Nat8.fromNat(Nat32.toNat((n) & 0xFF))
-        ];
-      } else {
-        return [
-          Nat8.fromNat(Nat32.toNat((n >> 24) & 0xFF)), 
-          Nat8.fromNat(Nat32.toNat((n >> 16) & 0xFF)), 
-          Nat8.fromNat(Nat32.toNat((n >> 8) & 0xFF)), 
-          Nat8.fromNat(Nat32.toNat((n) & 0xFF))
-        ];
-      };
-    };
 
     //////////////////////////////////////
     // ACCOUNT IDENTIFIER <-> PRINCIPAL //
@@ -833,7 +787,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
             case(?accounts) {
                 for((index,account) in _registry.entries()){
                     if(Utils.contains<AccountIdentifier>(accounts, account, Text.equal)) {
-                        let identifier = _getTokenIdentifier(index);
+                        let identifier = Ext.TokenIdentifier.encode(Principal.fromActor(this),index);
                         tokens.add(identifier);
                     };
                 };
@@ -855,47 +809,47 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
 
     // Add an asset for a legendary avatar, each asset is a svg file stored as string and is identified a unique name.
     // @auth : admin
-    public shared ({caller}) func addLegendary (name : Text, asset : Text) : async Result.Result<Text, Text> {
-        assert(_Admins.isAdmin(caller));
-        switch(legendaries.get(name)){
-            case(?avatar){
-                return #err("An avatar already exists for : " # name);
-            };
-            case(null){
-                legendaries.put(name,asset);
-                return #ok("An avatar has been added for legendary : " # name);
-            };
-        };
-    };
+    // public shared ({caller}) func addLegendary (name : Text, asset : Text) : async Result.Result<Text, Text> {
+    //     assert(_Admins.isAdmin(caller));
+    //     switch(legendaries.get(name)){
+    //         case(?avatar){
+    //             return #err("An avatar already exists for : " # name);
+    //         };
+    //         case(null){
+    //             legendaries.put(name,asset);
+    //             return #ok("An avatar has been added for legendary : " # name);
+    //         };
+    //     };
+    // };
 
     //Mint a legendary avatar for a specified wallet 
     // @auth : admin
-    public shared ({caller}) func mintLegendary (name : Text, address_receiver : AccountIdentifier) : async Result.Result <Text, Text> {
-        assert(_Admins.isAdmin(caller));
-        switch(legendaries.get(name)){
-            case(null) return #err ("No legendary avatar found for name : " # name);
-            case(?avatar) {
-                let token = _nextTokenId;
-                _registry.put(token, address_receiver);
+    // public shared ({caller}) func mintLegendary (name : Text, address_receiver : AccountIdentifier) : async Result.Result <Text, Text> {
+    //     assert(_Admins.isAdmin(caller));
+    //     switch(legendaries.get(name)){
+    //         case(null) return #err ("No legendary avatar found for name : " # name);
+    //         case(?avatar) {
+    //             let token = _nextTokenId;
+    //             _registry.put(token, address_receiver);
 
-                let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId);
+    //             let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId);
                 
-                _blobs.put(token_identifier, Text.encodeUtf8(avatar));
+    //             _blobs.put(token_identifier, Text.encodeUtf8(avatar));
 
-                _supply := _supply + 1;
-                _nextTokenId := _nextTokenId + 1;
+    //             _supply := _supply + 1;
+    //             _nextTokenId := _nextTokenId + 1;
                 
-                let event : IndefiniteEvent = {
-                    operation = "mint";
-                    details = [("token", #Text(token_identifier)), ("name", #Text(name)), ("to", #Text(address_receiver))];
-                    caller = caller;
-                };
-                ignore(_registerEvent(event));
+    //             let event : IndefiniteEvent = {
+    //                 operation = "mint";
+    //                 details = [("token", #Text(token_identifier)), ("name", #Text(name)), ("to", #Text(address_receiver))];
+    //                 caller = caller;
+    //             };
+    //             ignore(_registerEvent(event));
 
-                return #ok ("Legendary avatar : " # name # " minted with token identifier : " #token_identifier);
-            };
-        };
-    };
+    //             return #ok ("Legendary avatar : " # name # " minted with token identifier : " #token_identifier);
+    //         };
+    //     };
+    // };
 
 
 
@@ -920,8 +874,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     type BalanceResponse = ExtCore.BalanceResponse;
     type TransferRequest = ExtCore.TransferRequest;
     type TransferResponse = ExtCore.TransferResponse;
-    type AllowanceRequest = ExtAllowance.AllowanceRequest;
-    type ApproveRequest = ExtAllowance.ApproveRequest;
     
 
     private let EXTENSIONS : [Extension] = [];
@@ -1002,7 +954,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     public query func getTokens() : async [(TokenIndex, Metadata)]{
         var buffer = Buffer.Buffer<(TokenIndex,Metadata)>(0);
         for (token_index in _registry.keys()){
-            let token_identifier = _getTokenIdentifier(token_index);
+            let token_identifier = Ext.TokenIdentifier.encode(Principal.fromActor(this), token_index);
             let element = (token_index, #nonfungible{metadata =_blobs.get(token_identifier)});
             buffer.add(element);
         };
@@ -1026,7 +978,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Ext.extensions();
     };
       
-    public query func metadata(token : TokenIdentifier): async Result.Result<ExtCommon.Metadata, ExtCore.CommonError> {
+    public query func metadata(token : TokenIdentifier): async Result.Result<Ext.Metadata, ExtCore.CommonError> {
         switch(_blobs.get(token)){
             case(null) {
                 return #err(#InvalidToken(token));
@@ -1038,7 +990,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         };
     };
 
-    public query func metadata_new(tokenId : TokenIdentifier): async Result.Result<ExtCommon.Metadata, ExtCore.CommonError> {
+    public query func metadata_new(tokenId : TokenIdentifier): async Result.Result<Ext.Common.Metadata, ExtCore.CommonError> {
         _Monitor.collectMetrics();
         _Ext.metadata(tokenId);
     };
@@ -1068,7 +1020,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         var tokens = Buffer.Buffer<(TokenIndex, ?Listing, ?Blob)>(0);
         for ((token_index,account) in _registry.entries()){
             if(a == account) {
-                let token_identifier = _getTokenIdentifier(token_index);
+                let token_identifier = Ext.TokenIdentifier.encode(Principal.fromActor(this), token_index);
                 let new_element = (token_index, null, _blobs.get(token_identifier));
                 tokens.add(new_element);
             };
@@ -1438,7 +1390,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     // More errors
     public shared ({caller}) func mint_old(request : MintRequest) : async Result.Result<TokenIdentifier,Text> {
         _Monitor.collectMetrics();
-        let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId);
+        let token_identifier : TokenIdentifier = Ext.(_nextTokenId);
         _nextTokenId := _nextTokenId + 1;
         switch(_Avatar.createAvatar_old(request.metadata, token_identifier)){
             case(#ok) return #ok(token_identifier);
@@ -1451,7 +1403,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         info : MintInformation
     ) : async Result.Result<TokenIdentifier, Text> {
         // assert(_Admins.isAdmin(caller));
-        let token_identifier : TokenIdentifier = _getTokenIdentifier(_nextTokenId);
+        let token_identifier : TokenIdentifier = Ext.TokenIdentifier.encode(Principal.fromActor(this), _nextTokenId);
         _nextTokenId := _nextTokenId + 1;
         switch(_Avatar.createAvatar(info, token_identifier)){
             case(#ok) return #ok(token_identifier);
