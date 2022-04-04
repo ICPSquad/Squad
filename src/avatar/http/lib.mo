@@ -1,15 +1,25 @@
-import Types "types";
-import Text "mo:base/Text";
-import Cycles "mo:base/ExperimentalCycles";
-import Iter "mo:base/Iter";
 import Array "mo:base/Array";
-import Principal "mo:base/Principal";
-import Nat "mo:base/Nat";
+import Cycles "mo:base/ExperimentalCycles";
 import Float "mo:base/Float";
+import Iter "mo:base/Iter";
+import Nat "mo:base/Nat";
+import Principal "mo:base/Principal";
+import Text "mo:base/Text";
+
 import Ext "mo:ext/Ext";
+
 import AssetTypes "../assets/types";
 import SVG "../utils/svg";
+import Types "types";
 module {
+
+    ////////////
+    // Types //
+    //////////
+
+    public type Request = Types.Request;
+    public type Response = Types.Response;
+    
 
     public class HttpHandler(state : Types.Dependencies) {
 

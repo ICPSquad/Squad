@@ -1,10 +1,10 @@
-import Text "mo:base/Text";
+import Char "mo:base/Char";
+import Debug "mo:base/Debug";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
-import Char "mo:base/Char";
 import Option "mo:base/Option";
-import Debug "mo:base/Debug";
 import Prim "mo:prim";
+import Text "mo:base/Text";
 
 module {
 
@@ -145,14 +145,14 @@ module {
         var r = "";
         var n = i;
         while (n > 0) {
-            Debug.print("Dumped : " # Nat.toText(n) # " " #  Char.toText(Option.unwrap(cs.next())));
+            ignore (cs.next());
             n -= 1;
         };
         n := j;
         while (n > 0) {
         switch (cs.next()){
-            case (?c) { Debug.print(debug_show(c)); r #= Prim.charToText(c) };
-            case null { Debug.print(debug_show(n)); assert false };
+            case (?c) { r #= Prim.charToText(c) };
+            case null { assert false };
         };
         n -= 1;
         };

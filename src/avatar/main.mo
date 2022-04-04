@@ -11,6 +11,7 @@ import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
+import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
@@ -19,6 +20,7 @@ import Time "mo:base/Time";
 import Canistergeek "mo:canistergeek/canistergeek";
 import Cap "mo:cap/Cap";
 import Ext "mo:ext/Ext";
+import PrincipalBlob "mo:principal/Principal";
 import Root "mo:cap/Root";
 
 import Admins "admins";
@@ -26,15 +28,14 @@ import Assets "assets";
 import AvatarModule "types/avatar";
 import AvatarNewModule "avatar";
 import ColorModule "types/color";
-import CombinationModule "types/combination";
 import ExtModule "ext";
-import Http "types/http";
-import HttpModule "http";
-import PrincipalImproved "../dependencies/util/Principal";
+import Http "http";
 import SVG "utils/svg";
 import Utils "../dependencies/helpers/Array";
 
-shared ({ caller = creator }) actor class ICPSquadNFT() = this {
+shared ({ caller = creator }) actor class ICPSquadNFT(
+    cid : Principal,
+) = this {
 
     ///////////
     // TYPES //
@@ -48,7 +49,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     /////////////
 
     stable var _MonitorUD: ? Canistergeek.UpgradeData = null;
-    private let _Monitor = Canistergeek.Monitor();
+    private let _Monitor : Canistergeek.Monitor = Canistergeek.Monitor();
 
     /**
     * Returns collected data based on passed parameters.
@@ -75,7 +76,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     //////////
 
     stable var _LogsUD: ? Canistergeek.LoggerUpgradeData = null;
-    private let _Logs = Canistergeek.Logger();
+    private let _Logs : Canistergeek.Logger = Canistergeek.Logger();
 
     /**
     * Returns collected log messages based on passed parameters.
@@ -385,12 +386,12 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
             case(#ok(avatar)) {
 
                 // Create the nft for the receiver.
-                let receiver = Ext.User.toAccountIdentifier(request.to);
+                let receiver = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
                 let token = _nextTokenId;
                 _registry.put(token, receiver);
 
                 // Generate the next TokenIdentifier from the internal TokenId then associate the Avatar with this TokenIdentifier.
-                let token_identifier : TokenIdentifier = Ext.TokenIdentifier.encode(Principal.fromActor(this), token);
+                let token_identifier : TokenIdentifier = Ext.TokenIdentifier.encode(cid, token);
                 avatars.put(token_identifier, avatar);
 
                 // Generate svg and blob from Avatar and also associate the TokenIdentifier with them.
@@ -749,7 +750,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     
     // Creates a Principal from a Blob : extension of the base Module
     private func _fromBlob(b : Blob) : Principal {
-        return(PrincipalImproved.fromBlob(b));
+        return(Principal.fromBlob(b));
     };
     
     // Only valid for the first 256 subaccount (more than enough)
@@ -783,7 +784,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
             case(?accounts) {
                 for((index,account) in _registry.entries()){
                     if(Utils.contains<AccountIdentifier>(accounts, account, Text.equal)) {
-                        let identifier = Ext.TokenIdentifier.encode(Principal.fromActor(this),index);
+                        let identifier = Ext.TokenIdentifier.encode(cid,index);
                         tokens.add(identifier);
                     };
                 };
@@ -887,15 +888,20 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
                 return #err(#Other("Must use amount of 1"));
         };
         let index = switch(Ext.TokenIdentifier.decode(request.token)){
-            case(#err(_)) return #err(#InvalidToken(request.token));
+            case(#err(message)) return #err(#Other(message));
             case(#ok(canisterId, tokenIndex)){
-                if(canisterId != Principal.fromActor(this)) return #err(#InvalidToken(request.token));
+                Debug.print("canisterId : " # Principal.toText(canisterId));
+                Debug.print("cid : " # Principal.toText(cid));
+                if(canisterId != cid) {
+                    Debug.print("canisterId != cid");
+                    return #err(#InvalidToken(request.token));
+                }; 
                 tokenIndex;
             };
         };
-        let from = Ext.User.toAccountIdentifier(request.from);
-        let to = Ext.User.toAccountIdentifier(request.to);
-        let caller = Ext.AccountIdentifier.fromPrincipal(msg.caller, request.subaccount);
+        let from = Text.map(Ext.User.toAccountIdentifier(request.from), Prim.charToLower);
+        let to = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
+        let caller = Text.map(Ext.AccountIdentifier.fromPrincipal(msg.caller, request.subaccount), Prim.charToLower);
             
         switch (_registry.get(index)) {
             case (?token_owner) {
@@ -922,16 +928,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     };
 
 
-    stable var _EXTUD : ?ExtModule.UpgradeData = null;
-    let _Ext = ExtModule.Factory({
-        cid = Principal.fromText("jmuqr-yqaaa-aaaaj-qaicq-cai"); 
-        registry = Iter.toArray(_registry.entries());
-    });
 
-    public shared ({caller}) func transfer_new(request : TransferRequest) : async TransferResponse {
-        _Monitor.collectMetrics();
-        _Ext.transfer(caller, request);
-    };
+    // public shared ({caller}) func transfer(request : TransferRequest) : async TransferResponse {
+    //     _Monitor.collectMetrics();
+    //     _Ext.transfer(caller, request);
+    // };
 
 
 
@@ -952,29 +953,27 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     public query func getTokens() : async [(TokenIndex, Ext.Common.Metadata)]{
         var buffer = Buffer.Buffer<(TokenIndex,Ext.Common.Metadata)>(0);
         for (token_index in _registry.keys()){
-            let token_identifier = Ext.TokenIdentifier.encode(Principal.fromActor(this), token_index);
+            let token_identifier = Ext.TokenIdentifier.encode(cid, token_index);
             let element = (token_index, #nonfungible{metadata =_blobs.get(token_identifier)});
             buffer.add(element);
         };
         buffer.toArray();
     };
 
-    //TODO
+    public query func getTokens_new() : async [(TokenIndex, Ext.Common.Metadata)] {
+        var buffer = Buffer.Buffer<(TokenIndex,Ext.Common.Metadata)>(0);
+        let registry = _Ext.getRegistry();
+        for((token_index, account_identifier) in registry.vals()){
+            let token_identifier = Ext.TokenIdentifier.encode(cid, token_index);
+            let element = (token_index, #nonfungible{metadata =_blobs.get(token_identifier)});
+            buffer.add(element);
+        };
+        buffer.toArray();
+    };
     
-    public query func supply(token : TokenIdentifier) : async Result<Balance,CommonError> {
-        #ok(_supply);
-    };
 
-    //TODO
-    
-    public query func extensions() : async [Extension] {
-        EXTENSIONS;
-    };
 
-    public query func extensions_new() : async [Extension] {
-        _Monitor.collectMetrics();
-        _Ext.extensions();
-    };
+ 
       
     public query func metadata(token : TokenIdentifier): async Result<Ext.Common.Metadata, Ext.CommonError> {
         switch(_blobs.get(token)){
@@ -986,11 +985,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
                 return #ok(a);
             };
         };
-    };
-
-    public query func metadata_new(tokenId : TokenIdentifier): async Result<Ext.Common.Metadata, Ext.CommonError> {
-        _Monitor.collectMetrics();
-        _Ext.metadata(tokenId);
     };
 
     //  Method used by Entrepot to query the tokens of an account.
@@ -1018,7 +1012,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         var tokens = Buffer.Buffer<(TokenIndex, ?ExtModule.Listing, ?Blob)>(0);
         for ((token_index,account) in _registry.entries()){
             if(a == account) {
-                let token_identifier = Ext.TokenIdentifier.encode(Principal.fromActor(this), token_index);
+                let token_identifier = Ext.TokenIdentifier.encode(cid, token_index);
                 let new_element = (token_index, null, _blobs.get(token_identifier));
                 tokens.add(new_element);
             };
@@ -1046,11 +1040,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         let index = switch(Ext.TokenIdentifier.decode(request.token)){
             case(#err(_)) return #err(#InvalidToken(request.token));
             case(#ok(canisterId, tokenIndex)){
-                if(canisterId != Principal.fromActor(this)) return #err(#InvalidToken(request.token));
+                if(canisterId != cid) return #err(#InvalidToken(request.token));
                 tokenIndex;
             };
         };
-        let accountIdentifier = Ext.User.toAccountIdentifier(request.user);
+        let accountIdentifier = Text.map(Ext.User.toAccountIdentifier(request.user), Prim.charToLower);
         switch (_registry.get(index)) {
             case (?token_owner) {
                         if (Ext.AccountIdentifier.equal(accountIdentifier, token_owner)) {
@@ -1074,7 +1068,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         let index = switch(Ext.TokenIdentifier.decode(token)){
             case(#err(_)) return #err(#InvalidToken(token));
             case(#ok(canisterId, tokenIndex)){
-                if(canisterId != Principal.fromActor(this)) return #err(#InvalidToken(token));
+                if(canisterId != cid) return #err(#InvalidToken(token));
                 tokenIndex;
             };
         };
@@ -1097,7 +1091,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         let index = switch(Ext.TokenIdentifier.decode(token)){
             case(#err(_)) return #err(#InvalidToken(token));
             case(#ok(canisterId, tokenIndex)){
-                if(canisterId != Principal.fromActor(this)) return #err(#InvalidToken(token));
+                if(canisterId != cid) return #err(#InvalidToken(token));
                 tokenIndex;
             };
         };
@@ -1136,7 +1130,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     // @auth : owner
     public shared ({caller}) func init_cap() : async Result<(), Text> {
         assert(_Admins.isAdmin(caller));
-        let tokenContractId = Principal.toText(Principal.fromActor(this));
+        let tokenContractId = Principal.toText(cid);
         try {
             let handshake = await cap.handshake(
                 tokenContractId,
@@ -1154,7 +1148,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     
     //  Periodically called through heartbeat to verify that all events have been reported 
     public shared ({caller}) func verificationEvents() : async () {
-        assert(caller == Principal.fromActor(this));
+        assert(caller == cid or _Admins.isAdmin(caller));
         for((time,event) in _events.entries()){
             switch(await cap.insert(event)){
                 case(#err(message)){};
@@ -1197,7 +1191,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _AdminsUD := ? _Admins.preupgrade();
         _AssetsUD := ? _Assets.preupgrade();
         _AvatarUD := ? _Avatar.preupgrade();
-        _EXTUD := ? _Ext.preupgrade();
+        _ExtUD := ? _Ext.preupgrade();
 
         // Avatar deserialization
         let buffer_token = Buffer.Buffer<TokenIdentifier>(0);
@@ -1237,19 +1231,21 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         // CanisterGeek
         _Logs.postupgrade(_LogsUD);
         _LogsUD := null;
+
         _Monitor.postupgrade(_MonitorUD);
         _MonitorUD := null;
 
-        // Internal modules that have a postupgrade api
         _Admins.postupgrade(_AdminsUD);
         _AdminsUD := null;
+
         _Assets.postupgrade(_AssetsUD);
         _AssetsUD := null;
+
         _Avatar.postupgrade(_AvatarUD);
         _AvatarUD := null;
 
-        // This module is initialized directly with the state; they don't have a postupgrade api. (⚠️ Ask for the best method).
-        _EXTUD := null;
+        _Ext.postupgrade(_ExtUD);
+        _ExtUD := null;
 
 
         let iterator = Iter.range(0, layerStorage.size() - 1);
@@ -1361,6 +1357,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     let _Avatar = AvatarNewModule.Factory({
         _Admins = _Admins;
         _Assets = _Assets;
+        _Logs = _Logs;
     });
 
     public shared ({caller}) func addComponent_new(
@@ -1395,40 +1392,47 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     // Get the right tokenIdentifier and put the request user as owner
     // Log
     // More errors
-    public shared ({caller}) func mint_old(request : MintRequest) : async Result<TokenIdentifier,Text> {
-        _Monitor.collectMetrics();
-        let token_identifier : TokenIdentifier = Ext.TokenIdentifier.encode(Principal.fromActor(this),_nextTokenId);
-        _nextTokenId := _nextTokenId + 1;
-        switch(_Avatar.createAvatar_old(request.metadata, token_identifier)){
-            case(#ok) return #ok(token_identifier);
-            case(#err(message)) return #err(message);
-        }
-    };
+    // public shared ({caller}) func mint_old(request : MintRequest) : async Result<TokenIdentifier,Text> {
+    //     assert(_Admins.isAdmin(caller));
+    //     _Monitor.collectMetrics();
+    //     let token_identifier : TokenIdentifier = Ext.TokenIdentifier.encode(cid,_nextTokenId);
+    //     _nextTokenId := _nextTokenId + 1;
+    //     switch(_Avatar.createAvatar_old(request.metadata, token_identifier)){
+    //         case(#ok) return #ok(token_identifier);
+    //         case(#err(message)) return #err(message);
+    //     }
+    // };
 
-    type MintInformation = AvatarNewModule.MintInformation;
-    public shared ({caller}) func mint_new(
-        info : MintInformation
-    ) : async Result<TokenIdentifier, Text> {
-        // assert(_Admins.isAdmin(caller));
-        let token_identifier : TokenIdentifier = Ext.TokenIdentifier.encode(Principal.fromActor(this), _nextTokenId);
-        _nextTokenId := _nextTokenId + 1;
-        switch(_Avatar.createAvatar(info, token_identifier)){
-            case(#ok) return #ok(token_identifier);
-            case(#err(message)) return #err(message);
-        }
-    };
+    // type MintInformation = AvatarNewModule.MintInformation;
+    // public shared ({caller}) func mint_new(
+    //     info : MintInformation
+    // ) : async Result<TokenIdentifier, Text> {
+    //     // assert(_Admins.isAdmin(caller));
+    //     _Monitor.collectMetrics();
+    //     switch(_Ext.mint({ to = #principal(info.user); metadata = null; })){
+    //         case(#err(#Other(e))) return #err(e);
+    //         case(#err(#InvalidToken(e))) return #err(e);
+    //         case(#ok(index)){
+    //             let tokenId = Ext.TokenIdentifier.encode(cid, index);
+    //             switch(_Avatar.createAvatar(info, tokenId)){
+    //                 case(#ok) return #ok(tokenId);
+    //                 case(#err(e)) return #err(e);
+    //             };
+    //         };
+    //     };
+    // };
 
     ///////////
     // HTTP //
     //////////
 
-    let _HttpHandler = HttpModule.HttpHandler({
+    let _HttpHandler = Http.HttpHandler({
         _Admins = _Admins;
         _Assets = _Assets;
         _Avatar = _Avatar;
     });
 
-    public query func http_request (request : Http.HttpRequest) : async Http.HttpResponse {
+    public query func http_request (request : Http.Request) : async Http.Response {
         if(Text.contains(request.url, #text("tokenid"))) {
             let iterator = Text.split(request.url, #text("tokenid="));
             let array = Iter.toArray(iterator);
@@ -1461,9 +1465,40 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         
     };
 
-    ///////////////////////
-    // BACKUP & UPGRADE //
-    //////////////////////
+
+    ///EXT
+
+    stable var _ExtUD : ?ExtModule.UpgradeData = null;
+    let _Ext = ExtModule.Factory({
+        cid = cid; 
+        _Logs = _Logs;
+        _Avatar = _Avatar;
+    });
+
+    public query func extensions() : async [Extension] {
+        _Monitor.collectMetrics();
+        _Ext.extensions();
+    };
+
+    /////////////
+    // BACKUP //
+    ////////////
+
+    public func copy() : async () {
+        _Ext.postupgrade(?{
+            cid = cid;
+            registry = Iter.toArray(_registry.entries());
+        })
+    };
+
+    public func test() : async () {
+        let registry_old = Iter.toArray(_registry.entries());
+        let registry_new = _Ext.getRegistry();
+        for(i in Iter.range(0, registry_old.size() - 1)){
+            assert(registry_old[i] == registry_new[i]);
+        };
+    };
+
 
 
 

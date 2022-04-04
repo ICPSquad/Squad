@@ -1,19 +1,21 @@
-import Types "types";
-import HashMap "mo:base/HashMap";
-import Text "mo:base/Text";
-import Result "mo:base/Result";
-import Buffer "mo:base/Buffer";
-import Nat "mo:base/Nat";
-import Blob "mo:base/Blob";
 import Array "mo:base/Array";
-import Iter "mo:base/Iter";
+import Blob "mo:base/Blob";
+import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
-import SVG "../utils/svg";
-import ColorModule "../utils/color";
-import Assets "../assets";
-import Ext "mo:ext/Ext";
+import HashMap "mo:base/HashMap";
+import Iter "mo:base/Iter";
+import Nat "mo:base/Nat";
 import Prim "mo:prim";
+import Result "mo:base/Result";
+import Text "mo:base/Text";
+
+import Ext "mo:ext/Ext";
+
+import Assets "../assets";
 import AvatarOld "../types/avatar";
+import ColorModule "../utils/color";
+import SVG "../utils/svg";
+import Types "types";
 module {
 
     ////////////
@@ -49,8 +51,9 @@ module {
         private var css_style : Text = "";
 
         // Dependencies
-        private let _Assets = dependencies._Assets;
-        private let _Admins = dependencies._Admins;
+        let _Assets = dependencies._Assets;
+        let _Admins = dependencies._Admins;
+        let _Logs = dependencies._Logs;
 
         public func preupgrade() : UpgradeData {
             return({

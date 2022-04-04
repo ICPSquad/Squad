@@ -1,7 +1,12 @@
-import Cap "mo:cap/Cap";
-import Ext "mo:ext/Ext";
 import Result "mo:base/Result";
 import Time "mo:base/Time";
+
+import Canistergeek "mo:canistergeek/canistergeek";
+import Cap "mo:cap/Cap";
+import Ext "mo:ext/Ext";
+
+import Avatar "../avatar";
+
 
 module {
 
@@ -21,6 +26,7 @@ module {
     public type SupplyResponse = Ext.Common.SupplyResponse;
     public type BearerResponse = Ext.NonFungible.BearerResponse;
     public type MintRequest = Ext.NonFungible.MintRequest;
+    public type MintResponse = Ext.NonFungible.MintResponse;
 
     public type Listing = {
         locked      : ?Time.Time;
@@ -29,8 +35,13 @@ module {
         subaccount  : ?Ext.SubAccount;
     };
 
-    public type UpgradeData = {
+    public type Dependencies = {
         cid : Principal;
+        _Logs : Canistergeek.Logger;
+        _Avatar : Avatar.Factory;
+    };
+
+    public type UpgradeData = {
         registry : [(TokenIndex, AccountIdentifier)]
     };
 
@@ -68,7 +79,7 @@ module {
         bearer : TokenIdentifier -> BearerResponse;
 
         // Mint a new token.
-        mint : MintRequest -> ();
+        mint : MintRequest -> MintResponse;
         
         // Returns the whole registry.
         getRegistry : () -> [(TokenIndex, AccountIdentifier)];

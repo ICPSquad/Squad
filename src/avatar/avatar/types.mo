@@ -1,7 +1,11 @@
+import Result "mo:base/Result";
+
+import Canistergeek "mo:canistergeek/canistergeek";
 import Ext "mo:ext/Ext";
+
 import Admins "../admins";
 import Assets "../assets";
-import Result "mo:base/Result";
+
 
 module {
 
@@ -63,6 +67,7 @@ module {
         hair : Text;
         cloth : Text;
         colors : Colors;
+        user: Principal;
     };
 
     public type Level = {
@@ -81,6 +86,7 @@ module {
     public type Dependencies = {
         _Admins : Admins.Admins;
         _Assets : Assets.Assets;
+        _Logs : Canistergeek.Logger;
     };
 
     public type State = UpgradeData and Dependencies; 
