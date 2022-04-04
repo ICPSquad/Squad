@@ -1,23 +1,10 @@
-import AID "../dependencies/util/AccountIdentifier";
-import Admins "admins";
 import Array "mo:base/Array";
-import Assets "assets";
-import AvatarModule "types/avatar";
-import AvatarNewModule "avatar";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
-import Canistergeek "mo:canistergeek/canistergeek";
-import Cap "mo:cap/Cap";
-import ColorModule "types/color";
-import CombinationModule "types/combination";
 import Cycles "mo:base/ExperimentalCycles";
 import Debug "mo:base/Debug";
-import ExtModule "ext";
-import Ext "mo:ext/Ext";
 import Hash "mo:base/Hash";
 import HashMap "mo:base/HashMap";
-import Http "types/http";
-import HttpModule "http";
 import Int "mo:base/Int";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
@@ -25,12 +12,26 @@ import Nat32 "mo:base/Nat32";
 import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
-import PrincipalImproved "../dependencies/util/Principal";
 import Result "mo:base/Result";
-import Root "mo:cap/Root";
-import SVG "utils/svg";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+
+import Canistergeek "mo:canistergeek/canistergeek";
+import Cap "mo:cap/Cap";
+import Ext "mo:ext/Ext";
+import Root "mo:cap/Root";
+
+import Admins "admins";
+import Assets "assets";
+import AvatarModule "types/avatar";
+import AvatarNewModule "avatar";
+import ColorModule "types/color";
+import CombinationModule "types/combination";
+import ExtModule "ext";
+import Http "types/http";
+import HttpModule "http";
+import PrincipalImproved "../dependencies/util/Principal";
+import SVG "utils/svg";
 import Utils "../dependencies/helpers/Array";
 
 shared ({ caller = creator }) actor class ICPSquadNFT() = this {
@@ -763,10 +764,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         let iterator = Iter.range(0,10);
         for (i in iterator) {
             if(i == 0) {
-                let new_account = AID.fromPrincipal(p, null);
+                let new_account = Ext.AccountIdentifier.fromPrincipal(p, null);
                 accounts.add(new_account);
             } else {
-                let new_account = AID.fromPrincipal(p, ?_nat8ToSubaccount(Nat8.fromNat(i)));
+                let new_account = Ext.AccountIdentifier.fromPrincipal(p, ?_nat8ToSubaccount(Nat8.fromNat(i)));
                 accounts.add(new_account);
             };
         };
@@ -898,10 +899,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
             
         switch (_registry.get(index)) {
             case (?token_owner) {
-                        if(AID.equal(from, token_owner) == false) {
+                        if(not(Ext.AccountIdentifier.equal(from, token_owner))) {
                             return #err(#Unauthorized(from));
                         };
-                        if (AID.equal(caller, token_owner) == false) {
+                        if (not(Ext.AccountIdentifier.equal(caller, token_owner))) {
                                 return #err(#Unauthorized(caller));
                         };
                         _registry.put(index, to);
@@ -1052,7 +1053,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         let accountIdentifier = Ext.User.toAccountIdentifier(request.user);
         switch (_registry.get(index)) {
             case (?token_owner) {
-                        if (AID.equal(accountIdentifier, token_owner) == true) {
+                        if (Ext.AccountIdentifier.equal(accountIdentifier, token_owner)) {
                             return #ok(1);
                         } else {					
                             return #ok(0);
