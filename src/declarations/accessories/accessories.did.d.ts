@@ -106,6 +106,7 @@ export interface Hub {
     >,
   'getContractInfo' : () => Promise<ContractInfo>,
   'getHisInventory' : (arg_0: Principal) => Promise<Inventory>,
+  'getHolders' : () => Promise<Array<[AccountIdentifier__2, bigint]>>,
   'getIdentifier' : (arg_0: TokenIndex) => Promise<TokenIdentifier__3>,
   'getIndex' : (arg_0: TokenIdentifier__3) => Promise<TokenIndex>,
   'getInventory' : () => Promise<Inventory>,

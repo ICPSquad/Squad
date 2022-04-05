@@ -5,28 +5,28 @@ export const idlFactory = ({ IDL }) => {
     'slot' : IDL.Text,
     'layer' : IDL.Nat8,
   });
-  const Result_5 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
+  const Result_9 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
+  const ComponentCategory = IDL.Variant({
+    'Avatar' : IDL.Null,
+    'Accessory' : IDL.Null,
+    'Other' : IDL.Null,
+  });
+  const Component__1 = IDL.Record({
+    'name' : IDL.Text,
+    'layers' : IDL.Vec(IDL.Nat),
+    'category' : ComponentCategory,
+  });
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const Component = IDL.Record({
     'content' : IDL.Text,
     'name' : IDL.Text,
     'layer' : IDL.Nat8,
   });
-  const SubAccount__1 = IDL.Vec(IDL.Nat8);
-  const TokenIndex = IDL.Nat32;
-  const SubAccount__2 = IDL.Vec(IDL.Nat8);
-  const AccountIdentifier__2 = IDL.Text;
-  const Settlement = IDL.Record({
-    'subaccount' : SubAccount__2,
-    'seller' : IDL.Principal,
-    'buyer' : AccountIdentifier__2,
-    'price' : IDL.Nat64,
-  });
   const TokenIdentifier__1 = IDL.Text;
-  const AccountIdentifier__1 = IDL.Text;
+  const AccountIdentifier = IDL.Text;
   const User = IDL.Variant({
     'principal' : IDL.Principal,
-    'address' : AccountIdentifier__1,
+    'address' : AccountIdentifier,
   });
   const BalanceRequest = IDL.Record({
     'token' : TokenIdentifier__1,
@@ -42,23 +42,25 @@ export const idlFactory = ({ IDL }) => {
     'err' : CommonError__1,
   });
   const TokenIdentifier = IDL.Text;
-  const AccountIdentifier = IDL.Text;
+  const AccountIdentifier__1 = IDL.Text;
   const CommonError = IDL.Variant({
     'InvalidToken' : TokenIdentifier__1,
     'Other' : IDL.Text,
   });
   const Result_8 = IDL.Variant({
-    'ok' : AccountIdentifier,
+    'ok' : AccountIdentifier__1,
     'err' : CommonError,
   });
+  const SubAccount = IDL.Vec(IDL.Nat8);
   const Time = IDL.Int;
   const Listing = IDL.Record({
+    'subaccount' : IDL.Opt(SubAccount),
     'locked' : IDL.Opt(Time),
     'seller' : IDL.Principal,
     'price' : IDL.Nat64,
   });
-  const Result_11 = IDL.Variant({
-    'ok' : IDL.Tuple(AccountIdentifier, IDL.Opt(Listing)),
+  const Result_7 = IDL.Variant({
+    'ok' : IDL.Tuple(AccountIdentifier__1, IDL.Opt(Listing)),
     'err' : CommonError,
   });
   const Extension = IDL.Text;
@@ -69,13 +71,13 @@ export const idlFactory = ({ IDL }) => {
     'Face' : IDL.Opt(IDL.Text),
     'Misc' : IDL.Opt(IDL.Text),
   });
-  const TokenIdentifier__3 = IDL.Text;
+  const TokenIdentifier__2 = IDL.Text;
   const AvatarPreview = IDL.Record({
     'avatar_svg' : IDL.Text,
     'slots' : Slots__1,
-    'token_identifier' : TokenIdentifier__3,
+    'token_identifier' : TokenIdentifier__2,
   });
-  const Result_10 = IDL.Variant({ 'ok' : AvatarPreview, 'err' : IDL.Text });
+  const Result_6 = IDL.Variant({ 'ok' : AvatarPreview, 'err' : IDL.Text });
   const LayerId = IDL.Nat;
   const Slots = IDL.Record({
     'Hat' : IDL.Opt(IDL.Text),
@@ -91,7 +93,50 @@ export const idlFactory = ({ IDL }) => {
     'style' : IDL.Text,
     'token_identifier' : TokenIdentifier,
   });
-  const Result_9 = IDL.Variant({ 'ok' : AvatarPreviewNew, 'err' : IDL.Text });
+  const Result_5 = IDL.Variant({ 'ok' : AvatarPreviewNew, 'err' : IDL.Text });
+  const GetLogMessagesFilter = IDL.Record({
+    'analyzeCount' : IDL.Nat32,
+    'messageRegex' : IDL.Opt(IDL.Text),
+    'messageContains' : IDL.Opt(IDL.Text),
+  });
+  const Nanos = IDL.Nat64;
+  const GetLogMessagesParameters = IDL.Record({
+    'count' : IDL.Nat32,
+    'filter' : IDL.Opt(GetLogMessagesFilter),
+    'fromTimeNanos' : IDL.Opt(Nanos),
+  });
+  const GetLatestLogMessagesParameters = IDL.Record({
+    'upToTimeNanos' : IDL.Opt(Nanos),
+    'count' : IDL.Nat32,
+    'filter' : IDL.Opt(GetLogMessagesFilter),
+  });
+  const CanisterLogRequest = IDL.Variant({
+    'getMessagesInfo' : IDL.Null,
+    'getMessages' : GetLogMessagesParameters,
+    'getLatestMessages' : GetLatestLogMessagesParameters,
+  });
+  const CanisterLogFeature = IDL.Variant({
+    'filterMessageByContains' : IDL.Null,
+    'filterMessageByRegex' : IDL.Null,
+  });
+  const CanisterLogMessagesInfo = IDL.Record({
+    'features' : IDL.Vec(IDL.Opt(CanisterLogFeature)),
+    'lastTimeNanos' : IDL.Opt(Nanos),
+    'count' : IDL.Nat32,
+    'firstTimeNanos' : IDL.Opt(Nanos),
+  });
+  const LogMessagesData = IDL.Record({
+    'timeNanos' : Nanos,
+    'message' : IDL.Text,
+  });
+  const CanisterLogMessages = IDL.Record({
+    'data' : IDL.Vec(LogMessagesData),
+    'lastAnalyzedMessageTimeNanos' : IDL.Opt(Nanos),
+  });
+  const CanisterLogResponse = IDL.Variant({
+    'messagesInfo' : CanisterLogMessagesInfo,
+    'messages' : CanisterLogMessages,
+  });
   const MetricsGranularity = IDL.Variant({
     'hourly' : IDL.Null,
     'daily' : IDL.Null,
@@ -131,7 +176,8 @@ export const idlFactory = ({ IDL }) => {
     'daily' : IDL.Vec(DailyMetricsData),
   });
   const CanisterMetrics = IDL.Record({ 'data' : CanisterMetricsData });
-  const Metadata__1 = IDL.Variant({
+  const TokenIndex = IDL.Nat32;
+  const Metadata = IDL.Variant({
     'fungible' : IDL.Record({
       'decimals' : IDL.Nat8,
       'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)),
@@ -141,7 +187,7 @@ export const idlFactory = ({ IDL }) => {
     'nonfungible' : IDL.Record({ 'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)) }),
   });
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
-  const HttpRequest = IDL.Record({
+  const Request = IDL.Record({
     'url' : IDL.Text,
     'method' : IDL.Text,
     'body' : IDL.Vec(IDL.Nat8),
@@ -161,35 +207,19 @@ export const idlFactory = ({ IDL }) => {
       [StreamingCallbackResponse],
       ['query'],
     );
-  const HttpStreamingStrategy = IDL.Variant({
+  const StreamingStrategy = IDL.Variant({
     'Callback' : IDL.Record({
       'token' : StreamingCallbackToken,
       'callback' : StreamingCallback,
     }),
   });
-  const HttpResponse = IDL.Record({
+  const Response = IDL.Record({
     'body' : IDL.Vec(IDL.Nat8),
     'headers' : IDL.Vec(HeaderField),
-    'streaming_strategy' : IDL.Opt(HttpStreamingStrategy),
+    'streaming_strategy' : IDL.Opt(StreamingStrategy),
     'status_code' : IDL.Nat16,
   });
-  const TokenIdentifier__2 = IDL.Text;
-  const ListRequest = IDL.Record({
-    'token' : TokenIdentifier__2,
-    'from_subaccount' : IDL.Opt(SubAccount__2),
-    'price' : IDL.Opt(IDL.Nat64),
-  });
-  const Result_4 = IDL.Variant({ 'ok' : IDL.Null, 'err' : CommonError });
-  const Metadata = IDL.Variant({
-    'fungible' : IDL.Record({
-      'decimals' : IDL.Nat8,
-      'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-      'name' : IDL.Text,
-      'symbol' : IDL.Text,
-    }),
-    'nonfungible' : IDL.Record({ 'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)) }),
-  });
-  const Result_7 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError__1 });
+  const Result_4 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError__1 });
   const ComponentRequest = IDL.Record({
     'name' : IDL.Text,
     'layer' : IDL.Nat8,
@@ -204,28 +234,18 @@ export const idlFactory = ({ IDL }) => {
     'svg' : IDL.Text,
     'tokenIdentifier' : IDL.Text,
   });
-  const Result_6 = IDL.Variant({ 'ok' : AvatarInformations, 'err' : IDL.Text });
-  const Balance__1 = IDL.Nat;
-  const Result_3 = IDL.Variant({ 'ok' : Balance__1, 'err' : CommonError });
-  const Result_2 = IDL.Variant({
+  const Result_3 = IDL.Variant({ 'ok' : AvatarInformations, 'err' : IDL.Text });
+  const Result_1 = IDL.Variant({
     'ok' : IDL.Vec(TokenIndex),
     'err' : CommonError,
   });
-  const Result_1 = IDL.Variant({
+  const Result_2 = IDL.Variant({
     'ok' : IDL.Vec(
       IDL.Tuple(TokenIndex, IDL.Opt(Listing), IDL.Opt(IDL.Vec(IDL.Nat8)))
     ),
     'err' : CommonError,
   });
-  const Transaction = IDL.Record({
-    'token' : TokenIdentifier__2,
-    'time' : Time,
-    'seller' : IDL.Principal,
-    'buyer' : AccountIdentifier__2,
-    'price' : IDL.Nat64,
-  });
   const Memo = IDL.Vec(IDL.Nat8);
-  const SubAccount = IDL.Vec(IDL.Nat8);
   const TransferRequest = IDL.Record({
     'to' : User,
     'token' : TokenIdentifier__1,
@@ -238,41 +258,47 @@ export const idlFactory = ({ IDL }) => {
   const TransferResponse = IDL.Variant({
     'ok' : Balance,
     'err' : IDL.Variant({
-      'CannotNotify' : AccountIdentifier__1,
+      'CannotNotify' : AccountIdentifier,
       'InsufficientBalance' : IDL.Null,
       'InvalidToken' : TokenIdentifier__1,
       'Rejected' : IDL.Null,
-      'Unauthorized' : AccountIdentifier__1,
+      'Unauthorized' : AccountIdentifier,
       'Other' : IDL.Text,
     }),
   });
-  const erc721_token = IDL.Service({
+  const Tag = IDL.Text;
+  const Category = IDL.Variant({
+    'LegendaryCharacter' : IDL.Null,
+    'AccessoryComponent' : IDL.Null,
+    'AvatarComponent' : IDL.Null,
+  });
+  const Meta = IDL.Record({
+    'name' : IDL.Text,
+    'tags' : IDL.Vec(Tag),
+    'description' : IDL.Text,
+    'category' : Category,
+  });
+  const ICPSquadNFT = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
-    'addAccessory' : IDL.Func([IDL.Text, Accessory], [Result_5], []),
-    'addAdmin' : IDL.Func([IDL.Principal], [Result], []),
-    'addLegendary' : IDL.Func([IDL.Text, IDL.Text], [Result_5], []),
-    'addListAccessory' : IDL.Func([IDL.Vec(Accessory)], [Result_5], []),
+    'addAccessory' : IDL.Func([IDL.Text, Accessory], [Result_9], []),
+    'addComponent_new' : IDL.Func([IDL.Text, Component__1], [Result], []),
+    'addListAccessory' : IDL.Func([IDL.Vec(Accessory)], [Result_9], []),
     'addListComponent' : IDL.Func(
         [IDL.Vec(IDL.Tuple(IDL.Text, Component))],
-        [Result_5],
+        [Result_9],
         [],
       ),
-    'allPayments' : IDL.Func(
-        [],
-        [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Vec(SubAccount__1)))],
-        ['query'],
-      ),
-    'allSettlements' : IDL.Func(
-        [],
-        [IDL.Vec(IDL.Tuple(TokenIndex, Settlement))],
-        ['query'],
-      ),
+    'add_admin' : IDL.Func([IDL.Principal], [], []),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
+    'balance_new' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
     'bearer' : IDL.Func([TokenIdentifier], [Result_8], ['query']),
-    'clearPayments' : IDL.Func([IDL.Principal, IDL.Vec(SubAccount__1)], [], []),
+    'bearer_new' : IDL.Func([TokenIdentifier], [Result_8], ['query']),
+    'changeCSS' : IDL.Func([IDL.Text], [], []),
     'collectCanisterMetrics' : IDL.Func([], [], []),
-    'details' : IDL.Func([TokenIdentifier], [Result_11], ['query']),
+    'copy' : IDL.Func([], [], []),
+    'details' : IDL.Func([TokenIdentifier], [Result_7], ['query']),
+    'details_new' : IDL.Func([TokenIdentifier], [Result_7], ['query']),
     'draw' : IDL.Func([TokenIdentifier], [Result], []),
     'eventsSize' : IDL.Func([], [IDL.Nat], ['query']),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
@@ -286,81 +312,60 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(IDL.Text, Component))],
         ['query'],
       ),
-    'getAvatarInfos' : IDL.Func([], [Result_10], ['query']),
-    'getAvatarInfos_new' : IDL.Func([], [Result_9], ['query']),
+    'getAvatarInfos' : IDL.Func([], [Result_6], ['query']),
+    'getAvatarInfos_new' : IDL.Func([], [Result_5], ['query']),
+    'getCanisterLog' : IDL.Func(
+        [IDL.Opt(CanisterLogRequest)],
+        [IDL.Opt(CanisterLogResponse)],
+        ['query'],
+      ),
     'getCanisterMetrics' : IDL.Func(
         [GetMetricsParameters],
         [IDL.Opt(CanisterMetrics)],
         ['query'],
       ),
-    'getMinter' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'getRegistry' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier))],
+        [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier__1))],
+        ['query'],
+      ),
+    'getRegistry_new' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier__1))],
         ['query'],
       ),
     'getTokens' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(TokenIndex, Metadata__1))],
+        [IDL.Vec(IDL.Tuple(TokenIndex, Metadata))],
         ['query'],
       ),
-    'howManyEquipped' : IDL.Func([], [IDL.Nat], ['query']),
-    'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
+    'getTokens_new' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(TokenIndex, Metadata))],
+        ['query'],
+      ),
+    'http_request' : IDL.Func([Request], [Response], ['query']),
     'init_cap' : IDL.Func([], [Result], []),
-    'list' : IDL.Func([ListRequest], [Result_4], []),
-    'listings' : IDL.Func(
-        [],
-        [IDL.Vec(IDL.Tuple(TokenIndex, Listing, Metadata__1))],
-        ['query'],
-      ),
-    'lock' : IDL.Func(
-        [TokenIdentifier, IDL.Nat64, AccountIdentifier, SubAccount__1],
-        [Result_8],
-        [],
-      ),
-    'metadata' : IDL.Func([TokenIdentifier], [Result_7], ['query']),
-    'mint' : IDL.Func([MintRequest], [Result_6], []),
-    'mintLegendary' : IDL.Func([IDL.Text, AccountIdentifier], [Result_5], []),
+    'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
+    'metadata' : IDL.Func([TokenIdentifier], [Result_4], ['query']),
+    'mint' : IDL.Func([MintRequest], [Result_3], []),
     'modify_style' : IDL.Func([IDL.Text], [IDL.Text], []),
-    'payments' : IDL.Func([], [IDL.Opt(IDL.Vec(SubAccount__1))], ['query']),
     'removeAccessory' : IDL.Func(
         [TokenIdentifier, IDL.Text, IDL.Principal],
         [Result],
         [],
       ),
-    'removeMouth' : IDL.Func([TokenIdentifier], [Result], []),
-    'reset' : IDL.Func([], [IDL.Nat], []),
-    'reset_data' : IDL.Func(
-        [],
-        [IDL.Vec(IDL.Tuple(TokenIdentifier, IDL.Text))],
-        ['query'],
-      ),
-    'saveAccessories' : IDL.Func([], [IDL.Nat, IDL.Nat], []),
-    'settle' : IDL.Func([TokenIdentifier], [Result_4], []),
-    'settlements' : IDL.Func(
-        [],
-        [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier, IDL.Nat64))],
-        ['query'],
-      ),
     'showFullSvg' : IDL.Func([TokenIdentifier], [IDL.Opt(IDL.Text)], ['query']),
-    'stats' : IDL.Func(
-        [],
-        [IDL.Nat64, IDL.Nat64, IDL.Nat64, IDL.Nat64, IDL.Nat, IDL.Nat, IDL.Nat],
-        ['query'],
-      ),
-    'supply' : IDL.Func([TokenIdentifier], [Result_3], ['query']),
-    'tokenIdentifier' : IDL.Func([TokenIndex], [TokenIdentifier], ['query']),
-    'tokens' : IDL.Func([AccountIdentifier], [Result_2], ['query']),
-    'tokens_ext' : IDL.Func([AccountIdentifier], [Result_1], ['query']),
-    'transactions' : IDL.Func([], [IDL.Vec(Transaction)], ['query']),
+    'test' : IDL.Func([], [], []),
+    'test_hex' : IDL.Func([], [IDL.Vec(AccountIdentifier__1)], []),
+    'tokens' : IDL.Func([AccountIdentifier__1], [Result_1], ['query']),
+    'tokens_ext' : IDL.Func([AccountIdentifier__1], [Result_2], ['query']),
+    'tokens_ext_new' : IDL.Func([AccountIdentifier__1], [Result_2], ['query']),
+    'tokens_new' : IDL.Func([AccountIdentifier__1], [Result_1], ['query']),
     'transfer' : IDL.Func([TransferRequest], [TransferResponse], []),
-    'transform_data' : IDL.Func([], [IDL.Nat], []),
-    'transform_show' : IDL.Func(
-        [],
-        [IDL.Vec(IDL.Tuple(AccountIdentifier, IDL.Text))],
-        ['query'],
-      ),
-    'updateAdminsData' : IDL.Func([IDL.Principal, IDL.Bool], [Result], []),
+    'upload' : IDL.Func([IDL.Vec(IDL.Nat8)], [], []),
+    'uploadClear' : IDL.Func([], [], []),
+    'uploadFinalize' : IDL.Func([IDL.Text, Meta, IDL.Text], [Result], []),
     'verificationEvents' : IDL.Func([], [], []),
     'wearAccessory' : IDL.Func(
         [TokenIdentifier, IDL.Text, IDL.Principal],
@@ -368,8 +373,6 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
   });
-  return erc721_token;
+  return ICPSquadNFT;
 };
-export const init = ({ IDL }) => {
-  return [IDL.Variant({ 'verify' : IDL.Null, 'commit' : IDL.Null })];
-};
+export const init = ({ IDL }) => { return [IDL.Principal]; };

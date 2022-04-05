@@ -19,7 +19,7 @@ IFS=','
         echo "Uploading $file to canister $canister on network $network"
             [ ! -f $file ] && { echo "$file file not found"; exit 99; }
             # Upload file
-            bash ./scripts/bash/upload_file.sh $file $canister $network "LegendaryCharacter" $tag_1 $tag_2 ""
+            bash ./scripts/upload/upload_file.sh $file $canister $network "LegendaryCharacter" $tag_1 $tag_2 ""
 	done
 } < $manifest
 IFS=$OLDIFS

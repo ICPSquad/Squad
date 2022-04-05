@@ -1,46 +1,126 @@
-type Accessory/1 = Accessory;
-type AccountIdentifier/3 = AccountIdentifier/2;
-type Component/1 = Component;
-type IndefiniteEvent/1 = IndefiniteEvent;
-type LayerAvatar/1 = LayerAvatar;
-type LayerId/1 = LayerId;
-type Listing/1 = Listing;
-type Settlement/1 = Settlement;
-type Slots/1 = Slots;
-type SubAccount/3 = SubAccount/2;
-type Time/2 = Time;
-type TokenIdentifier/3 = TokenIdentifier/2;
-type TokenIndex/1 = TokenIndex;
-type Transaction/1 = Transaction;
-type UpgradeData/1 = UpgradeData;
+// Version: 1.0.0
+type Accessory = {content : Text; layer : Nat8; name : Text; slot : Text};
+type Accessory__1 = Accessory;
+type AccountIdentifier__1 = Text;
+type AccountIdentifier__2 = AccountIdentifier__1;
+type AccountIdentifier__4 = AccountIdentifier__1;
+type Asset = {contentType : Text; payload : Blob};
+type Avatar =
+  {
+    background : Text;
+    blob : Blob;
+    cloth : Text;
+    ears : Text;
+    eyes : Text;
+    hair : Text;
+    level : Level;
+    mouth : Text;
+    nose : Text;
+    profile : Text;
+    slots : Slots;
+    style : Style
+  };
+type Category = {#AccessoryComponent; #AvatarComponent; #LegendaryCharacter};
+type Color = (Nat8, Nat8, Nat8, Nat8);
+type Colors = [{color : Color; spot : Text}];
+type Component = {category : ComponentCategory; layers : [Nat]; name : Text};
+type ComponentCategory = {#Accessory; #Avatar; #Other};
+type Component__1 = {content : Text; layer : Nat8; name : Text};
+type Component__3 = Component__1;
+type DayCanisterCyclesData = [var Nat64];
+type DayCanisterHeapMemorySizeData = [var Nat64];
+type DayCanisterMemorySizeData = [var Nat64];
+type DayData =
+  {
+    canisterCyclesData : DayCanisterCyclesData;
+    canisterHeapMemorySizeData : DayCanisterHeapMemorySizeData;
+    canisterMemorySizeData : DayCanisterMemorySizeData;
+    updateCallsData : DayUpdateCallsCountData
+  };
+type DayDataId = Nat32;
+type DayUpdateCallsCountData = [var Nat64];
+type DetailValue =
+  {
+    #False;
+    #Float : Float;
+    #I64 : Int64;
+    #Principal : Principal;
+    #Slice : [Nat8];
+    #Text : Text;
+    #True;
+    #U64 : Nat64;
+    #Vec : [DetailValue]
+  };
+type FilePath = Text;
+type IndefiniteEvent =
+  {caller : Principal; details : [(Text, DetailValue)]; operation : Text};
+type IndefiniteEvent__1 = IndefiniteEvent;
+type LayerAvatar = {#Accessory : Text; #Component : Text};
+type LayerAvatar__2 = LayerAvatar;
+type LayerId__1 = Nat;
+type LayerId__3 = LayerId__1;
+type Level = {#Legendary; #Level1; #Level2; #Level3};
+type LogMessageArray = [LogMessagesData];
+type LogMessagesData = {message : Text; timeNanos : Nanos};
+type LoggerUpgradeData = UpgradeData__1;
+type Meta =
+  {category : Category; description : Text; name : Text; tags : [Tag]};
+type Nanos = Nat64;
+type Record = {asset : Asset; meta : Meta};
+type Slots =
+  {Body : ?Text; Eyes : ?Text; Face : ?Text; Hat : ?Text; Misc : ?Text};
+type Slots__1 =
+  {Body : ?Text; Eyes : ?Text; Face : ?Text; Hat : ?Text; Misc : ?Text};
+type Slots__3 = Slots__1;
+type Style = {#Colors : Colors; #Old : Text};
+type Tag = Text;
+type Time = Int;
+type Time__1 = Time;
+type TokenIdentifier = Text;
+type TokenIdentifier__1 = TokenIdentifier;
+type TokenIdentifier__6 = TokenIdentifier;
+type TokenIndex = Nat32;
+type TokenIndex__1 = TokenIndex;
+type TokenIndex__3 = TokenIndex;
+type UpgradeData = {#v1 : {dayData : [UpgradeDataDayTuple]}};
+type UpgradeDataDayTuple = (DayDataId, DayData);
+type UpgradeData__1 =
+  {#v1 : {full : Bool; maxCount : Nat; next : Nat; queue : LogMessageArray}};
+type UpgradeData__10 = UpgradeData__9;
+type UpgradeData__2 = UpgradeData;
+type UpgradeData__3 = {admins : [Principal]};
+type UpgradeData__4 = UpgradeData__3;
+type UpgradeData__5 = {record : [(FilePath, Record)]};
+type UpgradeData__6 = UpgradeData__5;
+type UpgradeData__7 =
+  {
+    avatars : [(TokenIdentifier__1, Avatar)];
+    components : [(Text, Component)];
+    style : Text
+  };
+type UpgradeData__8 = UpgradeData__7;
+type UpgradeData__9 = {registry : [(TokenIndex__1, AccountIdentifier__2)]};
 actor {
-  stable var _blobsEntries : [(TokenIdentifier/3, Blob)];
-  stable var _canistergeekMonitorUD : ?UpgradeData/1;
-  stable var _eventsEntries : [(Time/2, IndefiniteEvent/1)];
+  stable var _AdminsUD : ?UpgradeData__4;
+  stable var _AssetsUD : ?UpgradeData__6;
+  stable var _AvatarUD : ?UpgradeData__8;
+  stable var _ExtUD : ?UpgradeData__10;
+  stable var _LogsUD : ?LoggerUpgradeData;
+  stable var _MonitorUD : ?UpgradeData__2;
+  stable var _blobsEntries : [(TokenIdentifier__6, Blob)];
+  stable var _eventsEntries : [(Time__1, IndefiniteEvent__1)];
   stable var _minter : [Principal];
   stable var _nextTokenId : Nat32;
-  stable var _paymentsState : [(Principal, [SubAccount/3])];
   stable var _principalToAccountsIdentifierState :
-    [(Principal, [AccountIdentifier/3])];
-  stable var _refundsState : [(Principal, [SubAccount/3])];
-  stable var _registryState : [(TokenIndex/1, AccountIdentifier/3)];
+    [(Principal, [AccountIdentifier__4])];
+  stable var _registryState : [(TokenIndex__3, AccountIdentifier__4)];
   stable var _supply : Nat;
-  stable var _tokenListingState : [(TokenIndex/1, Listing/1)];
-  stable var _tokenSettlementState : [(TokenIndex/1, Settlement/1)];
-  stable var _transactions : [Transaction/1];
-  stable var _usedPaymentAddressess :
-    [(AccountIdentifier/3, Principal, SubAccount/3)];
-  stable var accessoriesEntries : [(Text, Accessory/1)];
-  stable var adminsData : [Principal];
-  stable var componentsEntries : [(Text, Component/1)];
-  stable var count : Nat;
-  stable var layerStorage : [[(LayerId/1, LayerAvatar/1)]];
+  stable var accessoriesEntries : [(Text, Accessory__1)];
+  stable var componentsEntries : [(Text, Component__3)];
+  stable var layerStorage : [[(LayerId__3, LayerAvatar__2)]];
   stable var legendaryEntries : [(Text, Text)];
-  stable var slotsStorage : [Slots/1];
-  stable var storageData : [(TokenIdentifier/3, Text)];
-  stable var storageOwner : [(AccountIdentifier/3, Text)];
+  stable var slotsStorage : [Slots__3];
   stable var styleStorage : [Text];
   stable var style_to_add : Text;
-  stable var tokenStorage : [TokenIdentifier/3];
-  stable var version : Nat
+  stable var tokenStorage : [TokenIdentifier__6]
 };

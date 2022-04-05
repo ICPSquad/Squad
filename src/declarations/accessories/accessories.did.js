@@ -305,6 +305,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getContractInfo' : IDL.Func([], [ContractInfo], []),
     'getHisInventory' : IDL.Func([IDL.Principal], [Inventory], ['query']),
+    'getHolders' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(AccountIdentifier__2, IDL.Nat))],
+        ['query'],
+      ),
     'getIdentifier' : IDL.Func([TokenIndex], [TokenIdentifier__3], ['query']),
     'getIndex' : IDL.Func([TokenIdentifier__3], [TokenIndex], []),
     'getInventory' : IDL.Func([], [Inventory], ['query']),

@@ -122,11 +122,13 @@ module {
                 return #err(#Other("Must use amount of 1"));
             };
             let index = switch(Ext.TokenIdentifier.decode(request.token)){
-                case(#err(msg)) return #err(#Other(msg));
+                case(#err(msg)) {
+                    _Logs.logMessage("Ext/lib/transfer/line126. Token identifier : " # request.token);
+                    return #err(#Other(msg));
+                };
                 case(#ok(canisterId, tokenIndex)) {
-                    Debug.print("canisterId: " # Principal.toText(canisterId));
-                    Debug.print("CANISTER :" # Principal.toText(CANISTER_ID));
                     if(canisterId != CANISTER_ID) {
+                        _Logs.logMessage("Ext/lib/transfer/line31. Canister id : " # Principal.toText(canisterId) # " and CANISTER_ID : " # Principal.toText(CANISTER_ID));
                         return #err(#InvalidToken(request.token));
                     };
                     tokenIndex
@@ -140,11 +142,11 @@ module {
             let from = Text.map(Ext.User.toAccountIdentifier(request.from), Prim.charToLower);
             let to = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
             if(owner != from) {
-                _Logs.logMessage("Ext/lib/transfer/line141. Owner : " # owner # " Caller : " # caller_account);
+                _Logs.logMessage("Ext/lib/transfer/line145. Owner : " # owner # " Caller : " # caller_account);
                 return #err(#Unauthorized("This user \"" # from # "\" doesn't own this token \"" # request.token # "\""));
             };
             if(from != caller_account) {
-                _Logs.logMessage("Ext/lib/transfer/line145. From : " # from # " Caller : " # caller_account);
+                _Logs.logMessage("Ext/lib/transfer/line149. From : " # from # " Caller : " # caller_account);
                 return #err(#Unauthorized("Only the owner can do that."));
             };
             _registry.put(index, to);
@@ -228,13 +230,10 @@ module {
             accountId : Ext.AccountIdentifier
         ) : Result.Result<[Ext.TokenIndex], Ext.CommonError> {
             var tokens : Buffer.Buffer<Ext.TokenIndex> = Buffer.Buffer(0);
-            var i : Nat32 = 0;
-            for ((token, owner) in _registry.entries()) {
-
+            for ((index, owner) in _registry.entries()) {
                 if (Text.equal(accountId, owner)) {
-                    tokens.add(i);
+                    tokens.add(index);
                 };
-                i += 1;
             };
             #ok(tokens.toArray());
         };
@@ -243,12 +242,11 @@ module {
             accountId : Ext.AccountIdentifier
         ) : Result.Result<[(Ext.TokenIndex, ?Types.Listing, ?Blob)], CommonError> {
             var tokens : Buffer.Buffer<(Ext.TokenIndex, ?Types.Listing, ?Blob)> = Buffer.Buffer(0);
-            var i : Nat32 = 0;
-            for ((token, owner) in _registry.entries()) {
+            for ((index, owner) in _registry.entries()) {
                 if (Text.equal(accountId, owner)) {
-                    tokens.add((i, null, ?Text.encodeUtf8("ICPSquad")));
+                    //TODO : use  Asset module to fill the blob field   
+                    tokens.add((index, null, ?Text.encodeUtf8("ICPSquad")));
                 };
-                i += 1;
             };
             #ok(tokens.toArray());
         };

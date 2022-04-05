@@ -229,6 +229,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
             return style_in_memory;
         };
 
+        public func getLayers () : [(LayerId, LayerAvatar)] {
+            Iter.toArray(layers.entries());
+        };
+
         
         //  Get the body name to add as class to the final svg so the css style can target and modify elements.
         private func _getNameBody () : Text {
@@ -884,56 +888,71 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     private var _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.fromIter(_registryState.vals(), 0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
 
         
-    public shared (msg) func transfer(request: TransferRequest) : async TransferResponse {
-        if (request.amount != 1) {
-                return #err(#Other("Must use amount of 1"));
-        };
-        let index = switch(Ext.TokenIdentifier.decode(request.token)){
-            case(#err(message)) return #err(#Other(message));
-            case(#ok(canisterId, tokenIndex)){
-                Debug.print("canisterId : " # Principal.toText(canisterId));
-                Debug.print("cid : " # Principal.toText(cid));
-                if(canisterId != cid) {
-                    Debug.print("canisterId != cid");
-                    return #err(#InvalidToken(request.token));
-                }; 
-                tokenIndex;
-            };
-        };
-        let from = Text.map(Ext.User.toAccountIdentifier(request.from), Prim.charToLower);
-        let to = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
-        let caller = Text.map(Ext.AccountIdentifier.fromPrincipal(msg.caller, request.subaccount), Prim.charToLower);
-            
-        switch (_registry.get(index)) {
-            case (?token_owner) {
-                        if(not(Ext.AccountIdentifier.equal(from, token_owner))) {
-                            return #err(#Unauthorized(from));
-                        };
-                        if (not(Ext.AccountIdentifier.equal(caller, token_owner))) {
-                                return #err(#Unauthorized(caller));
-                        };
-                        _registry.put(index, to);
-                        //  Report event to CAP
-                        let event : IndefiniteEvent = {
-                            operation = "transfer";
-                            details = [("token", #Text(request.token)), ("from", #Text(token_owner)), ("to", #Text(to))];
-                            caller = msg.caller;
-                        };
-                        ignore(_registerEvent(event));
-                        return #ok(request.amount);
-            };
-            case (_) {
-                return #err(#InvalidToken(request.token));
-            };
-        };
-    };
+    // public shared (msg) func transfer(request: TransferRequest) : async TransferResponse {
+    //     if (request.amount != 1) {
+    //             return #err(#Other("Must use amount of 1"));
+    //     };
+    //     let index = switch(Ext.TokenIdentifier.decode(request.token)){
+    //         case(#err(message)) return #err(#Other(message));
+    //         case(#ok(canisterId, tokenIndex)){
+    //             Debug.print("canisterId : " # Principal.toText(canisterId));
+    //             Debug.print("cid : " # Principal.toText(cid));
+    //             if(canisterId != cid) {
+    //                 Debug.print("canisterId != cid");
+    //                 return #err(#InvalidToken(request.token));
+    //             }; 
+    //             tokenIndex;
+    //         };
+    //     };
 
-
-
-    // public shared ({caller}) func transfer(request : TransferRequest) : async TransferResponse {
-    //     _Monitor.collectMetrics();
-    //     _Ext.transfer(caller, request);
+    //     let from = Text.map(Ext.User.toAccountIdentifier(request.from), Prim.charToLower);
+    //     let to = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
+    //     let caller = Text.map(Ext.AccountIdentifier.fromPrincipal(msg.caller, request.subaccount), Prim.charToLower);
+    
+    //     switch (_registry.get(index)) {
+    //         case (?token_owner) {
+    //                     if(not(Ext.AccountIdentifier.equal(from, token_owner))) {
+    //                         return #err(#Unauthorized(from));
+    //                     };
+    //                     if (not(Ext.AccountIdentifier.equal(caller, token_owner))) {
+    //                             return #err(#Unauthorized(caller));
+    //                     };
+    //                     _registry.put(index, to);
+    //                     //  Report event to CAP
+    //                     let event : IndefiniteEvent = {
+    //                         operation = "transfer";
+    //                         details = [("token", #Text(request.token)), ("from", #Text(token_owner)), ("to", #Text(to))];
+    //                         caller = msg.caller;
+    //                     };
+    //                     ignore(_registerEvent(event));
+    //                     return #ok(request.amount);
+    //         };
+    //         case (_) {
+    //             return #err(#InvalidToken(request.token));
+    //         };
+    //     };
     // };
+
+
+
+    public shared ({caller}) func transfer(request : TransferRequest) : async TransferResponse {
+        _Monitor.collectMetrics();
+        switch(_Ext.transfer(caller, request)){
+            case(#err(#Other(e))) return #err(#Other(e));
+            case(#err(#InvalidToken(token))) return #err(#InvalidToken(token));
+            case(#ok(index)) {
+                let from = Text.map(Ext.User.toAccountIdentifier(request.from), Prim.charToLower);
+                let to = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
+                ignore(_registerEvent({
+                    operation = "transfer";
+                    details = [("token", #Text(request.token)), ("from", #Text(from)), ("to", #Text(to))];
+                    caller = caller;
+                }));
+                return #ok(index);
+            };
+            case(#err(_)) return #err(#Other("Unknown error"));
+        }
+    };
 
 
 
@@ -942,26 +961,25 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     // Ext-query //
     //////////////
 
-    public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
-        Iter.toArray(_registry.entries());
-    };
+    // public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
+    //     Iter.toArray(_registry.entries());
+    // };
 
-    public query func getRegistry_new() : async [(TokenIndex, AccountIdentifier)] {
-        _Monitor.collectMetrics();
+    public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
         _Ext.getRegistry();
     };
 
-    public query func getTokens() : async [(TokenIndex, Ext.Common.Metadata)]{
-        var buffer = Buffer.Buffer<(TokenIndex,Ext.Common.Metadata)>(0);
-        for (token_index in _registry.keys()){
-            let token_identifier = Ext.TokenIdentifier.encode(cid, token_index);
-            let element = (token_index, #nonfungible{metadata =_blobs.get(token_identifier)});
-            buffer.add(element);
-        };
-        buffer.toArray();
-    };
+    // public query func getTokens() : async [(TokenIndex, Ext.Common.Metadata)]{
+    //     var buffer = Buffer.Buffer<(TokenIndex,Ext.Common.Metadata)>(0);
+    //     for (token_index in _registry.keys()){
+    //         let token_identifier = Ext.TokenIdentifier.encode(cid, token_index);
+    //         let element = (token_index, #nonfungible{metadata =_blobs.get(token_identifier)});
+    //         buffer.add(element);
+    //     };
+    //     buffer.toArray();
+    // };
 
-    public query func getTokens_new() : async [(TokenIndex, Ext.Common.Metadata)] {
+    public query func getTokens() : async [(TokenIndex, Ext.Common.Metadata)] {
         var buffer = Buffer.Buffer<(TokenIndex,Ext.Common.Metadata)>(0);
         let registry = _Ext.getRegistry();
         for((token_index, account_identifier) in registry.vals()){
@@ -971,10 +989,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         };
         buffer.toArray();
     };
-    
-
-
- 
       
     public query func metadata(token : TokenIdentifier): async Result<Ext.Common.Metadata, Ext.CommonError> {
         switch(_blobs.get(token)){
@@ -989,22 +1003,21 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     };
 
     //  Method used by Entrepot to query the tokens of an account.
-    public query func tokens(aid : AccountIdentifier) : async Result<[TokenIndex], CommonError> {
-        var buffer = Buffer.Buffer<(TokenIndex)>(0);
-        for((token_index, account) in _registry.entries()){
-            if (Text.equal(account, aid)){
-                buffer.add(token_index);
-            };
-        };
-        if(buffer.size() == 0){
-            return #err(#Other("No tokens"));
-        } else {
-            return #ok(buffer.toArray());
-        };
-    };
+    // public query func tokens(aid : AccountIdentifier) : async Result<[TokenIndex], CommonError> {
+    //     var buffer = Buffer.Buffer<(TokenIndex)>(0);
+    //     for((token_index, account) in _registry.entries()){
+    //         if (Text.equal(account, aid)){
+    //             buffer.add(token_index);
+    //         };
+    //     };
+    //     if(buffer.size() == 0){
+    //         return #err(#Other("No tokens"));
+    //     } else {
+    //         return #ok(buffer.toArray());
+    //     };
+    // };
 
-    public shared query ({caller}) func tokens_new(aid : AccountIdentifier) : async Result<[TokenIndex], CommonError> {
-        _Monitor.collectMetrics();
+    public shared query ({caller}) func tokens(aid : AccountIdentifier) : async Result<[TokenIndex], CommonError> {
         _Ext.tokens(aid);
     };
 
@@ -1021,93 +1034,89 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         let array = tokens.toArray();
         return array;
     };
-    public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result<[(TokenIndex, ?ExtModule.Listing, ?Blob)], CommonError> {
-        let tokens = _generateTokensExt(account);
-        if (tokens.size() == 0) {
-            return #err(#Other ("No token detected for this user."));
-        } else {
-            let answer = #ok(tokens);
-            return answer;
-        }
-    };
+    // public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result<[(TokenIndex, ?ExtModule.Listing, ?Blob)], CommonError> {
+    //     let tokens = _generateTokensExt(account);
+    //     if (tokens.size() == 0) {
+    //         return #err(#Other ("No token detected for this user."));
+    //     } else {
+    //         let answer = #ok(tokens);
+    //         return answer;
+    //     }
+    // };
 
-    public shared query ({caller}) func tokens_ext_new(account : AccountIdentifier) : async Result<[(TokenIndex, ?ExtModule.Listing, ?Blob)], CommonError> {
-        _Monitor.collectMetrics();
+    public shared query ({caller}) func tokens_ext(account : AccountIdentifier) : async Result<[(TokenIndex, ?ExtModule.Listing, ?Blob)], CommonError> {
         _Ext.tokens_ext(account);
     };
 
 
-    public query func balance(request : BalanceRequest) : async BalanceResponse {
-        let index = switch(Ext.TokenIdentifier.decode(request.token)){
-            case(#err(_)) return #err(#InvalidToken(request.token));
-            case(#ok(canisterId, tokenIndex)){
-                if(canisterId != cid) return #err(#InvalidToken(request.token));
-                tokenIndex;
-            };
-        };
-        let accountIdentifier = Text.map(Ext.User.toAccountIdentifier(request.user), Prim.charToLower);
-        switch (_registry.get(index)) {
-            case (?token_owner) {
-                        if (Ext.AccountIdentifier.equal(accountIdentifier, token_owner)) {
-                            return #ok(1);
-                        } else {					
-                            return #ok(0);
-                        };
-            };
-            case (_) {
-                return #err(#InvalidToken(request.token));
-            };
-        };
-    };
+    // public query func balance(request : BalanceRequest) : async BalanceResponse {
+    //     let index = switch(Ext.TokenIdentifier.decode(request.token)){
+    //         case(#err(_)) return #err(#InvalidToken(request.token));
+    //         case(#ok(canisterId, tokenIndex)){
+    //             if(canisterId != cid) return #err(#InvalidToken(request.token));
+    //             tokenIndex;
+    //         };
+    //     };
+    //     let accountIdentifier = Text.map(Ext.User.toAccountIdentifier(request.user), Prim.charToLower);
+    //     switch (_registry.get(index)) {
+    //         case (?token_owner) {
+    //                     if (Text.equal(accountIdentifier, token_owner)) {
+    //                         return #ok(1);
+    //                     } else {					
+    //                         return #ok(0);
+    //                     };
+    //         };
+    //         case (_) {
+    //             return #err(#InvalidToken(request.token));
+    //         };
+    //     };
+    // };
 
-    public query func balance_new(request : BalanceRequest) : async BalanceResponse {
-        _Monitor.collectMetrics();
+    public query func balance(request : BalanceRequest) : async BalanceResponse {
         _Ext.balance(request);
     };
     
-    public query func bearer(token : TokenIdentifier) : async Result<AccountIdentifier, CommonError> {
-        let index = switch(Ext.TokenIdentifier.decode(token)){
-            case(#err(_)) return #err(#InvalidToken(token));
-            case(#ok(canisterId, tokenIndex)){
-                if(canisterId != cid) return #err(#InvalidToken(token));
-                tokenIndex;
-            };
-        };
-        switch (_registry.get(index)) {
-            case (?token_owner) {
-                        return #ok(token_owner);
-            };
-            case (_) {
-                return #err(#InvalidToken(token));
-            };
-        };
-    };
+    // public query func bearer(token : TokenIdentifier) : async Result<AccountIdentifier, CommonError> {
+    //     let index = switch(Ext.TokenIdentifier.decode(token)){
+    //         case(#err(_)) return #err(#InvalidToken(token));
+    //         case(#ok(canisterId, tokenIndex)){
+    //             if(canisterId != cid) return #err(#InvalidToken(token));
+    //             tokenIndex;
+    //         };
+    //     };
+    //     switch (_registry.get(index)) {
+    //         case (?token_owner) {
+    //                     return #ok(token_owner);
+    //         };
+    //         case (_) {
+    //             return #err(#InvalidToken(token));
+    //         };
+    //     };
+    // };
 
-    public query func bearer_new(tokenId : TokenIdentifier) : async Result<AccountIdentifier, CommonError> {
-        _Monitor.collectMetrics();
+    public query func bearer(tokenId : TokenIdentifier) : async Result<AccountIdentifier, CommonError> {
         _Ext.bearer(tokenId);
     };
 
-    public query func details(token : TokenIdentifier) : async Result<(AccountIdentifier, ?ExtModule.Listing), CommonError> {
-        let index = switch(Ext.TokenIdentifier.decode(token)){
-            case(#err(_)) return #err(#InvalidToken(token));
-            case(#ok(canisterId, tokenIndex)){
-                if(canisterId != cid) return #err(#InvalidToken(token));
-                tokenIndex;
-            };
-        };
-        switch (_registry.get(index)) {
-            case (?token_owner) {
-                        return #ok((token_owner, null));
-            };
-            case (_) {
-                return #err(#InvalidToken(token));
-            };
-        };
-	};
+    // public query func details(token : TokenIdentifier) : async Result<(AccountIdentifier, ?ExtModule.Listing), CommonError> {
+    //     let index = switch(Ext.TokenIdentifier.decode(token)){
+    //         case(#err(_)) return #err(#InvalidToken(token));
+    //         case(#ok(canisterId, tokenIndex)){
+    //             if(canisterId != cid) return #err(#InvalidToken(token));
+    //             tokenIndex;
+    //         };
+    //     };
+    //     switch (_registry.get(index)) {
+    //         case (?token_owner) {
+    //                     return #ok((token_owner, null));
+    //         };
+    //         case (_) {
+    //             return #err(#InvalidToken(token));
+    //         };
+    //     };
+	// };
 
-    public shared query ({caller}) func details_new(tokenId : TokenIdentifier) : async Result<(AccountIdentifier, ?ExtModule.Listing), CommonError> {
-        _Monitor.collectMetrics();
+    public shared query ({caller}) func details(tokenId : TokenIdentifier) : async Result<(AccountIdentifier, ?ExtModule.Listing), CommonError> {
         _Ext.details(tokenId);
     };
 
@@ -1186,9 +1195,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
 
     system func preupgrade() {
         _Logs.logMessage("Pre-upgrade");
+
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
-
         _AdminsUD := ? _Admins.preupgrade();
         _AssetsUD := ? _Assets.preupgrade();
         _AvatarUD := ? _Avatar.preupgrade();
@@ -1404,24 +1413,24 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     //     }
     // };
 
-    // type MintInformation = AvatarNewModule.MintInformation;
-    // public shared ({caller}) func mint_new(
-    //     info : MintInformation
-    // ) : async Result<TokenIdentifier, Text> {
-    //     // assert(_Admins.isAdmin(caller));
-    //     _Monitor.collectMetrics();
-    //     switch(_Ext.mint({ to = #principal(info.user); metadata = null; })){
-    //         case(#err(#Other(e))) return #err(e);
-    //         case(#err(#InvalidToken(e))) return #err(e);
-    //         case(#ok(index)){
-    //             let tokenId = Ext.TokenIdentifier.encode(cid, index);
-    //             switch(_Avatar.createAvatar(info, tokenId)){
-    //                 case(#ok) return #ok(tokenId);
-    //                 case(#err(e)) return #err(e);
-    //             };
-    //         };
-    //     };
-    // };
+    type MintInformation = AvatarNewModule.MintInformation;
+    public shared ({caller}) func mint_new(
+        info : MintInformation
+    ) : async Result<TokenIdentifier, Text> {
+        // assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        switch(_Ext.mint({ to = #principal(info.user); metadata = null; })){
+            case(#err(#Other(e))) return #err(e);
+            case(#err(#InvalidToken(e))) return #err(e);
+            case(#ok(index)){
+                let tokenId = Ext.TokenIdentifier.encode(cid, index);
+                switch(_Avatar.createAvatar(info, tokenId)){
+                    case(#ok) return #ok(tokenId);
+                    case(#err(e)) return #err(e);
+                };
+            };
+        };
+    };
 
     ///////////
     // HTTP //
@@ -1500,19 +1509,18 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
-    public func test_hex() : async [AccountIdentifier] {
-        var buffer : Buffer.Buffer<AccountIdentifier> = Buffer.Buffer(0);
-        for(account in _registry.vals()){
-            let aRaw = switch(Hex.decode(account)) {
-                case (#err(_)) {
-                    buffer.add(account);
-                };
-                case (#ok(aR)){};
-            }
-        };
-        return buffer.toArray();
-    };
+    // public func backup_avatar() : async () {
+    //     var buffer : Buffer.Buffer<(TokenIdentifier, [(LayerId, LayerAvatar)], Text, Slots)> = Buffer.Buffer(0);
+    //     for((tokenId, avatar) in  avatars.entries()){
+    //         let layers = avatar.getLayers();
+    //         let slots = avatar.getSlots();
+    //         let style = avatar.getRawStyle();
+    //         buffer.add((tokenId, layers, style, slots));
+    //     };
+    //     backup_avatar_store := buffer.toArray();
+    // };
 
+    // stable var backup_tokens = [];
 
 
 

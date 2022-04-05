@@ -22,16 +22,16 @@ fi
 
 
 echo "1/4 Uploading manifest for avatar 👦"
-bash ./scripts/bash/upload_manifest_avatar.sh $canister $network
+bash ./scripts/upload/upload_manifest_avatar.sh $canister $network
 
 echo "2/4 Uploading manifest for accessories 🎩"
-bash ./scripts/bash/upload_manifest_accessories.sh $canister $network
+bash ./scripts/upload/upload_manifest_accessories.sh $canister $network
 
 echo "3/4 Uploading manifest for legendary characters 🧙‍♂️"
-bash ./scripts/bash/upload_manifest_legendary_characters.sh $canister $network
+bash ./scripts/upload/upload_manifest_legendary_characters.sh $canister $network
 
 echo "4/4 Uploading manifest for components 👨‍🎨"
-bash ./scripts/bash/upload_manifest_components.sh $canister $network
+bash ./scripts/upload/upload_manifest_components.sh $canister $network
 
 echo "Done 🌈"
 

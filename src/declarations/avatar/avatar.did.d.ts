@@ -7,7 +7,6 @@ export interface Accessory {
 }
 export type AccountIdentifier = string;
 export type AccountIdentifier__1 = string;
-export type AccountIdentifier__2 = string;
 export interface AvatarInformations {
   'svg' : string,
   'tokenIdentifier' : string,
@@ -15,7 +14,7 @@ export interface AvatarInformations {
 export interface AvatarPreview {
   'avatar_svg' : string,
   'slots' : Slots__1,
-  'token_identifier' : TokenIdentifier__3,
+  'token_identifier' : TokenIdentifier__2,
 }
 export interface AvatarPreviewNew {
   'body_name' : string,
@@ -32,13 +31,32 @@ export type Balance = bigint;
 export interface BalanceRequest { 'token' : TokenIdentifier__1, 'user' : User }
 export type BalanceResponse = { 'ok' : Balance } |
   { 'err' : CommonError__1 };
-export type Balance__1 = bigint;
 export type CanisterCyclesAggregatedData = Array<bigint>;
 export type CanisterHeapMemoryAggregatedData = Array<bigint>;
+export type CanisterLogFeature = { 'filterMessageByContains' : null } |
+  { 'filterMessageByRegex' : null };
+export interface CanisterLogMessages {
+  'data' : Array<LogMessagesData>,
+  'lastAnalyzedMessageTimeNanos' : [] | [Nanos],
+}
+export interface CanisterLogMessagesInfo {
+  'features' : Array<[] | [CanisterLogFeature]>,
+  'lastTimeNanos' : [] | [Nanos],
+  'count' : number,
+  'firstTimeNanos' : [] | [Nanos],
+}
+export type CanisterLogRequest = { 'getMessagesInfo' : null } |
+  { 'getMessages' : GetLogMessagesParameters } |
+  { 'getLatestMessages' : GetLatestLogMessagesParameters };
+export type CanisterLogResponse = { 'messagesInfo' : CanisterLogMessagesInfo } |
+  { 'messages' : CanisterLogMessages };
 export type CanisterMemoryAggregatedData = Array<bigint>;
 export interface CanisterMetrics { 'data' : CanisterMetricsData }
 export type CanisterMetricsData = { 'hourly' : Array<HourlyMetricsData> } |
   { 'daily' : Array<DailyMetricsData> };
+export type Category = { 'LegendaryCharacter' : null } |
+  { 'AccessoryComponent' : null } |
+  { 'AvatarComponent' : null };
 export type Color = [number, number, number, number];
 export type CommonError = { 'InvalidToken' : TokenIdentifier__1 } |
   { 'Other' : string };
@@ -49,7 +67,15 @@ export interface Component {
   'name' : string,
   'layer' : number,
 }
+export type ComponentCategory = { 'Avatar' : null } |
+  { 'Accessory' : null } |
+  { 'Other' : null };
 export interface ComponentRequest { 'name' : string, 'layer' : number }
+export interface Component__1 {
+  'name' : string,
+  'layers' : Array<bigint>,
+  'category' : ComponentCategory,
+}
 export interface DailyMetricsData {
   'updateCalls' : bigint,
   'canisterHeapMemorySize' : NumericEntity,
@@ -58,6 +84,21 @@ export interface DailyMetricsData {
   'timeMillis' : bigint,
 }
 export type Extension = string;
+export interface GetLatestLogMessagesParameters {
+  'upToTimeNanos' : [] | [Nanos],
+  'count' : number,
+  'filter' : [] | [GetLogMessagesFilter],
+}
+export interface GetLogMessagesFilter {
+  'analyzeCount' : number,
+  'messageRegex' : [] | [string],
+  'messageContains' : [] | [string],
+}
+export interface GetLogMessagesParameters {
+  'count' : number,
+  'filter' : [] | [GetLogMessagesFilter],
+  'fromTimeNanos' : [] | [Nanos],
+}
 export interface GetMetricsParameters {
   'dateToMillis' : bigint,
   'granularity' : MetricsGranularity,
@@ -71,46 +112,87 @@ export interface HourlyMetricsData {
   'canisterMemorySize' : CanisterMemoryAggregatedData,
   'timeMillis' : bigint,
 }
-export interface HttpRequest {
-  'url' : string,
-  'method' : string,
-  'body' : Array<number>,
-  'headers' : Array<HeaderField>,
+export interface ICPSquadNFT {
+  'acceptCycles' : () => Promise<undefined>,
+  'addAccessory' : (arg_0: string, arg_1: Accessory) => Promise<Result_9>,
+  'addComponent_new' : (arg_0: string, arg_1: Component__1) => Promise<Result>,
+  'addListAccessory' : (arg_0: Array<Accessory>) => Promise<Result_9>,
+  'addListComponent' : (arg_0: Array<[string, Component]>) => Promise<Result_9>,
+  'add_admin' : (arg_0: Principal) => Promise<undefined>,
+  'availableCycles' : () => Promise<bigint>,
+  'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
+  'balance_new' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
+  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_8>,
+  'bearer_new' : (arg_0: TokenIdentifier) => Promise<Result_8>,
+  'changeCSS' : (arg_0: string) => Promise<undefined>,
+  'collectCanisterMetrics' : () => Promise<undefined>,
+  'copy' : () => Promise<undefined>,
+  'details' : (arg_0: TokenIdentifier) => Promise<Result_7>,
+  'details_new' : (arg_0: TokenIdentifier) => Promise<Result_7>,
+  'draw' : (arg_0: TokenIdentifier) => Promise<Result>,
+  'eventsSize' : () => Promise<bigint>,
+  'extensions' : () => Promise<Array<Extension>>,
+  'getAllAccessories' : () => Promise<Array<[string, Accessory]>>,
+  'getAllComponents' : () => Promise<Array<[string, Component]>>,
+  'getAvatarInfos' : () => Promise<Result_6>,
+  'getAvatarInfos_new' : () => Promise<Result_5>,
+  'getCanisterLog' : (arg_0: [] | [CanisterLogRequest]) => Promise<
+      [] | [CanisterLogResponse]
+    >,
+  'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
+      [] | [CanisterMetrics]
+    >,
+  'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__1]>>,
+  'getRegistry_new' : () => Promise<Array<[TokenIndex, AccountIdentifier__1]>>,
+  'getTokens' : () => Promise<Array<[TokenIndex, Metadata]>>,
+  'getTokens_new' : () => Promise<Array<[TokenIndex, Metadata]>>,
+  'http_request' : (arg_0: Request) => Promise<Response>,
+  'init_cap' : () => Promise<Result>,
+  'is_admin' : (arg_0: Principal) => Promise<boolean>,
+  'metadata' : (arg_0: TokenIdentifier) => Promise<Result_4>,
+  'mint' : (arg_0: MintRequest) => Promise<Result_3>,
+  'modify_style' : (arg_0: string) => Promise<string>,
+  'removeAccessory' : (
+      arg_0: TokenIdentifier,
+      arg_1: string,
+      arg_2: Principal,
+    ) => Promise<Result>,
+  'showFullSvg' : (arg_0: TokenIdentifier) => Promise<[] | [string]>,
+  'test' : () => Promise<undefined>,
+  'test_hex' : () => Promise<Array<AccountIdentifier__1>>,
+  'tokens' : (arg_0: AccountIdentifier__1) => Promise<Result_1>,
+  'tokens_ext' : (arg_0: AccountIdentifier__1) => Promise<Result_2>,
+  'tokens_ext_new' : (arg_0: AccountIdentifier__1) => Promise<Result_2>,
+  'tokens_new' : (arg_0: AccountIdentifier__1) => Promise<Result_1>,
+  'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
+  'upload' : (arg_0: Array<number>) => Promise<undefined>,
+  'uploadClear' : () => Promise<undefined>,
+  'uploadFinalize' : (arg_0: string, arg_1: Meta, arg_2: string) => Promise<
+      Result
+    >,
+  'verificationEvents' : () => Promise<undefined>,
+  'wearAccessory' : (
+      arg_0: TokenIdentifier,
+      arg_1: string,
+      arg_2: Principal,
+    ) => Promise<Result>,
 }
-export interface HttpResponse {
-  'body' : Array<number>,
-  'headers' : Array<HeaderField>,
-  'streaming_strategy' : [] | [HttpStreamingStrategy],
-  'status_code' : number,
-}
-export type HttpStreamingStrategy = {
-    'Callback' : {
-      'token' : StreamingCallbackToken,
-      'callback' : StreamingCallback,
-    }
-  };
 export type LayerId = bigint;
-export interface ListRequest {
-  'token' : TokenIdentifier__2,
-  'from_subaccount' : [] | [SubAccount__2],
-  'price' : [] | [bigint],
-}
 export interface Listing {
+  'subaccount' : [] | [SubAccount],
   'locked' : [] | [Time],
   'seller' : Principal,
   'price' : bigint,
 }
+export interface LogMessagesData { 'timeNanos' : Nanos, 'message' : string }
 export type Memo = Array<number>;
+export interface Meta {
+  'name' : string,
+  'tags' : Array<Tag>,
+  'description' : string,
+  'category' : Category,
+}
 export type Metadata = {
-    'fungible' : {
-      'decimals' : number,
-      'metadata' : [] | [Array<number>],
-      'name' : string,
-      'symbol' : string,
-    }
-  } |
-  { 'nonfungible' : { 'metadata' : [] | [Array<number>] } };
-export type Metadata__1 = {
     'fungible' : {
       'decimals' : number,
       'metadata' : [] | [Array<number>],
@@ -122,6 +204,7 @@ export type Metadata__1 = {
 export type MetricsGranularity = { 'hourly' : null } |
   { 'daily' : null };
 export interface MintRequest { 'to' : User, 'metadata' : AvatarRequest }
+export type Nanos = bigint;
 export interface NumericEntity {
   'avg' : bigint,
   'max' : bigint,
@@ -129,38 +212,40 @@ export interface NumericEntity {
   'first' : bigint,
   'last' : bigint,
 }
+export interface Request {
+  'url' : string,
+  'method' : string,
+  'body' : Array<number>,
+  'headers' : Array<HeaderField>,
+}
+export interface Response {
+  'body' : Array<number>,
+  'headers' : Array<HeaderField>,
+  'streaming_strategy' : [] | [StreamingStrategy],
+  'status_code' : number,
+}
 export type Result = { 'ok' : null } |
   { 'err' : string };
-export type Result_1 = {
+export type Result_1 = { 'ok' : Array<TokenIndex> } |
+  { 'err' : CommonError };
+export type Result_2 = {
     'ok' : Array<[TokenIndex, [] | [Listing], [] | [Array<number>]]>
   } |
   { 'err' : CommonError };
-export type Result_10 = { 'ok' : AvatarPreview } |
+export type Result_3 = { 'ok' : AvatarInformations } |
   { 'err' : string };
-export type Result_11 = { 'ok' : [AccountIdentifier, [] | [Listing]] } |
-  { 'err' : CommonError };
-export type Result_2 = { 'ok' : Array<TokenIndex> } |
-  { 'err' : CommonError };
-export type Result_3 = { 'ok' : Balance__1 } |
-  { 'err' : CommonError };
-export type Result_4 = { 'ok' : null } |
-  { 'err' : CommonError };
-export type Result_5 = { 'ok' : string } |
-  { 'err' : string };
-export type Result_6 = { 'ok' : AvatarInformations } |
-  { 'err' : string };
-export type Result_7 = { 'ok' : Metadata } |
+export type Result_4 = { 'ok' : Metadata } |
   { 'err' : CommonError__1 };
-export type Result_8 = { 'ok' : AccountIdentifier } |
-  { 'err' : CommonError };
-export type Result_9 = { 'ok' : AvatarPreviewNew } |
+export type Result_5 = { 'ok' : AvatarPreviewNew } |
   { 'err' : string };
-export interface Settlement {
-  'subaccount' : SubAccount__2,
-  'seller' : Principal,
-  'buyer' : AccountIdentifier__2,
-  'price' : bigint,
-}
+export type Result_6 = { 'ok' : AvatarPreview } |
+  { 'err' : string };
+export type Result_7 = { 'ok' : [AccountIdentifier__1, [] | [Listing]] } |
+  { 'err' : CommonError };
+export type Result_8 = { 'ok' : AccountIdentifier__1 } |
+  { 'err' : CommonError };
+export type Result_9 = { 'ok' : string } |
+  { 'err' : string };
 export interface Slots {
   'Hat' : [] | [string],
   'Body' : [] | [string],
@@ -187,22 +272,19 @@ export interface StreamingCallbackToken {
   'index' : bigint,
   'content_encoding' : string,
 }
+export type StreamingStrategy = {
+    'Callback' : {
+      'token' : StreamingCallbackToken,
+      'callback' : StreamingCallback,
+    }
+  };
 export type SubAccount = Array<number>;
-export type SubAccount__1 = Array<number>;
-export type SubAccount__2 = Array<number>;
+export type Tag = string;
 export type Time = bigint;
 export type TokenIdentifier = string;
 export type TokenIdentifier__1 = string;
 export type TokenIdentifier__2 = string;
-export type TokenIdentifier__3 = string;
 export type TokenIndex = number;
-export interface Transaction {
-  'token' : TokenIdentifier__2,
-  'time' : Time,
-  'seller' : Principal,
-  'buyer' : AccountIdentifier__2,
-  'price' : bigint,
-}
 export interface TransferRequest {
   'to' : User,
   'token' : TokenIdentifier__1,
@@ -214,93 +296,14 @@ export interface TransferRequest {
 }
 export type TransferResponse = { 'ok' : Balance } |
   {
-    'err' : { 'CannotNotify' : AccountIdentifier__1 } |
+    'err' : { 'CannotNotify' : AccountIdentifier } |
       { 'InsufficientBalance' : null } |
       { 'InvalidToken' : TokenIdentifier__1 } |
       { 'Rejected' : null } |
-      { 'Unauthorized' : AccountIdentifier__1 } |
+      { 'Unauthorized' : AccountIdentifier } |
       { 'Other' : string }
   };
 export type UpdateCallsAggregatedData = Array<bigint>;
 export type User = { 'principal' : Principal } |
-  { 'address' : AccountIdentifier__1 };
-export interface erc721_token {
-  'acceptCycles' : () => Promise<undefined>,
-  'addAccessory' : (arg_0: string, arg_1: Accessory) => Promise<Result_5>,
-  'addAdmin' : (arg_0: Principal) => Promise<Result>,
-  'addLegendary' : (arg_0: string, arg_1: string) => Promise<Result_5>,
-  'addListAccessory' : (arg_0: Array<Accessory>) => Promise<Result_5>,
-  'addListComponent' : (arg_0: Array<[string, Component]>) => Promise<Result_5>,
-  'allPayments' : () => Promise<Array<[Principal, Array<SubAccount__1>]>>,
-  'allSettlements' : () => Promise<Array<[TokenIndex, Settlement]>>,
-  'availableCycles' : () => Promise<bigint>,
-  'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
-  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_8>,
-  'clearPayments' : (arg_0: Principal, arg_1: Array<SubAccount__1>) => Promise<
-      undefined
-    >,
-  'collectCanisterMetrics' : () => Promise<undefined>,
-  'details' : (arg_0: TokenIdentifier) => Promise<Result_11>,
-  'draw' : (arg_0: TokenIdentifier) => Promise<Result>,
-  'eventsSize' : () => Promise<bigint>,
-  'extensions' : () => Promise<Array<Extension>>,
-  'getAllAccessories' : () => Promise<Array<[string, Accessory]>>,
-  'getAllComponents' : () => Promise<Array<[string, Component]>>,
-  'getAvatarInfos' : () => Promise<Result_10>,
-  'getAvatarInfos_new' : () => Promise<Result_9>,
-  'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
-      [] | [CanisterMetrics]
-    >,
-  'getMinter' : () => Promise<Array<Principal>>,
-  'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier]>>,
-  'getTokens' : () => Promise<Array<[TokenIndex, Metadata__1]>>,
-  'howManyEquipped' : () => Promise<bigint>,
-  'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
-  'init_cap' : () => Promise<Result>,
-  'list' : (arg_0: ListRequest) => Promise<Result_4>,
-  'listings' : () => Promise<Array<[TokenIndex, Listing, Metadata__1]>>,
-  'lock' : (
-      arg_0: TokenIdentifier,
-      arg_1: bigint,
-      arg_2: AccountIdentifier,
-      arg_3: SubAccount__1,
-    ) => Promise<Result_8>,
-  'metadata' : (arg_0: TokenIdentifier) => Promise<Result_7>,
-  'mint' : (arg_0: MintRequest) => Promise<Result_6>,
-  'mintLegendary' : (arg_0: string, arg_1: AccountIdentifier) => Promise<
-      Result_5
-    >,
-  'modify_style' : (arg_0: string) => Promise<string>,
-  'payments' : () => Promise<[] | [Array<SubAccount__1>]>,
-  'removeAccessory' : (
-      arg_0: TokenIdentifier,
-      arg_1: string,
-      arg_2: Principal,
-    ) => Promise<Result>,
-  'removeMouth' : (arg_0: TokenIdentifier) => Promise<Result>,
-  'reset' : () => Promise<bigint>,
-  'reset_data' : () => Promise<Array<[TokenIdentifier, string]>>,
-  'saveAccessories' : () => Promise<[bigint, bigint]>,
-  'settle' : (arg_0: TokenIdentifier) => Promise<Result_4>,
-  'settlements' : () => Promise<Array<[TokenIndex, AccountIdentifier, bigint]>>,
-  'showFullSvg' : (arg_0: TokenIdentifier) => Promise<[] | [string]>,
-  'stats' : () => Promise<
-      [bigint, bigint, bigint, bigint, bigint, bigint, bigint]
-    >,
-  'supply' : (arg_0: TokenIdentifier) => Promise<Result_3>,
-  'tokenIdentifier' : (arg_0: TokenIndex) => Promise<TokenIdentifier>,
-  'tokens' : (arg_0: AccountIdentifier) => Promise<Result_2>,
-  'tokens_ext' : (arg_0: AccountIdentifier) => Promise<Result_1>,
-  'transactions' : () => Promise<Array<Transaction>>,
-  'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
-  'transform_data' : () => Promise<bigint>,
-  'transform_show' : () => Promise<Array<[AccountIdentifier, string]>>,
-  'updateAdminsData' : (arg_0: Principal, arg_1: boolean) => Promise<Result>,
-  'verificationEvents' : () => Promise<undefined>,
-  'wearAccessory' : (
-      arg_0: TokenIdentifier,
-      arg_1: string,
-      arg_2: Principal,
-    ) => Promise<Result>,
-}
-export interface _SERVICE extends erc721_token {}
+  { 'address' : AccountIdentifier };
+export interface _SERVICE extends ICPSquadNFT {}

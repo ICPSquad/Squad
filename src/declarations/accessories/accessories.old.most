@@ -1,0 +1,50 @@
+type AccountIdentifier/5 = AccountIdentifier/4;
+type Asset = {contentType : Text; payload : [Blob]};
+type IndefiniteEvent/1 = IndefiniteEvent;
+type Item/1 = Item;
+type Listing/1 = Listing;
+type Settlement/1 = Settlement;
+type SubAccount/4 = SubAccount/3;
+type Template/1 = Template;
+type Time/2 = Time;
+type Token =
+  {
+    contentType : Text;
+    createdAt : Int;
+    isPrivate : Bool;
+    payload : [Blob];
+    properties : Properties
+  };
+type TokenIndex/1 = TokenIndex;
+type Transaction/2 = Transaction/1;
+type UpgradeData/1 = UpgradeData;
+actor {
+  stable var CONTRACT_METADATA : {name : Text; symbol : Text};
+  stable var INITALIZED : Bool;
+  stable var _blobsEntries : [(TokenIndex/1, Blob)];
+  stable var _canistergeekMonitorUD : ?UpgradeData/1;
+  stable var _eventsEntries : [(Time/2, IndefiniteEvent/1)];
+  stable var _itemsEntries : [(TokenIndex/1, Item/1)];
+  stable var _minter : [Principal];
+  stable var _nextTokenId : Nat32;
+  stable var _ownershipsEntries : [(AccountIdentifier/5, [TokenIndex/1])];
+  stable var _paymentsState : [(Principal, [SubAccount/4])];
+  stable var _refundsState : [(Principal, [SubAccount/4])];
+  stable var _registryEntries : [(TokenIndex/1, AccountIdentifier/5)];
+  stable var _templateEntries : [(Text, Template/1)];
+  stable var _tokenListingState : [(TokenIndex/1, Listing/1)];
+  stable var _tokenSettlementState : [(TokenIndex/1, Settlement/1)];
+  stable var _transactions : [Transaction/2];
+  stable var _usedPaymentAddressess :
+    [(AccountIdentifier/5, Principal, SubAccount/4)];
+  stable var admins : [Principal];
+  stable var adminsData : [Principal];
+  stable var circulationEntries : [(Text, Text)];
+  stable var count : Nat;
+  stable var id : Nat;
+  stable var nftEntries : [(Text, (?Principal, [Principal]), Token)];
+  stable var payloadSize : Nat;
+  stable var staticAssetsEntries : [(Text, Asset)];
+  stable var subaccount_to_check : [SubAccount/4];
+  stable var subaccounts_robber : [SubAccount/4]
+};
