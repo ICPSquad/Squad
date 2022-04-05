@@ -230,7 +230,8 @@ module {
             var tokens : Buffer.Buffer<Ext.TokenIndex> = Buffer.Buffer(0);
             var i : Nat32 = 0;
             for ((token, owner) in _registry.entries()) {
-                if (Ext.AccountIdentifier.equal(accountId, owner)) {
+
+                if (Text.equal(accountId, owner)) {
                     tokens.add(i);
                 };
                 i += 1;
@@ -244,7 +245,7 @@ module {
             var tokens : Buffer.Buffer<(Ext.TokenIndex, ?Types.Listing, ?Blob)> = Buffer.Buffer(0);
             var i : Nat32 = 0;
             for ((token, owner) in _registry.entries()) {
-                if (Ext.AccountIdentifier.equal(accountId, owner)) {
+                if (Text.equal(accountId, owner)) {
                     tokens.add((i, null, ?Text.encodeUtf8("ICPSquad")));
                 };
                 i += 1;

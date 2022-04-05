@@ -1,6 +1,8 @@
-import Admins "../admins";
-import CanisterGeek "mo:canistergeek/canistergeek";
 import Result "mo:base/Result";
+
+import CanisterGeek "mo:canistergeek/canistergeek";
+
+import Admins "../admins";
 module Assets {
 
     public type Result<A,B> = Result.Result<A,B>;
@@ -56,7 +58,5 @@ module Assets {
 
         // Reinitialize the state of the module after upgrading.
         postupgrade : (data : ?UpgradeData) -> ();
-
-
     };
 }

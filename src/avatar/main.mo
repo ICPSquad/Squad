@@ -20,6 +20,7 @@ import Time "mo:base/Time";
 import Canistergeek "mo:canistergeek/canistergeek";
 import Cap "mo:cap/Cap";
 import Ext "mo:ext/Ext";
+import Hex "mo:encoding/Hex";
 import PrincipalBlob "mo:principal/Principal";
 import Root "mo:cap/Root";
 
@@ -1497,6 +1498,19 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         for(i in Iter.range(0, registry_old.size() - 1)){
             assert(registry_old[i] == registry_new[i]);
         };
+    };
+
+    public func test_hex() : async [AccountIdentifier] {
+        var buffer : Buffer.Buffer<AccountIdentifier> = Buffer.Buffer(0);
+        for(account in _registry.vals()){
+            let aRaw = switch(Hex.decode(account)) {
+                case (#err(_)) {
+                    buffer.add(account);
+                };
+                case (#ok(aR)){};
+            }
+        };
+        return buffer.toArray();
     };
 
 
