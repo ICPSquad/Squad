@@ -1265,10 +1265,41 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
+    public shared ({caller}) func backup_token() : async [TokenIdentifier] {
+        assert(_Admins.isAdmin(caller));
+        var buffer : Buffer.Buffer<TokenIdentifier> = Buffer.Buffer(0);
+        for((tokenId, avatar) in avatars.entries()){
+            buffer.add(tokenId);
+        };
+        buffer.toArray();
+    };
 
+    public shared ({caller}) func backup_style() : async [(TokenIdentifier, Text)] {
+        assert(_Admins.isAdmin(caller));
+        var buffer : Buffer.Buffer<(TokenIdentifier,Text)> = Buffer.Buffer(0);
+        for((tokenId, avatar) in avatars.entries()){
+            buffer.add(tokenId, avatar.getRawStyle());
+        };
+        buffer.toArray();
+    };
 
+    public shared ({caller}) func backup_slots() : async [(TokenIdentifier,Slots)] {
+        assert(_Admins.isAdmin(caller));
+        var buffer : Buffer.Buffer<(TokenIdentifier,Slots)> = Buffer.Buffer(0);
+        for((tokenId, avatar) in avatars.entries()){
+            buffer.add(tokenId, avatar.getSlots());
+        };
+        buffer.toArray();
+    };
 
-
+    public shared ({caller}) func backup_layers() : async [(TokenIdentifier, [(LayerId , LayerAvatar)])] {
+        assert(_Admins.isAdmin(caller));
+        var buffer : Buffer.Buffer<(TokenIdentifier,[(LayerId, LayerAvatar)])> = Buffer.Buffer(0);
+        for((tokenId, avatar) in avatars.entries()){
+            buffer.add(tokenId, avatar.getLayers());
+        };
+        buffer.toArray();
+    };
 
 
 };
