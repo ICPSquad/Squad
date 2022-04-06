@@ -1,4 +1,7 @@
-import { AvatarRequest, ComponentRequest } from "declarations/avatar/avatar.did.d";
+import {
+  AvatarRequest,
+  ComponentRequest,
+} from "../../../declarations/avatar/avatar.did.d";
 import { buildRequestFromAvatar, Avatar } from "../types/avatar";
 
 export function removeAllChildren(element: HTMLElement) {
@@ -31,10 +34,18 @@ export const renderAvatar = (div: HTMLElement, avatar: Avatar) => {
   // Create the layers
   array_request.forEach((component) => {
     let layer = document.createElementNS("http://www.w3.org/2000/svg", "use");
-    layer.setAttributeNS("http://www.w3.org/1999/xlink", "href", `#${component.name}`);
+    layer.setAttributeNS(
+      "http://www.w3.org/1999/xlink",
+      "href",
+      `#${component.name}`
+    );
 
     // Adding classes to the <USE> tags
-    if (component.name == "Business-body" || component.name == "Punk-body" || component.name == "Miss-body") {
+    if (
+      component.name == "Business-body" ||
+      component.name == "Punk-body" ||
+      component.name == "Miss-body"
+    ) {
       svgElem.classList.add(component.name);
     } else if (component.name.length == 1) {
       layer.classList.add(`clothing-${component.name}`);
@@ -48,5 +59,6 @@ export const renderAvatar = (div: HTMLElement, avatar: Avatar) => {
     svgElem.appendChild(layer);
   });
 
+  console.log(svgElem);
   div.appendChild(svgElem);
 };

@@ -1,6 +1,6 @@
 import { ComponentList } from "./component";
-import { AvatarRequest, Color } from "declarations/hub/hub.did.d";
-import { ComponentRequest } from "declarations/avatar/avatar.did.d";
+import { AvatarRequest, Color } from "../../../declarations/hub/hub.did.d";
+import { ComponentRequest } from "../../../declarations/avatar/avatar.did.d";
 import { ColorList, createColorsAvatarRequest } from "./color";
 
 export type Avatar = {

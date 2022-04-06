@@ -1,5 +1,5 @@
-import { Color } from "declarations/avatar/avatar.did";
-import store from "../store";
+import { Color } from "../../../declarations/avatar/avatar.did";
+// import store from "../store";
 
 export type ColorList = {
   Skin: Color;
@@ -100,8 +100,17 @@ export function createColorsAvatarRequest(): Array<{
   spot: string;
 }> {
   let result: Array<{ color: Color; spot: string }> = [];
-  //@ts-ignore
-  let colors: ColorList = store.getters.getColors as ColorList;
+  // @ts-ignore
+  // let colors: ColorList = store.getters.getColors as ColorList;
+  let colors: ColorList = {
+    Skin: [0, 169, 252, 1],
+    Hairs: [0, 169, 252, 1],
+    Eyes: [0, 169, 252, 1],
+    Eyebrows: [0, 169, 252, 1],
+    Background: [0, 169, 252, 1],
+    Eyeliner: [0, 169, 252, 1],
+    Clothes: [0, 169, 252, 1],
+  };
   for (let key in colors) {
     result.push({
       color: colors[key as keyof ColorList],

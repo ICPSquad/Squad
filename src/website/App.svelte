@@ -1,1 +1,167 @@
-Hello world
+<script>
+  import { onMount } from "svelte";
+
+  import { renderAvatar } from "./src/utils/render";
+  import AvatarComponentsSvg from "./AvatarComponentsSvg.svelte";
+  import {
+    backgrounds,
+    ears,
+    profiles,
+    hairs,
+    eyes,
+    noses,
+    mouths,
+    clothes,
+    accessories,
+  } from "./src/utils/list";
+
+  onMount(async () => {
+    console.log("mounted");
+
+    const avatarDiv = document.getElementById("avatar");
+    renderAvatar(avatarDiv, {
+      Background: backgrounds[0],
+      Profile: profiles[1],
+      Ears: ears[0],
+      Eyes: eyes[3],
+      Nose: noses[0],
+      Mouth: mouths[2],
+      Hairs: hairs[10],
+      Clothes: clothes[2],
+      Accessory: accessories[0],
+      Colors: {
+        Skin: [0, 169, 252, 1],
+        Hairs: [0, 169, 252, 1],
+        Eyes: [0, 169, 252, 1],
+        Eyebrows: [0, 169, 252, 1],
+        Background: [0, 169, 252, 1],
+        Eyeliner: [0, 169, 252, 1],
+        Clothes: [0, 169, 252, 1],
+      },
+    });
+  });
+</script>
+
+<div id="avatar" />
+
+<div id="avatar-components">
+  <AvatarComponentsSvg />
+</div>
+
+<style global>
+  .Punk-body .Punk-crying-eyes {
+    clip-path: url(#Punk-head_svg__a);
+  }
+  .Miss-body .Punk-crying-eyes {
+    transform: translateY(-0.5px) !important;
+    clip-path: url(#Miss-head_svg__a);
+  }
+  .Business-body .Punk-crying-eyes {
+    clip-path: url(#Punk-head_svg__a);
+  }
+
+  .Business-body .Punk.ears {
+    transform: translateY(15px);
+  }
+
+  .Business-body .Miss.ears,
+  .Business-body .Miss.mouth,
+  .Business-body .Punk.mouth {
+    transform: translateY(-10px);
+  }
+
+  .Business-body .Miss.eyes {
+    transform: translateY(-20px);
+  }
+
+  .Business.nose {
+    transform: translateY(-50px);
+  }
+
+  .Punk.nose,
+  .Miss.nose {
+    transform: translateY(-10px);
+  }
+
+  .Business-body .clothing-3,
+  .Business-body .clothing-4 {
+    transform: scale(1.67, 1.67) translate(-160px, -321px);
+  }
+
+  .Punk-body .clothing-1,
+  .Punk-body .clothing-2 {
+    transform: scale(1, 0.94) translate(0px, 150px);
+  }
+
+  .Punk-body .clothing-3,
+  .Punk-body .clothing-4 {
+    transform: scale(1.21, 1.2) translate(-70px, -120px);
+  }
+
+  .Miss-body .clothing-1,
+  .Miss-body .clothing-2 {
+    transform: scale(1, 0.8) translate(0px, 303px);
+  }
+
+  .Punk-body .Business.ears {
+    transform: translateY(-15px);
+  }
+
+  .Punk-body .Miss.ears {
+    transform: translateY(-20px);
+  }
+
+  .Punk-body .Miss.eyes {
+    transform: translateY(-10px);
+  }
+
+  .Punk-body .Business.mouth {
+    transform: translateY(10px);
+  }
+
+  .Punk-body .Hair-1,
+  .Punk-body .Hair-2,
+  .Punk-body .Hair-2-base,
+  .Punk-body .Hair-2-back,
+  .Punk-body .Hair-2-base-back,
+  .Punk-body .Hair-3,
+  .Punk-body .Hair-4,
+  .Punk-body .Hair-4-back,
+  .Punk-body .Hair-5,
+  .Punk-body .Hair-5-back,
+  .Punk-body .Hair-6,
+  .Punk-body .Hair-6-back,
+  .Punk-body .Hair-6-base,
+  .Punk-body .Hair-6-base-back,
+  .Punk-body .Hair-10,
+  .Punk-body .Hair-11,
+  .Punk-body .Hair-12,
+  .Punk-body .Hair-13,
+  .Punk-body .Hair-13-back,
+  .Punk-body .Hair-13-full,
+  .Punk-body .Hair-13-top {
+    transform: translateY(-17px);
+  }
+
+  .Punk-body .Hair-1-base {
+    transform: scale(1.02, 1) translate(-8px, -17px);
+  }
+
+  .Miss-body .Punk.ears {
+    transform: translateY(25px);
+  }
+
+  .Miss-body .Business.ears {
+    transform: translateY(10px);
+  }
+
+  .Miss-body .Business.mouth,
+  .Miss-body .Punk.mouth {
+    transform: translateY(10px);
+  }
+
+  .Miss-body .Punk.eyes,
+  .Miss-body .Business.eyes {
+    transform: translateY(15px);
+  }
+</style>
