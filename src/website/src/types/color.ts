@@ -11,47 +11,47 @@ export type ColorList = {
   Clothes: Color;
 };
 
-export function changeColorInStore(new_color: Color, title: string) {
-  switch (title) {
-    case "Profile 👤":
-      store.commit("setSkinColor", [new_color[0], new_color[1], new_color[2]]);
-      return;
-    case "Clothes 👔":
-      store.commit("setClothesColor", [
-        new_color[0],
-        new_color[1],
-        new_color[2],
-      ]);
-      return;
-    case "Hairs 💇":
-      store.commit("setHairColor", [new_color[0], new_color[1], new_color[2]]);
-      return;
-    case "Eyes 👀":
-      store.commit("setEyesColor", [new_color[0], new_color[1], new_color[2]]);
-      return;
-    case "Eyebrows":
-      store.commit("setEyebrowsColor", [
-        new_color[0],
-        new_color[1],
-        new_color[2],
-      ]);
-      return;
-    case "Background 🌈":
-      store.commit("setBackgroundColor", [
-        new_color[0],
-        new_color[1],
-        new_color[2],
-      ]);
-      return;
-    case "Eyeliner":
-      store.commit("setEyelinerColor", [
-        new_color[0],
-        new_color[1],
-        new_color[2],
-      ]);
-      return;
-  }
-}
+// export function changeColorInStore(new_color: Color, title: string) {
+//   switch (title) {
+//     case "Profile 👤":
+//       store.commit("setSkinColor", [new_color[0], new_color[1], new_color[2]]);
+//       return;
+//     case "Clothes 👔":
+//       store.commit("setClothesColor", [
+//         new_color[0],
+//         new_color[1],
+//         new_color[2],
+//       ]);
+//       return;
+//     case "Hairs 💇":
+//       store.commit("setHairColor", [new_color[0], new_color[1], new_color[2]]);
+//       return;
+//     case "Eyes 👀":
+//       store.commit("setEyesColor", [new_color[0], new_color[1], new_color[2]]);
+//       return;
+//     case "Eyebrows":
+//       store.commit("setEyebrowsColor", [
+//         new_color[0],
+//         new_color[1],
+//         new_color[2],
+//       ]);
+//       return;
+//     case "Background 🌈":
+//       store.commit("setBackgroundColor", [
+//         new_color[0],
+//         new_color[1],
+//         new_color[2],
+//       ]);
+//       return;
+//     case "Eyeliner":
+//       store.commit("setEyelinerColor", [
+//         new_color[0],
+//         new_color[1],
+//         new_color[2],
+//       ]);
+//       return;
+//   }
+// }
 
 export function changeCSSVariable(new_color: Color, title: string) {
   let root = document.documentElement;
@@ -103,7 +103,7 @@ export function createColorsAvatarRequest(): Array<{
   // @ts-ignore
   // let colors: ColorList = store.getters.getColors as ColorList;
   let colors: ColorList = {
-    Skin: [0, 169, 252, 1],
+    Skin: [0, 0, 0, 0],
     Hairs: [0, 169, 252, 1],
     Eyes: [0, 169, 252, 1],
     Eyebrows: [0, 169, 252, 1],

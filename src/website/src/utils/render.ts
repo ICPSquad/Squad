@@ -59,6 +59,23 @@ export const renderAvatar = (div: HTMLElement, avatar: Avatar) => {
     svgElem.appendChild(layer);
   });
 
-  console.log(svgElem);
+  svgElem.style.setProperty("--color_background_r", `${avatar.Colors.Background[0]}`);
+  svgElem.style.setProperty("--color_background_g", `${avatar.Colors.Background[1]}`);
+  svgElem.style.setProperty("--color_background_b", `${avatar.Colors.Background[2]}`);
+  svgElem.style.setProperty("--color_skin",`rgb(${avatar.Colors.Skin[0]}, ${avatar.Colors.Skin[1]}, ${avatar.Colors.Skin[2]})`);
+  svgElem.style.setProperty("--color_clothes",`rgb(${avatar.Colors.Clothes[0]}, ${avatar.Colors.Clothes[1]}, ${avatar.Colors.Clothes[2]})`);
+  svgElem.style.setProperty("--color_eyes_r", `${avatar.Colors.Eyes[0]}`);
+  svgElem.style.setProperty("--color_eyes_g", `${avatar.Colors.Eyes[1]}`);
+  svgElem.style.setProperty("--color_eyes_b", `${avatar.Colors.Eyes[2]}`);
+  svgElem.style.setProperty("--color_hairs_r", `${avatar.Colors.Hairs[0]}`);
+  svgElem.style.setProperty("--color_hairs_g", `${avatar.Colors.Hairs[1]}`);
+  svgElem.style.setProperty("--color_hairs_b", `${avatar.Colors.Hairs[2]}`);
+  svgElem.style.setProperty("--color_eyebrows_r", `${avatar.Colors.Eyebrows[0]}`);
+  svgElem.style.setProperty("--color_eyebrows_g", `${avatar.Colors.Eyebrows[1]}`);
+  svgElem.style.setProperty("--color_eyebrows_b", `${avatar.Colors.Eyebrows[2]}`);
+  svgElem.style.setProperty("--color_eyeliner_r", `${avatar.Colors.Eyeliner[0]}`);
+  svgElem.style.setProperty("--color_eyeliner_g", `${avatar.Colors.Eyeliner[1]}`);
+  svgElem.style.setProperty("--color_eyeliner_b", `${avatar.Colors.Eyeliner[2]}`);
+
   div.appendChild(svgElem);
 };
