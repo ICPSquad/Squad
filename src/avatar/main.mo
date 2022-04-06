@@ -105,21 +105,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     stable var componentsEntries : [(Text,Component)] = [];
     let components : HashMap.HashMap<Text,Component> = HashMap.fromIter(componentsEntries.vals(), 0, Text.equal, Text.hash);    
     
-    // public shared ({caller}) func addListComponent (list : [(Text,Component)]) : async Result<Text,Text> {
-    //     assert(_Admins.isAdmin(caller));
-    //     for (val in list.vals()) {
-    //         components.put(val.0, val.1);
-    //     };
-    //     return #ok ("Components have been added");
-    // };
-
-    // Might broke if payload is heavier than 2 MB !
-    // public query ({caller}) func getAllComponents () : async [(Text,Component)] {
-    //     assert(_Admins.isAdmin(caller));
-    //     var allComponent : [(Text,Component)] = Iter.toArray(components.entries());
-    //     return allComponent;
-    // };
-
     private func _isKnownComponent (name : Text) : Bool {
         switch(components.get(name)) {
             case (null) return false;
@@ -134,35 +119,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     public type Accessory = AvatarModule.Accessory;
     stable var accessoriesEntries : [(Text,Accessory)] = [];
     let accessories : HashMap.HashMap<Text,Accessory> = HashMap.fromIter(accessoriesEntries.vals(), 0, Text.equal, Text.hash);
-
-    // public shared ({caller}) func addAccessory (name : Text, accessory : Accessory) : async Result<Text, Text> {
-    //     assert(_Admins.isAdmin(caller));
-    //     switch(accessories.get(name)){
-    //         case(?something) {
-    //             accessories.put(name, accessory);
-    //             return #ok("This accessory has been updated : " #name);
-    //         };
-    //         case(null) {
-    //             accessories.put(name, accessory);
-    //             return #ok ("This accessory has been added : " #name);
-    //         };
-    //     };
-    // };
-
-    // public shared ({caller}) func addListAccessory (list : [Accessory]) : async Result<Text,Text> {
-    //     assert(_Admins.isAdmin(caller));
-    //     for (accessory in list.vals()){
-    //         let name = accessory.name;
-    //         accessories.put(name, accessory);
-    //     };
-    //     return #ok ("All accessories have been added.");
-    // };
-
-    // public shared query ({caller}) func getAllAccessories () : async [(Text,Accessory)] {
-    //     assert(_Admins.isAdmin(caller));
-    //     let list : [(Text,Accessory)] = Iter.toArray(accessories.entries());
-    //     return list;
-    // };
 
     //////////////////
     // Avatar class //
@@ -1267,17 +1223,45 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     // BACKUP //
     ////////////
 
-    public func build_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
-        switch(avatars.get(tokenId)){
-            case(null) return #err("Avatar not found");
-            case(?avatar) {
-                _Avatar.switchAvatar(
-                    tokenId,
-                    avatar.getLayersName(),
-                    avatar.getRawStyle(),
-                    avatar.getSlots()
-                );
+    // public func build_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
+    //     switch(avatars.get(tokenId)){
+    //         case(null) return #err("Avatar not found");
+    //         case(?avatar) {
+    //             _Avatar.switchAvatar(
+    //                 tokenId,
+    //                 avatar.getLayersName(),
+    //                 avatar.getRawStyle(),
+    //                 avatar.getSlots()
+    //             );
+    //         }
+    //     };
+    // };
+
+    public func collect_legendaries() : async [TokenIdentifier] {
+        let registry = _Ext.getRegistry();
+        var buffer : Buffer.Buffer<TokenIdentifier> = Buffer.Buffer(0);
+        for(token in _registry.keys()){
+            switch(avatars.get(Ext.TokenIdentifier.encode(cid, token))){
+                case null {
+                    buffer.add(Ext.TokenIdentifier.encode(cid, token))
+                };
+                case(? some) {};
             }
+        };
+        buffer.toArray();
+    };
+
+    public shared ({caller}) func build_legendary(
+        tokenId : TokenIdentifier,
+        name : Text
+    ) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        switch(_Avatar.createLegendary(name, tokenId)){
+            case(#err(e)) return #err(e);
+            case(#ok){
+                _Logs.logMessage("Legendary created : " # name  # " with tokenId : " # tokenId);
+                #ok;
+            };
         };
     };
 

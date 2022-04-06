@@ -177,6 +177,27 @@ module {
             };
         };
 
+        public func createLegendary(
+            name : Text,
+            tokenId : TokenIdentifier
+        ) : Result<(), Text> {
+            switch(_avatars.get(tokenId)){
+                case(? avatar) return #err("There is already an avatar for this tokenIdentifier");
+                case(null){
+                    switch(_createLegendary(name)){
+                        case(#err(e)){
+                            _Logs.logMessage("Avatar/lib/createLegendary/189. " # e );
+                            return #err(e);
+                        };
+                        case(#ok(avatar)){
+                            _avatars.put(tokenId, avatar);
+                            return #ok;
+                        };
+                    };
+                };
+            };
+        };
+
         // Wear an accessory by name on the specified avatar & redraw this avatar.
         // @dev : Verify that the avatar exists, the component exists & the slot is empty.
         // @note : Accessing the slot shouldn't require using the _Assets module.
@@ -562,6 +583,38 @@ module {
                 _createBlob(avatar)
             ))
         };
+
+        func _createLegendary(
+            name : Text
+        ) : Result<Avatar, Text> {
+            switch(_Assets.getFileByName(name)){
+                case(null) {
+                    _Logs.logMessage("Avatar/lib/createLegendary/line592. " # name # " file not found.");
+                    return (#err("File not found for : " # name));
+                };
+                case(? file){
+                    if(Option.isNull(Array.find<Text>(file.meta.tags, func(tag) { tag == "legendary"} ))){
+                        _Logs.logMessage("Avatar/lib/createLegendary/line597. " # name # " is not a legendary avatar.");
+                        return #err( name # " doesn't have the legendary tag");
+                    };
+                    #ok({
+                        background = "";
+                        profile = "";
+                        ears = "";
+                        mouth =  "";
+                        eyes = "";
+                        nose = "";
+                        hair = "";
+                        cloth = "";
+                        slots = _createNewSlot();
+                        style = #Colors([]);
+                        level = #Legendary;
+                        blob = file.asset.payload;
+                    })
+                };
+            };
+        };
+
 
         ////////////
         // OLD ////
