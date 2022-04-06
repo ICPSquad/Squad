@@ -51,11 +51,6 @@ module {
 
         private var css_style : Text = "";
 
-        // Dependencies
-        let _Assets = dependencies._Assets;
-        let _Admins = dependencies._Admins;
-        let _Logs = dependencies._Logs;
-
         public func preupgrade() : UpgradeData {
             return({
                 avatars = Iter.toArray(_avatars.entries());
@@ -79,11 +74,16 @@ module {
             };
         };
 
+        // Dependencies
+        let _Assets = dependencies._Assets;
+        let _Admins = dependencies._Admins;
+        let _Logs = dependencies._Logs;
+
         ////////////
         // API ////
         ///////////
 
-        // Add a component into the state
+        // Add a component into the store.
         public func addComponent(
             name : Text,
             component : Component 
@@ -97,6 +97,7 @@ module {
             };
         };
 
+        // Change the css style that is applied to all avatars.
         public func changeCSS(style : Text) : () {
             css_style := style;
         };
@@ -106,7 +107,7 @@ module {
             return _avatars.get(tokenId);
         };
 
-
+        // Create a new avatar and store it using the old structure of an avatar.
         public func switchAvatar(
             tokenId : TokenIdentifier,
             layers : [(LayerId, Text)],
@@ -176,6 +177,9 @@ module {
             };
         };
 
+        // Wear an accessory by name on the specified avatar & redraw this avatar.
+        // @dev : Verify that the avatar exists, the component exists & the slot is empty.
+        // @note : Accessing the slot shouldn't require using the _Assets module.
         public func wearAccessory(
             tokenId : TokenIdentifier,
             name_accessory : Text,
@@ -185,17 +189,16 @@ module {
                 case(? avatar) {
                     switch(_components.get(name_accessory)){
                         case(null) {
-                            _Logs.logMessage("Avatar/wearAccessory/line189" # " Component : " # name_accessory # " does not exist");
+                            _Logs.logMessage("Avatar/wearAccessory/192." # " Component : " # name_accessory # " does not exist");
                             return #err("No component named : " # name_accessory);
                         };
                         case(? component){
                             switch(component.category){
                                 case(#Accessory) {
-                                    // To get the slot and verify that it is empty. Not easy.
                                     let filePath = component.name # "-" # Nat.toText(component.layers[0]);
                                     switch(_Assets.getFileByName(filePath)){
                                         case(null) {
-                                            _Logs.logMessage("Avatar/wearAccessory/line198." # " File : " # filePath # " does not exist");
+                                            _Logs.logMessage("Avatar/wearAccessory/201." # " File : " # filePath # " does not exist");
                                             return #err("No file named : " # filePath);
                                         };
                                         case(? file){
@@ -203,14 +206,14 @@ module {
                                             let slots = avatar.slots;
                                             switch(_verifySlot(file.meta.tags[0], avatar.slots)){
                                                 case(#err(e)) {
-                                                    _Logs.logMessage("Avatar/wearAccessory/line206." # " " # e);
+                                                    _Logs.logMessage("Avatar/wearAccessory/209." # " " # e);
                                                     return #err(e);
                                                 };
                                                 case(#ok){
-                                                    _avatar.put(tokenId, _wearAccessory(avatar, slot, slots));
-                                                    switch(_drawAvatar(tokenContractId)){
+                                                    _avatars.put(tokenId, _wearAccessory(avatar, name_accessory, slot));
+                                                    switch(_drawAvatar(tokenId)){
                                                         case(#err(e)) {
-                                                            _Logs.logMessage("Avatar/wearAccessory/line213." # " " # e);
+                                                            _Logs.logMessage("Avatar/wearAccessory/216." # " " # e);
                                                             return #err(e);
                                                         };
                                                         case(#ok){
@@ -223,7 +226,7 @@ module {
                                     };
                                 };
                                 case _  {
-                                    _Logs.logMessage("Avatar/wearAccessory" # " Component : " # name_accessory # " is not an accessory");
+                                    _Logs.logMessage("Avatar/wearAccessory/229." # " Component : " # name_accessory # " is not an accessory");
                                     return #err("Component : " # name_accessory # " is not an accessory");
                                 };
                             };
@@ -233,10 +236,78 @@ module {
             };
         };
 
+        // Remove an accessory by name for the specified avatar & redraw this avatar.
+        // @dev : Verify that the avatar.
         public func removeAccessory(
             tokenId : TokenIdentifier,
             name_accessory : Text,
         ) : Result<(), Text> {
+            switch(_avatars.get(tokenId)){
+                case(null) return #err("No avatar for this tokenIdentifier : " # tokenId);
+                case(? avatar) {
+                    switch(_components.get(name_accessory)){
+                        case(null) {
+                            _Logs.logMessage("Avatar/removeAcessory/250." # " Component : " # name_accessory # " does not exist");
+                            return #err("No component named : " # name_accessory);
+                        };
+                        case (? component) {
+                            switch(component.category){
+                                case(#Accessory){
+                                    let filePath = component.name # "-" # Nat.toText(component.layers[0]);
+                                    switch(_Assets.getFileByName(filePath)){
+                                        case(null) {
+                                            _Logs.logMessage("Avatar/removeAccesssory/259." # " File : " # filePath # " does not exist");
+                                            return #err("No file named : " # filePath);
+                                        };
+                                        case(? file){
+                                            let slot = file.meta.tags[0];
+                                            let slots = avatar.slots;
+                                            switch(_getSlot(slot,slots)){
+                                                case(null){
+                                                    _Logs.logMessage("Avatar/removeAccesssory/267." # " Slot : " # slot # " is empty");
+                                                    return #err("No accessory in slot " # slot);
+                                                };
+                                                case(?equipped){
+                                                    if(equipped == name_accessory){
+                                                        let new_avatar = {
+                                                            background = avatar.background,
+                                                            profile = avatar.profile,
+
+                                                        };
+                                                        _avatars.put(tokenId, _modifyAvatarSlots(avatar, _newSlots(null, slot, slots)));
+                                                        switch(_drawAvatar(tokenId)){
+                                                            case(#err(e)) {
+                                                                _Logs.logMessage("Avatar/removeAccesssory/280." # " " # e);
+                                                                return #err(e);
+                                                            };
+                                                            case(#ok){
+                                                                return #ok;
+                                                            };
+                                                        };
+                                                    } else {
+                                                        _Logs.logMessage("Avatar/removeAccesssory/288." # " Trying to desequip : " # name_accessory # " when " # equipped # " is equipped");
+                                                        return #err("Trying to desequip : " # name_accessory # " when " # equipped # " is equipped");
+                                                    };
+                                                };
+                                            };
+                                        };
+                                    };
+                                };
+                                case _ {
+                                    _Logs.logMessage("Avatar/removeAccessory/297" # " Component : " # name_accessory # " is not an accessory");
+                                    return #err("Component : " # name_accessory # " is not an accessory");
+                                }
+                            }
+                        };
+                    };
+                };
+            };
+        };
+
+        public func clearSlot(
+            tokenId : TokenIdentifier,
+            slot : Text
+        )  : Result<(), Text> {
             #ok;
         };
 
@@ -806,36 +877,52 @@ module {
             switch(tag){
                 case("hat") {
                     if(Option.isSome(slot.Hat)){
-                        return #err("Hat is alreay equipped : " # Option.get(slot.Hat, ""));
+                        return #err("Hat is already equipped : " # Option.get(slot.Hat, ""));
                     };
                     return #ok;
                 };
                 case("eyes") {
                     if(Option.isSome(slot.Eyes)){
-                        return #err("Eyes are alreay equipped : " # Option.get(slot.Eyes, ""));
+                        return #err("Eyes are already equipped : " # Option.get(slot.Eyes, ""));
                     };
                     return #ok;
                 };
                 case ("body"){
                     if(Option.isSome(slot.Body)){
-                        return #err("Body is alreay equipped : " # Option.get(slot.Body, ""));
+                        return #err("Body is already equipped : " # Option.get(slot.Body, ""));
                     };
                     return #ok;
                 };
                 case("face"){
                     if(Option.isSome(slot.Face)){
-                        return #err("Face is alreay equipped : " # Option.get(slot.Face, ""));
+                        return #err("Face is already equipped : " # Option.get(slot.Face, ""));
                     };
                     return #ok;
                 };
                 case("misc"){
                     if(Option.isSome(slot.Misc)){
-                        return #err("Misc is alreay equipped : " # Option.get(slot.Misc, ""));
+                        return #err("Misc is already equipped : " # Option.get(slot.Misc, ""));
                     };
                     return #ok;
                 };
                 case (t) {
                     return #err("Unknown slot : " # t);
+                };
+            };
+        };
+
+        func _getSlot(
+            slot : Text,
+            slots : Slots
+        ) : ?Text {
+            switch(slot){
+                case("hat") slots.Hat;
+                case("eyes") slots.Eyes;
+                case("body") slots.Body; 
+                case("face") slots.Face;
+                case("misc") slots.Misc;
+                case(t) {
+                    return null;
                 };
             };
         };
@@ -879,6 +966,26 @@ module {
             }
         };
 
+        func _modifyAvatarSlots(
+            avatar : Avatar,
+            slots : Slots
+        ) : Avatar {
+            {
+                background = avatar.background;
+                profile = avatar.profile;
+                ears = avatar.ears;
+                mouth = avatar.mouth;
+                eyes = avatar.eyes;
+                nose = avatar.nose;
+                hair = avatar.hair;
+                cloth = avatar.cloth;
+                slots = slots;
+                style = avatar.style;
+                level = avatar.level;
+                blob = avatar.blob;
+            }
+        };
+
         func _wearAccessory(
             avatar : Avatar,
             name : Text,
@@ -893,7 +1000,7 @@ module {
                 nose = avatar.nose;
                 hair = avatar.hair;
                 cloth = avatar.cloth;
-                slots = _newSlot(
+                slots = _newSlots(
                     name,
                     slot,
                     avatar.slots
@@ -904,8 +1011,8 @@ module {
             }
         };
 
-        func _newSlot(
-            name : Text,
+        func _newSlots(
+            name : ?Text,
             slot : Text,
             slots : Slots,
         ) : Slots {
@@ -952,11 +1059,18 @@ module {
                         Eyes = slots.Eyes;
                         Misc = name;
                         Body = slots.Body;
-                        Face = Face;
+                        Face = slots.Face;
                     }
                 };
                 case _ {
                     assert(false);
+                    {
+                        Hat = slots.Hat;
+                        Eyes = slots.Eyes;
+                        Misc = slots.Misc;
+                        Body = slots.Body;
+                        Face = slots.Face;
+                    }
                 };
             };
         };
