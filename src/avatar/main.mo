@@ -559,6 +559,35 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
+    public shared ({caller}) func removeAccessory_new(
+        tokenId : TokenIdentifier,
+        name : Text,
+        caller : Principal
+    ) : async Result<(), Text> {
+        // assert(caller == Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai"));
+        _Monitor.collectMetrics();
+         switch(_Ext.balance({ user = #principal(caller); token = tokenId})){
+            case(#err(_)){
+                return #err("Error trying to access EXT balance : " # tokenId);
+            };
+            case(#ok(n)){
+                switch(n){
+                    case(0){
+                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(caller) # " doesnt own : " # tokenId);
+                        return #err("Caller :  " #Principal.toText(caller) # " doesn't own : " # tokenId);
+                    };
+                    case(1){
+                        _Avatar.removeAccessory(tokenId, name)
+                    };
+                    case _ {
+                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(caller) # " doesnt own : " # tokenId);
+                        return #err("Unexpected value for balance : " # Nat.toText(n));
+                    }
+                };
+            };
+        };
+    };
+
 
 
     // Verify that the accessory is already equipped in the slot. Returns a boolean.
