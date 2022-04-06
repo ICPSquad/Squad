@@ -1,13 +1,14 @@
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
+import Debug "mo:base/Debug";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Result "mo:base/Result";
-import SVG "../utils/svg";
-import Debug "mo:base/Debug";
 import Text "mo:base/Text";
+
+import SVG "../utils/svg";
 import Types "types";
 
 module {
@@ -119,7 +120,9 @@ module {
         ) : Result<Text,Text> {
             let filePath = name # "-" # Nat.toText(layerId);
             switch(files.get(filePath)){
-                case(null) return #err("Asset not found for : " # filePath);
+                case(null) {
+                    return #err("Asset not found for : " # filePath);
+                };
                 case(?file) {
                     switch(Text.decodeUtf8(file.asset.payload)){
                         case(null) return #err("Error during decodeUtf8 : " # filePath);

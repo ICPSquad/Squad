@@ -198,6 +198,14 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     stable var styleStorage : [Text] = [];
     stable var slotsStorage : [Slots] = [];
 
+    public shared func allTokens() : async [TokenIdentifier]  {
+        var buffer : Buffer.Buffer<Text> =  Buffer.Buffer(0);
+        for(token in avatars.keys()){
+            buffer.add(token);
+        };
+        buffer.toArray();
+    };
+
     private class Avatar ( layersEntries : [(LayerId, LayerAvatar)], style : Text, slots : Slots) {
 
         var slots_in_memory : Slots = slots; 
@@ -231,6 +239,22 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
 
         public func getLayers () : [(LayerId, LayerAvatar)] {
             Iter.toArray(layers.entries());
+        };
+
+        public func getLayersName() : [(LayerId, Text)] {
+            var buffer : Buffer.Buffer<(LayerId, Text)> = Buffer.Buffer(0);
+            for(layer in layers.entries()){
+                switch(layer.1){
+                    case(#Component(name)) {
+                        buffer.add((layer.0, name));
+                    };
+                    case(#Accessory(name)) {
+                        buffer.add((layer.0, name));
+                    };
+
+                }
+            };
+            buffer.toArray();
         };
 
         
@@ -1022,18 +1046,18 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     };
 
 
-    private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?ExtModule.Listing, ?Blob)] {
-        var tokens = Buffer.Buffer<(TokenIndex, ?ExtModule.Listing, ?Blob)>(0);
-        for ((token_index,account) in _registry.entries()){
-            if(a == account) {
-                let token_identifier = Ext.TokenIdentifier.encode(cid, token_index);
-                let new_element = (token_index, null, _blobs.get(token_identifier));
-                tokens.add(new_element);
-            };
-        };
-        let array = tokens.toArray();
-        return array;
-    };
+    // private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?ExtModule.Listing, ?Blob)] {
+    //     var tokens = Buffer.Buffer<(TokenIndex, ?ExtModule.Listing, ?Blob)>(0);
+    //     for ((token_index,account) in _registry.entries()){
+    //         if(a == account) {
+    //             let token_identifier = Ext.TokenIdentifier.encode(cid, token_index);
+    //             let new_element = (token_index, null, _blobs.get(token_identifier));
+    //             tokens.add(new_element);
+    //         };
+    //     };
+    //     let array = tokens.toArray();
+    //     return array;
+    // };
     // public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result<[(TokenIndex, ?ExtModule.Listing, ?Blob)], CommonError> {
     //     let tokens = _generateTokensExt(account);
     //     if (tokens.size() == 0) {
@@ -1397,6 +1421,14 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Logs.logMessage("Changed CSS");
     };
 
+    public shared ({caller}) func drawAvatar(
+        tokenId : TokenIdentifier
+    ) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Avatar.drawAvatar(tokenId);
+    };
+
     // TODO
     // Create the avatar and the blob
     // Get the right tokenIdentifier and put the request user as owner
@@ -1413,24 +1445,24 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     //     }
     // };
 
-    type MintInformation = AvatarNewModule.MintInformation;
-    public shared ({caller}) func mint_new(
-        info : MintInformation
-    ) : async Result<TokenIdentifier, Text> {
-        // assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        switch(_Ext.mint({ to = #principal(info.user); metadata = null; })){
-            case(#err(#Other(e))) return #err(e);
-            case(#err(#InvalidToken(e))) return #err(e);
-            case(#ok(index)){
-                let tokenId = Ext.TokenIdentifier.encode(cid, index);
-                switch(_Avatar.createAvatar(info, tokenId)){
-                    case(#ok) return #ok(tokenId);
-                    case(#err(e)) return #err(e);
-                };
-            };
-        };
-    };
+    // type MintInformation = AvatarNewModule.MintInformation;
+    // public shared ({caller}) func mint_new(
+    //     info : MintInformation
+    // ) : async Result<TokenIdentifier, Text> {
+    //     // assert(_Admins.isAdmin(caller));
+    //     _Monitor.collectMetrics();
+    //     switch(_Ext.mint({ to = #principal(info.user); metadata = null; })){
+    //         case(#err(#Other(e))) return #err(e);
+    //         case(#err(#InvalidToken(e))) return #err(e);
+    //         case(#ok(index)){
+    //             let tokenId = Ext.TokenIdentifier.encode(cid, index);
+    //             switch(_Avatar.createAvatar(info, tokenId)){
+    //                 case(#ok) return #ok(tokenId);
+    //                 case(#err(e)) return #err(e);
+    //             };
+    //         };
+    //     };
+    // };
 
     ///////////
     // HTTP //
@@ -1509,18 +1541,21 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
-    // public func backup_avatar() : async () {
-    //     var buffer : Buffer.Buffer<(TokenIdentifier, [(LayerId, LayerAvatar)], Text, Slots)> = Buffer.Buffer(0);
-    //     for((tokenId, avatar) in  avatars.entries()){
-    //         let layers = avatar.getLayers();
-    //         let slots = avatar.getSlots();
-    //         let style = avatar.getRawStyle();
-    //         buffer.add((tokenId, layers, style, slots));
-    //     };
-    //     backup_avatar_store := buffer.toArray();
-    // };
+    public func build_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
+        switch(avatars.get(tokenId)){
+            case(null) return #err("Avatar not found");
+            case(?avatar) {
+                _Avatar.switchAvatar(
+                    tokenId,
+                    avatar.getLayersName(),
+                    avatar.getRawStyle(),
+                    avatar.getSlots()
+                );
+            }
+        };
+    };
 
-    // stable var backup_tokens = [];
+
 
 
 
