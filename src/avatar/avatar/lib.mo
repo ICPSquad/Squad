@@ -269,11 +269,6 @@ module {
                                                 };
                                                 case(?equipped){
                                                     if(equipped == name_accessory){
-                                                        let new_avatar = {
-                                                            background = avatar.background,
-                                                            profile = avatar.profile,
-
-                                                        };
                                                         _avatars.put(tokenId, _modifyAvatarSlots(avatar, _newSlots(null, slot, slots)));
                                                         switch(_drawAvatar(tokenId)){
                                                             case(#err(e)) {
@@ -877,31 +872,31 @@ module {
             switch(tag){
                 case("hat") {
                     if(Option.isSome(slot.Hat)){
-                        return #err("Hat is already equipped : " # Option.get(slot.Hat, ""));
+                        return #err("Hat already equipped : " # Option.get(slot.Hat, ""));
                     };
                     return #ok;
                 };
                 case("eyes") {
                     if(Option.isSome(slot.Eyes)){
-                        return #err("Eyes are already equipped : " # Option.get(slot.Eyes, ""));
+                        return #err("Eyes already equipped : " # Option.get(slot.Eyes, ""));
                     };
                     return #ok;
                 };
                 case ("body"){
                     if(Option.isSome(slot.Body)){
-                        return #err("Body is already equipped : " # Option.get(slot.Body, ""));
+                        return #err("Body already equipped : " # Option.get(slot.Body, ""));
                     };
                     return #ok;
                 };
                 case("face"){
                     if(Option.isSome(slot.Face)){
-                        return #err("Face is already equipped : " # Option.get(slot.Face, ""));
+                        return #err("Face already equipped : " # Option.get(slot.Face, ""));
                     };
                     return #ok;
                 };
                 case("misc"){
                     if(Option.isSome(slot.Misc)){
-                        return #err("Misc is already equipped : " # Option.get(slot.Misc, ""));
+                        return #err("Misc already equipped : " # Option.get(slot.Misc, ""));
                     };
                     return #ok;
                 };
@@ -1001,7 +996,7 @@ module {
                 hair = avatar.hair;
                 cloth = avatar.cloth;
                 slots = _newSlots(
-                    name,
+                    ?name,
                     slot,
                     avatar.slots
                 );

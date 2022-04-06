@@ -17,12 +17,14 @@ import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 
+import AccountIdentifier "mo:principal/AccountIdentifier";
 import Canistergeek "mo:canistergeek/canistergeek";
 import Cap "mo:cap/Cap";
 import Ext "mo:ext/Ext";
 import Hex "mo:encoding/Hex";
 import PrincipalBlob "mo:principal/Principal";
 import Root "mo:cap/Root";
+import _Monitor "mo:canistergeek/typesModule";
 
 import Admins "admins";
 import Assets "assets";
@@ -483,6 +485,35 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
                 };
             };
         };
+    };
+
+    public shared ({caller}) func wearAccessory_new(
+        tokenId : TokenIdentifier,
+        name : Text,
+        caller : Principal
+    ) : async Result<(), Text> {
+        // assert(caller == Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai"));
+        _Monitor.collectMetrics();
+        switch(_Ext.balance({ user = #principal(caller); token = tokenId})){
+            case(#err(_)){
+                return #err("Error trying to access EXT balance : " # tokenId);
+            };
+            case(#ok(n)){
+                switch(n){
+                    case(0){
+                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(caller) # " doesnt own : " # tokenId);
+                        return #err("Caller :  " #Principal.toText(caller) # " doesn't own : " # tokenId);
+                    };
+                    case(1){
+                        _Avatar.wearAccessory(tokenId, name)
+                    };
+                    case _ {
+                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(caller) # " doesnt own : " # tokenId);
+                        return #err("Unexpected value for balance : " # Nat.toText(n));
+                    }
+                };
+            };
+        }
     };
 
 
@@ -1445,24 +1476,24 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     //     }
     // };
 
-    // type MintInformation = AvatarNewModule.MintInformation;
-    // public shared ({caller}) func mint_new(
-    //     info : MintInformation
-    // ) : async Result<TokenIdentifier, Text> {
-    //     // assert(_Admins.isAdmin(caller));
-    //     _Monitor.collectMetrics();
-    //     switch(_Ext.mint({ to = #principal(info.user); metadata = null; })){
-    //         case(#err(#Other(e))) return #err(e);
-    //         case(#err(#InvalidToken(e))) return #err(e);
-    //         case(#ok(index)){
-    //             let tokenId = Ext.TokenIdentifier.encode(cid, index);
-    //             switch(_Avatar.createAvatar(info, tokenId)){
-    //                 case(#ok) return #ok(tokenId);
-    //                 case(#err(e)) return #err(e);
-    //             };
-    //         };
-    //     };
-    // };
+    type MintInformation = AvatarNewModule.MintInformation;
+    public shared ({caller}) func mint_new(
+        info : MintInformation
+    ) : async Result<TokenIdentifier, Text> {
+        // assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        switch(_Ext.mint({ to = #principal(info.user); metadata = null; })){
+            case(#err(#Other(e))) return #err(e);
+            case(#err(#InvalidToken(e))) return #err(e);
+            case(#ok(index)){
+                let tokenId = Ext.TokenIdentifier.encode(cid, index);
+                switch(_Avatar.createAvatar(info, tokenId)){
+                    case(#ok) return #ok(tokenId);
+                    case(#err(e)) return #err(e);
+                };
+            };
+        };
+    };
 
     ///////////
     // HTTP //
