@@ -16,6 +16,7 @@ import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+import _Ext "mo:base/List";
 
 import AccountIdentifier "mo:principal/AccountIdentifier";
 import Canistergeek "mo:canistergeek/canistergeek";
@@ -177,7 +178,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     type AvatarRequest = AvatarModule.AvatarRequest;
     type AvatarInformations = AvatarModule.AvatarInformations;
     type AvatarResponse = AvatarModule.AvatarResponse;
-    type AvatarPreview = AvatarModule.AvatarPreview;
     type ComponentRequest = AvatarModule.ComponentRequest;
     type Colors = ColorModule.Colors;
     public type MintRequest = {
@@ -658,36 +658,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
-    public query func showFullSvg (token_identifier : TokenIdentifier) : async ?Text {
-          switch(avatars.get(token_identifier)){
-            case(null) return null;
-            case(?avatar) {
-                return ?avatar.getFullSvg();
-            };
-        };
-    };
-
-    public shared query (msg) func getAvatarInfos () : async Result<AvatarPreview, Text> {
-        switch(_myTokenIdentifier(msg.caller)){
-            case (null) return #err ("You dont own any avatar.");
-            case (?token) {
-                switch(avatars.get(token)){
-                    case(null) return #err ("There is no avatar associated for this tokenIdentifier (strange) " # token);
-                    case(?avatar) { 
-                        avatar.buildSvg();
-                        let preview : AvatarPreview = {
-                            token_identifier = token;
-                            avatar_svg = avatar.getFullSvg();
-                            slots = avatar.getSlots();
-                        };
-                        return #ok(preview);
-                    };
-                };
-            };
-        };
-    };
-
-    type AvatarPreviewNew = {
+    type AvatarPreview = {
         token_identifier : TokenIdentifier;
         layers : [(LayerId, Text)];
         style : Text;
@@ -696,16 +667,25 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     };
 
     //  Used to get all the informations to construct the room on the frontend where users can equip accessories. If caller owns an avatar, returns it's token identifier/layersText/style/slots/body-type.
-    public shared query ({caller}) func getAvatarInfos_new() : async Result<AvatarPreviewNew, Text> {
-        switch(_myTokenIdentifier(caller)){
-            case(null) return #err("You don't own any avatar.");
-            case(?token){
-                switch(avatars.get(token)){
-                    case(null) return #err ("There is no avatar associated for this tokenIdentifier (strange) " # token);
-                    case(?avatar) { 
-                        return #ok({token_identifier = token; layers = avatar.getLayersText(); style = avatar.getRawStyle(); slots = avatar.getSlots(); body_name = avatar.getNameBody()});
-                    };
-                };
+    public shared query ({caller}) func getAvatarInfos_new() : async Result<AvatarPreview, Text> {
+        let tokens = switch(_Ext.tokens(Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower))) {
+            case(#err(_)) {
+                _Logs.logMessage("Main/getAvatarInfos_new/672." # " Error trying to access EXT tokens : " # Principal.toText(caller));
+                return #err("Error trying to access EXT tokens : " # Principal.toText(caller));
+            };
+            case(#ok(list)) list;
+        };
+        if(tokens.size() == 0){
+            return #err("You don't own any avatar.");
+        };
+        let tokenId = Ext.TokenIdentifier.encode(cid, tokens[0]);
+        switch(avatars.get(tokenId)){
+            case(null) {
+                _Logs.logMessage("Main/getAvatarInfos_new/683." # " No avatar associated with tokenIdentifier " # Ext.TokenIdentifier.encode(cid, tokens[0]));
+                return #err("Error trying to access EXT tokens : " # Principal.toText(caller));
+            };
+            case(?avatar) { 
+                return #ok({token_identifier = tokenId; layers = avatar.getLayersText(); style = avatar.getRawStyle(); slots = avatar.getSlots(); body_name = avatar.getNameBody()});
             };
         };
     };
@@ -787,103 +767,28 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     };
 
 
-    //////////////////////////////////////
-    // ACCOUNT IDENTIFIER <-> PRINCIPAL //
-    /////////////////////////////////////
-
-    private stable var _principalToAccountsIdentifierState : [(Principal,[AccountIdentifier])] = [];
-    private var _principalToAccountsIdentifier : HashMap.HashMap<Principal, [AccountIdentifier]> = HashMap.fromIter(_principalToAccountsIdentifierState.vals(), 0 , Principal.equal, Principal.hash);
-    
-    //////////////
-    // Private //
-    /////////////
-
-    private func _isPrincipalKnown(p : Principal) : Bool {
-        switch(_principalToAccountsIdentifier.get(p)){
-            case (null) return false;
-            case(?accounts){
-                return true
+    private func _isOwner (
+        p : Principal, 
+        tokenId : TokenIdentifier
+    ) : Bool {
+        let aid = Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
+        switch(_Ext.tokens(aid)){
+            case(#err(_)) {
+                _Logs.logMessage("Main/_isOwner/821." # " Error trying to access EXT tokens : " # Principal.toText(p));
+                return false;
             };
-        };
-    };
-
-    private func _myTokenIdentifier (p : Principal) : ?TokenIdentifier {
-        // Creates and stores the 10 first subaccounts if it's the first time this principal is calling.
-        if(not (_isPrincipalKnown(p))) {
-            let accounts : [AccountIdentifier] = _generateAccounts(p);
-            _principalToAccountsIdentifier.put(p, accounts);
-        };
-
-        let tokens : [TokenIdentifier] = _generateTokens(p);
-        if (tokens.size() == 0) {
-            return null;
-        } else {
-            return ?tokens[0];
-        }
-    };
-
-    private func _isOwner (p : Principal , token_identifier : TokenIdentifier) : Bool {
-        if(not (_isPrincipalKnown(p))){
-            let accounts : [TokenIdentifier] = _generateAccounts(p);
-            _principalToAccountsIdentifier.put(p, accounts);
-        };
-
-        let tokens : [TokenIdentifier] = _generateTokens(p);
-
-        if(Utils.contains<TokenIdentifier>(tokens, token_identifier, Text.equal)){
-            return true;
-        } else {
-            return false;
-        };
-    };
-    
-    // Creates a Principal from a Blob : extension of the base Module
-    private func _fromBlob(b : Blob) : Principal {
-        return(Principal.fromBlob(b));
-    };
-    
-    // Only valid for the first 256 subaccount (more than enough)
-    private func _nat8ToSubaccount (n : Nat8) : [Nat8] {
-        var subaccount : [Nat8] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,n];
-        return subaccount;
-    };
-
-    // Generate the 10 first subaccounts for a principal 
-    private func _generateAccounts (p : Principal) :  [AccountIdentifier] {
-        var accounts = Buffer.Buffer<AccountIdentifier>(0);
-        let iterator = Iter.range(0,10);
-        for (i in iterator) {
-            if(i == 0) {
-                let new_account = Ext.AccountIdentifier.fromPrincipal(p, null);
-                accounts.add(new_account);
-            } else {
-                let new_account = Ext.AccountIdentifier.fromPrincipal(p, ?_nat8ToSubaccount(Nat8.fromNat(i)));
-                accounts.add(new_account);
-            };
-        };
-        let array = accounts.toArray();
-        return array;
-    };
-
-    // This function must be run after the previous one has generated the list of subaccounts for the principal
-    private func _generateTokens (p : Principal) : [TokenIdentifier] {
-        var tokens = Buffer.Buffer<TokenIdentifier>(0);
-        switch(_principalToAccountsIdentifier.get(p)){
-            case(null) return [];
-            case(?accounts) {
-                for((index,account) in _registry.entries()){
-                    if(Utils.contains<AccountIdentifier>(accounts, account, Text.equal)) {
-                        let identifier = Ext.TokenIdentifier.encode(cid,index);
-                        tokens.add(identifier);
+            case(#ok(list)) {
+                for (token in list.vals()) {
+                    if(Ext.TokenIdentifier.encode(cid, token) == tokenId){
+                        return true;
                     };
                 };
-            let array = tokens.toArray();
-            return array;
+                return false;
             };
         };
     };
-
-
+    
+    
     //////////////////
     // EXT - ERC721 //
     /////////////////
@@ -961,8 +866,18 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Ext.tokens(aid);
     };
 
-    public query func tokens_ext(account : AccountIdentifier) : async Result<[(TokenIndex, ?ExtModule.Listing, ?Blob)], CommonError> {
-        _Ext.tokens_ext(account);
+    public query func tokens_ext(aid : AccountIdentifier) : async Result<[(TokenIndex, ?ExtModule.Listing, ?Blob)], CommonError> {
+        _Ext.tokens_ext(aid);
+    };
+
+    public query func tokens_id(aid : AccountIdentifier) : async Result<[TokenIdentifier], CommonError> {
+        switch(_Ext.tokens(aid)){
+            case(#err(#Other(e))) return #err(#Other(e));
+            case(#err(#InvalidToken(token))) return #err(#InvalidToken(token));
+            case(#ok(tokens)) {
+                return(#ok(Array.map<TokenIndex,TokenIdentifier>(tokens, func(x) { Ext.TokenIdentifier.encode(cid, x) })));
+            };
+        }
     };
 
     public query func balance(request : BalanceRequest) : async BalanceResponse {
@@ -1083,8 +998,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         componentsEntries := Iter.toArray(components.entries());
         accessoriesEntries := Iter.toArray(accessories.entries());
 
-        //  NFT 
-        _principalToAccountsIdentifierState := Iter.toArray(_principalToAccountsIdentifier.entries());
         _registryState := Iter.toArray(_registry.entries());
         _blobsEntries := Iter.toArray(_blobs.entries());
         //  CAP
@@ -1127,7 +1040,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         componentsEntries := [];
         accessoriesEntries := [];
         _registryState := [];
-        _principalToAccountsIdentifierState := [];
         _blobsEntries := [];
         layerStorage := [];
         tokenStorage := [];
@@ -1276,24 +1188,24 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     //     }
     // };
 
-    type MintInformation = AvatarNewModule.MintInformation;
-    public shared ({caller}) func mint_new(
-        info : MintInformation
-    ) : async Result<TokenIdentifier, Text> {
-        // assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        switch(_Ext.mint({ to = #principal(info.user); metadata = null; })){
-            case(#err(#Other(e))) return #err(e);
-            case(#err(#InvalidToken(e))) return #err(e);
-            case(#ok(index)){
-                let tokenId = Ext.TokenIdentifier.encode(cid, index);
-                switch(_Avatar.createAvatar(info, tokenId)){
-                    case(#ok) return #ok(tokenId);
-                    case(#err(e)) return #err(e);
-                };
-            };
-        };
-    };
+    // type MintInformation = AvatarNewModule.MintInformation;
+    // public shared ({caller}) func mint_new(
+    //     info : MintInformation
+    // ) : async Result<TokenIdentifier, Text> {
+    //     assert(_Admins.isAdmin(caller));
+    //     _Monitor.collectMetrics();
+    //     switch(_Ext.mint({ to = #principal(info.user); metadata = null; })){
+    //         case(#err(#Other(e))) return #err(e);
+    //         case(#err(#InvalidToken(e))) return #err(e);
+    //         case(#ok(index)){
+    //             let tokenId = Ext.TokenIdentifier.encode(cid, index);
+    //             switch(_Avatar.createAvatar(info, tokenId)){
+    //                 case(#ok) return #ok(tokenId);
+    //                 case(#err(e)) return #err(e);
+    //             };
+    //         };
+    //     };
+    // };
 
     ///////////
     // HTTP //
@@ -1354,8 +1266,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     /////////////
     // BACKUP //
     ////////////
-
-
 
     public func build_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
         switch(avatars.get(tokenId)){
