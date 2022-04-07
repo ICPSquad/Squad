@@ -13,7 +13,6 @@ import Text "mo:base/Text";
 import Ext "mo:ext/Ext";
 
 import Assets "../assets";
-import AvatarOld "../types/avatar";
 import ColorModule "../utils/color";
 import SVG "../utils/svg";
 import Types "types";
@@ -142,21 +141,6 @@ module {
                 return #ok;
         };
 
-        public func createAvatar_old(
-            request : AvatarRequest,
-            tokenId : TokenIdentifier,
-        ) : Result<(), Text> {
-            switch(_avatars.get(tokenId)){
-                case(? avatar) return #err("There is already an avatar for this tokenIdentifier");
-                case(null){
-
-                    let avatar = _createAvatarOld(request);
-                    let blob = _createBlob(avatar);
-                    _avatars.put(tokenId, avatar);
-                    return #ok;
-                };
-            };
-        };
 
         public func createAvatar(
             info : MintInformation,
@@ -212,7 +196,7 @@ module {
                             switch(component.category){
                                 case(#Accessory) {
                                     let filePath = component.name # "-" # Nat.toText(component.layers[0]);
-                                    switch(_Assets.getFileByName(filePath)){
+                                    switch(_Assets.getFile(filePath)){
                                         case(null) {
                                             _Logs.logMessage("Avatar/wearAccessory/201." # " File : " # filePath # " does not exist");
                                             return #err("No file named : " # filePath);
@@ -270,7 +254,7 @@ module {
                             switch(component.category){
                                 case(#Accessory){
                                     let filePath = component.name # "-" # Nat.toText(component.layers[0]);
-                                    switch(_Assets.getFileByName(filePath)){
+                                    switch(_Assets.getFile(filePath)){
                                         case(null) {
                                             _Logs.logMessage("Avatar/removeAccesssory/259." # " File : " # filePath # " does not exist");
                                             return #err("No file named : " # filePath);
@@ -455,7 +439,10 @@ module {
             for(layer in layers_cloth.vals()){
                 buffer.add((layer, avatar.cloth));
             };
-            return(Array.append<(LayerId,Text)>(buffer.toArray(), _getLayersAccessories(avatar)));
+            for(layer in _getLayersAccessories(avatar).vals()){
+                buffer.add(layer);
+            };
+            buffer.toArray();
         };
 
         func _getStyleOptionalAccessory(avatar : Avatar) : Text {
@@ -597,7 +584,7 @@ module {
         func _createLegendary(
             name : Text
         ) : Result<Avatar, Text> {
-            switch(_Assets.getFileByName(name)){
+            switch(_Assets.getFile(name)){
                 case(null) {
                     _Logs.logMessage("Avatar/lib/createLegendary/line592. " # name # " file not found.");
                     return (#err("File not found for : " # name));
@@ -630,84 +617,84 @@ module {
         // OLD ////
         ///////////
 
-        func _createAvatarOld(
-            request : AvatarRequest,
-        ) : Avatar {
-            let background = switch(_findBackground(request)){
-                case(?background) Text.map(background , Prim.charToLower);
-                case(_) {
-                    assert(false);
-                    "Unreachable";
-                }
-            };
-            let profile = switch(_findProfile(request)){
-                case(?profile) Text.map(profile , Prim.charToLower);
-                 case(_) {
-                    assert(false);
-                    "Unreachable";
-                }
-            };
-            let ears = switch(_findEars(request)){
-                case(?ears) Text.map(ears , Prim.charToLower);
-                 case(_) {
-                    assert(false);
-                    "Unreachable";
-                }
-            };
-            let mouth = switch(_findMouth(request)){
-                case(?mouth) Text.map(mouth , Prim.charToLower);
-                 case(_) {
-                    assert(false);
-                    "Unreachable";
-                }
-            };
-            let eyes = switch(_findEyes(request)){
-                case(?eyes) Text.map(eyes , Prim.charToLower);
-                 case(_) {
-                    assert(false);
-                    "Unreachable";
-                }
-            };
-            let nose = switch(_findNose(request)){
-                case(?nose) Text.map(nose , Prim.charToLower);
-                 case(_) {
-                    assert(false);
-                    "Unreachable";
-                }
-            };
-            let hair = switch(_findHair(request)){
-                case(?hair) Text.map(hair , Prim.charToLower);
-                 case(_) {
-                    assert(false);
-                    "Unreachable";
-                }
-            };
-            let cloth = switch(_findCloth(request)){
-                case(?cloth) cloth;
-                 case(_) {
-                    assert(false);
-                    "Unreachable";
-                }
-            };
-            let avatar_without_blob = {
-                background = background;
-                profile = profile;
-                ears = ears;
-                mouth = mouth;
-                eyes = eyes;
-                nose = nose;
-                hair = hair;
-                cloth = cloth;
-                slots = _createNewSlot();
-                style = #Colors(request.colors);
-                level = _getLevel();
-                blob = Blob.fromArray([0]);
-            };
-            _modifyAvatarBlob(
-                avatar_without_blob,
-                _createBlob(avatar_without_blob)
-            )
-        };
+        // func _createAvatarOld(
+        //     request : AvatarRequest,
+        // ) : Avatar {
+        //     let background = switch(_findBackground(request)){
+        //         case(?background) Text.map(background , Prim.charToLower);
+        //         case(_) {
+        //             assert(false);
+        //             "Unreachable";
+        //         }
+        //     };
+        //     let profile = switch(_findProfile(request)){
+        //         case(?profile) Text.map(profile , Prim.charToLower);
+        //          case(_) {
+        //             assert(false);
+        //             "Unreachable";
+        //         }
+        //     };
+        //     let ears = switch(_findEars(request)){
+        //         case(?ears) Text.map(ears , Prim.charToLower);
+        //          case(_) {
+        //             assert(false);
+        //             "Unreachable";
+        //         }
+        //     };
+        //     let mouth = switch(_findMouth(request)){
+        //         case(?mouth) Text.map(mouth , Prim.charToLower);
+        //          case(_) {
+        //             assert(false);
+        //             "Unreachable";
+        //         }
+        //     };
+        //     let eyes = switch(_findEyes(request)){
+        //         case(?eyes) Text.map(eyes , Prim.charToLower);
+        //          case(_) {
+        //             assert(false);
+        //             "Unreachable";
+        //         }
+        //     };
+        //     let nose = switch(_findNose(request)){
+        //         case(?nose) Text.map(nose , Prim.charToLower);
+        //          case(_) {
+        //             assert(false);
+        //             "Unreachable";
+        //         }
+        //     };
+        //     let hair = switch(_findHair(request)){
+        //         case(?hair) Text.map(hair , Prim.charToLower);
+        //          case(_) {
+        //             assert(false);
+        //             "Unreachable";
+        //         }
+        //     };
+        //     let cloth = switch(_findCloth(request)){
+        //         case(?cloth) cloth;
+        //          case(_) {
+        //             assert(false);
+        //             "Unreachable";
+        //         }
+        //     };
+        //     let avatar_without_blob = {
+        //         background = background;
+        //         profile = profile;
+        //         ears = ears;
+        //         mouth = mouth;
+        //         eyes = eyes;
+        //         nose = nose;
+        //         hair = hair;
+        //         cloth = cloth;
+        //         slots = _createNewSlot();
+        //         style = #Colors(request.colors);
+        //         level = _getLevel();
+        //         blob = Blob.fromArray([0]);
+        //     };
+        //     _modifyAvatarBlob(
+        //         avatar_without_blob,
+        //         _createBlob(avatar_without_blob)
+        //     )
+        // };
 
         func _findBackground(request : AvatarRequest) : ?Text {
             for(component in request.components.vals()){
@@ -787,15 +774,7 @@ module {
         };
 
 
-        type LayerAvatar = AvatarOld.LayerAvatar;
-        // public func fromOld(
-        //     token : TokenIdentifier,
-        //     layers : [(LayerId, LayerAvatar)],
-        //     style : Text,
-        //     slots : Slots,
-        // ) : () {
-
-        // };
+   
 
         func _profileToCSSBody(profile : Text) : Text {
             switch(profile){

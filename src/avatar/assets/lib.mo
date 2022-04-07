@@ -18,11 +18,9 @@ module {
     //////////
 
     public type FilePath = Types.FilePath;
-    public type Record = Types.Record;
+    public type File = Types.File;
     public type UpgradeData = Types.UpgradeData;
     public type Meta = Types.Meta;
-
-
 
     public class Assets() : Types.Interface {
         
@@ -36,7 +34,7 @@ module {
         private let buffer : Buffer.Buffer<Nat8> = Buffer.Buffer(0);
 
         // The records that have been uploaded, stored by filePath.
-        private let files : HashMap.HashMap<FilePath,Record> = HashMap.HashMap(0, Text.equal, Text.hash);
+        private let files : HashMap.HashMap<FilePath,File> = HashMap.HashMap(0, Text.equal, Text.hash);
 
         public func preupgrade() : UpgradeData {
             {
@@ -59,8 +57,6 @@ module {
         // API ///
         /////////
 
-        // Upload bytes into the buffer.
-
         public func upload(
             bytes : [Nat8],
         ) : () {
@@ -69,7 +65,6 @@ module {
             };
         };
 
-        // Finalize the upload buffer into an asset, and store a record with the filePath.
         public func uploadFinalize(
             contentType : Text,
             meta : Types.Meta,
@@ -88,12 +83,10 @@ module {
             return #ok;
         };
 
-        // Clear the upload buffer.
         public func uploadClear(): () {
             buffer.clear();
         };
         
-        // Delete a file using the filePath.
         public func delete(filePath : FilePath) : Result<(), Text> {
             switch(files.remove(filePath)){
                 case(null) return #err("File not found : " # filePath);
@@ -101,27 +94,15 @@ module {
             };
         };
 
-        // Retrieve an asset using the filePath.
-        public func getAssetByName(
+        public func getFile(
             filePath : FilePath
-        ) : ?Types.Asset {
-            switch(files.get(filePath)){
-                case(?record) return ?record.asset;
-                case(null) return null;
-            }
-        };
-
-        // Retrieve a record using the filePath.
-        public func getFileByName(
-            filePath : FilePath
-        ) : ?Types.Record {
+        ) : ?File {
             switch(files.get(filePath)){
                 case(?record) return ?record;
                 case(null) return null;
             }
         };
 
-        // Retrieve a component as textual <g> element.
         public func getComponent(
             name : Text,
             layerId : Nat
@@ -142,7 +123,7 @@ module {
             };
         };
 
-        public func getManifest() : [Record] {
+        public func getManifest() : [File] {
             Iter.toArray(files.vals())
         };
 
@@ -155,22 +136,5 @@ module {
             };
             return(assets_count, assets_size);
         };
-
-        ////////////////
-        // Utilities //
-        //////////////
-
-        // Turn a list of blobs into one blob.
-        func _flattenPayload (payload : [Blob]) : Blob {
-            Blob.fromArray(
-                Array.foldLeft<Blob, [Nat8]>(payload, [], func (a : [Nat8], b : Blob) {
-                    Array.append(a, Blob.toArray(b));
-                })
-            );
-        };
-
-
-
-
     };
- }
+ };

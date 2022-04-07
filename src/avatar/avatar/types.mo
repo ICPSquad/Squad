@@ -108,7 +108,6 @@ module {
     public type Interface = {
         getAvatar : TokenIdentifier -> ?Avatar;
         drawAvatar : TokenIdentifier -> Result<(), Text>;
-        createAvatar_old : (AvatarRequest,TokenIdentifier) -> Result<(), Text>;
         createAvatar : (MintInformation,TokenIdentifier) -> Result<(), Text>;
         createLegendary : (Text, TokenIdentifier) -> Result<(), Text>;
         wearAccessory : (TokenIdentifier, Text) -> Result<(), Text>;

@@ -15,31 +15,6 @@ module {
     //API //
     ////////
 
-    // ⚠️ This function quickly caused the heap to grow and leading the canister to run out of memory/to crash.
-    // public func unwrap(svg : Text) : Text  {
-    //     let a_opt = Text.stripStart(svg, SVG_LEADING_PATTERN);
-    //     switch(a_opt){
-    //         case(null) {
-    //             Debug.print("SVG.unwrap: no leading pattern found");
-    //             assert(false);
-    //             return "Unreachable";
-
-    //         };
-    //         case(? a){
-    //             let b_opt = Text.stripEnd(a, SVG_TRAILING_PATTERN);
-    //             switch(b_opt){
-    //                 case(? b){
-    //                     return b;
-    //                 };
-    //                 case(null) {
-    //                     assert(false);
-    //                     return "Unreachable";
-    //                 };
-    //             };
-    //         };
-    //     };
-    // };
-
     public func capitalize(text : Text) : Text {
         var r = "";
         let cs = text.chars();
@@ -56,14 +31,12 @@ module {
     };
 
     public func unwrap(svg : Text) : Text {
-        extract(svg, SVG_LEADING_PATTERN.size(), svg.size()  - SVG_LEADING_PATTERN.size() - SVG_TRAILING_PATTERN.size())
+        _extract(svg, SVG_LEADING_PATTERN.size(), svg.size()  - SVG_LEADING_PATTERN.size() - SVG_TRAILING_PATTERN.size())
     };
-
 
     public func addHeader(svg : Text) : Text {
         return SVG_LEADING_PATTERN # svg # SVG_TRAILING_PATTERN;
     };
-
 
     public func wrap(content : Text, layerId : Nat, name : Text ) : Text {
         switch(layerId){
@@ -121,7 +94,6 @@ module {
     };
 
     // Wrap the component according to its name and its category. Needed for applying the CSS rules.
-    // @todo : Clean this mess.
     func _wrap(content : Text, category : Text, name : Text ) : Text {
         let names = _nameSplit(name);
         var component_wrapped =  "<g class='" # category # "";
@@ -135,9 +107,9 @@ module {
         component_wrapped #= " " # name # "'>" # content # "</g>";
         return(component_wrapped);
     };
-
-    /* From https://github.com/dfinity/motoko-base/blob/master/src/Text.mo */
-    func extract(t : Text, i : Nat, j : Nat) : Text {
+    
+    // Extract a substring from the given string.
+    func _extract(t : Text, i : Nat, j : Nat) : Text {
         let size = t.size();
         if (i == 0 and j == size) return t;
         assert (j <= size);
@@ -158,8 +130,4 @@ module {
         };
         return r;
     };
-
-
-
-
 }

@@ -1,5 +1,6 @@
-import Types "types";
 import Buffer "mo:base/Buffer";
+
+import Types "types";
 module {
 
     ////////////
@@ -73,5 +74,5 @@ module {
         public func getAdmins() : [Principal] {
             admins.toArray();
         };
-    }
-}
+    };
+};

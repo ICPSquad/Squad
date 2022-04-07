@@ -9,7 +9,7 @@ import Text "mo:base/Text";
 
 import Ext "mo:ext/Ext";
 
-import AssetTypes "../assets/types";
+import Assets "../assets";
 import SVG "../utils/svg";
 import Types "types";
 module {
@@ -102,7 +102,7 @@ module {
         func _httpAssetFilename(path : ?Text) : Types.Response {
             switch(path){
                 case(?path){
-                    switch(state._Assets.getFileByName(path)){
+                    switch(state._Assets.getFile(path)){
                         case(?record) {
                             if(record.meta.category == #AvatarComponent or record.meta.category == #AccessoryComponent){
                                 _renderComponent(record.asset.payload);
@@ -123,7 +123,7 @@ module {
             {
                 body = Text.encodeUtf8(
                     "[\n" #
-                    Array.foldLeft<AssetTypes.Record, Text>(state._Assets.getManifest(), "", func (a, b) {
+                    Array.foldLeft<Assets.File, Text>(state._Assets.getManifest(), "", func (a, b) {
                         let comma = switch (a == "") {
                             case true "\t";
                             case false ", ";
@@ -175,7 +175,7 @@ module {
 
         // Create an HTTP response from an Asset Record.
         func _renderAsset(
-            record : AssetTypes.Record,
+            record : Assets.File,
         ) : Types.Response {
             {
                 body = record.asset.payload;
