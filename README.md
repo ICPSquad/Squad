@@ -7,6 +7,7 @@ Goals ✅
 - [x] Avatar **minter** that allow for **customizable** NFT minting, integrate with the <a href="https://github.com/aviate-labs/ext.std" target="_blank"> **EXT** </a> standard and composable with accessories.
 - [x] Build the dynamic accessory collection, integrate with the <a href="https://github.com/aviate-labs/ext.std" target="_blank"> **EXT** </a> standard and <a href="https://github.com/Toniq-Labs/entrepot-app" target="_blank"> **Entrepot** </a> marketplace and composable with avatars.
 - [x] Integrates [**CAP**](https://cap.ooo) for transaction and mint history for both collections.
+- [x] Integrates [**CanisterGeek**](https://cusyh-iyaaa-aaaah-qcpba-cai.raw.ic0.app/) for **monitoring** and **logs** system.
 - [x] Compatible with **Plug** and **Stoic** wallets.
 - [x] **HTTP** interface for canister informations, asset preview and nft rendering.
 - [x] **Invoice** system for live and open minting in exchange of 1 ICP.
