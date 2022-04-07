@@ -4,18 +4,18 @@ This repository contains all the code for the ICP Squad project. <br/> It contai
 
 Goals ✅
 
-- [x] Avatar **minter** that allow for **customizable** NFT minting, integrate with the [**EXT**]()standard and composable with accessories.
-- [x] Build the dynamic accessory collection, integrate with the EXT standard and Entrepot marketplace and composable with avatars.
+- [x] Avatar **minter** that allow for **customizable** NFT minting, integrate with the <a href="https://github.com/aviate-labs/ext.std" target="_blank"> **EXT** </a> standard and composable with accessories.
+- [x] Build the dynamic accessory collection, integrate with the <a href="https://github.com/aviate-labs/ext.std" target="_blank"> **EXT** </a> standard and <a href="https://github.com/Toniq-Labs/entrepot-app" target="_blank"> **Entrepot** </a> marketplace and composable with avatars.
 - [x] Integrates [**CAP**](https://cap.ooo) for transaction and mint history for both collections.
 - [x] Compatible with **Plug** and **Stoic** wallets.
 - [x] **HTTP** interface for canister informations, asset preview and nft rendering.
-- [x] **Invoice** system management for live and open minting in exchange of 1 ICP.
+- [x] **Invoice** system for live and open minting in exchange of 1 ICP.
 - [ ] Drainining and restoring state of all canister at any point to allow for backup system.
-- [ ] Dynamic algorithm for accessory resizing and equipment.
-- [ ] Legendaries accessories and characters integration.
-- [ ] Integrate covercode.oo for code verification.
 - [ ] Mission, gameplay, airdrop and bootcamp integration.
+- [ ] Legendaries accessories and characters integration.
+- [ ] Dynamic algorithm for accessory resizing and equipment.
 - [ ] DAO wallet than can hold and distribute tokens and NFTs of multiple standards to the squad.
+- [ ] Integrate covercode.oo for code verification.
 - [ ] Multi-season and collection architecture.
 
 ## Invoice
