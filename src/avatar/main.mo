@@ -205,7 +205,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Logs.logMessage("Changed CSS");
     };
    
-    public shared ({caller}) func draw_avatar(
+    public shared ({caller}) func draw(
         tokenId : TokenIdentifier
     ) : async Result<(), Text> {
         assert(_Admins.isAdmin(caller));
@@ -333,7 +333,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     };
 
     public query func extensions() : async [Extension] {
-        _Monitor.collectMetrics();
         _Ext.extensions();
     };
 
@@ -342,31 +341,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     };
 
     public query func getTokens() : async [(TokenIndex, Ext.Common.Metadata)] {
-        var buffer = Buffer.Buffer<(TokenIndex,Ext.Common.Metadata)>(0);
-        let registry = _Ext.getRegistry();
-        for((token_index, account_identifier) in registry.vals()){
-            let tokenId = Ext.TokenIdentifier.encode(cid, token_index);
-            let metadata = switch(_Avatar.getAvatar(tokenId)){
-                case(null) null;
-                case(? avatar) {
-                    ?avatar.blob
-                };
-            };
-            buffer.add((token_index, #nonfungible{ metadata = metadata }));
-        };
-        buffer.toArray();
+        _Ext.getTokens();
     };
       
-    public query func metadata(token : TokenIdentifier): async Result<Ext.Common.Metadata, Ext.CommonError> {
-        switch(_Avatar.getAvatar(token)){
-            case(null) {
-                return #err(#InvalidToken(token));
-            };
-            case(? avatar){
-                let a = #nonfungible({metadata  = ?avatar.blob});
-                return #ok(a);
-            };
-        };
+    public query func metadata(tokenId : TokenIdentifier): async Result<Ext.Common.Metadata, Ext.CommonError> {
+       _Ext.metadata(tokenId)
     };
 
     public query func tokens(aid : AccountIdentifier) : async Result<[TokenIndex], CommonError> {
@@ -375,16 +354,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
 
     public query func tokens_ext(aid : AccountIdentifier) : async Result<[(TokenIndex, ?ExtModule.Listing, ?Blob)], CommonError> {
         _Ext.tokens_ext(aid);
-    };
-
-    public query func tokens_id(aid : AccountIdentifier) : async Result<[TokenIdentifier], CommonError> {
-        switch(_Ext.tokens(aid)){
-            case(#err(#Other(e))) return #err(#Other(e));
-            case(#err(#InvalidToken(token))) return #err(#InvalidToken(token));
-            case(#ok(tokens)) {
-                return(#ok(Array.map<TokenIndex,TokenIdentifier>(tokens, func(x) { Ext.TokenIdentifier.encode(cid, x) })));
-            };
-        }
     };
 
     public query func balance(request : BalanceRequest) : async BalanceResponse {

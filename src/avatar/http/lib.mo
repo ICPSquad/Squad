@@ -21,12 +21,8 @@ module {
     public type Request = Types.Request;
     public type Response = Types.Response;
     
-
     public class HttpHandler(state : Types.Dependencies) {
 
-        ////////////////////
-        // Path Handlers //
-        //////////////////
 
         public func request(request : Types.Request) : Types.Response {
             if (Text.contains(request.url, #text("tokenid"))) {
@@ -50,6 +46,10 @@ module {
                 case _ return _http404(?"Path not found");
             }
         };
+
+        ////////////////////
+        // Path Handlers //
+        //////////////////
 
         // A 404 response with an optional error message.
         func _http404(msg : ?Text) : Types.Response {
@@ -98,7 +98,7 @@ module {
 
         // @path : /assets/<text>
         // @path : /asset/<text>
-        // Serves an sset based on filename.
+        // Serves an asset based on filename.
         func _httpAssetFilename(path : ?Text) : Types.Response {
             switch(path){
                 case(?path){
@@ -117,7 +117,7 @@ module {
             };
         };
 
-       // @path: /asset-manifest
+        // @path: /asset-manifest
         // Serves a JSON list of all assets in the canister.
         func _httpAssetManifest (path : ?Text) : Types.Response {
             {
@@ -151,9 +151,7 @@ module {
             }
         };
 
-
-
-        // @path: /new/<tokenId>
+        // @path: /tokenid=<text>
         // Serve an avatar based on tokenId using the svg format. 
         func _httpAvatar(
             tokenId : ?Ext.TokenIdentifier,
@@ -223,11 +221,7 @@ module {
             ("asset", _httpAssetFilename),
             ("assets", _httpAssetFilename),
             ("asset-manifest", _httpAssetManifest),
-            ("new", _httpAvatar)
         ];
 
     };
-
-    
-
-}
+};

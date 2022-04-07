@@ -1,5 +1,4 @@
 import Buffer "mo:base/Buffer";
-import Debug "mo:base/Debug";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
@@ -76,11 +75,11 @@ module {
         public func balance(request : Ext.Core.BalanceRequest) : Ext.Core.BalanceResponse {
             let index = switch(Ext.TokenIdentifier.decode(request.token)){
                 case(#err(_)) {
-                    _Logs.logMessage("Ext/lib/balance/line77. Token identifier : " # request.token);
+                    _Logs.logMessage("Ext/lib/balance/line78. Token identifier : " # request.token);
                     return #err(#InvalidToken(request.token))
                 };
                 case(#ok(canisterId, tokenIndex)) {
-                    _Logs.logMessage("Ext/lib/balance/line81. Token identifier : " # request.token # " Canister id : " # Principal.toText(canisterId) # " and CANISTER_ID : " # Principal.toText(CANISTER_ID));
+                    _Logs.logMessage("Ext/lib/balance/line82. Token identifier : " # request.token # " Canister id : " # Principal.toText(canisterId) # " and CANISTER_ID : " # Principal.toText(CANISTER_ID));
                     if(canisterId != CANISTER_ID){
                         return #err(#InvalidToken(request.token));
                     };
@@ -123,12 +122,12 @@ module {
             };
             let index = switch(Ext.TokenIdentifier.decode(request.token)){
                 case(#err(msg)) {
-                    _Logs.logMessage("Ext/lib/transfer/line126. Token identifier : " # request.token);
+                    _Logs.logMessage("Ext/lib/transfer/line125. Token identifier : " # request.token);
                     return #err(#Other(msg));
                 };
                 case(#ok(canisterId, tokenIndex)) {
                     if(canisterId != CANISTER_ID) {
-                        _Logs.logMessage("Ext/lib/transfer/line31. Canister id : " # Principal.toText(canisterId) # " and CANISTER_ID : " # Principal.toText(CANISTER_ID));
+                        _Logs.logMessage("Ext/lib/transfer/line130. Canister id : " # Principal.toText(canisterId) # " and CANISTER_ID : " # Principal.toText(CANISTER_ID));
                         return #err(#InvalidToken(request.token));
                     };
                     tokenIndex
@@ -142,11 +141,11 @@ module {
             let from = Text.map(Ext.User.toAccountIdentifier(request.from), Prim.charToLower);
             let to = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
             if(owner != from) {
-                _Logs.logMessage("Ext/lib/transfer/line145. Owner : " # owner # " Caller : " # caller_account);
+                _Logs.logMessage("Ext/lib/transfer/line144. Owner : " # owner # " Caller : " # caller_account);
                 return #err(#Unauthorized("This user \"" # from # "\" doesn't own this token \"" # request.token # "\""));
             };
             if(from != caller_account) {
-                _Logs.logMessage("Ext/lib/transfer/line149. From : " # from # " Caller : " # caller_account);
+                _Logs.logMessage("Ext/lib/transfer/line148. From : " # from # " Caller : " # caller_account);
                 return #err(#Unauthorized("Only the owner can do that."));
             };
             _registry.put(index, to);
@@ -212,7 +211,7 @@ module {
                     return #ok(index);
                 };
                 case (? _) {
-                    _Logs.logMessage("Ext/lib/mint/line193. Index : " # Nat.toText(Nat32.toNat(index)));
+                    _Logs.logMessage("Ext/lib/mint/line214. Index : " # Nat.toText(Nat32.toNat(index)));
                     return #err(#Other("Token already exists."));
                 };
             };
@@ -271,7 +270,16 @@ module {
             };
         };
 
+        ////////////////////////////////
+        // @ext: ?????   integration //
+        ///////////////////////////////
 
-
-    }
+        public func getTokens() : [(TokenIndex, Metadata)] {
+            let r = Buffer.Buffer<(TokenIndex, Metadata)>(0);
+            for(index in _registry.keys()) {
+                r.add(index, #nonfungible({metadata = null}));
+            };
+            r.toArray();
+        };
+    };    
 }
