@@ -16,6 +16,7 @@ import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+import _Admins "mo:base/Char";
 import _Ext "mo:base/List";
 
 import AccountIdentifier "mo:principal/AccountIdentifier";
@@ -1144,24 +1145,24 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     //     }
     // };
 
-    // type MintInformation = AvatarNewModule.MintInformation;
-    // public shared ({caller}) func mint_new(
-    //     info : MintInformation
-    // ) : async Result<TokenIdentifier, Text> {
-    //     assert(_Admins.isAdmin(caller));
-    //     _Monitor.collectMetrics();
-    //     switch(_Ext.mint({ to = #principal(info.user); metadata = null; })){
-    //         case(#err(#Other(e))) return #err(e);
-    //         case(#err(#InvalidToken(e))) return #err(e);
-    //         case(#ok(index)){
-    //             let tokenId = Ext.TokenIdentifier.encode(cid, index);
-    //             switch(_Avatar.createAvatar(info, tokenId)){
-    //                 case(#ok) return #ok(tokenId);
-    //                 case(#err(e)) return #err(e);
-    //             };
-    //         };
-    //     };
-    // };
+    type MintInformation = AvatarNewModule.MintInformation;
+    public shared ({caller}) func mint_new(
+        info : MintInformation
+    ) : async Result<TokenIdentifier, Text> {
+        // assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        switch(_Ext.mint({ to = #principal(info.user); metadata = null; })){
+            case(#err(#Other(e))) return #err(e);
+            case(#err(#InvalidToken(e))) return #err(e);
+            case(#ok(index)){
+                let tokenId = Ext.TokenIdentifier.encode(cid, index);
+                switch(_Avatar.createAvatar(info, tokenId)){
+                    case(#ok) return #ok(tokenId);
+                    case(#err(e)) return #err(e);
+                };
+            };
+        };
+    };
 
     ///////////
     // HTTP //
@@ -1223,19 +1224,25 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     // BACKUP //
     ////////////
 
-    // public func build_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
-    //     switch(avatars.get(tokenId)){
-    //         case(null) return #err("Avatar not found");
-    //         case(?avatar) {
-    //             _Avatar.switchAvatar(
-    //                 tokenId,
-    //                 avatar.getLayersName(),
-    //                 avatar.getRawStyle(),
-    //                 avatar.getSlots()
-    //             );
-    //         }
-    //     };
-    // };
+    public shared ({caller}) func build_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        switch(avatars.get(tokenId)){
+            case(null) return #err("Avatar not found");
+            case(?avatar) {
+                _Avatar.switchAvatar(
+                    tokenId,
+                    avatar.getLayersName(),
+                    avatar.getRawStyle(),
+                    avatar.getSlots()
+                );
+            }
+        };
+    };
+
+    public shared ({caller}) func draw_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Avatar.drawAvatar(tokenId);
+    };
 
     public func collect_legendaries() : async [TokenIdentifier] {
         let registry = _Ext.getRegistry();
@@ -1299,6 +1306,31 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
             buffer.add(tokenId, avatar.getLayers());
         };
         buffer.toArray();
+    };
+
+    public shared ({caller}) func getTokensToBuild() : async [(TokenIdentifier)] {
+        assert(_Admins.isAdmin(caller));
+        var buffer : Buffer.Buffer<TokenIdentifier> = Buffer.Buffer(0);
+        for((tokenId, avatar) in avatars.entries()){
+            switch(_Avatar.getAvatar(tokenId)){
+                case(null) {
+                    buffer.add(tokenId);
+                };
+                case _ {};
+            };
+        };
+        buffer.toArray();
+    };
+
+    public shared ({caller}) func get_stats_verification() : async (Nat,Nat) {
+        assert(_Admins.isAdmin(caller));
+
+        let old_registry_size = _registry.size();
+        let new_registry_size = _Ext.getRegistry().size();
+
+        let old_avatars_size = avatars.size();
+        let old_blob_size = _blobs.size();
+        _Avatar.getStats();
     };
 
 

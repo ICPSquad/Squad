@@ -359,9 +359,24 @@ module {
             };
         };
 
+        public func getStats() : (Nat,Nat) {
+            let nb = _numberLegendaries();
+            (_avatars.size() - nb,nb);
+        };
+
         //////////////////
         // UTILITIES ////
         /////////////////
+
+        func _numberLegendaries() : Nat {
+            var nb = 0;
+            for(avatar in _avatars.vals()){
+                if(avatar.level == #Legendary){
+                    nb += 1;
+                };
+            };
+            nb
+        };
 
         func _createNewSlot() : Slots {
             {
@@ -1123,4 +1138,6 @@ module {
             };
         };
     };
+
+
 };
