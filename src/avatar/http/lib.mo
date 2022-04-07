@@ -3,6 +3,7 @@ import Cycles "mo:base/ExperimentalCycles";
 import Float "mo:base/Float";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
+import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 
@@ -67,14 +68,23 @@ module {
         // @path: /
         func _httpIndex() : Types.Response {
             let assets_stats = state._Assets.getStats();
+            let avatar_stats = state._Avatar.getStats();
           {
             body = Text.encodeUtf8(
                 "ICP Squad Season #0 : the incredible Internet Computer community.\n"
                 # "---\n"
                 # "Cycle Balance: " # Nat.toText(Cycles.balance() / 1_000_000_000_000) # "T\n"
-                # "Minted Avatar : ?" # "\n"
                 # "Admins  : " # Text.join(" /", Array.map<Principal,Text>(state._Admins.getAdmins(), Principal.toText).vals()) # "\n"
-                # "Asset uploaded : " # Nat.toText(assets_stats.0) # " for size " # Nat.toText(assets_stats.1) # " bytes" # " ( " # Float.toText(Float.fromInt(assets_stats.1) / (1024 * 1024))  # "Mb" # " )\n");
+                # "Asset uploaded : " # Nat.toText(assets_stats.0) # " for size " # Nat.toText(assets_stats.1) # " bytes" # " ( " # Float.toText(Float.fromInt(assets_stats.1) / (1024 * 1024))  # "Mb" # " )\n"
+                # "Minted avatar (normal): ?" # Nat.toText(avatar_stats.0) # "\n"
+                # "Minted avatar (legendaries): ?" # Nat.toText(avatar_stats.1) # "\n"
+                # "---\n"
+                # "Version : " # Prim.rts_version() # "\n"
+                # "Heap size (current): " # Nat.toText(Prim.rts_heap_size()) # " bytes" # " ( " # Float.toText(Float.fromInt(Prim.rts_heap_size() / (1024 * 1024)))  # "Mb" # " )\n"
+                # "Heap size (max)" # Nat.toText(Prim.rts_max_live_size()) # " bytes" # " ( " # Float.toText(Float.fromInt(Prim.rts_max_live_size() / (1024 * 1024)))  # "Mb" # " )\n"
+                # "Memory size " # Nat.toText(Prim.rts_memory_size()) # " bytes" # " ( " # Float.toText(Float.fromInt(Prim.rts_memory_size() / (1024 * 1024)))  # "Mb" # " )\n"
+                # "Reclaimed " # Nat.toText(Prim.rts_reclaimed()) # " bytes" # " ( " # Float.toText(Float.fromInt(Prim.rts_reclaimed() / (1024 * 1024)))  # "Mb" # " )\n"
+                # "Total allocation " # Nat.toText(Prim.rts_total_allocation()) # " bytes");
             headers = [
                 ("Content-Type", "text/plain"),
             ];

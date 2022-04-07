@@ -689,6 +689,8 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
+
+
     private func _accessoryVerification (token_avatar: TokenIdentifier, name : Text, principal_caller : Principal) : Result<(), Text> {
          switch(avatars.get(token_avatar)){
             case (null) return #err("No avatar found for this token identifier : " # token_avatar);
@@ -1149,7 +1151,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     public shared ({caller}) func mint_new(
         info : MintInformation
     ) : async Result<TokenIdentifier, Text> {
-        // assert(_Admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         switch(_Ext.mint({ to = #principal(info.user); metadata = null; })){
             case(#err(#Other(e))) return #err(e);
@@ -1224,113 +1226,40 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     // BACKUP //
     ////////////
 
-    public shared ({caller}) func build_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        switch(avatars.get(tokenId)){
-            case(null) return #err("Avatar not found");
-            case(?avatar) {
-                _Avatar.switchAvatar(
-                    tokenId,
-                    avatar.getLayersName(),
-                    avatar.getRawStyle(),
-                    avatar.getSlots()
-                );
-            }
-        };
-    };
 
     public shared ({caller}) func draw_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
         assert(_Admins.isAdmin(caller));
         _Avatar.drawAvatar(tokenId);
     };
 
-    public func collect_legendaries() : async [TokenIdentifier] {
-        let registry = _Ext.getRegistry();
-        var buffer : Buffer.Buffer<TokenIdentifier> = Buffer.Buffer(0);
-        for(token in _registry.keys()){
-            switch(avatars.get(Ext.TokenIdentifier.encode(cid, token))){
-                case null {
-                    buffer.add(Ext.TokenIdentifier.encode(cid, token))
-                };
-                case(? some) {};
-            }
-        };
-        buffer.toArray();
-    };
-
-    public shared ({caller}) func build_legendary(
-        tokenId : TokenIdentifier,
-        name : Text
-    ) : async Result<(), Text> {
+    public shared ({ caller }) func draw_patch(n : Nat, m : Nat) : async Result<(), Text> {
         assert(_Admins.isAdmin(caller));
-        switch(_Avatar.createLegendary(name, tokenId)){
-            case(#err(e)) return #err(e);
-            case(#ok){
-                _Logs.logMessage("Legendary created : " # name  # " with tokenId : " # tokenId);
-                #ok;
+        let tokenIds = Iter.toArray(avatars.keys());
+        for (i in Iter.range(n,m)) {
+            switch(_Avatar.drawAvatar(tokenIds[i])){
+                case(#err(e)) return #err(e);
+                case(#ok){};
             };
         };
+        #ok;
     };
 
-    public shared ({caller}) func backup_token() : async [TokenIdentifier] {
+    public shared ({caller}) func get_stats_verification() : async [(Text,Nat)] {
         assert(_Admins.isAdmin(caller));
-        var buffer : Buffer.Buffer<TokenIdentifier> = Buffer.Buffer(0);
-        for((tokenId, avatar) in avatars.entries()){
-            buffer.add(tokenId);
-        };
-        buffer.toArray();
-    };
-
-    public shared ({caller}) func backup_style() : async [(TokenIdentifier, Text)] {
-        assert(_Admins.isAdmin(caller));
-        var buffer : Buffer.Buffer<(TokenIdentifier,Text)> = Buffer.Buffer(0);
-        for((tokenId, avatar) in avatars.entries()){
-            buffer.add(tokenId, avatar.getRawStyle());
-        };
-        buffer.toArray();
-    };
-
-    public shared ({caller}) func backup_slots() : async [(TokenIdentifier,Slots)] {
-        assert(_Admins.isAdmin(caller));
-        var buffer : Buffer.Buffer<(TokenIdentifier,Slots)> = Buffer.Buffer(0);
-        for((tokenId, avatar) in avatars.entries()){
-            buffer.add(tokenId, avatar.getSlots());
-        };
-        buffer.toArray();
-    };
-
-    public shared ({caller}) func backup_layers() : async [(TokenIdentifier, [(LayerId , LayerAvatar)])] {
-        assert(_Admins.isAdmin(caller));
-        var buffer : Buffer.Buffer<(TokenIdentifier,[(LayerId, LayerAvatar)])> = Buffer.Buffer(0);
-        for((tokenId, avatar) in avatars.entries()){
-            buffer.add(tokenId, avatar.getLayers());
-        };
-        buffer.toArray();
-    };
-
-    public shared ({caller}) func getTokensToBuild() : async [(TokenIdentifier)] {
-        assert(_Admins.isAdmin(caller));
-        var buffer : Buffer.Buffer<TokenIdentifier> = Buffer.Buffer(0);
-        for((tokenId, avatar) in avatars.entries()){
-            switch(_Avatar.getAvatar(tokenId)){
-                case(null) {
-                    buffer.add(tokenId);
-                };
-                case _ {};
-            };
-        };
-        buffer.toArray();
-    };
-
-    public shared ({caller}) func get_stats_verification() : async (Nat,Nat) {
-        assert(_Admins.isAdmin(caller));
-
+        var buffer : Buffer.Buffer<(Text,Nat)> = Buffer.Buffer(0);
         let old_registry_size = _registry.size();
+        buffer.add("old_registry_size", old_registry_size);
         let new_registry_size = _Ext.getRegistry().size();
-
+        buffer.add("new_registry_size", new_registry_size);
         let old_avatars_size = avatars.size();
+        buffer.add("old_avatars_size", old_avatars_size);
         let old_blob_size = _blobs.size();
-        _Avatar.getStats();
+        buffer.add("old_blob_size", old_blob_size);
+        let a = _Avatar.getStats();
+        buffer.add("new_avatar_size", a.0);
+        buffer.add("new_legendaries", a.1);
+        buffer.add("new_blob_size", a.0 + a.1);
+        return(buffer.toArray());
     };
 
 

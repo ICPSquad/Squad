@@ -88,13 +88,8 @@ module {
             name : Text,
             component : Component 
         ) : Result.Result<(), Text> {
-            switch(_components.get(name)){
-                case(? component) return #err("Component : " # name # " already exists");
-                case _  {
-                    _components.put(name, component);
-                    return #ok(());
-                };
-            };
+            _components.put(name, component);
+            #ok;
         };
 
         // Change the css style that is applied to all avatars.
