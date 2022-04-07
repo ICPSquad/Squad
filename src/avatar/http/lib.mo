@@ -29,6 +29,9 @@ module {
         //////////////////
 
         public func request(request : Types.Request) : Types.Response {
+            if (Text.contains(request.url, #text("tokenid"))) {
+                return _httpAvatar(?Iter.toArray(Text.tokens(request.url, #text("tokenid=")))[1]);
+            };
             let path = Iter.toArray(Text.tokens(request.url, #text("/")));
             switch(path.size()){
                 case 0 return _httpIndex();

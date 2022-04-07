@@ -92,6 +92,14 @@ module {
         public func uploadClear(): () {
             buffer.clear();
         };
+        
+        // Delete a file using the filePath.
+        public func delete(filePath : FilePath) : Result<(), Text> {
+            switch(files.remove(filePath)){
+                case(null) return #err("File not found : " # filePath);
+                case(?record) return #ok;
+            };
+        };
 
         // Retrieve an asset using the filePath.
         public func getAssetByName(

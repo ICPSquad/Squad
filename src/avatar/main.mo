@@ -1081,6 +1081,14 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Assets.uploadClear();
     };
 
+    public shared ({ caller }) func delete(
+        filePath : Text
+    ) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Assets.delete(filePath);
+    };
+
 
     ///////////////
     // Avatar ////
@@ -1113,6 +1121,8 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
             };
         };
     };
+
+   
 
     public shared ({caller}) func changeCSS(
         style : Text 
@@ -1177,36 +1187,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     });
 
     public query func http_request (request : Http.Request) : async Http.Response {
-        if(Text.contains(request.url, #text("tokenid"))) {
-            let iterator = Text.split(request.url, #text("tokenid="));
-            let array = Iter.toArray(iterator);
-            let token = array[array.size() - 1];
-            switch(_blobs.get(token)){
-                case(null) {
-                    return(
-                        {
-                            body = Text.encodeUtf8("Avatar not found");
-                            headers = [("Content-Type", "text/html; charset=UTF-8")];
-                            streaming_strategy = null;
-                            status_code = 200;
-                        }
-                    );
-                };
-                case(?blob) {
-                    return(
-                        {
-                            body = blob;
-                            headers = [("Content-Type", "image/svg+xml")];
-                            streaming_strategy = null;
-                            status_code = 200;
-                        }
-                    );
-                };
-            };
-        }  else {
-            _HttpHandler.request(request);
-        }  
-        
+        _HttpHandler.request(request);  
     };
 
 

@@ -47,6 +47,10 @@ module Assets {
         // @auth : admin
         uploadClear: () -> ();
 
+        // Delete a file.
+        // @auth : admin
+        delete: (filePath : FilePath) -> Result<(), Text>;
+
         // Retrieves the aset manifest (all assets).
         getManifest : () -> [Record];
 
