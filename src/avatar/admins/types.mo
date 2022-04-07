@@ -5,6 +5,12 @@ module Admins {
     };
 
     public type Interface = {
+        //  Get the UD before upgrading. 
+        preupgrade : () -> UpgradeData;
+
+        // Reinitialize the state of the module after upgrading.
+        postupgrade : (ud : ?UpgradeData) -> ();
+
         //  Check if a principal is an admin.
         isAdmin : (p : Principal) -> Bool;
 
@@ -18,11 +24,5 @@ module Admins {
 
         // Get the list of admins.
         getAdmins : () -> [Principal];
-
-        //  Get the UD before upgrading. 
-        preupgrade : () -> UpgradeData;
-
-        // Reinitialize the state of the module after upgrading.
-        postupgrade : (ud : ?UpgradeData) -> ();
     };
-}
+};

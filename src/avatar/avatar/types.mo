@@ -37,7 +37,7 @@ module {
     public type Layers = [(LayerId, Text)];
     public type Colors = [{spot : Text; color : Color}];
     public type Style = {
-        #Old : Text; // To easily convert old avatars to new format.
+        #Old : Text; // To be compatible with old style of doing avatars.
         #Colors : Colors;
     };
 
@@ -55,7 +55,6 @@ module {
         level : Level;
         blob : Blob;
     };
-
 
     public type MintInformation = {
         background : Text;
@@ -95,27 +94,42 @@ module {
     // OLD ////
     ///////////
 
-    public type AvatarRequest = {
-        components : [ComponentRequest];
-        colors : Colors;
-    };
-
-    public type ComponentRequest = {
-        name : Text;
-        layer : Nat8; 
-    };
-
     public type Interface = {
-        getAvatar : TokenIdentifier -> ?Avatar;
-        drawAvatar : TokenIdentifier -> Result<(), Text>;
-        createAvatar : (MintInformation,TokenIdentifier) -> Result<(), Text>;
-        createLegendary : (Text, TokenIdentifier) -> Result<(), Text>;
-        wearAccessory : (TokenIdentifier, Text) -> Result<(), Text>;
-        removeAccessory : (TokenIdentifier, Text) -> Result<(), Text>;
-        removeAllAccessories : TokenIdentifier -> Result<(), Text>;
-        preupgrade : () -> UpgradeData;
+        
+        // Get the UD before upgrading.
+        preupgrade : () -> UpgradeData; 
+
+        // Reinitialize the state of the module after upgrading.
         postupgrade : ?UpgradeData -> ();
+
+        // Add a component into the store (accessory or avatar) for the associated name.
+        addComponent : (Text, Component) -> Result<(), Text>;
+
+        // Change the default CSS style for all avatars.Admins
+        changeCSS : (Text) -> ();
+
+        // Create a new avatar from the informations for the associated TokenIdentifier.
+        createAvatar : (MintInformation,TokenIdentifier) -> Result<(), Text>;
+
+        // Create a new avatar from the name for the associated TokenIdentifier.
+        createLegendary : (Text, TokenIdentifier) -> Result<(), Text>;
+
+        // Equip the accessory corresponding to the name for the avatar associated with the TokenIdentifier.
+        wearAccessory : (TokenIdentifier, Text) -> Result<(), Text>;
+
+        // Desequip the accessory corresponding to the name for the avatar associated with the TokenIdentifier.
+        removeAccessory : (TokenIdentifier, Text) -> Result<(), Text>;
+
+        // Desequip all accessories from the avatar associated with the TokenIdentifier.
+        removeAllAccessories : TokenIdentifier -> Result<(), Text>;
+
+        // Draw the avatar associated with the TokenIdentifier.
+        drawAvatar : TokenIdentifier -> Result<(), Text>;
+
+        // Get the optional avatar associated with the TokenIdentifier.
+        getAvatar : TokenIdentifier -> ?Avatar;
+
+        // Get the number of (normal) avatars & (legendaries) avatars created.
+        getStats : () -> (Nat,Nat);
     };
-
-
-}
+};

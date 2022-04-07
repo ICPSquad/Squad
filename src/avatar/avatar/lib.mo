@@ -1,7 +1,6 @@
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
-import Debug "mo:base/Debug";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
@@ -13,7 +12,7 @@ import Text "mo:base/Text";
 import Ext "mo:ext/Ext";
 
 import Assets "../assets";
-import ColorModule "../utils/color";
+import Colors "../utils/color";
 import SVG "../utils/svg";
 import Types "types";
 module {
@@ -37,12 +36,10 @@ module {
         public type Result<A,B> = Result.Result<A,B>;
         public type Slots = Types.Slots;
         public type Level = Types.Level;
-        public type ComponentRequest = Types.ComponentRequest;
         public type Layers = Types.Layers;
         public type Colors = Types.Colors;
         public type Avatar = Types.Avatar;
         public type LayerId = Types.LayerId;
-        public type AvatarRequest = Types.AvatarRequest;
         public type TokenIdentifier = Ext.TokenIdentifier;
 
         private let _avatars : HashMap.HashMap<TokenIdentifier,Avatar> = HashMap.HashMap<TokenIdentifier,Avatar>(0, Text.equal, Text.hash);
@@ -82,7 +79,6 @@ module {
         // API ////
         ///////////
 
-        // Add a component into the store.
         public func addComponent(
             name : Text,
             component : Component 
@@ -91,56 +87,9 @@ module {
             #ok;
         };
 
-        // Change the css style that is applied to all avatars.
         public func changeCSS(style : Text) : () {
             css_style := style;
         };
-
-        // Returns an optional avatar for the given token identifier.
-        public func getAvatar(tokenId : TokenIdentifier) : ?Avatar {
-            return _avatars.get(tokenId);
-        };
-
-        // Create a new avatar and store it using the old structure of an avatar.
-        public func switchAvatar(
-            tokenId : TokenIdentifier,
-            layers : [(LayerId, Text)],
-            style : Text,
-            slot : Slots
-        ) : Result<(), Text> {
-                let avatar_without_blob = {
-                    background = "background-base";
-                    profile = findProfile(layers);
-                    ears = findEars(layers);
-                    mouth = findMouth(layers);
-                    eyes = findEyes(layers);
-                    nose = findNose(layers);
-                    hair = findHair(layers);
-                    cloth = findCloth(layers);
-                    style = #Old(style);
-                    slots = switchSlot(slot);
-                    level = #Level3;
-                    blob = Blob.fromArray([0]);
-                };
-                let blob = _createBlob(avatar_without_blob);
-                let avatar = {
-                    background = avatar_without_blob.background;
-                    profile = avatar_without_blob.profile;
-                    ears = avatar_without_blob.ears;
-                    mouth = avatar_without_blob.mouth;
-                    eyes = avatar_without_blob.eyes;
-                    nose = avatar_without_blob.nose;
-                    hair = avatar_without_blob.hair;
-                    cloth = avatar_without_blob.cloth;
-                    style = avatar_without_blob.style;
-                    slots = avatar_without_blob.slots;
-                    level = #Level3;
-                    blob = blob
-                };
-                _avatars.put(tokenId, avatar);
-                return #ok;
-        };
-
 
         public func createAvatar(
             info : MintInformation,
@@ -165,7 +114,7 @@ module {
                 case(null){
                     switch(_createLegendary(name)){
                         case(#err(e)){
-                            _Logs.logMessage("Avatar/lib/createLegendary/189. " # e );
+                            _Logs.logMessage("Avatar/lib/createLegendary/117. " # e );
                             return #err(e);
                         };
                         case(#ok(avatar)){
@@ -176,7 +125,6 @@ module {
                 };
             };
         };
-
         // Wear an accessory by name on the specified avatar & redraw this avatar.
         // @dev : Verify that the avatar exists, the component exists & the slot is empty.
         // @note : Accessing the slot shouldn't require using the _Assets module.
@@ -189,7 +137,7 @@ module {
                 case(? avatar) {
                     switch(_components.get(name_accessory)){
                         case(null) {
-                            _Logs.logMessage("Avatar/wearAccessory/192." # " Component : " # name_accessory # " does not exist");
+                            _Logs.logMessage("Avatar/wearAccessory/140." # " Component : " # name_accessory # " does not exist");
                             return #err("No component named : " # name_accessory);
                         };
                         case(? component){
@@ -198,7 +146,7 @@ module {
                                     let filePath = component.name # "-" # Nat.toText(component.layers[0]);
                                     switch(_Assets.getFile(filePath)){
                                         case(null) {
-                                            _Logs.logMessage("Avatar/wearAccessory/201." # " File : " # filePath # " does not exist");
+                                            _Logs.logMessage("Avatar/wearAccessory/149." # " File : " # filePath # " does not exist");
                                             return #err("No file named : " # filePath);
                                         };
                                         case(? file){
@@ -206,14 +154,14 @@ module {
                                             let slots = avatar.slots;
                                             switch(_verifySlot(file.meta.tags[0], avatar.slots)){
                                                 case(#err(e)) {
-                                                    _Logs.logMessage("Avatar/wearAccessory/209." # " " # e);
+                                                    _Logs.logMessage("Avatar/wearAccessory/157." # " " # e);
                                                     return #err(e);
                                                 };
                                                 case(#ok){
                                                     _avatars.put(tokenId, _wearAccessory(avatar, name_accessory, slot));
                                                     switch(_drawAvatar(tokenId)){
                                                         case(#err(e)) {
-                                                            _Logs.logMessage("Avatar/wearAccessory/216." # " " # e);
+                                                            _Logs.logMessage("Avatar/wearAccessory/164." # " " # e);
                                                             return #err(e);
                                                         };
                                                         case(#ok){
@@ -226,7 +174,7 @@ module {
                                     };
                                 };
                                 case _  {
-                                    _Logs.logMessage("Avatar/wearAccessory/229." # " Component : " # name_accessory # " is not an accessory");
+                                    _Logs.logMessage("Avatar/wearAccessory/177." # " Component : " # name_accessory # " is not an accessory");
                                     return #err("Component : " # name_accessory # " is not an accessory");
                                 };
                             };
@@ -247,7 +195,7 @@ module {
                 case(? avatar) {
                     switch(_components.get(name_accessory)){
                         case(null) {
-                            _Logs.logMessage("Avatar/removeAcessory/250." # " Component : " # name_accessory # " does not exist");
+                            _Logs.logMessage("Avatar/removeAcessory/198." # " Component : " # name_accessory # " does not exist");
                             return #err("No component named : " # name_accessory);
                         };
                         case (? component) {
@@ -256,7 +204,7 @@ module {
                                     let filePath = component.name # "-" # Nat.toText(component.layers[0]);
                                     switch(_Assets.getFile(filePath)){
                                         case(null) {
-                                            _Logs.logMessage("Avatar/removeAccesssory/259." # " File : " # filePath # " does not exist");
+                                            _Logs.logMessage("Avatar/removeAccesssory/207." # " File : " # filePath # " does not exist");
                                             return #err("No file named : " # filePath);
                                         };
                                         case(? file){
@@ -264,7 +212,7 @@ module {
                                             let slots = avatar.slots;
                                             switch(_getSlot(slot,slots)){
                                                 case(null){
-                                                    _Logs.logMessage("Avatar/removeAccesssory/267." # " Slot : " # slot # " is empty");
+                                                    _Logs.logMessage("Avatar/removeAccesssory/215." # " Slot : " # slot # " is empty");
                                                     return #err("No accessory in slot " # slot);
                                                 };
                                                 case(?equipped){
@@ -272,7 +220,7 @@ module {
                                                         _avatars.put(tokenId, _modifyAvatarSlots(avatar, _newSlots(null, slot, slots)));
                                                         switch(_drawAvatar(tokenId)){
                                                             case(#err(e)) {
-                                                                _Logs.logMessage("Avatar/removeAccesssory/280." # " " # e);
+                                                                _Logs.logMessage("Avatar/removeAccesssory/223." # " " # e);
                                                                 return #err(e);
                                                             };
                                                             case(#ok){
@@ -280,7 +228,7 @@ module {
                                                             };
                                                         };
                                                     } else {
-                                                        _Logs.logMessage("Avatar/removeAccesssory/288." # " Trying to desequip : " # name_accessory # " when " # equipped # " is equipped");
+                                                        _Logs.logMessage("Avatar/removeAccesssory/231." # " Trying to desequip : " # name_accessory # " when " # equipped # " is equipped");
                                                         return #err("Trying to desequip : " # name_accessory # " when " # equipped # " is equipped");
                                                     };
                                                 };
@@ -289,7 +237,7 @@ module {
                                     };
                                 };
                                 case _ {
-                                    _Logs.logMessage("Avatar/removeAccessory/297" # " Component : " # name_accessory # " is not an accessory");
+                                    _Logs.logMessage("Avatar/removeAccessory/240" # " Component : " # name_accessory # " is not an accessory");
                                     return #err("Component : " # name_accessory # " is not an accessory");
                                 }
                             }
@@ -297,13 +245,6 @@ module {
                     };
                 };
             };
-        };
-
-        public func clearSlot(
-            tokenId : TokenIdentifier,
-            slot : Text
-        )  : Result<(), Text> {
-            #ok;
         };
 
         public func removeAllAccessories(
@@ -338,6 +279,10 @@ module {
             };
         };
 
+        public func getAvatar(tokenId : TokenIdentifier) : ?Avatar {
+            return _avatars.get(tokenId);
+        };
+
         public func getStats() : (Nat,Nat) {
             let nb = _numberLegendaries();
             (_avatars.size() - nb,nb);
@@ -346,16 +291,6 @@ module {
         //////////////////
         // UTILITIES ////
         /////////////////
-
-        func _numberLegendaries() : Nat {
-            var nb = 0;
-            for(avatar in _avatars.vals()){
-                if(avatar.level == #Legendary){
-                    nb += 1;
-                };
-            };
-            nb
-        };
 
         func _createNewSlot() : Slots {
             {
@@ -375,6 +310,16 @@ module {
                 return(#Level2);
             };
             return(#Level1);
+        };
+
+        func _numberLegendaries() : Nat {
+            var nb = 0;
+            for(avatar in _avatars.vals()){
+                if(avatar.level == #Legendary){
+                    nb += 1;
+                };
+            };
+            nb
         };
 
         func _orderLayers (layers : Layers) : Layers {
@@ -443,13 +388,6 @@ module {
                 buffer.add(layer);
             };
             buffer.toArray();
-        };
-
-        func _getStyleOptionalAccessory(avatar : Avatar) : Text {
-            switch(avatar.slots.Body){
-                case(null) return "";
-                case(?something) return "<style> .clothing {visibility : hidden;} </style>";
-            };
         };
 
         func _getLayersAccessories(avatar : Avatar) : Layers {
@@ -527,6 +465,13 @@ module {
             return(buffer.toArray());
         };
 
+        func _getStyleOptionalAccessory(avatar : Avatar) : Text {
+            switch(avatar.slots.Body){
+                case(null) return "";
+                case(?something) return "<style> .clothing {visibility : hidden;} </style>";
+            };
+        };
+
         func _createBlob(
             avatar : Avatar
             ) : Blob {
@@ -535,7 +480,7 @@ module {
                 var svg = "<svg viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg' height='800px' width='800px' class='" # _profileToCSSBody(avatar.profile) # "'>";
 
                 // Add style general, style for colors and potentially style for hiding clothes when a body accessory is equipped.
-                svg #= css_style # ColorModule.createStyle(avatar.style) # _getStyleOptionalAccessory(avatar);
+                svg #= css_style # Colors.createStyle(avatar.style) # _getStyleOptionalAccessory(avatar);
 
                 // Get the layers and order them, then add components for each layer.
                 let layers = _orderLayers(_createLayers(avatar));
@@ -586,12 +531,12 @@ module {
         ) : Result<Avatar, Text> {
             switch(_Assets.getFile(name)){
                 case(null) {
-                    _Logs.logMessage("Avatar/lib/createLegendary/line592. " # name # " file not found.");
+                    _Logs.logMessage("Avatar/lib/createLegendary/line534. " # name # " file not found.");
                     return (#err("File not found for : " # name));
                 };
                 case(? file){
                     if(Option.isNull(Array.find<Text>(file.meta.tags, func(tag) { tag == "legendary"} ))){
-                        _Logs.logMessage("Avatar/lib/createLegendary/line597. " # name # " is not a legendary avatar.");
+                        _Logs.logMessage("Avatar/lib/createLegendary/line539. " # name # " is not a legendary avatar.");
                         return #err( name # " doesn't have the legendary tag");
                     };
                     #ok({
@@ -612,170 +557,6 @@ module {
             };
         };
 
-
-        ////////////
-        // OLD ////
-        ///////////
-
-        // func _createAvatarOld(
-        //     request : AvatarRequest,
-        // ) : Avatar {
-        //     let background = switch(_findBackground(request)){
-        //         case(?background) Text.map(background , Prim.charToLower);
-        //         case(_) {
-        //             assert(false);
-        //             "Unreachable";
-        //         }
-        //     };
-        //     let profile = switch(_findProfile(request)){
-        //         case(?profile) Text.map(profile , Prim.charToLower);
-        //          case(_) {
-        //             assert(false);
-        //             "Unreachable";
-        //         }
-        //     };
-        //     let ears = switch(_findEars(request)){
-        //         case(?ears) Text.map(ears , Prim.charToLower);
-        //          case(_) {
-        //             assert(false);
-        //             "Unreachable";
-        //         }
-        //     };
-        //     let mouth = switch(_findMouth(request)){
-        //         case(?mouth) Text.map(mouth , Prim.charToLower);
-        //          case(_) {
-        //             assert(false);
-        //             "Unreachable";
-        //         }
-        //     };
-        //     let eyes = switch(_findEyes(request)){
-        //         case(?eyes) Text.map(eyes , Prim.charToLower);
-        //          case(_) {
-        //             assert(false);
-        //             "Unreachable";
-        //         }
-        //     };
-        //     let nose = switch(_findNose(request)){
-        //         case(?nose) Text.map(nose , Prim.charToLower);
-        //          case(_) {
-        //             assert(false);
-        //             "Unreachable";
-        //         }
-        //     };
-        //     let hair = switch(_findHair(request)){
-        //         case(?hair) Text.map(hair , Prim.charToLower);
-        //          case(_) {
-        //             assert(false);
-        //             "Unreachable";
-        //         }
-        //     };
-        //     let cloth = switch(_findCloth(request)){
-        //         case(?cloth) cloth;
-        //          case(_) {
-        //             assert(false);
-        //             "Unreachable";
-        //         }
-        //     };
-        //     let avatar_without_blob = {
-        //         background = background;
-        //         profile = profile;
-        //         ears = ears;
-        //         mouth = mouth;
-        //         eyes = eyes;
-        //         nose = nose;
-        //         hair = hair;
-        //         cloth = cloth;
-        //         slots = _createNewSlot();
-        //         style = #Colors(request.colors);
-        //         level = _getLevel();
-        //         blob = Blob.fromArray([0]);
-        //     };
-        //     _modifyAvatarBlob(
-        //         avatar_without_blob,
-        //         _createBlob(avatar_without_blob)
-        //     )
-        // };
-
-        func _findBackground(request : AvatarRequest) : ?Text {
-            for(component in request.components.vals()){
-                if(component.layer == 5){
-                    return ?component.name;
-                };
-            };
-            null
-        };
-
-        func _findProfile(request : AvatarRequest) : ?Text {
-            for(component in request.components.vals()){
-                if(component.layer == 20){
-                    switch(component.name){
-                        case("Business-body") return ?"Business-profile";
-                        case("Miss-body") return ?"Miss-profile";
-                        case("Punk-body") return ?"Punk-profile";
-                        case(_) return null 
-                    };
-                };
-            };
-            null
-        };
-
-        func _findEars(request : AvatarRequest) : ?Text {
-            for(component in request.components.vals()){
-                if(component.layer == 30){
-                    return ?component.name;
-                };
-            };
-            null
-        };
-
-        func _findMouth(request : AvatarRequest) : ?Text {
-            for(component in request.components.vals()){
-                if(component.layer == 45){
-                    return ?component.name;
-                };
-            };
-            null
-        };
-
-        func _findEyes(request : AvatarRequest) : ?Text {
-            for(component in request.components.vals()){
-                if(component.layer == 50){
-                    return ?component.name;
-                };
-            };
-            null
-        };
-
-        func _findNose(request : AvatarRequest) : ?Text {
-            for(component in request.components.vals()){
-                if(component.layer == 55){
-                    return ?component.name;
-                };
-            };
-            null
-        };
-
-        func _findHair(request : AvatarRequest) : ?Text {
-            for(component in request.components.vals()){
-                if(component.layer == 75){
-                    return ?component.name;
-                };
-            };
-            null
-        };
-
-        func _findCloth(request : AvatarRequest) : ?Text {
-            for(component in request.components.vals()){
-                if(component.layer == 70){
-                    return ?component.name;
-                };
-            };
-            null
-        };
-
-
-   
-
         func _profileToCSSBody(profile : Text) : Text {
             switch(profile){
                 case("business-profile") return "Business-body";
@@ -785,128 +566,6 @@ module {
                     assert(false);
                     "Unreachable";
                 };
-            }
-        };
-
-
-        //// OLD TO NEW
-        func findProfile(layers : [(LayerId, Text)]) : Text {
-            for(layer in layers.vals()){
-                if(layer.0 == 35){
-                    switch(layer.1){
-                        case("Miss-head") return "miss-profile";
-                        case("Business-head") return "business-profile";
-                        case("Punk-head") return "punk-profile";
-                        case(_) {
-                            assert(false);
-                            return "Unreachable";
-                        };
-                    }
-                };
-            };
-            "";
-        };
-            
-        func findEars(layers : [(LayerId, Text)]) : Text {
-            for(layer in layers.vals()){
-                if(layer.0 == 30){
-                    return Text.map(layer.1 , Prim.charToLower);
-                }
-            };
-            "";
-        };
-
-        func findMouth(layers : [(LayerId, Text)]) : Text {
-            for(layer in layers.vals()){
-                if(layer.0 == 45){
-                    return Text.map(layer.1 , Prim.charToLower);
-                }
-            };
-            "";
-        };
-
-        func findEyes(layers : [(LayerId, Text)]) : Text {
-            for(layer in layers.vals()){
-                if(layer.0 == 50){
-                    return Text.map(layer.1 , Prim.charToLower);
-                }
-            };
-            _Logs.logMessage("Avatar " # " findEyes " # " No eyes found");
-            "";
-        };
-
-        func findNose(layers : [(LayerId, Text)]) : Text {
-            for(layer in layers.vals()){
-                if(layer.0 == 55){
-                    return Text.map(layer.1 , Prim.charToLower);
-                }
-            };
-            "";
-        };
-
-        func findHair(layers : [(LayerId, Text)]) : Text {
-            for(layer in layers.vals()){
-                if(layer.0 == 75){
-                    return Text.map(layer.1 , Prim.charToLower);
-                }
-            };
-            "";
-        };
-
-        func findCloth(layers : [(LayerId, Text)]) : Text {
-            for(layer in layers.vals()){
-                if(layer.0 == 70){
-                    return layer.1;
-                }
-            };
-            "";
-        };
-
-        func switchSlot(slot : Slots) : Slots {
-            {
-                Hat = switchHat(slot.Hat);
-                Eyes = switchEyes(slot.Eyes);
-                Face = switchFace(slot.Face);
-                Misc = switchMisc(slot.Misc);
-                Body = switchBody(slot.Body);
-            }
-        };
-
-        func switchEyes(name : ?Text) : ?Text {
-            switch(name){
-                case(null) return null;
-                case(?"Matrix-glasses") return ?"sunglasses";
-                case(? t) return ?Text.map(t, Prim.charToLower);
-            }
-        };
-
-        func switchFace(name : ?Text) : ?Text {
-            switch(name){
-                case(null) return null;
-                case(?"Dfinity-face-mask") return ?"facemask";
-                case(?"Oni-half-mask") return ?"oni-face-mask";
-                case(?t) return ?Text.map(t, Prim.charToLower);
-            }
-        };
-
-        func switchHat(name : ?Text) : ?Text {
-          switch(name){
-            case(null) return null;
-            case(?t) return ?Text.map(t, Prim.charToLower);
-          }
-        };
-
-        func switchBody(name : ?Text) : ?Text {
-            switch(name){
-                case(null) return null;
-                case(?t) return ?Text.map(t, Prim.charToLower);
-            }
-        };
-
-        func switchMisc(name : ?Text) : ?Text {
-            switch(name){
-                case(null) return null;
-                case(?t) return ?Text.map(t, Prim.charToLower);
             }
         };
 
@@ -963,10 +622,6 @@ module {
                 };
             };
         };
-
-        //////////////////
-        // UTILITIES ////
-        /////////////////
 
         func _drawAvatar(
             tokenId : TokenIdentifier,
@@ -1112,6 +767,4 @@ module {
             };
         };
     };
-
-
 };
