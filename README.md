@@ -10,6 +10,7 @@ Goals ✅
 - [x] Compatible with **Plug** and **Stoic** wallets.
 - [x] **HTTP** interface for canister informations, asset preview and nft rendering.
 - [x] **Invoice** system for live and open minting in exchange of 1 ICP.
+- [ ] Finish the econony and early gameplay planning.
 - [ ] Drainining and restoring state of all canister at any point to allow for backup system.
 - [ ] Mission, gameplay, airdrop and bootcamp integration.
 - [ ] Legendaries accessories and characters integration.
@@ -35,7 +36,7 @@ Candid interface : https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=po6n2-uia
 
 ## Avatar
 
-Canister id : jmuqr-yqaaa-aaaaj-qaicq-cai <br/>
+Canister id : **jmuqr-yqaaa-aaaaj-qaicq-cai** <br/>
 Candid interface : https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=jmuqr-yqaaa-aaaaj-qaicq-cai
 
 ## Website
