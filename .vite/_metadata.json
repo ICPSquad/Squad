@@ -1,0 +1,16 @@
+{
+  "hash": "e8895101",
+  "browserHash": "586b4a02",
+  "optimized": {
+    "buffer": {
+      "file": "/Users/andrewsellen/Documents/icp-squad/Squad/.vite/buffer.js",
+      "src": "/Users/andrewsellen/Documents/icp-squad/Squad/node_modules/buffer/index.js",
+      "needsInterop": true
+    },
+    "svelte": {
+      "file": "/Users/andrewsellen/Documents/icp-squad/Squad/.vite/svelte.js",
+      "src": "/Users/andrewsellen/Documents/icp-squad/Squad/node_modules/svelte/index.mjs",
+      "needsInterop": false
+    }
+  }
+}
