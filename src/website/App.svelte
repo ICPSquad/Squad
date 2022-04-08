@@ -1,7 +1,14 @@
 <script>
-  import Avatar from "./Avatar.svelte"
+  import Mint from "./Mint.svelte"
 </script>
 
-<Avatar />
+<div>
+  <Mint />
+</div>
 
+<style>
+  div {
+    width: 300px;
+  }
+</style>
 

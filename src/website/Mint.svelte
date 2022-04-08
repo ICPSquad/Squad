@@ -23,15 +23,15 @@
     renderAvatar(avatarDiv, {
       Background: backgrounds[0],
       Profile: profiles[1],
-      Ears: ears[1],
-      Eyes: eyes[3],
+      Ears: ears[2],
+      Eyes: eyes[4],
       Nose: noses[0],
       Mouth: mouths[2],
       Hairs: hairs[10],
       Clothes: clothes[2],
       Accessory: accessories[1],
       Colors: {
-        Skin: [0, 0, 252, 1],
+        Skin: [255, 255, 0, 1],
         Hairs: [0, 169, 0, 1],
         Eyes: [0, 169, 252, 1],
         Eyebrows: [200, 169, 252, 1],
@@ -50,9 +50,6 @@
 </div>
 
 <style global>
-  #avatar {
-    max-width: 300px;
-  }
 
   #avatar-components {
     width: 0;
