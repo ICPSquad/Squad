@@ -24,7 +24,7 @@
       Background: backgrounds[0],
       Profile: profiles[1],
       Ears: ears[2],
-      Eyes: eyes[4],
+      Eyes: eyes[5],
       Nose: noses[0],
       Mouth: mouths[2],
       Hairs: hairs[10],
