@@ -28,7 +28,6 @@ type TransferRequest =
    token: TokenIdentifier__1;
  };
 type TokenIndex = nat32;
-type TokenIdentifier__2 = text;
 type TokenIdentifier__1 = text;
 type TokenIdentifier = text;
 type Time = int;
@@ -53,49 +52,18 @@ type StreamingCallbackResponse =
  };
 type StreamingCallback = func (StreamingCallbackToken) ->
                           (StreamingCallbackResponse) query;
-type Slots__1 = 
- record {
-   Body: opt text;
-   Eyes: opt text;
-   Face: opt text;
-   Hat: opt text;
-   Misc: opt text;
- };
-type Slots = 
- record {
-   Body: opt text;
-   Eyes: opt text;
-   Face: opt text;
-   Hat: opt text;
-   Misc: opt text;
- };
-type Result_9 = 
- variant {
-   err: text;
-   ok: text;
- };
-type Result_8 = 
+type Result_6 = 
  variant {
    err: CommonError;
    ok: AccountIdentifier__1;
  };
-type Result_7 = 
+type Result_5 = 
  variant {
    err: CommonError;
    ok: record {
          AccountIdentifier__1;
          opt Listing;
        };
- };
-type Result_6 = 
- variant {
-   err: text;
-   ok: AvatarPreview;
- };
-type Result_5 = 
- variant {
-   err: text;
-   ok: AvatarPreviewNew;
  };
 type Result_4 = 
  variant {
@@ -105,9 +73,14 @@ type Result_4 =
 type Result_3 = 
  variant {
    err: text;
-   ok: AvatarInformations;
+   ok: TokenIdentifier;
  };
 type Result_2 = 
+ variant {
+   err: CommonError;
+   ok: vec TokenIndex;
+ };
+type Result_1 = 
  variant {
    err: CommonError;
    ok: vec record {
@@ -115,11 +88,6 @@ type Result_2 =
              opt Listing;
              opt blob;
            };
- };
-type Result_1 = 
- variant {
-   err: CommonError;
-   ok: vec TokenIndex;
  };
 type Result = 
  variant {
@@ -149,10 +117,18 @@ type NumericEntity =
    min: nat64;
  };
 type Nanos = nat64;
-type MintRequest = 
+type MintInformation = 
  record {
-   metadata: AvatarRequest;
-   to: User;
+   background: text;
+   cloth: text;
+   colors: Colors;
+   ears: text;
+   eyes: text;
+   hair: text;
+   mouth: text;
+   nose: text;
+   profile: text;
+   user: principal;
  };
 type MetricsGranularity = 
  variant {
@@ -190,41 +166,20 @@ type Listing =
    seller: principal;
    subaccount: opt SubAccount;
  };
-type LayerId = nat;
 type ICPSquadNFT = 
  service {
    acceptCycles: () -> ();
-   addAccessory: (text, Accessory) -> (Result_9);
-   addComponent_new: (text, Component__1) -> (Result);
-   addListAccessory: (vec Accessory) -> (Result_9);
-   addListComponent: (vec record {
-                            text;
-                            Component;
-                          }) -> (Result_9);
    add_admin: (principal) -> ();
    availableCycles: () -> (nat) query;
    balance: (BalanceRequest) -> (BalanceResponse) query;
-   balance_new: (BalanceRequest) -> (BalanceResponse) query;
-   bearer: (TokenIdentifier) -> (Result_8) query;
-   bearer_new: (TokenIdentifier) -> (Result_8) query;
-   changeCSS: (text) -> ();
+   bearer: (TokenIdentifier) -> (Result_6) query;
+   changeStyle: (text) -> ();
    collectCanisterMetrics: () -> ();
-   copy: () -> ();
-   details: (TokenIdentifier) -> (Result_7) query;
-   details_new: (TokenIdentifier) -> (Result_7) query;
+   delete: (text) -> (Result);
+   details: (TokenIdentifier) -> (Result_5) query;
    draw: (TokenIdentifier) -> (Result);
    eventsSize: () -> (nat) query;
    extensions: () -> (vec Extension) query;
-   getAllAccessories: () -> (vec record {
-                                   text;
-                                   Accessory;
-                                 }) query;
-   getAllComponents: () -> (vec record {
-                                  text;
-                                  Component;
-                                }) query;
-   getAvatarInfos: () -> (Result_6) query;
-   getAvatarInfos_new: () -> (Result_5) query;
    getCanisterLog: (opt CanisterLogRequest) ->
     (opt CanisterLogResponse) query;
    getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
@@ -232,33 +187,19 @@ type ICPSquadNFT =
                              TokenIndex;
                              AccountIdentifier__1;
                            }) query;
-   getRegistry_new: () ->
-    (vec record {
-           TokenIndex;
-           AccountIdentifier__1;
-         }) query;
    getTokens: () -> (vec record {
                            TokenIndex;
                            Metadata;
                          }) query;
-   getTokens_new: () -> (vec record {
-                               TokenIndex;
-                               Metadata;
-                             }) query;
    http_request: (Request) -> (Response) query;
    init_cap: () -> (Result);
    is_admin: (principal) -> (bool) query;
    metadata: (TokenIdentifier) -> (Result_4) query;
-   mint: (MintRequest) -> (Result_3);
-   modify_style: (text) -> (text);
+   mint: (MintInformation) -> (Result_3);
+   registerComponent: (text, Component) -> (Result);
    removeAccessory: (TokenIdentifier, text, principal) -> (Result);
-   showFullSvg: (TokenIdentifier) -> (opt text) query;
-   test: () -> ();
-   test_hex: () -> (vec AccountIdentifier__1);
-   tokens: (AccountIdentifier__1) -> (Result_1) query;
-   tokens_ext: (AccountIdentifier__1) -> (Result_2) query;
-   tokens_ext_new: (AccountIdentifier__1) -> (Result_2) query;
-   tokens_new: (AccountIdentifier__1) -> (Result_1) query;
+   tokens: (AccountIdentifier__1) -> (Result_2) query;
+   tokens_ext: (AccountIdentifier__1) -> (Result_1) query;
    transfer: (TransferRequest) -> (TransferResponse);
    upload: (vec nat8) -> ();
    uploadClear: () -> ();
@@ -312,17 +253,6 @@ type DailyMetricsData =
    timeMillis: int;
    updateCalls: nat64;
  };
-type Component__1 = 
- record {
-   category: ComponentCategory;
-   layers: vec nat;
-   name: text;
- };
-type ComponentRequest = 
- record {
-   layer: nat8;
-   name: text;
- };
 type ComponentCategory = 
  variant {
    Accessory;
@@ -331,8 +261,8 @@ type ComponentCategory =
  };
 type Component = 
  record {
-   content: text;
-   layer: nat8;
+   category: ComponentCategory;
+   layers: vec nat;
    name: text;
  };
 type CommonError__1 = 
@@ -345,6 +275,11 @@ type CommonError =
    InvalidToken: TokenIdentifier__1;
    Other: text;
  };
+type Colors = 
+ vec record {
+       color: Color;
+       spot: text;
+     };
 type Color = 
  record {
    nat8;
@@ -406,43 +341,6 @@ type BalanceRequest =
    user: User;
  };
 type Balance = nat;
-type AvatarRequest = 
- record {
-   colors: vec record {
-                 color: Color;
-                 spot: text;
-               };
-   components: vec ComponentRequest;
- };
-type AvatarPreviewNew = 
- record {
-   body_name: text;
-   layers: vec record {
-                 LayerId;
-                 text;
-               };
-   slots: Slots;
-   style: text;
-   token_identifier: TokenIdentifier;
- };
-type AvatarPreview = 
- record {
-   avatar_svg: text;
-   slots: Slots__1;
-   token_identifier: TokenIdentifier__2;
- };
-type AvatarInformations = 
- record {
-   svg: text;
-   tokenIdentifier: text;
- };
 type AccountIdentifier__1 = text;
 type AccountIdentifier = text;
-type Accessory = 
- record {
-   content: text;
-   layer: nat8;
-   name: text;
-   slot: text;
- };
 service : (principal) -> ICPSquadNFT

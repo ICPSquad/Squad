@@ -234,25 +234,25 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     public shared ({caller}) func wearAccessory(
         tokenId : TokenIdentifier,
         name : Text,
-        caller : Principal
+        p : Principal
     ) : async Result<(), Text> {
-        // assert(caller == Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai"));
+        assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        switch(_Ext.balance({ user = #principal(caller); token = tokenId})){
+        switch(_Ext.balance({ user = #principal(p); token = tokenId})){
             case(#err(_)){
                 return #err("Error trying to access EXT balance : " # tokenId);
             };
             case(#ok(n)){
                 switch(n){
                     case(0){
-                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(caller) # " doesnt own : " # tokenId);
+                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(p) # " doesnt own : " # tokenId);
                         return #err("Caller :  " #Principal.toText(caller) # " doesn't own : " # tokenId);
                     };
                     case(1){
-                        _Avatar.wearAccessory(tokenId, name)
+                        _Avatar.wearAccessory(tokenId, name);
                     };
                     case _ {
-                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(caller) # " doesnt own : " # tokenId);
+                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(p) # " doesnt own : " # tokenId);
                         return #err("Unexpected value for balance : " # Nat.toText(n));
                     }
                 };
@@ -263,25 +263,25 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     public shared ({caller}) func removeAccessory(
         tokenId : TokenIdentifier,
         name : Text,
-        caller : Principal
+        p : Principal
     ) : async Result<(), Text> {
-        // assert(caller == Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai"));
+        assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-         switch(_Ext.balance({ user = #principal(caller); token = tokenId})){
+         switch(_Ext.balance({ user = #principal(p); token = tokenId})){
             case(#err(_)){
                 return #err("Error trying to access EXT balance : " # tokenId);
             };
             case(#ok(n)){
                 switch(n){
                     case(0){
-                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(caller) # " doesnt own : " # tokenId);
-                        return #err("Caller :  " #Principal.toText(caller) # " doesn't own : " # tokenId);
+                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(p) # " doesnt own : " # tokenId);
+                        return #err("Caller :  " #Principal.toText(p) # " doesn't own : " # tokenId);
                     };
                     case(1){
                         _Avatar.removeAccessory(tokenId, name)
                     };
                     case _ {
-                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(caller) # " doesnt own : " # tokenId);
+                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(p) # " doesnt own : " # tokenId);
                         return #err("Unexpected value for balance : " # Nat.toText(n));
                     }
                 };

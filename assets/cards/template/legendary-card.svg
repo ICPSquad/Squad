@@ -7,7 +7,7 @@
   style="fill-rule: evenodd; clip-rule: evenodd; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 1.5"
 >
   <g id="legendary-card">
-    <rect id="bg" x="-48.418" y="-9.957" width="931.967" height="871.066" style="fill: url(#legendary-cardlegendary-card_Linear1)" />
+    <rect id="bg" x="-48.418" y="-9.957" width="931.967" height="871.066" style="fill: url(#legendary-cardlegendary-cardlegendary-card_Linear1)" />
     <g id="rarity-bars" transform="matrix(0.86723,0,0,0.86723,10.4494,88.5493)">
       <g id="rarity-bars-fill">
         <g transform="matrix(0.114833,0,0,0.114833,59.0756,653.445)">
@@ -140,7 +140,7 @@
       </clipPath>
       <g clip-path="url(#legendary-card_0)">
         <g transform="matrix(1.00436,0,0,2.42829,-1.77732,-904.509)">
-          <rect x="82.193" y="587.181" width="651.002" height="46.101" style="fill: url(#legendary-cardlegendary-card_Linear3)" />
+          <rect x="82.193" y="587.181" width="651.002" height="46.101" style="fill: url(#legendary-cardlegendary-cardlegendary-card_Linear3)" />
         </g>
       </g>
     </g>
@@ -158,7 +158,7 @@
           ER HELMET
         </text>
         <g transform="matrix(0.971932,0,0,2.42829,-118.134,-1049.56)">
-          <rect x="82.193" y="587.181" width="651.002" height="46.101" style="fill: url(#legendary-cardlegendary-card_Linear5)" />
+          <rect x="82.193" y="587.181" width="651.002" height="46.101" style="fill: url(#legendary-cardlegendary-cardlegendary-card_Linear5)" />
         </g>
       </g>
     </g>
@@ -282,10 +282,10 @@
     <path
       id="border"
       d="M800,801.235L800,-4.106L-0,-4.106L0,801.235L800,801.235ZM260.875,30.644L30.644,30.644C30.644,30.644 30.644,769.356 30.644,769.356C30.644,769.356 769.356,769.356 769.356,769.356L769.356,30.644L539.125,30.644L539.125,61.806L260.875,61.806L260.875,30.644Z"
-      style="fill: url(#legendary-cardlegendary-card_Linear8)"
+      style="fill: url(#legendary-cardlegendary-cardlegendary-card_Linear8)"
     />
     <g id="guide" transform="matrix(1,0,0,1.04284,1.75676,-22.4672)">
-      <rect x="82.193" y="95.569" width="632.101" height="428.927" style="fill: url(#legendary-cardlegendary-card_Linear9); stroke: rgb(251, 219, 59); stroke-width: 4.8px" />
+      <rect x="82.193" y="95.569" width="632.101" height="428.927" style="fill: url(#legendary-cardlegendary-cardlegendary-card_Linear9); stroke: rgb(251, 219, 59); stroke-width: 4.8px" />
     </g>
     <g id="helmet" transform="matrix(0.865702,0,0,0.865702,53.723,19.5081)">
       <clipPath id="legendary-card_4">
@@ -704,32 +704,32 @@
     </g>
   </g>
   <defs>
-    <linearGradient id="legendary-cardlegendary-card_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(6.69055e-14,-1092.65,1092.65,6.69055e-14,400,1092.65)">
+    <linearGradient id="legendary-cardlegendary-cardlegendary-card_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(6.69055e-14,-1092.65,1092.65,6.69055e-14,400,1092.65)">
       <stop offset="0" style="stop-color: rgb(7, 30, 41); stop-opacity: 1" />
       <stop offset="1" style="stop-color: rgb(99, 40, 118); stop-opacity: 1" />
     </linearGradient>
-    <linearGradient id="legendary-cardlegendary-card_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(401.647,4.68177e-14,-2.92239e-13,401.647,210.808,610.231)">
+    <linearGradient id="legendary-cardlegendary-cardlegendary-card_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(401.647,4.68177e-14,-2.92239e-13,401.647,210.808,610.231)">
       <stop offset="0" style="stop-color: rgb(251, 219, 59); stop-opacity: 1" />
       <stop offset="0.31" style="stop-color: rgb(255, 53, 142); stop-opacity: 1" />
       <stop offset="0.5" style="stop-color: rgb(178, 101, 255); stop-opacity: 1" />
       <stop offset="0.83" style="stop-color: rgb(41, 171, 226); stop-opacity: 1" />
       <stop offset="1" style="stop-color: rgb(41, 171, 226); stop-opacity: 1" />
     </linearGradient>
-    <linearGradient id="legendary-cardlegendary-card_Linear5" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(401.647,4.68177e-14,-2.92239e-13,401.647,210.808,610.231)">
+    <linearGradient id="legendary-cardlegendary-cardlegendary-card_Linear5" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(401.647,4.68177e-14,-2.92239e-13,401.647,210.808,610.231)">
       <stop offset="0" style="stop-color: rgb(251, 219, 59); stop-opacity: 1" />
       <stop offset="0.31" style="stop-color: rgb(255, 53, 142); stop-opacity: 1" />
       <stop offset="0.5" style="stop-color: rgb(178, 101, 255); stop-opacity: 1" />
       <stop offset="0.83" style="stop-color: rgb(41, 171, 226); stop-opacity: 1" />
       <stop offset="1" style="stop-color: rgb(41, 171, 226); stop-opacity: 1" />
     </linearGradient>
-    <linearGradient id="legendary-cardlegendary-card_Linear8" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(763.783,-764.481,769.584,768.882,17.1548,782.607)">
+    <linearGradient id="legendary-cardlegendary-cardlegendary-card_Linear8" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(763.783,-764.481,769.584,768.882,17.1548,782.607)">
       <stop offset="0" style="stop-color: rgb(87, 39, 133); stop-opacity: 1" />
       <stop offset="0.25" style="stop-color: rgb(237, 30, 121); stop-opacity: 1" />
       <stop offset="0.51" style="stop-color: rgb(41, 171, 226); stop-opacity: 1" />
       <stop offset="0.76" style="stop-color: rgb(241, 90, 36); stop-opacity: 1" />
       <stop offset="1" style="stop-color: rgb(251, 176, 59); stop-opacity: 1" />
     </linearGradient>
-    <linearGradient id="legendary-cardlegendary-card_Linear9" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(3.89688e-14,-610.267,636.408,3.73681e-14,398.243,614.74)">
+    <linearGradient id="legendary-cardlegendary-cardlegendary-card_Linear9" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(3.89688e-14,-610.267,636.408,3.73681e-14,398.243,614.74)">
       <stop offset="0" style="stop-color: rgb(80, 225, 255); stop-opacity: 1" />
       <stop offset="0.44" style="stop-color: rgb(219, 249, 255); stop-opacity: 1" />
       <stop offset="1" style="stop-color: white; stop-opacity: 1" />

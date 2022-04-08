@@ -37,7 +37,7 @@ module Assets {
 
     public type Interface = {
         
-        // Get the UD before upgrading
+        // Get the UD before upgrading.
         preupgrade : () -> UpgradeData;
 
         // Reinitialize the state of the module after upgrading.

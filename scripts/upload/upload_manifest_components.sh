@@ -23,8 +23,7 @@ IFS=','
         layersCandid+="}"
         category="variant {$Type}"
         component="record{ name = \"$name\"; category = $category; layers = $layersCandid }"
-        #TODO : change name
-        dfx canister --network $network call $canister addComponent_new "(\"$name\", $component)" 
+        dfx canister --network $network call $canister registerComponent "(\"$name\", $component)" 
 	done
 } < $manifest
 IFS=$OLDIFS

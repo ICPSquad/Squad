@@ -1,9 +1,6 @@
 // Version: 1.0.0
-type Accessory = {content : Text; layer : Nat8; name : Text; slot : Text};
-type Accessory__1 = Accessory;
 type AccountIdentifier__1 = Text;
 type AccountIdentifier__2 = AccountIdentifier__1;
-type AccountIdentifier__4 = AccountIdentifier__1;
 type Asset = {contentType : Text; payload : Blob};
 type Avatar =
   {
@@ -25,8 +22,6 @@ type Color = (Nat8, Nat8, Nat8, Nat8);
 type Colors = [{color : Color; spot : Text}];
 type Component = {category : ComponentCategory; layers : [Nat]; name : Text};
 type ComponentCategory = {#Accessory; #Avatar; #Other};
-type Component__1 = {content : Text; layer : Nat8; name : Text};
-type Component__3 = Component__1;
 type DayCanisterCyclesData = [var Nat64];
 type DayCanisterHeapMemorySizeData = [var Nat64];
 type DayCanisterMemorySizeData = [var Nat64];
@@ -51,14 +46,11 @@ type DetailValue =
     #U64 : Nat64;
     #Vec : [DetailValue]
   };
+type File = {asset : Asset; meta : Meta};
 type FilePath = Text;
 type IndefiniteEvent =
   {caller : Principal; details : [(Text, DetailValue)]; operation : Text};
 type IndefiniteEvent__1 = IndefiniteEvent;
-type LayerAvatar = {#Accessory : Text; #Component : Text};
-type LayerAvatar__2 = LayerAvatar;
-type LayerId__1 = Nat;
-type LayerId__3 = LayerId__1;
 type Level = {#Legendary; #Level1; #Level2; #Level3};
 type LogMessageArray = [LogMessagesData];
 type LogMessagesData = {message : Text; timeNanos : Nanos};
@@ -66,22 +58,16 @@ type LoggerUpgradeData = UpgradeData__1;
 type Meta =
   {category : Category; description : Text; name : Text; tags : [Tag]};
 type Nanos = Nat64;
-type Record = {asset : Asset; meta : Meta};
 type Slots =
   {Body : ?Text; Eyes : ?Text; Face : ?Text; Hat : ?Text; Misc : ?Text};
-type Slots__1 =
-  {Body : ?Text; Eyes : ?Text; Face : ?Text; Hat : ?Text; Misc : ?Text};
-type Slots__3 = Slots__1;
 type Style = {#Colors : Colors; #Old : Text};
 type Tag = Text;
 type Time = Int;
 type Time__1 = Time;
 type TokenIdentifier = Text;
 type TokenIdentifier__1 = TokenIdentifier;
-type TokenIdentifier__6 = TokenIdentifier;
 type TokenIndex = Nat32;
 type TokenIndex__1 = TokenIndex;
-type TokenIndex__3 = TokenIndex;
 type UpgradeData = {#v1 : {dayData : [UpgradeDataDayTuple]}};
 type UpgradeDataDayTuple = (DayDataId, DayData);
 type UpgradeData__1 =
@@ -90,7 +76,7 @@ type UpgradeData__10 = UpgradeData__9;
 type UpgradeData__2 = UpgradeData;
 type UpgradeData__3 = {admins : [Principal]};
 type UpgradeData__4 = UpgradeData__3;
-type UpgradeData__5 = {record : [(FilePath, Record)]};
+type UpgradeData__5 = {record : [(FilePath, File)]};
 type UpgradeData__6 = UpgradeData__5;
 type UpgradeData__7 =
   {
@@ -107,20 +93,5 @@ actor {
   stable var _ExtUD : ?UpgradeData__10;
   stable var _LogsUD : ?LoggerUpgradeData;
   stable var _MonitorUD : ?UpgradeData__2;
-  stable var _blobsEntries : [(TokenIdentifier__6, Blob)];
-  stable var _eventsEntries : [(Time__1, IndefiniteEvent__1)];
-  stable var _minter : [Principal];
-  stable var _nextTokenId : Nat32;
-  stable var _principalToAccountsIdentifierState :
-    [(Principal, [AccountIdentifier__4])];
-  stable var _registryState : [(TokenIndex__3, AccountIdentifier__4)];
-  stable var _supply : Nat;
-  stable var accessoriesEntries : [(Text, Accessory__1)];
-  stable var componentsEntries : [(Text, Component__3)];
-  stable var layerStorage : [[(LayerId__3, LayerAvatar__2)]];
-  stable var legendaryEntries : [(Text, Text)];
-  stable var slotsStorage : [Slots__3];
-  stable var styleStorage : [Text];
-  stable var style_to_add : Text;
-  stable var tokenStorage : [TokenIdentifier__6]
+  stable var _eventsEntries : [(Time__1, IndefiniteEvent__1)]
 };

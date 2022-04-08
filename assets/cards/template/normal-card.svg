@@ -222,7 +222,7 @@
       style="fill: rgb(0, 153, 197)"
     />
     <g id="guide" transform="matrix(1,0,0,1.04284,1.75676,-22.4672)">
-      <rect x="82.193" y="95.569" width="632.101" height="428.927" style="fill: url(#normal-card_Linear3); stroke: rgb(0, 153, 197); stroke-width: 4.8px" />
+      <rect x="82.193" y="95.569" width="632.101" height="428.927" style="fill: url(#normal-cardnormal-card_Linear3); stroke: rgb(0, 153, 197); stroke-width: 4.8px" />
     </g>
     <g transform="matrix(1.74288,0,0,1.74288,-297.157,-266.611)">
       <g id="goggles">
@@ -526,7 +526,7 @@
     </g>
   </g>
   <defs>
-    <linearGradient id="normal-card_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(3.89688e-14,-610.267,636.408,3.73681e-14,398.243,614.74)">
+    <linearGradient id="normal-cardnormal-card_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(3.89688e-14,-610.267,636.408,3.73681e-14,398.243,614.74)">
       <stop offset="0" style="stop-color: rgb(80, 225, 255); stop-opacity: 1" />
       <stop offset="0.44" style="stop-color: rgb(219, 249, 255); stop-opacity: 1" />
       <stop offset="1" style="stop-color: white; stop-opacity: 1" />

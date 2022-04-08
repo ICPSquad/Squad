@@ -1,32 +1,6 @@
 import type { Principal } from '@dfinity/principal';
-export interface Accessory {
-  'content' : string,
-  'name' : string,
-  'slot' : string,
-  'layer' : number,
-}
 export type AccountIdentifier = string;
 export type AccountIdentifier__1 = string;
-export interface AvatarInformations {
-  'svg' : string,
-  'tokenIdentifier' : string,
-}
-export interface AvatarPreview {
-  'avatar_svg' : string,
-  'slots' : Slots__1,
-  'token_identifier' : TokenIdentifier__2,
-}
-export interface AvatarPreviewNew {
-  'body_name' : string,
-  'layers' : Array<[LayerId, string]>,
-  'slots' : Slots,
-  'style' : string,
-  'token_identifier' : TokenIdentifier,
-}
-export interface AvatarRequest {
-  'components' : Array<ComponentRequest>,
-  'colors' : Array<{ 'color' : Color, 'spot' : string }>,
-}
 export type Balance = bigint;
 export interface BalanceRequest { 'token' : TokenIdentifier__1, 'user' : User }
 export type BalanceResponse = { 'ok' : Balance } |
@@ -58,24 +32,19 @@ export type Category = { 'LegendaryCharacter' : null } |
   { 'AccessoryComponent' : null } |
   { 'AvatarComponent' : null };
 export type Color = [number, number, number, number];
+export type Colors = Array<{ 'color' : Color, 'spot' : string }>;
 export type CommonError = { 'InvalidToken' : TokenIdentifier__1 } |
   { 'Other' : string };
 export type CommonError__1 = { 'InvalidToken' : TokenIdentifier__1 } |
   { 'Other' : string };
 export interface Component {
-  'content' : string,
-  'name' : string,
-  'layer' : number,
-}
-export type ComponentCategory = { 'Avatar' : null } |
-  { 'Accessory' : null } |
-  { 'Other' : null };
-export interface ComponentRequest { 'name' : string, 'layer' : number }
-export interface Component__1 {
   'name' : string,
   'layers' : Array<bigint>,
   'category' : ComponentCategory,
 }
+export type ComponentCategory = { 'Avatar' : null } |
+  { 'Accessory' : null } |
+  { 'Other' : null };
 export interface DailyMetricsData {
   'updateCalls' : bigint,
   'canisterHeapMemorySize' : NumericEntity,
@@ -114,28 +83,17 @@ export interface HourlyMetricsData {
 }
 export interface ICPSquadNFT {
   'acceptCycles' : () => Promise<undefined>,
-  'addAccessory' : (arg_0: string, arg_1: Accessory) => Promise<Result_9>,
-  'addComponent_new' : (arg_0: string, arg_1: Component__1) => Promise<Result>,
-  'addListAccessory' : (arg_0: Array<Accessory>) => Promise<Result_9>,
-  'addListComponent' : (arg_0: Array<[string, Component]>) => Promise<Result_9>,
   'add_admin' : (arg_0: Principal) => Promise<undefined>,
   'availableCycles' : () => Promise<bigint>,
   'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
-  'balance_new' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
-  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_8>,
-  'bearer_new' : (arg_0: TokenIdentifier) => Promise<Result_8>,
-  'changeCSS' : (arg_0: string) => Promise<undefined>,
+  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_6>,
+  'changeStyle' : (arg_0: string) => Promise<undefined>,
   'collectCanisterMetrics' : () => Promise<undefined>,
-  'copy' : () => Promise<undefined>,
-  'details' : (arg_0: TokenIdentifier) => Promise<Result_7>,
-  'details_new' : (arg_0: TokenIdentifier) => Promise<Result_7>,
+  'delete' : (arg_0: string) => Promise<Result>,
+  'details' : (arg_0: TokenIdentifier) => Promise<Result_5>,
   'draw' : (arg_0: TokenIdentifier) => Promise<Result>,
   'eventsSize' : () => Promise<bigint>,
   'extensions' : () => Promise<Array<Extension>>,
-  'getAllAccessories' : () => Promise<Array<[string, Accessory]>>,
-  'getAllComponents' : () => Promise<Array<[string, Component]>>,
-  'getAvatarInfos' : () => Promise<Result_6>,
-  'getAvatarInfos_new' : () => Promise<Result_5>,
   'getCanisterLog' : (arg_0: [] | [CanisterLogRequest]) => Promise<
       [] | [CanisterLogResponse]
     >,
@@ -143,27 +101,20 @@ export interface ICPSquadNFT {
       [] | [CanisterMetrics]
     >,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__1]>>,
-  'getRegistry_new' : () => Promise<Array<[TokenIndex, AccountIdentifier__1]>>,
   'getTokens' : () => Promise<Array<[TokenIndex, Metadata]>>,
-  'getTokens_new' : () => Promise<Array<[TokenIndex, Metadata]>>,
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init_cap' : () => Promise<Result>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
   'metadata' : (arg_0: TokenIdentifier) => Promise<Result_4>,
-  'mint' : (arg_0: MintRequest) => Promise<Result_3>,
-  'modify_style' : (arg_0: string) => Promise<string>,
+  'mint' : (arg_0: MintInformation) => Promise<Result_3>,
+  'registerComponent' : (arg_0: string, arg_1: Component) => Promise<Result>,
   'removeAccessory' : (
       arg_0: TokenIdentifier,
       arg_1: string,
       arg_2: Principal,
     ) => Promise<Result>,
-  'showFullSvg' : (arg_0: TokenIdentifier) => Promise<[] | [string]>,
-  'test' : () => Promise<undefined>,
-  'test_hex' : () => Promise<Array<AccountIdentifier__1>>,
-  'tokens' : (arg_0: AccountIdentifier__1) => Promise<Result_1>,
-  'tokens_ext' : (arg_0: AccountIdentifier__1) => Promise<Result_2>,
-  'tokens_ext_new' : (arg_0: AccountIdentifier__1) => Promise<Result_2>,
-  'tokens_new' : (arg_0: AccountIdentifier__1) => Promise<Result_1>,
+  'tokens' : (arg_0: AccountIdentifier__1) => Promise<Result_2>,
+  'tokens_ext' : (arg_0: AccountIdentifier__1) => Promise<Result_1>,
   'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
   'upload' : (arg_0: Array<number>) => Promise<undefined>,
   'uploadClear' : () => Promise<undefined>,
@@ -177,7 +128,6 @@ export interface ICPSquadNFT {
       arg_2: Principal,
     ) => Promise<Result>,
 }
-export type LayerId = bigint;
 export interface Listing {
   'subaccount' : [] | [SubAccount],
   'locked' : [] | [Time],
@@ -203,7 +153,18 @@ export type Metadata = {
   { 'nonfungible' : { 'metadata' : [] | [Array<number>] } };
 export type MetricsGranularity = { 'hourly' : null } |
   { 'daily' : null };
-export interface MintRequest { 'to' : User, 'metadata' : AvatarRequest }
+export interface MintInformation {
+  'mouth' : string,
+  'background' : string,
+  'ears' : string,
+  'eyes' : string,
+  'hair' : string,
+  'cloth' : string,
+  'nose' : string,
+  'user' : Principal,
+  'colors' : Colors,
+  'profile' : string,
+}
 export type Nanos = bigint;
 export interface NumericEntity {
   'avg' : bigint,
@@ -226,40 +187,20 @@ export interface Response {
 }
 export type Result = { 'ok' : null } |
   { 'err' : string };
-export type Result_1 = { 'ok' : Array<TokenIndex> } |
-  { 'err' : CommonError };
-export type Result_2 = {
+export type Result_1 = {
     'ok' : Array<[TokenIndex, [] | [Listing], [] | [Array<number>]]>
   } |
   { 'err' : CommonError };
-export type Result_3 = { 'ok' : AvatarInformations } |
+export type Result_2 = { 'ok' : Array<TokenIndex> } |
+  { 'err' : CommonError };
+export type Result_3 = { 'ok' : TokenIdentifier } |
   { 'err' : string };
 export type Result_4 = { 'ok' : Metadata } |
   { 'err' : CommonError__1 };
-export type Result_5 = { 'ok' : AvatarPreviewNew } |
-  { 'err' : string };
-export type Result_6 = { 'ok' : AvatarPreview } |
-  { 'err' : string };
-export type Result_7 = { 'ok' : [AccountIdentifier__1, [] | [Listing]] } |
+export type Result_5 = { 'ok' : [AccountIdentifier__1, [] | [Listing]] } |
   { 'err' : CommonError };
-export type Result_8 = { 'ok' : AccountIdentifier__1 } |
+export type Result_6 = { 'ok' : AccountIdentifier__1 } |
   { 'err' : CommonError };
-export type Result_9 = { 'ok' : string } |
-  { 'err' : string };
-export interface Slots {
-  'Hat' : [] | [string],
-  'Body' : [] | [string],
-  'Eyes' : [] | [string],
-  'Face' : [] | [string],
-  'Misc' : [] | [string],
-}
-export interface Slots__1 {
-  'Hat' : [] | [string],
-  'Body' : [] | [string],
-  'Eyes' : [] | [string],
-  'Face' : [] | [string],
-  'Misc' : [] | [string],
-}
 export type StreamingCallback = (arg_0: StreamingCallbackToken) => Promise<
     StreamingCallbackResponse
   >;
@@ -283,7 +224,6 @@ export type Tag = string;
 export type Time = bigint;
 export type TokenIdentifier = string;
 export type TokenIdentifier__1 = string;
-export type TokenIdentifier__2 = string;
 export type TokenIndex = number;
 export interface TransferRequest {
   'to' : User,

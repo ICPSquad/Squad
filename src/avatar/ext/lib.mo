@@ -79,7 +79,6 @@ module {
                     return #err(#InvalidToken(request.token))
                 };
                 case(#ok(canisterId, tokenIndex)) {
-                    _Logs.logMessage("Ext/lib/balance/line82. Token identifier : " # request.token # " Canister id : " # Principal.toText(canisterId) # " and CANISTER_ID : " # Principal.toText(CANISTER_ID));
                     if(canisterId != CANISTER_ID){
                         return #err(#InvalidToken(request.token));
                     };
