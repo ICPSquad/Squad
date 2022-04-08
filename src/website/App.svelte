@@ -1,14 +1,13 @@
 <script>
-  import Mint from "./Mint.svelte"
+  import Mint from "./Mint.svelte";
 </script>
 
 <div>
+  <h1>Hello world</h1>
+  <div class="testing">HEY</div>
   <Mint />
 </div>
 
-<style>
-  div {
-    width: 300px;
-  }
+<style global lang="scss">
+  @use "./src/styles/global.scss" as *;
 </style>
-

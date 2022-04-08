@@ -1,0 +1,17 @@
+@use "../styles/_reset.scss" as *;
+@use "colours" as *;
+@use "type" as *;
+
+.container {
+  padding: 40px;
+}
+
+.testing {
+  color: $pink;
+}
+
+@media (max-width: 700px) {
+  .container {
+    padding: 20px;
+  }
+}

@@ -14,7 +14,6 @@
     accessories,
   } from "./src/utils/list";
 
-
   onMount(async () => {
     console.log("mounted");
 
@@ -24,7 +23,7 @@
       Background: backgrounds[0],
       Profile: profiles[1],
       Ears: ears[2],
-      Eyes: eyes[5],
+      Eyes: eyes[1],
       Nose: noses[0],
       Mouth: mouths[2],
       Hairs: hairs[10],
@@ -50,7 +49,6 @@
 </div>
 
 <style global>
-
   #avatar-components {
     width: 0;
     height: 0;
