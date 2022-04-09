@@ -1,11 +1,11 @@
 <script>
   import { Router, Route } from "svelte-routing";
   import Home from "./src/pages/Home.svelte";
-  import About from "./src/pages/About.svelte";
+  import CreateAvatar from "./src/pages/CreateAvatar.svelte";
 </script>
 
 <Router>
-  <Route path="about"><About /></Route>
+  <Route path="create-avatar"><CreateAvatar /></Route>
   <Route path="/"><Home /></Route>
 </Router>
 

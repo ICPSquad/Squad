@@ -5,7 +5,7 @@
 
 <Header />
 <main>
-  <h1>Home</h1>
+  <h1>Create Avatar</h1>
 
   <p>
     test a
@@ -18,6 +18,6 @@
   @use "./src/styles" as *;
 
   main {
-    --page-feature-color: #{$green};
+    --page-feature-color: #{$yellow};
   }
 </style>
