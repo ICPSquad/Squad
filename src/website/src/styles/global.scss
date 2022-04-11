@@ -23,6 +23,32 @@ a {
   padding: 40px;
 }
 
+button,
+.button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid transparent;
+  background-color: $pink;
+  text-transform: uppercase;
+  border-radius: 12px;
+  width: 100%;
+  padding: 10px 30px;
+  font-weight: bold;
+  color: $white;
+  cursor: pointer;
+
+  &.secondary {
+    border-color: $white;
+    background-color: $black;
+  }
+
+  &:hover {
+    filter: brightness(85%);
+  }
+}
+
 @media (max-width: 700px) {
   .container {
     padding: 20px;
