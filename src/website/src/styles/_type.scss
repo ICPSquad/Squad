@@ -13,12 +13,7 @@ h1 {
   line-height: 115%;
   margin-bottom: 1.8rem;
   font-size: 2.8rem; // Fallback
-  font-size: clamp(
-    2rem,
-    7vw,
-    4.2rem
-  ); // Min, Variable (including space for scrollbar), Max
-  letter-spacing: -0.09rem; // Fallback
+  font-size: clamp(2rem, 5vw, 4rem); // Min, Variable, Max
   overflow-wrap: break-word; // Backup in case string is too large for container
   text-align: center;
   text-transform: uppercase;
@@ -29,7 +24,7 @@ h2 {
   margin-bottom: 1.4rem;
   font-size: 1.6rem; // Fallback
   font-size: min(max(1.5rem, 4vw), 5rem); // Min, Variable, Max
-  letter-spacing: -0.04rem;
+  // letter-spacing: -0.04rem;
 }
 
 h3 {
@@ -48,7 +43,7 @@ p.large {
 
 p {
   margin-bottom: 1rem;
-  line-height: 130%;
+  line-height: 140%;
   font-size: 1.2rem; // Fallback
   font-size: min(max(1rem, 1.8vw), 1.3rem); // Min, Variable, Max
 }

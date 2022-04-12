@@ -1,4 +1,5 @@
 @use "../styles/_reset.scss" as *;
+@use "../styles/_avatar.scss" as *;
 @use "colours" as *;
 @use "type" as *;
 
@@ -23,6 +24,16 @@ a {
   max-width: 1400px;
   margin: 0 auto;
   padding: 40px;
+}
+
+.page-header {
+  width: 100%;
+  background-color: $verydarkgrey;
+  padding: 10px 0;
+  h1 {
+    color: var(--page-feature-color);
+    margin-bottom: 0;
+  }
 }
 
 button,
