@@ -41,7 +41,7 @@ h3 {
 
 p.large {
   margin-bottom: 1rem;
-  line-height: 130%;
+  line-height: 140%;
   font-size: 1.2rem; // Fallback
   font-size: min(max(1.2rem, 2vw), 1.6rem); // Min, Variable, Max
 }

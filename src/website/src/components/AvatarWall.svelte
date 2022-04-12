@@ -1,17 +1,83 @@
 <script>
+  import { onMount } from "svelte";
+
   import AvatarZapAnimate from "./AvatarZapAnimate.svelte";
+
+  const sets = [
+    [
+      {
+        image: "purple-woman",
+        theme: "pink",
+        size: 3,
+        delay: 0,
+      },
+    ],
+    [
+      {
+        image: "purple-woman",
+        theme: "pink",
+        size: 2,
+        delay: 0,
+      },
+      {
+        image: "green-woman",
+        theme: "green",
+        size: 1,
+        delay: 1000,
+      },
+      {
+        size: 1,
+      },
+      {
+        image: "yellow-man",
+        theme: "yellow",
+        size: 1,
+        delay: 0,
+      },
+      {
+        size: 1,
+      },
+      {
+        image: "purple-woman",
+        theme: "pink",
+        size: 1,
+        delay: 3000,
+      },
+    ],
+  ];
+
+  let nowShowing = 0;
+
+  const startAnimation = () => {
+    setInterval(() => {
+      nowShowing = nowShowing == sets.length - 1 ? 0 : nowShowing + 1;
+    }, 7000);
+  };
+
+  onMount(() => {
+    startAnimation();
+  });
 </script>
 
 <div class="grid">
-  <AvatarZapAnimate image="purple-woman" theme="pink" size={1} />
-  <AvatarZapAnimate image="blue-woman" theme="purple" size={1} />
-  <AvatarZapAnimate image="green-woman" theme="green" size={1} />
-  <AvatarZapAnimate image="yellow-man" theme="yellow" size={1} />
-  <AvatarZapAnimate image="purple-woman" theme="pink" size={1} />
-  <AvatarZapAnimate image="blue-woman" theme="purple" size={1} />
-  <AvatarZapAnimate image="green-woman" theme="green" size={1} />
-  <AvatarZapAnimate image="yellow-man" theme="yellow" size={1} />
-  <AvatarZapAnimate image="purple-woman" theme="pink" size={1} />
+  {#each sets as set, index}
+    {#if nowShowing == index}
+      {#each set as item}
+        <div style="grid-column: span {item.size}; grid-row: span {item.size}">
+          {#if item.image}
+            <AvatarZapAnimate
+              image={item.image}
+              theme={item.theme}
+              size={item.size}
+              delay={item.delay}
+            />
+          {:else}
+            <div />
+          {/if}
+        </div>
+      {/each}
+    {/if}
+  {/each}
 </div>
 
 <style lang="scss">
@@ -20,6 +86,8 @@
   .grid {
     display: grid;
     grid-template-columns: 140px 140px 140px;
+    grid-template-rows: 140px 140px 140px;
     grid-gap: 20px;
+    align-items: center;
   }
 </style>

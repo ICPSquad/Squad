@@ -6,6 +6,7 @@
   export let image = "purple-woman";
   export let theme = "pink";
   export let size = 1;
+  export let delay = 0;
 
   const pxSize = {
     1: 140,
@@ -43,12 +44,14 @@
   });
 
   const startAnimation = async () => {
-    await opacity.set(1);
-    await height.set(pxSize[size]);
     setTimeout(async () => {
-      // await height.set(0);
-      // opacity.set(0);
-    }, 8000);
+      await opacity.set(1);
+      await height.set(pxSize[size]);
+    }, delay);
+    setTimeout(async () => {
+      await height.set(0);
+      opacity.set(0);
+    }, 6000);
   };
 
   onMount(() => {

@@ -33,5 +33,6 @@
     background-color: transparent;
     border-radius: 40px;
     margin-right: 20px;
+    font-size: 1rem;
   }
 </style>

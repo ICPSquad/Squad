@@ -59,7 +59,7 @@
   }
 
   p.large {
-    margin-bottom: 40px;
+    margin-bottom: 50px;
   }
 
   button {
