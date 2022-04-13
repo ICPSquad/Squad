@@ -15,49 +15,66 @@
     clothes,
     accessories,
   } from "../../src/utils/list";
-  import { categories } from "../../src/utils/categories";
+  import { categories, categoryToFolder } from "../../src/utils/categories";
 
   const categoryToItems = {
-    backgrounds,
-    ears,
-    profiles,
-    hairs,
-    eyes,
-    noses,
-    mouths,
-    clothes,
-    accessories,
+    Background: backgrounds,
+    Ears: ears,
+    Profile: profiles,
+    Hairs: hairs,
+    Eyes: eyes,
+    Nose: noses,
+    Mouth: mouths,
+    Clothes: clothes,
+    Accessory: accessories,
   };
 
-  let categoryShowing = "profiles";
+  let categoryShowing = "Hairs";
+  $: console.log(categoryShowing);
+  $: console.log(categoryToItems[categoryShowing]);
   let items = [];
-  $: items = [...categoryToItems[categoryShowing]];
+  $: if (categoryShowing && categoryToItems[categoryShowing]) {
+    let newItems = [...categoryToItems[categoryShowing]];
+    items = [...newItems];
+  }
 
-  onMount(async () => {
-    console.log("mounted");
+  // $: items = categoryToItems[categoryShowing];
 
+  let avatar = {
+    Background: backgrounds[0],
+    Profile: profiles[1],
+    Ears: ears[2],
+    Eyes: eyes[1],
+    Nose: noses[0],
+    Mouth: mouths[2],
+    Hairs: hairs[10],
+    Clothes: clothes[2],
+    Accessory: accessories[1],
+    Colors: {
+      Skin: [255, 255, 0, 1],
+      Hairs: [0, 169, 0, 1],
+      Eyes: [0, 169, 252, 1],
+      Eyebrows: [0, 169, 252, 1],
+      Background: [0, 169, 252, 1],
+      Eyeliner: [0, 169, 252, 1],
+      Clothes: [0, 169, 252, 1],
+    },
+  };
+
+  const updateAvatar = (category, item) => {
+    let avatarNew = { ...avatar };
+    avatarNew[category] = item;
+    avatar = { ...avatarNew };
+    renderUpdatedAvatar(avatarNew);
+  };
+
+  const renderUpdatedAvatar = (avatar) => {
     const avatarDiv = document.getElementById("avatar");
+    renderAvatar(avatarDiv, avatar);
+  };
 
-    renderAvatar(avatarDiv, {
-      Background: backgrounds[0],
-      Profile: profiles[1],
-      Ears: ears[2],
-      Eyes: eyes[1],
-      Nose: noses[0],
-      Mouth: mouths[2],
-      Hairs: hairs[10],
-      Clothes: clothes[2],
-      Accessory: accessories[1],
-      Colors: {
-        Skin: [255, 255, 0, 1],
-        Hairs: [0, 169, 0, 1],
-        Eyes: [0, 169, 252, 1],
-        Eyebrows: [200, 169, 252, 1],
-        Background: [0, 169, 252, 1],
-        Eyeliner: [0, 169, 252, 1],
-        Clothes: [0, 169, 252, 1],
-      },
-    });
+  onMount(() => {
+    renderUpdatedAvatar(avatar);
   });
 </script>
 
@@ -76,11 +93,18 @@
     </div>
     <div class="items">
       {#each items as item}
-        <img
-          type="image/svg+xml"
-          src="/assets/avatar-components/{categoryShowing}/{item.name}.svg"
-          alt={item.name}
-        />
+        <div
+          on:click={() => updateAvatar(categoryShowing, item)}
+          class="item {item == avatar[categoryShowing] ? 'selected' : ''}"
+        >
+          <img
+            type="image/svg+xml"
+            src="/assets/avatar-components/{categoryToFolder[
+              categoryShowing
+            ]}/{item.name}.svg"
+            alt={item.name}
+          />
+        </div>
       {/each}
     </div>
     <div class="avatar">
@@ -110,6 +134,17 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 20px;
+  }
+
+  .item {
+    background-color: $darkgrey;
+    border-radius: 10px;
+    max-height: 125px;
+    overflow: hidden;
+    border: 3px solid transparent;
+    &.selected {
+      border-color: $green;
+    }
   }
 
   #avatar-components {

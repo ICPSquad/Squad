@@ -2,7 +2,7 @@
 // This list is different from the actual list of components that is stored in the backend canister.
 // Some component listed here can actually represent multiple layers.
 
-import { Color } from "declarations/avatar/avatar.did.d";
+import { Color } from "../../../declarations/avatar/avatar.did.d";
 import { Accessory } from "../types/accessories";
 import { ComponentList } from "../types/component";
 
@@ -333,7 +333,13 @@ export const frontend_layers = [
 ];
 
 // Indicates where the color picker must be available
-export const color_picker_layers = ["Profile 👤", "Eyes 👀", "Clothes 👔", "Hairs 💇", "Background 🌈"];
+export const color_picker_layers = [
+  "Profile 👤",
+  "Eyes 👀",
+  "Clothes 👔",
+  "Hairs 💇",
+  "Background 🌈",
+];
 
 export const opacity_selector_layers = ["Background 🌈"];
 
@@ -405,14 +411,28 @@ export const accessories: Accessory[] = [
   {
     name: "Astro-suit",
     slot: "Body",
-    recipe: ["Cloth", "Metal", "Circuit", "Circuit", "Circuit", "Dfinity-stone"],
+    recipe: [
+      "Cloth",
+      "Metal",
+      "Circuit",
+      "Circuit",
+      "Circuit",
+      "Dfinity-stone",
+    ],
     description: "A suit of spacey technology.",
     components: [{ name: "Astro-body", layer: 95 }],
   },
   {
     name: "Cronic-tshirt",
     slot: "Body",
-    recipe: ["Cloth", "Cloth", "Wood", "Wood", "Dfinity-stone", "Cronic-essence"],
+    recipe: [
+      "Cloth",
+      "Cloth",
+      "Wood",
+      "Wood",
+      "Dfinity-stone",
+      "Cronic-essence",
+    ],
     description: "This tshirt reminds me of something...",
     components: [{ name: "Cronic-tshirt", layer: 95 }],
   },
@@ -578,7 +598,8 @@ export const accessories: Accessory[] = [
     name: "Dfinity-face-mask",
     slot: "Face",
     recipe: ["Dfinity-stone", "Cloth", "Cloth"],
-    description: "Facemask protecting you from any virus of the cyberspace... or maybe not.",
+    description:
+      "Facemask protecting you from any virus of the cyberspace... or maybe not.",
     components: [{ name: "Dfinity-face-mask", layer: 80 }],
   },
   {
