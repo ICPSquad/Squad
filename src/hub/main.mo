@@ -1,33 +1,34 @@
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
+import Buffer "mo:base/Buffer";
+import Cycles "mo:base/ExperimentalCycles";
 import HashMap "mo:base/HashMap";
 import Int "mo:base/Int";
 import Iter "mo:base/Iter";
+import List "mo:base/List";
 import Nat "mo:base/Int64";
 import Nat64 "mo:base/Nat64";
+import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
-import Cycles "mo:base/ExperimentalCycles";
-import List "mo:base/List";
-import Nat8 "mo:base/Nat8";
-import Buffer "mo:base/Buffer";
+
 import AccountIdentifier "../dependencies/util/AccountIdentifier";
+import Admins "Admins";
+import AirdropModule "types/airdrop";
+import AvatarModule "types/avatar";
+import Canistergeek "../dependencies/canistergeek/canistergeek";
 import Hex "../dependencies/util/Hex";
+import Inventory "types/inventory";
+import InvoiceType "../invoice/Types";
 import Ledger "../dependencies/Ledger/ledger";
 import LedgerCandid "../dependencies/Ledger/ledgerCandid";
-import Users "types/users";
-import Utils "utils";
-import AvatarModule "types/avatar";
-import AirdropModule "types/airdrop";
-import Inventory "types/inventory";
-import Canistergeek "../dependencies/canistergeek/canistergeek";
-import InvoiceType "../invoice/Types";
 import Logs "Logs";
 import LogsTypes "Logs/types";
-import Admins "Admins";
+import Users "types/users";
+import Utils "utils";
 
 
 shared ({caller = creator}) actor class Hub() = this {
@@ -1256,6 +1257,92 @@ shared ({caller = creator}) actor class Hub() = this {
             ignore(collectCanisterMetrics());
         };
     };
-   
+
+    /// Winners 
+
+    let winners : [Text] = [
+    "409a1fd3468b823b6487fef34c9f63618c93f21d086c0b101959e5ad62d7dd68",
+   "8488106ba7d8a1c7a5594b69b43580a0c2afd9b158693e10da4cbf9147bc0440",
+   "7e6c6c188cac1bee498a70b0baf1eef42484abf37cf1ab25c17107d135b80fb7",
+   "f29c81ac954aab6f6275bf11012629e3bafa4af6bfea99ec9bcc8135c6eaad22",
+   "12f09926a1baf3ce852a1fa7046d19cbb1df5fd417950ee30cb676e0ad5dddb2",
+   "df5afb82dddb6eb4b9373912ee09f6e1d55784c11eb0322c82a1192c93aceb14",
+   "9374c095ba58b1dbced3b21cc08d2194cc90194f97a7c6a9d630b8cc7a7232b1",
+   "3013ecb8e0776f6914a216b4ed310447542880c93765818a8dabcbc14c2aa0b8",
+   "98d4009daf774ea5c32ef246f1e4202d404c01051346bda0c08cc5d5cff6cc3d",
+   "3d125a0f3506d9a98fe952606e449227d65ffbe752c09b9b4407fab5da33c418",
+   "d8b23223674cfd3637a0da61af0efdb0156e33b90dba34ac6d5190c68b172fed",
+   "4fb5963ff6f62ebdb95832e098c02ee134bd556a97762073ac263a0608261de1",
+   "d4553590e1b4b84faf3b1b91749c2c5f16a5459b5fec01065328988e2f11291f",
+   "de3646106b8edb40cd2b666fea8cc9790980555b0f4432d922e4d09d470f4928",
+   "44f9ff399b8623f1b861182088495c47923ae348eeb9a26350147b9b0175a3f4",
+   "22239b378a431648ae42ea83274870fd7cfeaa77cc745822681f1132412fa9ea",
+   "3496ccc519f4f67acbed07b7ab74757da29f720341f14506db945b64c34c5c43",
+   "79ee5e1df165a3ce1209d0547ff7f098f9f8591f87b159191435929af0fc50fd",
+   "7caaa9813fdd6afe7c592620cf8fac5fda59c2a7092d9e73b63c994686935c18",
+   "b64b1a5cba1ab89058da54ab153b4df6ed2fa2fce67b65bac669eb1e1d5b5456",
+   "beb23b0a9151a401b45bbaff31d354cc21a71f0ab297eefa230f718d4173f67f",
+   "a174fc6cc3bbbedfad818bd55e5c560e518dfd1ae07aed32bb20f42909331125",
+   "559c7b7e4f441a63879940321770d1ba3fedce2db7e150f8ab966afcd54b6820",
+   "6972327a4d27f636b4ee419281d4e09096ea01259d99b14a4b87c5c5bf6d60ed",
+   "bad4b430e7c37207bbccbfae84d7988eafa3a5134d4a38de96b1c89db2305ab8",
+   "7cbf72cc98c771379fefe75c1058b4051aa2a6c1df9e80054e43158837befb80",
+   "f83cd2085a4ec7cadfc1f64a872ed59119a5a19f1d57b2f387467e9c5f209980",
+   "36117a4102b241effedeaaf3b7757967f994ec9fdfca1217b307716891ecdad7",
+   "912eff28dbb364950d9210382df8461492f2eb9d24d162ace41af5639824f239",
+   "651448ccd04e0b4b158d1ed20dfd85c2579f0c436f7c3cc5d8b609af18f4c0af",
+   "6644e3a255d8a7d8c29f11374a72543c1543568d8988c2a3f5af5e2afb39fb9a",
+   "a781539b7f9ed19ee31fe528387c15d3dd2dcdfde24397f1d91285c58dd6e2c8",
+   "142089e646a464b62338c3b077d2c24b675565a67e068478463ac5de2c18dfe6",
+   "3bba8d7304ea66a3f9cc1393abc9bf1e537df02ae9003b509ec962c91e735d5a",
+   "52e3ae95365778915dd75e595584dd101b1e633af0b601f08e70a0bab87eacc5",
+   "e040da9d2fcdebfa3b1ea3bbb6ca8eed614421e0e345eb790172c6b47d674680",
+   "838772fcbcbbe82a0a710498d954d0b16e1b465438d3573ea9be57a89b2290c8",
+   "8fa0166bcdb1b7f1de637b88661e8303eeebb023666c8893dfa260afaee9d524",
+   "c60b9a71620abbf10f2e8733b03bd70af49ebcb385052dff8a70adf8759d52c1",
+   "7ed274485973a7f234f190ec30b7553b39a39f3e888b5b5fd7766f15730c2575",
+   "b4c9257239d54f35b48975698083aa495100fa5db3092a2f62a3ebe1cfbfb578",
+   "1efc9b6f21af5fa1e703f7aa6352543bca1b1c5aa52936c7aa991d1f6ba8fda3",
+   "4b3d496c927e5d1ee4117c35ffb1a400b278e5e6edb18928169b0651459e2367",
+   "f2e20eb44cf1c8a785fa54ea9973f6f1c25e9769ea5c86a7747269e5c64576b6",
+   "8bec41f5f07ae90bc6b08b682757f1bccb40b9ffe934358c6db8da50a7005180",
+   "5cbaaabe251f68b86989040942edeeddaad3fa411b0ca9c528f3e68229654941",
+   "527f4857f88275bfd38cf471c51f3506e68e9fc173e9223407ec250a99c80cde",
+   "af61935ee4e7cb9231d00d9f0ed6cb58ada4c5887480c4a591022624a5cb7db9",
+   "1939ae0d38e14a78290c822c2d98553fae16fff58fbc8dc48c399d7ae169a817",
+   "ab8f4f9e1c720e220693d6a60274fbc50858b53a33b85014821a7c810e24fad4",
+   "39294f6e8cba436a3ba706f3339995447024010079b7d611fddb68a63112acea",
+   "0ea1ff7b51a93974a55af5981e4e76b9885885fdad73b689a23ac19e048d8166",
+   "d5291591704b51b43b277d3f232d171bf6a6cd66338751ea8750415a28d1494b",
+   "725330a2f9b046386f4b115f932075fba636ef3739d1a654118ea0f46f89446e",
+   "43ffcf40708daa8b23c63f6d0bd232a84b23969a45a00e84f39975d3b9040e73",
+   "65c5f34a3a20d4934272ac64fc48f7791224224c7c0b9166f41b943be8697ad9",
+   "3a06858e7fb4ceac1f8f5b560cd34d361af4d9b7b48b4d7f1221b1ea62c7f1ca",
+   "b775bca11d1dcbd6987d69d338170eaf195ab246ebc903348003fa1b7d45af73",
+   "be8b11fb4053b84fd3eeaa721a20596b43229d03e8bbcf87272f6acc77919d85",
+   "41459b9f397337145d074f152ae8019a97679f90c04ef08ee038149eed93c63f",
+   "9991a4b861652d61f8acf88796f4bce82c51e3defbcce110c7da288b64e6ceb2",
+   "4c98f9b42c5aa93c198d9a0374715db6e4348dddf75599636c0204cfe3e1f479",
+   "e7c12112448b51f82ce46fc4f66b4ad293258da33f5561438d14f42bac6e8795",
+   "eaf19248d3934d61e094ddb83dbd9f42908754177903167741ec89bc4265291c",
+   "84f08faca1636aa9b04029c4ced67352721dab5b3d42cbc616ee0a2dbf3778d1",
+   "abf6621cce696d670c28446a96916f9c1ed13c58f4cc3163061875a145fffd4e",
+   "68ab1b3726c9b24075d66056684d1dac5cbdf38df79994a7ebbdb18eef76ce26",];
+
+
+
+    public func get_principals() : async [(Principal, AccountIdentifier, ?Text)] {
+        var buffer : Buffer.Buffer<(Principal,AccountIdentifier,?Text)> = Buffer.Buffer(0);
+        for((principal,user) in users.entries()){
+            let account = AccountIdentifier.fromPrincipal(principal, null);
+            switch(Array.find<Text>(winners, func (x) { x == account})){
+                case(null){};
+                case(? some){
+                    buffer.add((principal,account,user.twitter));
+                };
+            };
+        };
+        buffer.toArray();
+    };
 
 };

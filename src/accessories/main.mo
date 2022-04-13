@@ -1,197 +1,172 @@
-//Base modules
-import AID "../dependencies/util/AccountIdentifier";
-import Accessory "types/accessory";
 import Array "mo:base/Array";
-import ArrayHelper "helper/arrayHelper";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
-import CAPTypes "mo:cap/Types";
-import Canistergeek "../dependencies/canistergeek/canistergeek";
-import Cap "mo:cap/Cap";
-import Char "mo:base/Char";
-import Entrepot "../dependencies/entrepot";
-import EntrepotFilter "./helper/entrepotHelper";
-import ExperimentalCycles "mo:base/ExperimentalCycles";
-import ExtAllowance "../dependencies/ext/Allowance";
-import ExtCommon "../dependencies/ext/Common";
-import ExtCore "../dependencies/ext/Core";
+import Cycles "mo:base/ExperimentalCycles";
 import Float "mo:base/Float";
 import Hash "mo:base/Hash";
 import HashMap "mo:base/HashMap";
-import Http "types/http";
-import Inventory "types/inventory";
-import Iter "mo:base/Iter";
 import Int "mo:base/Int";
-import Ledger "../dependencies/Ledger/ledger";
-import LedgerCandid "../dependencies/Ledger/ledgerCandid";
-import MapHelper "helper/mapHelper";
+import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
-import Prim "mo:⛔";
+import Prim "mo:prim";
 import Principal "mo:base/Principal";
-import PrincipalImproved "../dependencies/util/Principal";
-import Property "types/property";
 import Result "mo:base/Result";
-import Root "mo:cap/Root";
-import Router "mo:cap/Router";
-import Staged "types/staged";
-import Stack "mo:base/Stack";
-import Static "types/static";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
-import Token "types/token";
-import TokenIndex "mo:base/Blob";
-import Types "types/types";
 
-shared({ caller = hub }) actor class Hub() = this {
+import AccountIdentifier "mo:principal/AccountIdentifier";
+import Canistergeek "mo:canistergeek/canistergeek";
+import Cap "mo:cap/Cap";
+import Ext "mo:ext/Ext";
+import Root "mo:cap/Root";
 
-    //////////////
-    // METRICS //
-    ////////////
+import Accessory "types/accessory";
+import Admins "admins";
+import Assets "assets";
+import Entrepot "../dependencies/entrepot";
+import ExtCore "../dependencies/ext/Core";
+import Http "http";
 
-    private let canistergeekMonitor = Canistergeek.Monitor();
-    stable var _canistergeekMonitorUD: ? Canistergeek.UpgradeData = null;
-    stable var adminsData : [Principal] = [Principal.fromText("whzaw-wqyku-y3ssi-nvyzq-m6iaq-aqh7x-v4a4e-ijlft-x4jjg-ymism-oae")];
+shared({ caller = creator }) actor class ICPSquadNFT(
+    cid : Principal
+) = this {
 
-    private func _isAdminData(p : Principal) : Bool {
-        switch(Array.find<Principal>(adminsData, func(v) {return v == p})) {
-            case (null) { false; };
-            case (? v)  { true; };
-        };
-    };
-
-    // Updates the access rights of one of the admin data.
-    //@auth : admin
-    public shared({caller}) func updateAdminsData(user : Principal, isAuthorized : Bool) : async Result.Result<(), Types.Error> {
-        assert(_isAdmin(caller));
-        switch(isAuthorized) {
-            case (true) {
-                adminsData := Array.append(
-                    adminsData,
-                    [user],
-                );
-            };
-            case (false) {
-                adminsData := Array.filter<Principal>(
-                    adminsData, 
-                    func(v) { v != user; },
-                );
-            };
-        };
-        #ok();
-    };
-
-    //  Returns collected data based on passed parameters. Called from browser.
-    public query ({caller}) func getCanisterMetrics(parameters: Canistergeek.GetMetricsParameters): async ?Canistergeek.CanisterMetrics {
-        assert(_isAdminData(caller));
-        canistergeekMonitor.getMetrics(parameters);
-    };
-
-    //  Force collecting the data at current time. Called from browser or by heartbeat.
-    public shared ({caller}) func collectCanisterMetrics(): async () {
-        assert(_isAdminData(caller));
-        canistergeekMonitor.collectMetrics();
-    };
-
-    
-    ////////////////
-    // MANAGEMENT //
-    ///////////////
-
-    stable var admins : [Principal] = [hub, Principal.fromText("7djq5-fyci5-b7ktq-gaff6-m4m6b-yfncf-pywb3-r2l23-iv3v4-w2lcl-aqe")];
-
-    public query func showAdmins () :  async [Principal] {
-        return(admins)
-    };
-
-    // Updates the access rights of one of the contact owners.
-    //@auth : admin
-    public shared({caller}) func updateAdmins(user : Principal, isAuthorized : Bool) : async Result.Result<(), Types.Error> {
-        assert(_isAdmin(caller));
-        switch(isAuthorized) {
-            case (true) {
-                admins := Array.append(
-                    admins,
-                    [user],
-                );
-            };
-            case (false) {
-                admins := Array.filter<Principal>(
-                    admins, 
-                    func(v) { v != user; },
-                );
-            };
-        };
-        #ok();
-    };
-
-    private func _isAdmin(p : Principal) : Bool {
-        switch(Array.find<Principal>(admins, func(v) {return v == p})) {
-            case (null) { false; };
-            case (? v)  { true;  };
-        };
-    };
-
-    // Initializes the contract with the given (additional) owners and metadata. Can only be called once.
-    // @auth: not INITALIZED
-    stable var INITALIZED : Bool = false;
-    public shared({caller}) func init(new_admins   : [Principal], metadata : ContractMetadata) : async () {
-        assert(not INITALIZED);
-        admins    := Array.append(admins, new_admins);
-        CONTRACT_METADATA := metadata;
-        INITALIZED        := true;
-    };
-
-
-    ////////////
-    // INFOS //
+    ///////////
+    // TYPES //
     ///////////
 
-    public query func whoami() : async Principal {
-        return(Principal.fromActor(this));
+    public type Time = Time.Time;
+    public type Result<A,B> = Result.Result<A,B>;   
+
+
+    ///////////
+    // ADMIN //
+    ///////////
+
+    stable var _AdminsUD : ?Admins.UpgradeData = null;
+    let _Admins = Admins.Admins(creator);
+
+    public query func is_admin(p : Principal) : async Bool {
+        _Admins.isAdmin(p);
     };
 
-    public type ContractMetadata = {
-        name   : Text;
-        symbol : Text;
-    };
-    
-    stable var CONTRACT_METADATA : ContractMetadata = {
-        name   = "none"; 
-        symbol = "none";
+    public shared ({caller}) func add_admin(p : Principal) : async () {
+        _Admins.addAdmin(p, caller);
+        _Monitor.collectMetrics();
+        _Logs.logMessage("Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
     };
 
-    // Returns the contract metadata.
-    public query func getMetadata() : async ContractMetadata {
-        CONTRACT_METADATA;
+    //////////////
+    // CYCLES  //
+    /////////////
+
+    public func acceptCycles() : async () {
+        let available = Cycles.available();
+        let accepted = Cycles.accept(available);
+        assert (accepted == available);
     };
 
-    public type ContractInfo = {
-        heap_size : Nat; 
-        memory_size : Nat;
-        max_live_size : Nat;
-        nft_payload_size : Nat; 
-        total_minted : Nat; 
-        cycles : Nat; 
-        authorized_users : [Principal]
+    public query func availableCycles() : async Nat {
+        return Cycles.balance();
     };
 
-    // Returns the contract info.
-    // @auth: isOwner
-    public shared ({caller}) func getContractInfo() : async ContractInfo {
-        assert(_isAdmin(caller));
-        return {
-            heap_size        = Prim.rts_heap_size();
-            memory_size      = Prim.rts_memory_size();
-            max_live_size    = Prim.rts_max_live_size();
-            nft_payload_size = payloadSize; 
-            total_minted     = nfts.getTotalMinted(); 
-            cycles           = ExperimentalCycles.balance();
-            authorized_users = admins;
-        };
+    ///////////////
+    // METRICS ///
+    /////////////
+
+    stable var _MonitorUD: ? Canistergeek.UpgradeData = null;
+    private let _Monitor : Canistergeek.Monitor = Canistergeek.Monitor();
+
+    /**
+    * Returns collected data based on passed parameters.
+    * Called from browser.
+    * @auth : admin
+    */
+    public query ({caller}) func getCanisterMetrics(parameters: Canistergeek.GetMetricsParameters): async ?Canistergeek.CanisterMetrics {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.getMetrics(parameters);
+    };
+
+    /**
+    * Force collecting the data at current time.
+    * Called from browser or any canister "update" method.
+    * @auth : admin 
+    */
+    public shared ({caller}) func collectCanisterMetrics(): async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+    };
+
+    ////////////
+    // LOGS ///
+    //////////
+
+    stable var _LogsUD: ? Canistergeek.LoggerUpgradeData = null;
+    private let _Logs : Canistergeek.Logger = Canistergeek.Logger();
+
+    /**
+    * Returns collected log messages based on passed parameters.
+    * Called from browser.
+    * @auth : admin
+    */
+    public query ({caller}) func getCanisterLog(request: ?Canistergeek.CanisterLogRequest) : async ?Canistergeek.CanisterLogResponse {
+        assert(_Admins.isAdmin(caller));
+        _Logs.getLog(request);
+    };
+
+    ////////////
+    // ASSET //
+    ///////////
+
+    public type FilePath = Assets.FilePath;
+    public type File = Assets.File;
+
+    stable var _AssetsUD : ?Assets.UpgradeData = null;
+    let _Assets = Assets.Assets();
+
+    public shared ({caller}) func upload(
+        bytes : [Nat8]
+    ) : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Assets.upload(bytes);
+    };
+
+    public shared ({caller}) func uploadFinalize (
+        contentType : Text,
+        meta : Assets.Meta,
+        filePath : Text,
+    ) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        switch(_Assets.uploadFinalize(contentType,meta,filePath)){
+            case(#ok(())){
+                _Logs.logMessage("Uploaded file: " # filePath);
+                return #ok(());
+            };
+            case(#err(message)){
+                _Logs.logMessage("Failed to upload file: " # filePath);
+                return #err(message);
+            };
+        }
+    };
+
+    public shared ({caller}) func uploadClear() : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Assets.uploadClear();
+    };
+
+    public shared ({ caller }) func delete(
+        filePath : Text
+    ) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Assets.delete(filePath);
     };
 
 
@@ -222,12 +197,6 @@ shared({ caller = hub }) actor class Hub() = this {
     private stable var _ownershipsEntries : [(AccountIdentifier, [TokenIndex])] = [];
     private var _ownerships : HashMap.HashMap<AccountIdentifier, [TokenIndex]> = HashMap.fromIter(_ownershipsEntries.vals(), _ownershipsEntries.size(), Text.equal, Text.hash);
 
-    // public shared ({caller}) func createOwnership() : () {
-    //     for ((token_index, account) in _registry.entries()){
-    //         _addOwnership(token_index, account);
-    //     };
-    // };
-
     public shared({caller}) func transfer(request : TransferRequest) : async TransferResponse {
         if (request.amount != 1) {
                 return #err(#Other("Must use amount of 1"));
@@ -239,28 +208,29 @@ shared({ caller = hub }) actor class Hub() = this {
         if(_isLocked(token_index)){
 
         };
-        let owner = ExtCore.User.toAID(request.from);
-        let spender = AID.fromPrincipal(caller, request.subaccount);
-        let receiver = ExtCore.User.toAID(request.to);
+        let owner = Text.map(Ext.User.toAccountIdentifier(request.from),Prim.charToLower);
+        let to = Text.map(Ext.User.toAccountIdentifier(request.to),Prim.charToLower);
+        let caller_account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, request.subaccount), Prim.charToLower);
+
         switch (_registry.get(token_index)) {
             case (?token_owner) {
-                if(AID.equal(owner, token_owner) == false) {
+                if(owner == token_owner) {
                     return #err(#Unauthorized(owner));
                 };
-                if (AID.equal(owner, spender) == false) {
-                    return #err(#Unauthorized(spender));
+                if (owner == caller_account) {
+                    return #err(#Unauthorized(caller_account));
                 };
-                _registry.put(token_index, receiver);
+                _registry.put(token_index, to);
                 _tokenListing.delete(token_index);
                 _tokenSettlement.delete(token_index);
-                switch(_transferTokenOwnership(owner, ?receiver, token_index)){
+                switch(_transferTokenOwnership(owner, ?to, token_index)){
                     case(#ok){};
                     case(#err(message)) return #err(#Other(message));
                 };
                 // Report event to CAP
                 let event : IndefiniteEvent = {
                     operation = "transfer";
-                    details = [("token", #Text(request.token)),("from", #Text(owner)),("to", #Text(receiver))];
+                    details = [("token", #Text(request.token)),("from", #Text(owner)),("to", #Text(to))];
                     caller = caller;
                 };
                 ignore(_registerEvent(event));
@@ -273,13 +243,13 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
     public shared ({caller}) func mint (name : Text, recipient : AccountIdentifier) : async Result.Result<(),Text> {
-        assert(_isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         switch(_mint(name, recipient)){
             case(#err(error)) return #err(error);
-            case(#ok(msg)){
+            case(#ok(tokenId)){
                 let event : IndefiniteEvent = {
                     operation = "mint";
-                    details = [("name", #Text(name)),("to", #Text(recipient))];
+                    details = [("token", #Text(tokenId)),("name", #Text(name)),("to", #Text(recipient))];
                     caller = caller;
                 };
                 ignore(_registerEvent(event));
@@ -312,7 +282,7 @@ shared({ caller = hub }) actor class Hub() = this {
         EXTENSIONS;
     };
       
-    public query func metadata(token_identifier : TokenIdentifier): async Result.Result<ExtCommon.Metadata, ExtCore.CommonError> {
+    public query func metadata(token_identifier : TokenIdentifier): async Result.Result<Ext.Common.Metadata, ExtCore.CommonError> {
         if (ExtCore.TokenIdentifier.isPrincipal(token_identifier, Principal.fromActor(this)) == false) {
             return #err(#InvalidToken(token_identifier));
         };
@@ -349,10 +319,10 @@ shared({ caller = hub }) actor class Hub() = this {
                 return #err(#InvalidToken(request.token));
             };
             let token = ExtCore.TokenIdentifier.getIndex(request.token);
-            let aid = ExtCore.User.toAID(request.user);
+            let aid = Text.map(Ext.User.toAccountIdentifier(request.user),Prim.charToLower);
             switch (_registry.get(token)) {
             case (?token_owner) {
-                        if (AID.equal(aid, token_owner) == true) {
+                        if (aid == token_owner) {
                             return #ok(1);
                         } else {					
                             return #ok(0);
@@ -432,8 +402,8 @@ shared({ caller = hub }) actor class Hub() = this {
             };
             case(null) return #err("There is no item called : " #item);
         };
+        let token_identifier = Ext.TokenIdentifier.encode(cid, _nextTokenId);
         _nextTokenId += 1;
-        let token_identifier = _getTokenIdentifier(_nextTokenId - 1);
         return #ok(token_identifier);
     };
 
@@ -454,17 +424,26 @@ shared({ caller = hub }) actor class Hub() = this {
     // HTTP //
     //////////
 
-    public query func http_request(request : Http.Request) : async Http.Response {
-        let iterator = Text.split(request.url, #text("tokenid="));
-        let array = Iter.toArray(iterator);
-        let token_identifier = array[array.size() - 1];
-        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
-        switch(_items.get(token_index)){
-            case(null) {{body = Blob.fromArray([0]); headers = [("Content-Type", "text/html; charset=UTF-8")];  streaming_strategy = null; status_code = 404;}};
-            case(?#Material(name)) {_streamStaticAsset(name)};
-            case(?#LegendaryAccessory(legendary)) {_streamStaticAsset(legendary.name)};
-            case(?#Accessory(accessory)) {_streamAccessory(token_index)};
-        };
+    let _HttpHandler = Http.HttpHandler({
+        _Admins = _Admins;
+        _Assets = _Assets;
+    });
+
+    public query func http_request (request : Http.Request) : async Http.Response {
+        if(Text.contains(request.url, #text("tokenid="))){
+            let iterator = Text.split(request.url, #text("tokenid="));
+            let array = Iter.toArray(iterator);
+            let token_identifier = array[array.size() - 1];
+            let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+            switch(_items.get(token_index)){
+                case(null) {{body = Blob.fromArray([0]); headers = [("Content-Type", "text/html; charset=UTF-8")];  streaming_strategy = null; status_code = 404;}};
+                case(?#Material(name)) {_streamStaticAsset(name)};
+                case(?#LegendaryAccessory(legendary)) {_streamStaticAsset(legendary.name)};
+                case(?#Accessory(accessory)) {_streamAccessory(token_index)};
+            };
+        } else {
+        _HttpHandler.request(request);  
+        }
     };
 
     private func _streamStaticAsset(name : Text) : Http.Response {
@@ -482,56 +461,6 @@ shared({ caller = hub }) actor class Hub() = this {
             case(?blob) {{body = blob; headers = [("Content-Type", "image/svg+xml")]; streaming_strategy = null; status_code = 200; }}
         }
     };
-
-
-    /////////////////
-    /// INVENTORY //
-    ///////////////
-   
-    public type Inventory = Inventory.Inventory;
-    public type AssetInventory = Inventory.AssetInventory;
-
-    public shared query ({caller}) func getInventory () : async Inventory {
-        let account_identifier = AID.fromPrincipal(caller, null);
-        switch(_ownerships.get(account_identifier)){
-            case(null) return [];
-            case(?list) {
-                Array.mapFilter<TokenIndex, AssetInventory>(list, _indexToAssetInventory);
-            };
-        };
-    };
-
-    private func _indexToAssetInventory(token_index : TokenIndex) : ?AssetInventory {
-        switch(_items.get(token_index)){
-            case(?#Material(name)) {?{category = #Material; name = name; token_identifier = _getTokenIdentifier(token_index)}};
-            case(?#Accessory(accessory)) {?{category = #Accessory(_isEquipped(token_index)) ; name = accessory.name; token_identifier = _getTokenIdentifier(token_index)}};
-            case(?#LegendaryAccessory(legendary)) {?{category = #LegendaryAccessory ; name = legendary.name; token_identifier = _getTokenIdentifier(token_index)}};
-            case(null) {null}; 
-        };
-    };
-
-
-
-
-    public shared query ({caller}) func getHisInventory (p : Principal) : async Inventory {
-        assert(_isAdmin(caller));
-        let account_identifier = AID.fromPrincipal(p, null);
-        switch(_ownerships.get(account_identifier)){
-            case(null) return [];
-            case(?list) {
-                Array.mapFilter<TokenIndex, AssetInventory>(list, _indexToAssetInventory);
-            };
-        };
-    };
-
-
-    private func _idToName (id : Text) : Text {
-        switch(circulation.get(id)) {
-            case (null) return ("Null");
-            case (?name) return (name);
-        };
-    };
-
 
     //////////
     // CAP //
@@ -552,7 +481,7 @@ shared({ caller = hub }) actor class Hub() = this {
     // Call the handshake function on CAP which will ask the Router canister to create a new Root canister specifically for this token smart contract.
     // @auth : owner
     public shared ({caller}) func init_cap() : async Result.Result<(), Text> {
-        assert(_isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         let tokenContractId = Principal.toText(Principal.fromActor(this));
         try {
             let handshake = await cap.handshake(
@@ -584,7 +513,7 @@ shared({ caller = hub }) actor class Hub() = this {
 
     // It should almost always be 0
     public shared query ({caller}) func eventsSize() : async Nat {
-        assert(_isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         _events.size();
     };
 
@@ -605,7 +534,6 @@ shared({ caller = hub }) actor class Hub() = this {
     // ENTREPOT //
     /////////////
 
-    type Time = Time.Time;
     type ListRequest = Entrepot.ListRequest;
     type Metadata = {
         #fungible : {
@@ -698,7 +626,7 @@ shared({ caller = hub }) actor class Hub() = this {
         switch(_registry.get(token_index)){
             case(null) return #err(#InvalidToken(token_identifier));
             case(?account) {
-                if(account != AID.fromPrincipal(msg.caller, request.from_subaccount)){
+                if(account != Text.map(Ext.AccountIdentifier.fromPrincipal(msg.caller, request.from_subaccount),Prim.charToLower)){
                     return #err(#Other("Not authorized"));
                 };
                 switch(request.price){
@@ -733,7 +661,7 @@ shared({ caller = hub }) actor class Hub() = this {
                 if(listing.price != price){
                     return #err(#Other("Price has changed"));
                 } else {
-                    let paymentAddress : AccountIdentifier = AID.fromPrincipal(listing.seller, ?subaccount);
+                    let paymentAddress = Text.map(Ext.AccountIdentifier.fromPrincipal(listing.seller, ?subaccount),Prim.charToLower);
                     if(Option.isSome(Array.find<(AccountIdentifier,Principal,SubAccount)>(_usedPaymentAddressess, func (a : (AccountIdentifier,Principal,SubAccount)) : Bool {a.0 == paymentAddress}))){
                         return #err(#Other("Payment address has been used"));
                     };
@@ -770,8 +698,8 @@ shared({ caller = hub }) actor class Hub() = this {
         switch(_tokenSettlement.get(token_index)){
             case(null) return #err(#Other("Nothing to settle"));
             case(?settlement){
-                let account_seller = AID.fromPrincipal(settlement.seller, ?settlement.subaccount);
-                let owner = AID.fromPrincipal(settlement.seller, null);  
+                let account_seller = Text.map(Ext.AccountIdentifier.fromPrincipal(settlement.seller, ?settlement.subaccount),Prim.charToLower);
+                let owner = Text.map(Ext.AccountIdentifier.fromPrincipal(settlement.seller, null),Prim.charToLower);
                 let response : ICPTs = await LEDGER_CANISTER.account_balance_dfx({account = account_seller});
                 switch(_tokenSettlement.get(token_index)){
                     case(null) return #err(#Other("Nothing to settle"));
@@ -781,7 +709,7 @@ shared({ caller = hub }) actor class Hub() = this {
                             case(?p) Array.append(p, [settlement.subaccount]);
                             case(_) [settlement.subaccount];
                             });
-                            switch(_transferTokenOwnership(AID.fromPrincipal(settlement.seller, null), ?settlement.buyer, token_index)){
+                            switch(_transferTokenOwnership(owner, ?settlement.buyer, token_index)){
                                 case(#err(e)) {
                                     assert(false);
                                     return #err(#Other(e));
@@ -811,7 +739,7 @@ shared({ caller = hub }) actor class Hub() = this {
     public shared(msg) func clearPayments(seller : Principal, payments : [SubAccount]) : async () {
         var removedPayments : [SubAccount] = [];
         for (p in payments.vals()){
-            let response : ICPTs = await LEDGER_CANISTER.account_balance_dfx({account = AID.fromPrincipal(seller, ?p)});
+            let response : ICPTs = await LEDGER_CANISTER.account_balance_dfx({account = Text.map(Ext.AccountIdentifier.fromPrincipal(seller, ?p),Prim.charToLower)});
             if (response.e8s < 10_000){
                 removedPayments := Array.append(removedPayments, [p]);
             };
@@ -855,7 +783,7 @@ shared({ caller = hub }) actor class Hub() = this {
             if(_isLocked(token)){
                 switch(_tokenSettlement.get(token)) {
                     case(?settlement) {
-                        result := Array.append(result, [(token, AID.fromPrincipal(settlement.seller, ?settlement.subaccount), settlement.price)]);
+                        result := Array.append(result, [(token, Text.map(Ext.AccountIdentifier.fromPrincipal(settlement.seller, ?settlement.subaccount),Prim.charToLower), settlement.price)]);
                     };
                     case(_) {};
                 };
@@ -903,20 +831,6 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
 
-    ////////////
-    // CYCLES//
-    ///////////
-
-    public func wallet_receive() : async () {
-        let available = ExperimentalCycles.available();
-        let accepted = ExperimentalCycles.accept(available);
-        assert (accepted == available);
-    };
-
-    public query func wallet_available() : async Nat {
-        return ExperimentalCycles.balance();
-    };
-
 
     //////////////////////////////////////
     // ITEMS : MATERIALS & ACCESSORIES //
@@ -945,7 +859,7 @@ shared({ caller = hub }) actor class Hub() = this {
     //  Accessories are treated differently as they need to be dynamically updated for the wear-out-mechanism and integrate a recipe.
     //  @auth : owner
     public shared ({caller}) func addElements (name : Text, content : Template) : async Result.Result<Text, Text> {
-        assert(_isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         switch(_templates.get(name)){
             case(?template) {
                 switch(content){
@@ -982,39 +896,6 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    //  Get name of all elements inside _template
-    // @auth : admin
-    public shared query ({caller}) func getAllElements() : async [Text] {
-        assert(_isAdmin(caller));
-        return(Iter.toArray(_templates.keys()));
-    };
-
-    //  Returns an array of all recipes : (name, recipe)
-    public query func getRecipes() : async [(Text,Recipe)] {
-        var array : [(Text, Recipe)] = [];
-        for((name,template) in _templates.entries()){
-            switch(template){
-                case(#Accessory(template)){
-                    array := Array.append<(Text,Recipe)>(array, [(name, template.recipe)]);
-                };
-                case(_){};
-            };
-        };
-        array;
-    };
-
-    public shared ({caller}) func modifyRecipe(name : Text, recipe : Recipe) : async Result.Result<(),Text> {
-        assert(_isAdmin(caller));
-        switch(_templates.get(name)){
-            case(?#Accessory(template)){
-                let new_template = #Accessory({before_wear = template.before_wear; after_wear = template.after_wear; recipe = recipe;});
-                _templates.put(name, new_template);
-                return #ok;
-            };
-            case(null) return #err ("No template found for : " #name);
-            case(_) return #err("This doesn't correspond to an accessory : " #name);
-        };
-    };
 
     // Check if all the ingredients of the recipe do exists in store as materials
     private func _verifyRecipe (recipe : Recipe) : Bool {
@@ -1048,7 +929,7 @@ shared({ caller = hub }) actor class Hub() = this {
 
     // Returns a list that contains all items in circulation with their current supply!
     public shared query ({caller}) func stats_circulation() : async [(Text, Nat32)] {
-        assert(_isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         var circulation : HashMap.HashMap<Text, Nat32> = HashMap.HashMap<Text, Nat32>(0, Text.equal, Text.hash);
         for(item in _items.vals()){
             let name = _getNameItem(item);
@@ -1101,7 +982,6 @@ shared({ caller = hub }) actor class Hub() = this {
         return false;
     };
 
-    //TODO : Keep track of errors when reporting with CAP
     public shared ({caller}) func updateAccessories() : async () {
         assert((caller == Principal.fromActor(this)));
         for ((token_index, item) in _items.entries()){
@@ -1115,7 +995,7 @@ shared({ caller = hub }) actor class Hub() = this {
                                 case(#ok(owner)){
                                     let event : IndefiniteEvent = {
                                         operation = "burn";
-                                        details = [("token", #Text(_getTokenIdentifier(token_index))),("from", #Text(owner))];
+                                        details = [("token", #Text(Ext.TokenIdentifier.encode(cid, token_index))),("from", #Text(owner))];
                                         caller = Principal.fromActor(this);
                                     };
                                     ignore(_registerEvent(event));
@@ -1138,7 +1018,7 @@ shared({ caller = hub }) actor class Hub() = this {
         switch(_registry.get(token_index)){
             case(null) return #err("This token identifier doesn't exist!");
             case(?owner){
-                if(AID.fromPrincipal(caller, null) != owner){
+                if(Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower) != owner){
                     return #err("Unauthorized");
                 };
             };
@@ -1172,7 +1052,7 @@ shared({ caller = hub }) actor class Hub() = this {
         switch(_registry.get(token_index)){
             case(null) return #err("This token identifier doesn't exist!");
             case(?owner){
-                if(AID.fromPrincipal(caller, null) != owner){
+                if(Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower) != owner){
                     return #err("Unauthorized");
                 };
             };
@@ -1199,7 +1079,7 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
     private func _burn (token_index : TokenIndex) : Result.Result<AccountIdentifier,Text> {
-        let token_identifier = _getTokenIdentifier(token_index);
+        let token_identifier = Ext.TokenIdentifier.encode(cid, token_index);
         let owner : ?AccountIdentifier = _registry.get(token_index);
         switch(owner) {
             case(null)(#err("No owner found for this token"));
@@ -1222,7 +1102,7 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
     public shared ({caller}) func burn (token_identifier : TokenIdentifier) : async Result.Result<(), Text> {
-        assert(_isAdmin(caller));
+        assert(_Admins.isAdmin(caller));
         let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
         switch(_burn(token_index)){
             case(#err(text)) return #err(text);
@@ -1238,187 +1118,19 @@ shared({ caller = hub }) actor class Hub() = this {
         };
     };
 
-    // Airdrop 
-    public type AirdropObject = {
-        recipient: Principal;
-        material : Text;
-        accessory1 : ?Text;
-        accessory2 : ?Text;
-    };
 
-    public shared({caller}) func airdrop(airdrop : AirdropObject) : async Result.Result<(), Text >{
-        assert(caller == Principal.fromText("p4y2d-yyaaa-aaaaj-qaixa-cai")); // Hub canister
-        switch(_ownerships.get(AID.fromPrincipal(caller, null))){
-            case(?list) return  #err ("Already airdropped");
-            case(null) {};
-        };
-        switch(_mint(airdrop.material, AID.fromPrincipal(airdrop.recipient, null))){
-            case(#ok(v)) {};
-            case(#err(message)) return #err(message);
-        };
-        switch(airdrop.accessory1){
-            case(null) return #ok;
-            case(?accessory1){
-                switch(_mint(accessory1, AID.fromPrincipal(airdrop.recipient, null))){
-                    case(#err(message)) return #err(message);
-                    case(#ok(v)){};
-                };
-            };
-        };
-        switch(airdrop.accessory2){
-            case(null) return #ok;
-            case(?accessory2){
-                switch(_mint(accessory2, AID.fromPrincipal(airdrop.recipient, null))){
-                    case(#err(message)) return #err(message);
-                    case(#ok(v)){};
-                };
-            };
-        };
-        return #ok;
-    };
-
-
-    ///////////////////////////////////
-    // TOKEN ID <-> TOKEN IDENTIFIER //
-    //////////////////////////////////
-
-    public shared ({caller}) func getIndex(token_identifier: TokenIdentifier) : async TokenIndex {
-        assert(_isAdmin(caller));
-        return(ExtCore.TokenIdentifier.getIndex(token_identifier));
-    };
-
-    public shared query ({caller}) func getIdentifier (token_index : TokenIndex) : async TokenIdentifier {
-        assert(_isAdmin(caller));
-        return(_getTokenIdentifier(token_index));
-    };
-
-    // Get TokenIdentifier from TokenIndex by assemblid 'tid' + Principal(canister) + Nat32(TokenIndex) 
-    private func _getTokenIdentifier (nat : TokenIndex) : Text {
-        let padding : [Nat8] = [10, 116, 105, 100];
-        let principalBlob : [Nat8] = Blob.toArray(Principal.toBlob(Principal.fromActor(this)));
-        let index : [Nat8] = nat32tobytes(nat);
-        var array : [Nat8] = Array.append<Nat8>(padding, principalBlob);
-        array := Array.append<Nat8>(array, index);
-        let p : Principal = _fromBlob(Blob.fromArray(array));
-        let text : Text = Principal.toText(p);
-        return text;
-    };
-
-    // Converts a Nat32 to a [Nat8] of size 4 containing the 4 bytes
-    private func nat32tobytes(n : Nat32) : [Nat8] {
-      if (n < 256) {
-        return [0,0,0, Nat8.fromNat(Nat32.toNat(n))];
-      } else if (n < 65536) {
-        return [
-          0,
-          0,
-          Nat8.fromNat(Nat32.toNat((n >> 8) & 0xFF)), 
-          Nat8.fromNat(Nat32.toNat((n) & 0xFF))
-        ];
-      } else if (n < 16777216) {
-        return [
-          0,
-          Nat8.fromNat(Nat32.toNat((n >> 16) & 0xFF)), 
-          Nat8.fromNat(Nat32.toNat((n >> 8) & 0xFF)), 
-          Nat8.fromNat(Nat32.toNat((n) & 0xFF))
-        ];
-      } else {
-        return [
-          Nat8.fromNat(Nat32.toNat((n >> 24) & 0xFF)), 
-          Nat8.fromNat(Nat32.toNat((n >> 16) & 0xFF)), 
-          Nat8.fromNat(Nat32.toNat((n >> 8) & 0xFF)), 
-          Nat8.fromNat(Nat32.toNat((n) & 0xFF))
-        ];
-      };
-    };
-
-    // Creates a Principal from a Blob : extension of the base Module
-    private func _fromBlob(b : Blob) : Principal {
-        return(PrincipalImproved.fromBlob(b));
-    };
-
-   
-    ////////////////
-    // PAIEMENTS //
-    //////////////
-
-    // This canister is used to convert the protobuff interface of the ledger canister to a candid interface which can be used with Motoko.
-    let actorCandidLedger : LedgerCandid.Interface = actor("uexzq-gqaaa-aaaaj-qabua-cai");
-    let actorLedger : Ledger.Interface = actor ("ryjl3-tyaaa-aaaaa-aaaba-cai");
-
-    // Generate AccountIdentifier as 32-byte array from corresponding subbacount of this canister.
-    // The first 4-bytes is a big-endian encoding of CRC32 checksum of the last 28-bytes. 
-    private func _myAccountIdentifier(subaccount : ?SubAccount) : [Nat8] {
-        return((AID.fromPrincipal_raw(Principal.fromActor(this), subaccount)));
-    };
-
-    // Balance of this canister subaccount0 using the ledger canister. 
-    public shared func balance_ledger() : async Ledger.ICP {
-        await actorLedger.account_balance({
-            account = _myAccountIdentifier(null);
-        });
-    };
-
-    // Transfer amount of ICP from this canister subaccount0 to the specified Principal (as text) subaccount0.
-    // @auth : admin
-    public shared ({caller}) func transfer_ledger(amount : Ledger.ICP, receiver : Principal) : async Ledger.TransferResult {
-        assert(_isAdmin(caller) or caller == Principal.fromActor(this));
-        let account_raw : [Nat8] = AID.fromPrincipal_raw(receiver, null);
-        await actorLedger.transfer({
-            memo = 1998;
-            amount = amount;
-            fee = { e8s = 10_000};
-            from_subaccount = null;
-            to = account_raw;
-            created_at_time = ?{timestamp_nanos = Nat64.fromIntWrap(Time.now())};
-        });
-    };
-
-    //This function check if subaccount has received the amount of ICPs as a proof of payment!
-    private func _checkPayment (subaccount : SubAccount, amount : Nat64) : async Bool {
-        let account_to_check = {account = _myAccountIdentifier(?subaccount)};
-        let balance = await actorLedger.account_balance(account_to_check);
-        if (balance.e8s == amount) {
-            return (true);
-        }; 
-        return (false);
-    };
-
-    // This function is used internally everytime a new user join, to send back ICPs from the corresponding subaccount to the main account.
-    private func _sendBackFrom (subaccount : SubAccount) : async () { 
-        let result_transfer = await actorLedger.transfer({
-            memo = 666;
-            amount = {e8s =  9_999_000}; //Remove the transfer fee 
-            fee = {e8s = 10_000};
-            from_subaccount = ?subaccount;
-            to = _myAccountIdentifier(null);
-            created_at_time = ?{timestamp_nanos = Nat64.fromIntWrap(Time.now())};
-            });
-        return ();
-    };
-
-    type Option = Bool;
-    public shared ({caller}) func createAccessory (name : Text, materials : [TokenIdentifier], subaccount : [Nat8], option : ?Option) : async Result.Result<TokenIdentifier, Text> {
+    public shared ({caller}) func createAccessory (name : Text, materials : [TokenIdentifier], subaccount : [Nat8]) : async Result.Result<TokenIdentifier, Text> {
         //  Check subaccount is valid (not among the firsts to prevent cheating
         if(_isSubaccountIncorrect(subaccount)){
             return #err("Subaccount incorrect.");
         };
-        //  Check 0.1 ICP fee has been paid
-        //  TODO change the amount
-        // if(not(await _checkPayment(subaccount,10_000))){
-        //     return #err("Fee has not been paid.");
-        // };
-        //  Send back money to the main account and keep track of the subaccount
-        // subaccount_to_check := Array.append<SubAccount>(subaccount_to_check, [subaccount]);
-        // ignore(_sendBackFrom(subaccount));
-        //  Check ownership of materials
         let materials_tindex = Array.map<TokenIdentifier, TokenIndex>(materials, ExtCore.TokenIdentifier.getIndex);
         for(token_index in materials_tindex.vals()){
             switch(_registry.get(token_index)){
-                case(null) return #err("This token doesn't exist." # _getTokenIdentifier(token_index));
+                case(null) return #err("This token doesn't exist." # Ext.TokenIdentifier.encode(cid, token_index));
                 case(?account){
-                    if(AID.fromPrincipal(caller, null) != account){
-                        return #err("Unauthorized : " # _getTokenIdentifier(token_index));
+                    if(Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower) != account){
+                        return #err("Unauthorized");
                     };
                 };
             };
@@ -1444,14 +1156,15 @@ shared({ caller = hub }) actor class Hub() = this {
                     //  Need to register event to CAP because the internal function doesn't do it (not async).
                     let event : IndefiniteEvent = {
                         operation = "burn";
-                        details = [("item", #Text(token_identifier)), ("from", #Text(AID.fromPrincipal(caller, null)))];
+                        details = [("item", #Text(token_identifier)), ("from", #Text(Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower)))];
                         caller = caller;
                     };
                     ignore(_registerEvent(event));
                 };
                 //  Mint accessory
                 var token_identifier_accessory : Text = "";
-                switch(_mint(name, AID.fromPrincipal(caller,null))){
+                let receiver_account : AccountIdentifier = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+                switch(_mint(name, receiver_account)){
                     case(#err(e)) return #err(e);
                     case(#ok(identifier)){
                         token_identifier_accessory := identifier;
@@ -1459,7 +1172,7 @@ shared({ caller = hub }) actor class Hub() = this {
                 };
                 let event : IndefiniteEvent = {
                     operation = "mint";
-                    details = [("name", #Text(name)), ("to", #Text(AID.fromPrincipal(caller, null)))];
+                    details = [("name", #Text(name)), ("to", #Text(receiver_account))];
                     caller = caller;
                 };
                 ignore(_registerEvent(event));
@@ -1492,94 +1205,11 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
 
-    ///////////////////
-    // VERIFICATION //
-    /////////////////
-
-    // A list of subaccounts that are supposed to have send their ICPs back to the main account : we regularly run check on their balance. 👮‍♀️
-    private stable var subaccount_to_check  : [SubAccount] = [];
-    private stable var subaccounts_robber : [SubAccount] = [];
-
-    public shared ({caller}) func verification () : async () {
-        assert(caller == Principal.fromActor(this));
-        var robbers : [SubAccount] = [];
-        for (subaccount in subaccount_to_check.vals()){
-            let account_to_check = {account = _myAccountIdentifier(?subaccount)};
-            let balance = await actorLedger.account_balance(account_to_check);
-            let amount = balance.e8s;
-            if(amount > 0) {
-                subaccounts_robber := Array.append<SubAccount>(subaccounts_robber, [subaccount]);
-            };
-        };
-        subaccount_to_check := [];
-        return ();
-    };
-
-    public shared ({caller}) func process () : async () {
-        assert(caller == Principal.fromActor(this));
-        for (subaccount in subaccounts_robber.vals()){
-            await (_sendBackFrom(subaccount));
-        };
-        subaccounts_robber := [];
-    };
-
-    //////////////////////////////////
-    // OLD DEPARTURE LABS STANDARD //
-    ////////////////////////////////
-
-
-    stable var id          = 0;
-    stable var payloadSize = 0;
-
-    stable var nftEntries : [(
-        Text, // Token Identifier.
-        (
-            ?Principal, // Owner of the token.
-            [Principal] // Authorized principals.
-        ),
-        Token.Token, // NFT data.
-    )] = [];
-    let nfts = Token.NFTs(
-        id, 
-        payloadSize, 
-        nftEntries,
-    );
-
-    public query func nftId() : async Nat {
-        nfts.currentID();
-    };
-
-    public query func nftSize() : async Nat {
-        nfts.getTotalMinted();
-    };
-
-    stable var staticAssetsEntries : [(
-        Text,        // Asset Identifier (path).
-        Static.Asset // Asset data.
-    )] = [];
-    let staticAssets = Static.Assets(staticAssetsEntries);
-    
-    stable var circulationEntries : [(Text,Text)] = [];
-    let circulation : HashMap.HashMap<Text,Text> = HashMap.fromIter(circulationEntries.vals(),0,Text.equal,Text.hash);
-
-    public query func circulationSize() : async Nat {
-        circulation.size();
-    };
-
-    public query func showCirculation(id : Text) : async ?Text {
-        return(circulation.get(id));
-    };
-
-    public query func showItems (id : Nat32) : async ?Item {
-        return(_items.get(id))
-    };
-
-
     ///////////////
     // HEARTBEAT //
     ///////////////
 
-    // A count represents approximately one second
+    // A count represents approximately one second (one block in reality but we don't need that precision)
     stable var count = 0;
 
     system func heartbeat () : async () {
@@ -1595,73 +1225,21 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
 
-    ////////////////
-    // STATISTICS //
-    ///////////////
-
-    public shared query ({caller}) func getStats() : async [Text]{
-        assert(_isAdmin(caller));
-        let buffer = Buffer.Buffer<Text>(0);
-        for (token_index in _registry.keys()){
-            switch(_items.get(token_index)){
-                case(?#Material(name)){
-                    buffer.add(name);
-                };
-                case(?#Accessory(accessory)){
-                    buffer.add(accessory.name);
-                };
-                case(_){};
-            };
-        };
-        return(buffer.toArray());
-    };
-
-    // Returns the number of accessories each account own.
-    public shared query ({caller}) func getHolders() : async [(AccountIdentifier,Nat)] {
-        assert(_isAdmin(caller));
-        let buffer : Buffer.Buffer<(AccountIdentifier,Nat)> = Buffer.Buffer(0);
-        for ((account, tokens) in _ownerships.entries()){
-            var count = 0;
-            for(token in tokens.vals()){
-                switch(_items.get(token)){
-                    case(?#Accessory(accessory)){
-                        count += 1;
-                    };
-                    case(_){};
-                };
-            };
-            buffer.add((account, count));
-        };
-        return(buffer.toArray());
-    };
-
-
     //////////////
     // UPGRADE //
     /////////////
 
     system func preupgrade() {
-        //  Departure labs 
-        id                  := nfts.currentID();
-        payloadSize         := nfts.payloadSize();
-        nftEntries          := Iter.toArray(nfts.entries());
-        staticAssetsEntries := Iter.toArray(staticAssets.entries());
-        circulationEntries := Iter.toArray(circulation.entries());
-
-        //  EXT
+        // EXT
         _registryEntries := Iter.toArray(_registry.entries());
         _ownershipsEntries := Iter.toArray(_ownerships.entries());
+        // Items
         _itemsEntries := Iter.toArray(_items.entries());
         _templateEntries := Iter.toArray(_templates.entries());
         _blobsEntries := Iter.toArray(_blobs.entries());
-
-        //  Canister geek (Monitoring)
-        _canistergeekMonitorUD := ? canistergeekMonitor.preupgrade();
-
-        //CAP
+        // CAP
         _eventsEntries := Iter.toArray(_events.entries());
-
-        //  Entrepot
+        // Entrepot
         _tokenListingState := Iter.toArray(_tokenListing.entries());
         _tokenSettlementState := Iter.toArray(_tokenSettlement.entries());
         _paymentsState := Iter.toArray(_payments.entries());
@@ -1669,24 +1247,12 @@ shared({ caller = hub }) actor class Hub() = this {
     };
 
     system func postupgrade() {
-        //  Departure labs
-        id                  := 0;
-        payloadSize         := 0;
-        nftEntries          := [];
-        staticAssetsEntries := [];
-        circulationEntries := [];
-
         // EXT
         _registryEntries := [];
         _ownershipsEntries := [];
         _templateEntries := [];
         _itemsEntries := [];
         _blobsEntries := [];
-
-        //  Canister geek (Monitoring)
-        canistergeekMonitor.postupgrade(_canistergeekMonitorUD);
-        _canistergeekMonitorUD := null;
-
         //  Entrepot
         _tokenListingState := [];
         _tokenSettlementState := [];

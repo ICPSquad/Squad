@@ -1,23 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg
-  width="100%"
-  height="100%"
-  viewBox="0 0 800 800"
-  version="1.1"
-  xmlns="http://www.w3.org/2000/svg"
-  xmlns:xlink="http://www.w3.org/1999/xlink"
-  xml:space="preserve"
-  xmlns:serif="http://www.serif.com/"
-  style="
-    fill-rule: evenodd;
-    clip-rule: evenodd;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-miterlimit: 1.5;
-  "
->
-  <style>
+<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+<style>
     #fill-white g:nth-child(odd) path {
       animation-name: fill-pulse;
       animation-duration: 2.14s;
@@ -168,360 +150,94 @@
       }
     }
   </style>
-  <g id="circuit-card" serif:id="circuit card">
-    <rect
-      id="bg"
-      x="-48.418"
-      y="-9.957"
-      width="931.967"
-      height="871.066"
-      style="fill: rgb(33, 47, 72)"
-    />
-    <g id="rectangles" transform="matrix(1,0,0,1,20.7283,64.1339)">
-      <g opacity="0.5">
-        <g transform="matrix(0.660629,0,0,1.04551,351.522,-81.058)">
-          <rect
-            x="462.47"
-            y="633.282"
-            width="419.335"
-            height="322.449"
-            style="fill: none"
-          />
-          <clipPath id="_clip1">
-            <rect x="462.47" y="633.282" width="419.335" height="322.449" />
-          </clipPath>
-          <g clip-path="url(#_clip1)">
-            <g transform="matrix(1.51371,0,0,0.956468,-452.99,37.369)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
+    <g id="materials-card">
+        <rect id="bg" x="-48.418" y="-9.957" width="931.967" height="871.066" style="fill:rgb(47,47,47);"/>
+        <g id="rectangles" transform="matrix(1,0,0,1,49.4291,64.1339)">
+            <g opacity="0.5">
+                <g transform="matrix(0.660629,0,0,1.04551,351.522,-81.058)">
+                    <rect x="462.47" y="633.282" width="419.335" height="322.449" style="fill:none;"/>
+                    <clipPath id="_clip1_metal">
+                        <rect x="462.47" y="633.282" width="419.335" height="322.449"/>
+                    </clipPath>
+                    <g clip-path="url(#_clip1_metal)">
+                        <g transform="matrix(1.51371,0,0,0.956468,-452.99,37.369)">
+                            <path d="M604.78,633.282L877.032,634.306" style="fill:none;stroke:rgb(166,240,98);stroke-width:4px;stroke-dasharray:4.25,7.5,0,0;"/>
+                        </g>
+                        <g transform="matrix(1.51371,0,0,0.956468,-452.99,58.0423)">
+                            <path d="M604.78,633.282L877.032,634.306" style="fill:none;stroke:rgb(166,240,98);stroke-width:4px;stroke-dasharray:4.25,7.5,0,0;"/>
+                        </g>
+                        <g transform="matrix(1.51371,0,0,0.956468,-452.99,68.3789)">
+                            <path d="M604.78,633.282L877.032,634.306" style="fill:none;stroke:rgb(166,240,98);stroke-width:4px;stroke-dasharray:4.25,7.5,0,0;"/>
+                        </g>
+                        <g transform="matrix(1.51371,0,0,0.956468,-452.99,89.0522)">
+                            <path d="M604.78,633.282L877.032,634.306" style="fill:none;stroke:rgb(166,240,98);stroke-width:4px;stroke-dasharray:4.25,7.5,0,0;"/>
+                        </g>
+                        <g transform="matrix(1.51371,0,0,0.956468,-452.99,99.3888)">
+                            <path d="M604.78,633.282L877.032,634.306" style="fill:none;stroke:rgb(166,240,98);stroke-width:4px;stroke-dasharray:4.25,7.5,0,0;"/>
+                        </g>
+                        <g transform="matrix(1.51371,0,0,0.956468,-452.99,130.399)">
+                            <path d="M604.78,633.282L877.032,634.306" style="fill:none;stroke:rgb(166,240,98);stroke-width:4px;stroke-dasharray:4.25,7.5,0,0;"/>
+                        </g>
+                        <g transform="matrix(1.51371,0,0,0.956468,-452.99,151.072)">
+                            <path d="M604.78,633.282L877.032,634.306" style="fill:none;stroke:rgb(166,240,98);stroke-width:4px;stroke-dasharray:4.25,7.5,0,0;"/>
+                        </g>
+                        <g transform="matrix(1.51371,0,0,0.956468,-452.99,171.745)">
+                            <path d="M604.78,633.282L877.032,634.306" style="fill:none;stroke:rgb(166,240,98);stroke-width:4px;stroke-dasharray:4.25,7.5,0,0;"/>
+                        </g>
+                    </g>
+                    <rect x="462.47" y="633.282" width="419.335" height="322.449" style="fill:none;stroke:rgb(166,240,98);stroke-width:4.57px;stroke-dasharray:4.86,8.58,0,0;"/>
+                </g>
+                <g transform="matrix(0.192707,0,0,1.04551,466.744,2.40586)">
+                    <rect x="462.47" y="633.282" width="419.335" height="322.449" style="fill:none;"/>
+                    <clipPath id="_clip2_metal">
+                        <rect x="462.47" y="633.282" width="419.335" height="322.449"/>
+                    </clipPath>
+                    <g clip-path="url(#_clip2_metal)">
+                        <g transform="matrix(1.51371,0,0,0.956468,-452.99,37.369)">
+                            <path d="M604.78,633.282L877.032,634.306" style="fill:none;stroke:rgb(237,30,121);stroke-width:5.43px;stroke-dasharray:5.77,10.18,0,0;"/>
+                        </g>
+                        <g transform="matrix(1.51371,0,0,0.956468,-452.99,58.0423)">
+                            <path d="M604.78,633.282L877.032,634.306" style="fill:none;stroke:rgb(237,30,121);stroke-width:5.43px;stroke-dasharray:5.77,10.18,0,0;"/>
+                        </g>
+                        <g transform="matrix(1.51371,0,0,0.956468,-452.99,68.3789)">
+                            <path d="M604.78,633.282L877.032,634.306" style="fill:none;stroke:rgb(237,30,121);stroke-width:5.43px;stroke-dasharray:5.77,10.18,0,0;"/>
+                        </g>
+                        <g transform="matrix(1.51371,0,0,0.956468,-452.99,89.0522)">
+                            <path d="M604.78,633.282L877.032,634.306" style="fill:none;stroke:rgb(237,30,121);stroke-width:5.43px;stroke-dasharray:5.77,10.18,0,0;"/>
+                        </g>
+                    </g>
+                    <rect x="462.47" y="633.282" width="419.335" height="322.449" style="fill:none;stroke:rgb(237,30,121);stroke-width:5.32px;stroke-dasharray:5.65,9.98,0,0;"/>
+                </g>
             </g>
-            <g transform="matrix(1.51371,0,0,0.956468,-452.99,58.0423)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
-            </g>
-            <g transform="matrix(1.51371,0,0,0.956468,-452.99,68.3789)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
-            </g>
-            <g transform="matrix(1.51371,0,0,0.956468,-452.99,89.0522)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
-            </g>
-            <g transform="matrix(1.51371,0,0,0.956468,-452.99,99.3888)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
-            </g>
-            <g transform="matrix(1.51371,0,0,0.956468,-452.99,130.399)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
-            </g>
-            <g transform="matrix(1.51371,0,0,0.956468,-452.99,151.072)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
-            </g>
-            <g transform="matrix(1.51371,0,0,0.956468,-452.99,171.745)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(166, 240, 98);
-                  stroke-width: 4px;
-                  stroke-dasharray: 4.25, 7.5, 0, 0;
-                "
-              />
-            </g>
-          </g>
-          <rect
-            x="462.47"
-            y="633.282"
-            width="419.335"
-            height="322.449"
-            style="
-              fill: none;
-              stroke: rgb(166, 240, 98);
-              stroke-width: 4.57px;
-              stroke-dasharray: 4.86, 8.58, 0, 0;
-            "
-          />
         </g>
-        <g transform="matrix(0.192707,0,0,1.04551,466.744,2.40586)">
-          <rect
-            x="462.47"
-            y="633.282"
-            width="419.335"
-            height="322.449"
-            style="fill: none"
-          />
-          <clipPath id="_clip2">
-            <rect x="462.47" y="633.282" width="419.335" height="322.449" />
-          </clipPath>
-          <g clip-path="url(#_clip2)">
-            <g transform="matrix(1.51371,0,0,0.956468,-452.99,37.369)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(237, 30, 121);
-                  stroke-width: 5.43px;
-                  stroke-dasharray: 5.77, 10.18, 0, 0;
-                "
-              />
+        <g id="circles" opacity="0.5">
+            <g transform="matrix(1,0,0,1,-118.853,-94.5905)">
+                <circle cx="155.124" cy="124.814" r="124.814" style="fill:none;stroke:rgb(255,207,0);stroke-width:4px;stroke-dasharray:4.25,7.5,0,0;"/>
             </g>
-            <g transform="matrix(1.51371,0,0,0.956468,-452.99,58.0423)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(237, 30, 121);
-                  stroke-width: 5.43px;
-                  stroke-dasharray: 5.77, 10.18, 0, 0;
-                "
-              />
+            <g transform="matrix(0.928318,0,0,0.928318,-107.734,-85.6437)">
+                <circle cx="155.124" cy="124.814" r="124.814" style="fill:none;stroke:rgb(255,207,0);stroke-width:4.31px;stroke-dasharray:4.58,8.08,0,0;"/>
             </g>
-            <g transform="matrix(1.51371,0,0,0.956468,-452.99,68.3789)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(237, 30, 121);
-                  stroke-width: 5.43px;
-                  stroke-dasharray: 5.77, 10.18, 0, 0;
-                "
-              />
+            <g transform="matrix(0.691272,0,0,0.691272,-70.9623,-56.0571)">
+                <circle cx="155.124" cy="124.814" r="124.814" style="fill:none;stroke:rgb(255,108,0);stroke-width:5.79px;stroke-dasharray:6.15,10.85,0,0;"/>
             </g>
-            <g transform="matrix(1.51371,0,0,0.956468,-452.99,89.0522)">
-              <path
-                d="M604.78,633.282L877.032,634.306"
-                style="
-                  fill: none;
-                  stroke: rgb(237, 30, 121);
-                  stroke-width: 5.43px;
-                  stroke-dasharray: 5.77, 10.18, 0, 0;
-                "
-              />
-            </g>
-          </g>
-          <rect
-            x="462.47"
-            y="633.282"
-            width="419.335"
-            height="322.449"
-            style="
-              fill: none;
-              stroke: rgb(237, 30, 121);
-              stroke-width: 5.32px;
-              stroke-dasharray: 5.65, 9.98, 0, 0;
-            "
-          />
         </g>
-      </g>
-    </g>
-    <g id="circles" opacity="0.5">
-      <g transform="matrix(1,0,0,1,-118.853,-94.5905)">
-        <circle
-          cx="155.124"
-          cy="124.814"
-          r="124.814"
-          style="
-            fill: none;
-            stroke: rgb(255, 207, 0);
-            stroke-width: 4px;
-            stroke-dasharray: 4.25, 7.5, 0, 0;
-          "
-        />
-      </g>
-      <g transform="matrix(0.928318,0,0,0.928318,-107.734,-85.6437)">
-        <circle
-          cx="155.124"
-          cy="124.814"
-          r="124.814"
-          style="
-            fill: none;
-            stroke: rgb(255, 207, 0);
-            stroke-width: 4.31px;
-            stroke-dasharray: 4.58, 8.08, 0, 0;
-          "
-        />
-      </g>
-      <g transform="matrix(0.691272,0,0,0.691272,-70.9623,-56.0571)">
-        <circle
-          cx="155.124"
-          cy="124.814"
-          r="124.814"
-          style="
-            fill: none;
-            stroke: rgb(255, 108, 0);
-            stroke-width: 5.79px;
-            stroke-dasharray: 6.15, 10.85, 0, 0;
-          "
-        />
-      </g>
-    </g>
-    <g id="rarity-bars" serif:id="rarity bars">
-      <g id="rarity-bars-fill" serif:id="rarity bars fill">
-        <g transform="matrix(0.114833,0,0,0.114833,59.0756,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: rgb(139, 57, 219)"
-          />
+        <g transform="matrix(0.911866,0,0,0.911866,121.585,329.506)">
+            <text x="179.62px" y="439.84px" style="font-family:'Futura-Medium', 'Futura', sans-serif;font-weight:500;font-size:118.438px;fill:white;"> 3%</text>
         </g>
-        <g transform="matrix(0.114833,0,0,0.114833,126.648,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: rgb(237, 30, 121)"
-          />
+        <g transform="matrix(0.720342,0,0,0.720342,14.7358,384.665)">
+            <text x="77.471px" y="439.84px" style="font-family:'Futura-Medium', 'Futura', sans-serif;font-weight:500;font-size:50px;fill:white;">RARIT<tspan x="216.021px 244.415px " y="439.84px 439.84px ">Y:</tspan></text>
         </g>
-        <g transform="matrix(0.114833,0,0,0.114833,194.22,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: rgb(241, 90, 36)"
-          />
+        <g transform="matrix(1,0,0,1,-7.69409,0)">
+            <path d="M82.194,602.738L733.196,602.258C733.979,602.258 734.615,601.621 734.614,600.838C734.614,600.055 733.977,599.42 733.194,599.42L82.192,599.9C81.409,599.901 80.773,600.537 80.774,601.321C80.775,602.104 81.411,602.739 82.194,602.738Z" style="fill:white;"/>
         </g>
-        <g transform="matrix(0.114833,0,0,0.114833,261.792,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: rgb(251, 176, 59)"
-          />
+        <g transform="matrix(1,0,0,1,120.441,145.046)">
+            <text x="180.79px" y="439.84px" style="font-family:'Futura-Medium', 'Futura', sans-serif;font-weight:500;font-size:50px;fill:white;">CIRCUIT</text>
         </g>
-      </g>
-      <g id="rarity-bars-stroke" serif:id="rarity bars stroke">
-        <g transform="matrix(0.114833,0,0,0.114833,59.0756,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
+        <path id="border" d="M800,801.235L800,-4.106L-0,-4.106L0,801.235L800,801.235ZM260.875,30.644L30.644,30.644C30.644,30.644 30.644,769.356 30.644,769.356C30.644,769.356 769.356,769.356 769.356,769.356L769.356,30.644L539.125,30.644L539.125,61.806L260.875,61.806L260.875,30.644Z" style="fill:rgb(18,18,18);"/>
+        <g id="guide" transform="matrix(1,0,0,1.04284,1.75676,-22.4672)">
+            <rect x="82.193" y="95.569" width="632.101" height="428.927" style="fill:url(#_Linear3_card);stroke:rgb(94,94,94);stroke-width:4.8px;"/>
         </g>
-        <g transform="matrix(0.114833,0,0,0.114833,126.648,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
-        </g>
-        <g transform="matrix(0.114833,0,0,0.114833,194.22,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
-        </g>
-        <g transform="matrix(0.114833,0,0,0.114833,261.792,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
-        </g>
-        <g transform="matrix(0.114833,0,0,0.114833,329.364,653.445)">
-          <path
-            d="M400,117.517L629.266,249.774L629.266,514.685L400.192,646.941L400.192,647.052L400.096,646.997L400,647.052L400,646.941L170.925,514.685L170.925,249.774L400,117.517Z"
-            style="fill: none; stroke: white; stroke-width: 34.83px"
-          />
-        </g>
-      </g>
-    </g>
-    <g transform="matrix(0.720342,0,0,0.720342,23.1337,330.63)">
-      <path
-        d="M94.756,423.775L106.426,439.84L99.468,439.84L88.702,424.41L87.676,424.41L87.676,439.84L81.988,439.84L81.988,402.144L88.653,402.144C93.633,402.144 97.23,403.08 99.444,404.952C101.885,407.035 103.106,409.786 103.106,413.204C103.106,415.873 102.341,418.168 100.811,420.089C99.281,422.009 97.263,423.238 94.756,423.775ZM87.676,419.454L89.483,419.454C94.87,419.454 97.564,417.395 97.564,413.277C97.564,409.42 94.944,407.491 89.703,407.491L87.676,407.491L87.676,419.454Z"
-        style="fill: white; fill-rule: nonzero"
-      />
-      <path
-        d="M134.234,430.684L118.096,430.684L113.897,439.84L107.769,439.84L126.421,399.776L144.415,439.84L138.189,439.84L134.234,430.684ZM131.915,425.338L126.324,412.52L120.464,425.338L131.915,425.338Z"
-        style="fill: white; fill-rule: nonzero"
-      />
-      <path
-        d="M161.895,423.775L173.565,439.84L166.607,439.84L155.84,424.41L154.815,424.41L154.815,439.84L149.127,439.84L149.127,402.144L155.792,402.144C160.772,402.144 164.369,403.08 166.583,404.952C169.024,407.035 170.245,409.786 170.245,413.204C170.245,415.873 169.48,418.168 167.95,420.089C166.42,422.009 164.402,423.238 161.895,423.775ZM154.815,419.454L156.622,419.454C162.009,419.454 164.703,417.395 164.703,413.277C164.703,409.42 162.082,407.491 156.841,407.491L154.815,407.491L154.815,419.454Z"
-        style="fill: white; fill-rule: nonzero"
-      />
-      <rect
-        x="179.229"
-        y="402.144"
-        width="5.688"
-        height="37.695"
-        style="fill: white; fill-rule: nonzero"
-      />
-      <path
-        d="M204.376,407.491L204.376,439.84L198.687,439.84L198.687,407.491L190.02,407.491L190.02,402.144L213.018,402.144L213.018,407.491L204.376,407.491Z"
-        style="fill: white; fill-rule: nonzero"
-      />
-      <path
-        d="M228.155,423.555L215.85,402.144L222.393,402.144L231.011,417.208L239.654,402.144L246.197,402.144L233.843,423.555L233.843,439.84L228.155,439.84L228.155,423.555Z"
-        style="fill: white; fill-rule: nonzero"
-      />
-    </g>
-    <path
-      d="M800,800L800,0L-0,0L0,800L800,800ZM769.901,30.099L769.901,769.901C643.519,769.901 156.481,769.901 30.099,769.901C30.099,769.901 30.099,30.099 30.099,30.099L769.901,30.099Z"
-      style="fill: rgb(90, 121, 156)"
-    />
-    <g transform="matrix(0.800077,0,0,0.831317,81.529,3.55271e-15)">
-      <rect
-        x="260.695"
-        y="0"
-        width="274.711"
-        height="77.196"
-        style="fill: rgb(90, 121, 156)"
-      />
-    </g>
-    <g id="guide" transform="matrix(1,0,0,1.22056,1.75676,-39.4524)">
-      <rect
-        x="82.193"
-        y="95.569"
-        width="632.101"
-        height="428.927"
-        style="
-          fill: url(#_Linear3);
-          stroke: rgb(99, 177, 235);
-          stroke-width: 4.8px;
-        "
-      />
-    </g>
-    <g id="circuit" transform="matrix(1.05721,0,0,1.05721,187.6,120.758)">
+    <g id="circuit" transform="translate(200,100)" >
       <g id="right" transform="matrix(1,0,0,1,-65.81,-160.5)">
         <path
           d="M266.93,566.55L266.93,364L442.32,262.6L442.32,465.29L266.93,566.55Z"
@@ -2838,7 +2554,7 @@
                 />
               </g>
             </g>
-            <g id="rectangles1" serif:id="rectangles">
+            <g id="rectangles1">
               <path
                 d="M178.41,305L189.75,311.56L189.75,316.9L178.41,310.34L178.41,305Z"
                 style="fill: white; fill-rule: nonzero"
@@ -3017,7 +2733,7 @@
                 />
               </g>
             </g>
-            <g id="core1" serif:id="core">
+            <g id="core1">
               <path
                 d="M84.61,200.72L142.43,234.17L142.43,301.77L84.61,268.34L84.61,200.72Z"
                 style="fill: white; fill-rule: nonzero"
@@ -4304,7 +4020,7 @@
                 />
               </g>
             </g>
-            <g id="core2" serif:id="core">
+            <g id="core2">
               <path
                 d="M198.28,137.2L140.44,103.77L198.94,69.98L256.79,103.39L198.28,137.2Z"
                 style="fill: white; fill-rule: nonzero"
@@ -4385,45 +4101,20 @@
         />
       </g>
     </g>
-    <g transform="matrix(1,0,0,1,49.0114,-2.65748)">
-      <path
-        d="M289.648,17.407L289.648,24.145C286.36,21.395 282.959,20.019 279.443,20.019C275.569,20.019 272.306,21.411 269.653,24.194C266.984,26.961 265.649,30.347 265.649,34.351C265.649,38.306 266.984,41.642 269.653,44.36C272.322,47.078 275.594,48.437 279.468,48.437C281.47,48.437 283.17,48.112 284.57,47.461C285.351,47.135 286.161,46.696 286.999,46.143C287.838,45.589 288.72,44.922 289.648,44.141L289.648,51.001C286.393,52.84 282.975,53.76 279.394,53.76C274.007,53.76 269.409,51.88 265.6,48.12C261.808,44.328 259.912,39.754 259.912,34.399C259.912,29.598 261.499,25.317 264.673,21.558C268.579,16.951 273.633,14.648 279.834,14.648C283.219,14.648 286.491,15.568 289.648,17.407Z"
-        style="fill: white; fill-rule: nonzero"
-      />
-      <rect
-        x="296.826"
-        y="15.381"
-        width="5.688"
-        height="37.695"
-        style="fill: white; fill-rule: nonzero"
-      />
-      <path
-        d="M324.341,37.012L336.011,53.076L329.053,53.076L318.286,37.646L317.261,37.646L317.261,53.076L311.572,53.076L311.572,15.381L318.237,15.381C323.218,15.381 326.815,16.317 329.028,18.188C331.47,20.272 332.69,23.022 332.69,26.44C332.69,29.11 331.925,31.405 330.395,33.325C328.865,35.246 326.847,36.475 324.341,37.012ZM317.261,32.69L319.067,32.69C324.455,32.69 327.148,30.631 327.148,26.514C327.148,22.656 324.528,20.727 319.287,20.727L317.261,20.727L317.261,32.69Z"
-        style="fill: white; fill-rule: nonzero"
-      />
-      <path
-        d="M368.677,17.407L368.677,24.145C365.389,21.395 361.987,20.019 358.471,20.019C354.598,20.019 351.334,21.411 348.681,24.194C346.012,26.961 344.678,30.347 344.678,34.351C344.678,38.306 346.012,41.642 348.681,44.36C351.351,47.078 354.622,48.437 358.496,48.437C360.498,48.437 362.199,48.112 363.598,47.461C364.38,47.135 365.189,46.696 366.028,46.143C366.866,45.589 367.749,44.922 368.677,44.141L368.677,51.001C365.421,52.84 362.003,53.76 358.423,53.76C353.035,53.76 348.437,51.88 344.629,48.12C340.836,44.328 338.94,39.754 338.94,34.399C338.94,29.598 340.527,25.317 343.701,21.558C347.607,16.951 352.661,14.648 358.862,14.648C362.248,14.648 365.519,15.568 368.677,17.407Z"
-        style="fill: white; fill-rule: nonzero"
-      />
-      <path
-        d="M381.543,15.381L381.543,38.086C381.543,41.325 382.072,43.693 383.13,45.19C384.708,47.355 386.93,48.437 389.795,48.437C392.676,48.437 394.905,47.355 396.484,45.19C397.542,43.742 398.071,41.374 398.071,38.086L398.071,15.381L403.76,15.381L403.76,39.648C403.76,43.62 402.523,46.891 400.049,49.463C397.265,52.327 393.847,53.76 389.795,53.76C385.742,53.76 382.332,52.327 379.565,49.463C377.091,46.891 375.854,43.62 375.854,39.648L375.854,15.381L381.543,15.381Z"
-        style="fill: white; fill-rule: nonzero"
-      />
-      <rect
-        x="412.793"
-        y="15.381"
-        width="5.688"
-        height="37.695"
-        style="fill: white; fill-rule: nonzero"
-      />
-      <path
-        d="M437.939,20.727L437.939,53.076L432.251,53.076L432.251,20.727L423.584,20.727L423.584,15.381L446.582,15.381L446.582,20.727L437.939,20.727Z"
-        style="fill: white; fill-rule: nonzero"
-      />
+        <g id="material-text" transform="matrix(1,0,0,1,15.3933,-2.65748)">
+            <path d="M266.919,53.076L274.853,12.549L287.793,41.846L301.196,12.549L308.325,53.076L302.49,53.076L298.852,30.322L287.695,54.81L276.855,30.298L272.803,53.076L266.919,53.076Z" style="fill:white;fill-rule:nonzero;"/>
+            <path d="M338.452,43.921L322.314,43.921L318.115,53.076L311.987,53.076L330.639,13.013L348.633,53.076L342.407,53.076L338.452,43.921ZM336.133,38.574L330.542,25.757L324.682,38.574L336.133,38.574Z" style="fill:white;fill-rule:nonzero;"/>
+            <path d="M361.645,20.727L361.645,53.076L355.957,53.076L355.957,20.727L347.29,20.727L347.29,15.381L370.288,15.381L370.288,20.727L361.645,20.727Z" style="fill:white;fill-rule:nonzero;"/>
+            <path d="M396.167,20.727L381.054,20.727L381.054,29.785L395.727,29.785L395.727,35.132L381.054,35.132L381.054,47.729L396.167,47.729L396.167,53.076L375.366,53.076L375.366,15.381L396.167,15.381L396.167,20.727Z" style="fill:white;fill-rule:nonzero;"/>
+            <path d="M416.406,37.012L428.076,53.076L421.118,53.076L410.351,37.646L409.326,37.646L409.326,53.076L403.637,53.076L403.637,15.381L410.303,15.381C415.283,15.381 418.88,16.317 421.094,18.188C423.535,20.272 424.756,23.022 424.756,26.44C424.756,29.11 423.991,31.405 422.461,33.325C420.931,35.246 418.913,36.475 416.406,37.012ZM409.326,32.69L411.133,32.69C416.52,32.69 419.214,30.631 419.214,26.514C419.214,22.656 416.593,20.727 411.352,20.727L409.326,20.727L409.326,32.69Z" style="fill:white;fill-rule:nonzero;"/>
+            <rect x="433.74" y="15.381" width="5.688" height="37.695" style="fill:white;fill-rule:nonzero;"/>
+            <path d="M470.63,43.921L454.492,43.921L450.293,53.076L444.165,53.076L462.817,13.013L480.81,53.076L474.585,53.076L470.63,43.921ZM468.31,38.574L462.72,25.757L456.86,38.574L468.31,38.574Z" style="fill:white;fill-rule:nonzero;"/>
+            <path d="M491.211,15.381L491.211,47.729L502.295,47.729L502.295,53.076L485.522,53.076L485.522,15.381L491.211,15.381Z" style="fill:white;fill-rule:nonzero;"/>
+        </g>
     </g>
-  </g>
-  <defs>
-    <linearGradient
+    <defs>
+        <linearGradient id="_Linear3_card" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(3.89688e-14,-610.267,636.408,3.73681e-14,398.243,614.74)"><stop offset="0" style="stop-color:rgb(122,122,122);stop-opacity:1"/><stop offset="0.44" style="stop-color:rgb(227,227,227);stop-opacity:1"/><stop offset="1" style="stop-color:white;stop-opacity:1"/></linearGradient>
+          <linearGradient
       id="_Linear3"
       x1="0"
       y1="0"
@@ -4634,5 +4325,5 @@
       />
       <stop offset="1" style="stop-color: rgb(82, 39, 133); stop-opacity: 1" />
     </linearGradient>
-  </defs>
+    </defs>
 </svg>
