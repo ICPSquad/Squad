@@ -6,13 +6,7 @@ import Admis "../admins";
 import Invoice "../invoice";
 
 module {
-
-    public type Wallet = {
-        #Stoic : Principal;
-        #Plug : Principal;
-    };
-
-    public type TokenIdentifier = Text;
+    public type Result<A,B> = Result.Result<A,B>;
 
     public type User = {
         email : ?Text;
@@ -20,29 +14,27 @@ module {
         twitter : ?Text;
         rank : ?Nat64; 
         height : ?Nat64;
-        avatar : ?TokenIdentifier; 
         status : Status;
     };
+
+    public type InvoiceInfos = Invoice.Invoice;
     
     public type Status =  {
-        #NotAuthenticated;
-        #NotRegistered;
-        #NotConfirmed;
-        #Member : Bool; // Indicates if the user has minted his avatar.
+        #NotAuthenticated; // Anymous principal.
+        #NotRegistered; // Principal we have no record of.
+        #NotConfirmed : Invoice.Invoice; // Principal has already registered but the invoice has not been confirmed.
+        #Member : Bool; // Boolean indicating if the user has minted his avatar.
     };
 
     public type Dependencies = {
-        _Admins : Admins.Admins;
         _Logs : Canistergeek.Logger;
         _Invoice : Invoice.Invoice;
+        cid_avatar :  Principal;
     };
 
     public type UpgradeData = {
-        _users : [(Principal, User)];
-        _registrations : [(Principal, Registration)];
+        users : [(Principal, User)];
     };
-
-
 
     public type Interface = {
 
@@ -52,18 +44,24 @@ module {
         // Reinitialize the state of the module after upgrading.
         postupgrade : (ud : ?UpgradeData) -> ();
 
-        register : (caller : Principal, ) -> 
+        // Register the user informations a first time.
+        register : (caller : Principal, user : User) -> Result<(), Text>;
 
-        confirm : (caller : Principal, ) ->
+        // Confirm the user's registration by verifying the status of the invoice.
+        confirm : (caller : Principal) -> Result<(), Text>;
 
-        mint : (caller : Principal) -> 
+        // Mint an avatar for the user.
+        mint : (caller : Principal) ->  Result<(), Text>;
 
-        // Returns the number of registered users.
-        size : () -> Nat;
+        // Returns the number of confirmed users.
+        getSize : () -> Nat;
 
-        getStatus : (caller : Principal) ->  
+        // Returns the status of the caller.
+        getStatus : (caller : Principal) -> Status;
 
+        // Returns the profile of the caller.
+        getUser : (caller : Principal) -> Result<User,Text>;
     };
 
 
-}:
+};

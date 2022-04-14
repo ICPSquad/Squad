@@ -7,10 +7,8 @@ import Principal "mo:base/Principal";
 import Canistergeek "mo:canistergeek/canistergeek";
 
 import Admins "admins";
-import Users "types/users";
-
-
-
+import Invoice "invoice";
+import Users "users";
 shared ({ caller = creator }) actor class ICPSquadHub(
     cid : Principal,
     invoice : Principal
@@ -92,16 +90,43 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Logs.getLog(request);
     };
 
-    ////////////////////
-    // USERS //////////
-    ///////////////////
+    ///////////////
+    // INVOICE ///
+    /////////////
+
+
+
+    //////////////
+    // USERS ////
+    ////////////
+
+    public type TokenIdentifier = Text;
     
-    public type User = Users.User;
-    public type Status = Users.Status;
-    public type ResultRequest = Users.ResultRequest;
+    public type User = {
+        wallet : Text;
+        email : ?Text;
+        discord : ?Text;
+        twitter : ?Text;
+        rank : ?Nat64; 
+        height : ?Nat64;
+        avatar : ?TokenIdentifier;  // TokenIdentifier of the avatar created by the user - it might not be updated in the future if we decide to allow sell/transfer
+        airdrop : ?[Text];
+        status : Status;
+    };
+
+    public type Status =  {
+        #Level1;
+        #Level2;
+        #Level3;
+        #OG;
+        #Legendary;
+        #Staff;
+    };
 
     stable var usersEntries : [(Principal,User)] = [];
     let users : HashMap.HashMap<Principal,User> = HashMap.fromIter(usersEntries.vals(),0,Principal.equal, Principal.hash);
+
+
 
 
 
