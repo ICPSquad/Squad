@@ -20,15 +20,14 @@ module {
     public type InvoiceInfos = Invoice.Invoice;
     
     public type Status =  {
-        #NotAuthenticated; // Anymous principal.
-        #NotRegistered; // Principal we have no record of.
-        #NotConfirmed : Invoice.Invoice; // Principal has already registered but the invoice has not been confirmed.
+        #NotPaid : Invoice.Invoice; // Invoice needs to be confirmed before being a member.
         #Member : Bool; // Boolean indicating if the user has minted his avatar.
+        #InProgress; // A intermediate status to block re-entrancy attacks.
     };
 
     public type Dependencies = {
         _Logs : Canistergeek.Logger;
-        _Invoice : Invoice.Invoice;
+        _Invoice : Invoice.Factory;
         cid_avatar :  Principal;
     };
 
@@ -50,17 +49,17 @@ module {
         // Confirm the user's registration by verifying the status of the invoice.
         confirm : (caller : Principal) -> Result<(), Text>;
 
+        // Modify the status of a specific user. Trap if user doesn't exist.
+        modifyStatus : (caller : Principal, status : Status) -> ();
+
         // Mint an avatar for the user.
         mint : (caller : Principal) ->  Result<(), Text>;
 
         // Returns the number of confirmed users.
         getSize : () -> Nat;
 
-        // Returns the status of the caller.
-        getStatus : (caller : Principal) -> Status;
-
-        // Returns the profile of the caller.
-        getUser : (caller : Principal) -> Result<User,Text>;
+        // Returns the optional profile of the caller.
+        getUser : (caller : Principal) -> ?User;
     };
 
 

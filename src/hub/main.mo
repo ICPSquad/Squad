@@ -1,18 +1,27 @@
-
 import Cycles "mo:base/ExperimentalCycles";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Principal "mo:base/Principal";
+import Result "mo:base/Result";
 
 import Canistergeek "mo:canistergeek/canistergeek";
+import _Monitor "mo:canistergeek/typesModule";
 
 import Admins "admins";
 import Invoice "invoice";
+import Types "types";
 import Users "users";
 shared ({ caller = creator }) actor class ICPSquadHub(
     cid : Principal,
-    invoice : Principal
+    invoice : Principal,
+    avatar : Principal,
 ) = this {
+
+    ////////////
+    // TYPES //
+    ///////////
+
+    public type Result<A,B> = Result.Result<A,B>;
 
 
     ///////////
@@ -94,11 +103,15 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     // INVOICE ///
     /////////////
 
+    private let _Invoice : Invoice.Factory = Invoice.Factory({
+        invoice_cid = invoice;
+        cid = cid;
+        creator = creator;
+    });
 
-
-    //////////////
-    // USERS ////
-    ////////////
+    ///////////////////
+    // USERS(old) ////
+    //////////////////
 
     public type TokenIdentifier = Text;
     
@@ -127,8 +140,105 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     let users : HashMap.HashMap<Principal,User> = HashMap.fromIter(usersEntries.vals(),0,Principal.equal, Principal.hash);
 
 
+    //////////////
+    // USERS ////
+    ////////////
 
+    public type MintInformation = Types.MintInformation;
+    public type MintResult = Types.MintResult;
 
+    stable var _UsersUD : ?Users.UpgradeData = null;
+    private let _Users : Users.Users = Users.Users({
+        _Logs = _Logs;
+        _Invoice = _Invoice;
+        cid_avatar = avatar;
+    });
+
+    let AVATAR = actor(Principal.toText(avatar)) : actor {
+        mint : shared (info : MintInformation, caller : Principal) -> async Result<TokenIdentifier,Text>;
+    };
+
+    private let AMOUNT_MINT = 1_000_000_000;
+
+    // To document
+    public shared ({ caller }) func mint(info : MintInformation) : async MintResult {
+        _Monitor.collectMetrics();
+        // An user needs to be registered to consider his request.
+        if(Principal.isAnonymous(caller)){
+            _Logs.logMessage("Mint request from anonymous user");
+            return #err(#Anonymous);
+        };
+        switch(_Users.getUser(caller)){
+            case(? user){
+                switch(user.status){
+                    case(#Member(mint)){
+                        if(mint) {
+                            _Logs.logMessage("Double mint request from user " # Principal.toText(caller));
+                            return #err(#AlreadyMinted);
+                        } else {
+                            _Logs.logMessage("Send mint request to avatar canister for user : " # Principal.toText(caller));
+                            switch(await AVATAR.mint(info, caller)){
+                                    case(#ok(a)) {
+                                        _Users.modifyStatus(caller, #Member(true));
+                                        _Logs.logMessage("Mint request successfull : " # a # " minted for : " # Principal.toText(caller));
+                                        return #ok({ tokenId = a });
+                                    };
+                                    case (#err(e)) {
+                                        _Logs.logMessage("Mint request issue : " # e # " for : " #Principal.toText(caller));
+                                        return #err(#AvatarCanisterErr(e));
+                                };
+                            };
+                        }
+                    };
+                    case (#NotPaid(invoice)) {
+                        _Users.modifyStatus(caller, #InProgress);
+                        switch(await _Invoice.verifyInvoice(invoice.id)){
+                            case(#ok){
+                                _Logs.logMessage("Send mint request to avatar canister for user : " # Principal.toText(caller));
+                                switch(await AVATAR.mint(info, caller)){
+                                    case(#ok(a)) {
+                                        _Users.modifyStatus(caller, #Member(true));
+                                        _Logs.logMessage("Mint request successfull : " # a # " minted for : " # Principal.toText(caller));
+                                        return #ok({ tokenId = a });
+                                    };
+                                    case (#err(e)) {
+                                        _Users.modifyStatus(caller, #NotPaid(invoice));
+                                        _Logs.logMessage("Mint request issue : " # e # " for : " #Principal.toText(caller));
+                                        return #err(#AvatarCanisterErr(e));
+                                    };
+                                };
+                            };
+                            case(#err(e)) {
+                                _Logs.logMessage("Error when verifying invoice for user : " # Principal.toText(caller));
+                                _Users.modifyStatus(caller, #NotPaid(invoice));
+                                return #err(#InvoiceCanisterErr(e));
+                            };
+                        };
+                    };
+                    case(#InProgress) {
+                        _Logs.logMessage("Re-entrancy attack from " # Principal.toText(caller));
+                        return #err(#Other("Re-entrancy attack detected"));
+                    };
+                };
+            };
+            case(null){
+                _Users.modifyStatus(caller, #InProgress);
+                switch(await(_Invoice.createInvoice(caller,AMOUNT_MINT))){
+                    case(#ok(invoice)){
+                        _Users.modifyStatus(caller, #NotPaid(invoice));
+                        return #err(#Invoice(invoice));
+                    };
+                    case(#err(e)){
+                        return #err(#InvoiceCanisterErr(e));
+                    }
+                };
+            };
+        };
+    };
+
+    public query func size() : async Nat {
+        _Users.getSize();
+    };
 
     //////////////
     // UPGRADE //
@@ -139,6 +249,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
+        _UsersUD := ?_Users.preupgrade();
         usersEntries := Iter.toArray(users.entries());
     };
 
@@ -149,6 +260,8 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _MonitorUD := null;
         _Admins.postupgrade(_AdminsUD);
         _AdminsUD := null;
+        _Users.postupgrade(_UsersUD);
+        _UsersUD := null;
        usersEntries := [];
     };
 

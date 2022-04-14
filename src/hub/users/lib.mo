@@ -90,26 +90,47 @@ module {
             count;
         };
 
-        public func getStatus(
+
+        public func getUser(
             caller : Principal
-        ) : Status {
-            if(Principal.isAnonymous(caller)) return #NotAuthenticated;
+        ) : ?User {
+            _users.get(caller);
+        };
+
+        public func modifyStatus(
+            caller : Principal,
+            status : Status
+        ) : () {
             switch(_users.get(caller)){
-                case(null) return #NotRegistered;
-                case (? some){
-                    return some.status;
+                case(null) assert(false);
+                case(? some) {
+                    _users.put(caller, _UserNewStatus(some, status));
                 };
             };
         };
 
-        public func getUser(
-            caller : Principal
-        ) : Result<User,Text> {
-            switch(_users.get(caller)){
-                case(null) return #err("Caller is not registered : "  #Principal.toText(caller));
-                case(? some) return #ok(some);
-            };
+        /////////////////
+        // UTILITIES ////
+        ////////////////
+
+        // Returns a new user with the changed status.
+
+        func _UserNewStatus(
+            user : User,
+            status : Status
+        ) : User {
+            {
+                email = user.email;
+                discord = user.discord;
+                twitter = user.twitter;
+                rank = user.rank;
+                height = user.height;
+                status = status;
+            }
         };
+
+
+
 
     };
 };

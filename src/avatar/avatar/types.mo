@@ -66,7 +66,6 @@ module {
         hair : Text;
         cloth : Text;
         colors : Colors;
-        user: Principal;
     };
 
     public type Level = {
