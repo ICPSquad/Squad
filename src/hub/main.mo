@@ -1,6 +1,7 @@
 import Cycles "mo:base/ExperimentalCycles";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
+import Nat64 "mo:base/Nat64";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 
@@ -163,7 +164,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     // To document
     public shared ({ caller }) func mint(info : MintInformation) : async MintResult {
         _Monitor.collectMetrics();
-        // An user needs to be registered to consider his request.
         if(Principal.isAnonymous(caller)){
             _Logs.logMessage("Mint request from anonymous user");
             return #err(#Anonymous);
@@ -190,7 +190,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                             };
                         }
                     };
-                    case (#NotPaid(invoice)) {
+                    case (#Invoice(invoice)) {
                         _Users.modifyStatus(caller, #InProgress);
                         switch(await _Invoice.verifyInvoice(invoice.id)){
                             case(#ok){
@@ -202,7 +202,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                                         return #ok({ tokenId = a });
                                     };
                                     case (#err(e)) {
-                                        _Users.modifyStatus(caller, #NotPaid(invoice));
+                                        _Users.modifyStatus(caller, #Invoice(invoice));
                                         _Logs.logMessage("Mint request issue : " # e # " for : " #Principal.toText(caller));
                                         return #err(#AvatarCanisterErr(e));
                                     };
@@ -210,7 +210,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                             };
                             case(#err(e)) {
                                 _Logs.logMessage("Error when verifying invoice for user : " # Principal.toText(caller));
-                                _Users.modifyStatus(caller, #NotPaid(invoice));
+                                _Users.modifyStatus(caller, #Invoice(invoice));
                                 return #err(#InvoiceCanisterErr(e));
                             };
                         };
@@ -225,7 +225,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                 _Users.modifyStatus(caller, #InProgress);
                 switch(await(_Invoice.createInvoice(caller,AMOUNT_MINT))){
                     case(#ok(invoice)){
-                        _Users.modifyStatus(caller, #NotPaid(invoice));
+                        ignore(_Users.register(caller, { email = null; twitter = null; discord = null; rank = ?(Nat64.fromNat(_Users.getSize())); height = null; status = #Invoice(invoice)}));
                         return #err(#Invoice(invoice));
                     };
                     case(#err(e)){
@@ -236,8 +236,18 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         };
     };
 
-    public query func size() : async Nat {
-        _Users.getSize();
+    public shared ({ caller }) func whitelist(p : Principal) : async Result<(), Text> {
+        _Monitor.collectMetrics();
+        assert(_Admins.isAdmin(caller));
+        switch(_Users.whitelist(p)){
+            case(#ok()) {
+                _Logs.logMessage(Principal.toText(p) # "has been whitelisted by " # Principal.toText(caller));
+                return #ok;
+            };
+            case(#err(e)){
+                return #err(e);
+            };
+        };
     };
 
     //////////////

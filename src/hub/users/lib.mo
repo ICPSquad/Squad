@@ -50,6 +50,18 @@ module {
         // API ////
         ///////////
 
+        public func whitelist(
+            caller : Principal
+        ) : Result<(), Text> {
+            switch(_users.get(caller)){
+                case(? some) return #err("User is already registered : " #Principal.toText(caller));
+                case(null) {
+                    _users.put(caller, _newUser());
+                    return #ok;
+                };
+            };
+        };
+
         public func register(
             caller : Principal,
             user : User
@@ -126,6 +138,17 @@ module {
                 rank = user.rank;
                 height = user.height;
                 status = status;
+            }
+        };
+
+        func _newUser() : User {
+            {
+                email = null;
+                discord = null;
+                twitter = null;
+                rank = null;
+                height = null;
+                status = #Member(false);
             }
         };
 

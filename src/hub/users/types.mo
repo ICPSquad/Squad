@@ -20,7 +20,7 @@ module {
     public type InvoiceInfos = Invoice.Invoice;
     
     public type Status =  {
-        #NotPaid : Invoice.Invoice; // Invoice needs to be confirmed before being a member.
+        #Invoice : Invoice.Invoice; // Invoice needs to be confirmed before being a member.
         #Member : Bool; // Boolean indicating if the user has minted his avatar.
         #InProgress; // A intermediate status to block re-entrancy attacks.
     };
@@ -60,6 +60,8 @@ module {
 
         // Returns the optional profile of the caller.
         getUser : (caller : Principal) -> ?User;
+        
+        //TODO whitelist
     };
 
 
