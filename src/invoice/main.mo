@@ -1,9 +1,3 @@
-import A          "./Account";
-import Hex        "./Hex";
-import ICP        "./ICPLedger";
-import T          "./Types";
-import U          "./Utils";
-
 import Array      "mo:base/Array";
 import Blob       "mo:base/Blob";
 import Cycles     "mo:base/ExperimentalCycles";
@@ -16,6 +10,12 @@ import Option     "mo:base/Option";
 import Principal  "mo:base/Principal";
 import Text       "mo:base/Text";
 import Time       "mo:base/Time";
+
+import A          "./Account";
+import Hex        "./Hex";
+import ICP        "./ICPLedger";
+import T          "./Types";
+import U          "./Utils";
 
 actor Invoice {
 // #region Types
@@ -89,6 +89,7 @@ actor Invoice {
           id;
           creator = caller;
           details = args.details;
+          permissions = args.permissions;
           amount = args.amount;
           amountPaid = 0;
           token;
@@ -99,7 +100,7 @@ actor Invoice {
           destination;
         };
 
-        s.put(id, invoice);
+        invoices.put(id, invoice);
 
         #ok({invoice});
       };

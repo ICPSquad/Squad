@@ -13,6 +13,7 @@ import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+import _Ext "mo:base/ExperimentalStableMemory";
 
 import AccountIdentifier "mo:principal/AccountIdentifier";
 import Canistergeek "mo:canistergeek/canistergeek";
@@ -336,6 +337,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Ext.extensions();
     };
 
+    public query func supply() : async Nat {
+        _Ext.size();
+    };
+
     public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
         _Ext.getRegistry();
     };
@@ -454,7 +459,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     /////////////
 
     system func preupgrade() {
-        _Logs.logMessage("Pre-upgrade");
+        _Logs.logMessage("Preupgrade");
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();

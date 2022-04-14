@@ -42,7 +42,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     public type Time = Time.Time;
     public type Result<A,B> = Result.Result<A,B>;   
 
-
     ///////////
     // ADMIN //
     ///////////

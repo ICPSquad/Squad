@@ -7,6 +7,7 @@ import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
+import _registry "mo:base/ExperimentalStableMemory";
 
 import AccountIdentifier "mo:principal/AccountIdentifier";
 import Ext "mo:ext/Ext";
@@ -279,6 +280,10 @@ module {
                 r.add(index, #nonfungible({metadata = null}));
             };
             r.toArray();
+        };
+
+        public func size() : Nat {
+            _registry.size();
         };
     };    
 }
