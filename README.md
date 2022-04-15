@@ -48,7 +48,7 @@ Goals ✅
 
 - [x] Interface with the invoice canister for registration.
 - [x] Cronic tasks to send recipe of the week, run some audits and collect metrics by calling other canisters.
-- [ ] Integrates [**CanisterGeek**](https://cusyh-iyaaa-aaaah-qcpba-cai.raw.ic0.app/) for **monitoring** and **logs** system.
+- [x] Integrates [**CanisterGeek**](https://cusyh-iyaaa-aaaah-qcpba-cai.raw.ic0.app/) for **monitoring** and **logs** system.
 - [ ] Gameplay functionnalities (airdrop, missions, scores...).
 
 More details.
