@@ -11,13 +11,92 @@ import Principal  "mo:base/Principal";
 import Text       "mo:base/Text";
 import Time       "mo:base/Time";
 
+import Canistergeek "mo:canistergeek/canistergeek";
+
 import A          "./Account";
+import Admins "admins";
 import Hex        "./Hex";
 import ICP        "./ICPLedger";
 import T          "./Types";
 import U          "./Utils";
 
-actor Invoice {
+shared ({ caller = creator }) actor class Invoice() = this {
+
+    ///////////
+    // ADMIN //
+    ///////////
+
+    stable var _AdminsUD : ?Admins.UpgradeData = null;
+    let _Admins = Admins.Admins(creator);
+
+    public query func is_admin(p : Principal) : async Bool {
+        _Admins.isAdmin(p);
+    };
+
+    public shared ({caller}) func add_admin(p : Principal) : async () {
+        _Admins.addAdmin(p, caller);
+        _Monitor.collectMetrics();
+        _Logs.logMessage("Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
+    };
+
+    //////////////
+    // CYCLES  //
+    /////////////
+
+    public func acceptCycles() : async () {
+        let available = Cycles.available();
+        let accepted = Cycles.accept(available);
+        assert (accepted == available);
+    };
+
+    public query func availableCycles() : async Nat {
+        return Cycles.balance();
+    };
+
+    ///////////////
+    // METRICS ///
+    /////////////
+
+    stable var _MonitorUD: ? Canistergeek.UpgradeData = null;
+    private let _Monitor : Canistergeek.Monitor = Canistergeek.Monitor();
+
+    /**
+    * Returns collected data based on passed parameters.
+    * Called from browser.
+    * @auth : admin
+    */
+    public query ({caller}) func getCanisterMetrics(parameters: Canistergeek.GetMetricsParameters): async ?Canistergeek.CanisterMetrics {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.getMetrics(parameters);
+    };
+
+    /**
+    * Force collecting the data at current time.
+    * Called from browser or any canister "update" method.
+    * @auth : admin 
+    */
+    public shared ({caller}) func collectCanisterMetrics(): async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+    };
+
+    ////////////
+    // LOGS ///
+    //////////
+
+    stable var _LogsUD: ? Canistergeek.LoggerUpgradeData = null;
+    private let _Logs : Canistergeek.Logger = Canistergeek.Logger();
+
+    /**
+    * Returns collected log messages based on passed parameters.
+    * Called from browser.
+    * @auth : admin
+    */
+    public query ({caller}) func getCanisterLog(request: ?Canistergeek.CanisterLogRequest) : async ?Canistergeek.CanisterLogResponse {
+        assert(_Admins.isAdmin(caller));
+        _Logs.getLog(request);
+    };
+
 // #region Types
   type Details = T.Details;
   type Token = T.Token;
@@ -165,7 +244,7 @@ actor Invoice {
     let token = args.token;
     switch (token.symbol) {
       case "ICP" {
-        let canisterId = Principal.fromActor(Invoice);
+        let canisterId = Principal.fromActor(this);
 
         let account = U.getICPAccountIdentifier({
           principal = canisterId;
@@ -234,7 +313,7 @@ actor Invoice {
 // #region Get Balance
   public shared ({caller}) func get_balance (args : T.GetBalanceArgs) : async T.GetBalanceResult {
     let token = args.token;
-    let canisterId = Principal.fromActor(Invoice);
+    let canisterId = Principal.fromActor(this);
     switch (token.symbol) {
       case "ICP" {
         let defaultAccount = Hex.encode(
@@ -268,7 +347,7 @@ actor Invoice {
 // #region Verify Invoice
   public shared ({caller}) func verify_invoice (args : T.VerifyInvoiceArgs) : async T.VerifyInvoiceResult {
     let invoice = invoices.get(args.id);
-    let canisterId = Principal.fromActor(Invoice);
+    let canisterId = Principal.fromActor(this);
 
     switch invoice {
       case null{
@@ -345,7 +424,7 @@ actor Invoice {
     let token = args.token;
     let accountResult = U.accountIdentifierToBlob({
       accountIdentifier = args.destination;
-      canisterId = ?Principal.fromActor(Invoice);
+      canisterId = ?Principal.fromActor(this);
     });
     switch (accountResult) {
       case (#err err) {
@@ -418,7 +497,7 @@ actor Invoice {
   public query func get_account_identifier (args : T.GetAccountIdentifierArgs) : async T.GetAccountIdentifierResult {
     let token = args.token;
     let principal = args.principal;
-    let canisterId = Principal.fromActor(Invoice);
+    let canisterId = Principal.fromActor(this);
     switch (token.symbol) {
       case "ICP" {
         let subaccount = U.getDefaultAccount({principal; canisterId;});
@@ -436,14 +515,10 @@ actor Invoice {
 // #endregion
 
 // #region Utils
-  public query func remaining_cycles() : async Nat {
-    Cycles.balance()
-  };
-
-  public func accountIdentifierToBlob (accountIdentifier : AccountIdentifier) : async T.AccountIdentifierToBlobResult {
+public func accountIdentifierToBlob (accountIdentifier : AccountIdentifier) : async T.AccountIdentifierToBlobResult {
     U.accountIdentifierToBlob({
       accountIdentifier;
-      canisterId = ?Principal.fromActor(Invoice);
+      canisterId = ?Principal.fromActor(this);
     });
   };
 // #endregion

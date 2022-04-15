@@ -109,6 +109,19 @@ module {
             _users.get(caller);
         };
 
+        public func modifyUser(
+            caller : Principal,
+            user : User
+        ) : Result<(), Text> {
+            switch(_users.get(caller)){
+                case(null) return #err("No user profile detected for : " # Principal.toText(caller));
+                case(? some) {
+                    _users.put(caller, user);
+                    return #ok;
+                };
+            };
+        };
+
         public func modifyStatus(
             caller : Principal,
             status : Status
@@ -151,9 +164,6 @@ module {
                 status = #Member(false);
             }
         };
-
-
-
 
     };
 };

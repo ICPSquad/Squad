@@ -6,7 +6,6 @@ import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 
 import Canistergeek "mo:canistergeek/canistergeek";
-import _Monitor "mo:canistergeek/typesModule";
 
 import Admins "admins";
 import Invoice "invoice";
@@ -248,6 +247,21 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                 return #err(e);
             };
         };
+    };
+
+    public shared ({ caller }) func modify_user(user : Users.User) : async Result<(),Text> {
+        _Monitor.collectMetrics();
+        _Users.modifyUser(caller, user);
+    };
+
+    public query ({ caller }) func get_user() : async ?Users.User {
+        _Users.getUser(caller);
+    };
+
+    public query ({ caller }) func backup_users() : async Users.UpgradeData {
+        _Monitor.collectMetrics();
+        assert(_Admins.isAdmin(caller));
+        _Users.preupgrade()
     };
 
     //////////////
