@@ -51,7 +51,7 @@
     setTimeout(async () => {
       await height.set(0);
       opacity.set(0);
-    }, 6000);
+    }, 4000);
   };
 
   onMount(() => {

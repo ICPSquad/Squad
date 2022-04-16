@@ -6,21 +6,39 @@
   const sets = [
     [
       {
-        image: "purple-woman",
-        theme: "pink",
-        size: 3,
-        delay: 0,
-      },
-    ],
-    [
-      {
-        image: "purple-woman",
+        image: "pink-woman",
         theme: "pink",
         size: 2,
         delay: 0,
       },
       {
-        image: "green-woman",
+        size: 1,
+      },
+      {
+        image: "blue-man",
+        theme: "purple",
+        size: 1,
+        delay: 500,
+      },
+      {
+        size: 1,
+      },
+      {
+        image: "yellow-woman",
+        theme: "yellow",
+        size: 1,
+        delay: 1000,
+      },
+    ],
+    [
+      {
+        image: "blue-man-2",
+        theme: "purple",
+        size: 1,
+        delay: 500,
+      },
+      {
+        image: "green-woman-2",
         theme: "green",
         size: 1,
         delay: 1000,
@@ -29,19 +47,56 @@
         size: 1,
       },
       {
-        image: "yellow-man",
-        theme: "yellow",
-        size: 1,
+        image: "pink-man",
+        theme: "pink",
+        size: 2,
         delay: 0,
       },
       {
         size: 1,
       },
       {
-        image: "purple-woman",
+        image: "yellow-man-2",
+        theme: "yellow",
+        size: 1,
+        delay: 1000,
+      },
+    ],
+    [
+      {
+        image: "yellow-woman-2",
+        theme: "yellow",
+        size: 3,
+        delay: 0,
+      },
+    ],
+    [
+      {
+        image: "blue-man-3",
+        theme: "purple",
+        size: 1,
+        delay: 500,
+      },
+      {
+        image: "green-woman-3",
+        theme: "green",
+        size: 2,
+        delay: 0,
+      },
+      {
+        size: 1,
+      },
+      {
+        image: "purple-man-2",
         theme: "pink",
         size: 1,
-        delay: 3000,
+        delay: 1000,
+      },
+      {
+        image: "green-man",
+        theme: "yellow",
+        size: 1,
+        delay: 1500,
       },
     ],
   ];

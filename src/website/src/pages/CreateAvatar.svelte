@@ -16,6 +16,7 @@
     accessories,
   } from "../../src/utils/list";
   import { categories, categoryToFolder } from "../../src/utils/categories";
+  import Carat from "../icons/Carat.svelte";
 
   const categoryToItems = {
     Background: backgrounds,
@@ -29,13 +30,23 @@
     Accessory: accessories,
   };
 
+  const categoryToColorPickers = {
+    Background: ["Background"],
+    Profile: ["Skin"],
+    Hairs: ["Hairs", "Eyebrows"],
+    Eyes: ["Eyes", "Eyeliner"],
+    Clothes: ["Clothes"],
+  };
+
   let categoryShowing = "Hairs";
-  $: console.log(categoryShowing);
-  $: console.log(categoryToItems[categoryShowing]);
   let items = [];
+  let colorPickers = [];
   $: if (categoryShowing && categoryToItems[categoryShowing]) {
     let newItems = [...categoryToItems[categoryShowing]];
     items = [...newItems];
+    colorPickers = categoryToColorPickers[categoryShowing]
+      ? categoryToColorPickers[categoryShowing]
+      : [];
   }
 
   // $: items = categoryToItems[categoryShowing];
@@ -56,9 +67,28 @@
       Eyes: [0, 169, 252, 1],
       Eyebrows: [0, 169, 252, 1],
       Background: [0, 169, 252, 1],
-      Eyeliner: [0, 169, 252, 1],
+      Eyeliner: [255, 0, 0, 1],
       Clothes: [0, 169, 252, 1],
     },
+  };
+
+  function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : null;
+  }
+
+  const handleColorChange = (event) => {
+    const col = hexToRgb(event.target.value);
+    let avatarNew = { ...avatar };
+    avatarNew.Colors[event.target.name] = [col.r, col.g, col.b, 1];
+    avatar = { ...avatarNew };
+    renderUpdatedAvatar(avatarNew);
   };
 
   const updateAvatar = (category, item) => {
@@ -86,12 +116,29 @@
   <div class="layout-grid">
     <div class="categories">
       {#each categories as category}
-        <button on:click={() => (categoryShowing = category)} class="secondary">
-          {category}
+        <button
+          on:click={() => (categoryShowing = category)}
+          class="category {categoryShowing == category ? 'selected' : ''}"
+        >
+          <div class="left">
+            {category}
+          </div>
+          <Carat color={categoryShowing == category ? "#40b1f5" : "#E5E5E5"} />
         </button>
       {/each}
     </div>
     <div class="items">
+      {#each colorPickers as picker}
+        <div class="color-picker">
+          <input
+            on:change={handleColorChange}
+            name={picker}
+            type="color"
+            value="#e66465"
+          />
+          {picker} COLOR
+        </div>
+      {/each}
       {#each items as item}
         <div
           on:click={() => updateAvatar(categoryShowing, item)}
@@ -124,10 +171,25 @@
     --page-feature-color: #{$pink};
   }
 
+  input[type="color"] {
+    background-color: transparent;
+    border: 0;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+
   .layout-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 40px;
+  }
+
+  .color-picker {
+    grid-column: span 3;
+    display: flex;
+    align-items: center;
   }
 
   .items {
@@ -150,5 +212,18 @@
   #avatar-components {
     width: 0;
     height: 0;
+  }
+
+  button.category {
+    background-color: $verydarkgrey;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 40px;
+    border-radius: 0;
+    margin-bottom: 1px;
+    &.selected {
+      background-color: $darkgrey;
+      color: $blue;
+    }
   }
 </style>
