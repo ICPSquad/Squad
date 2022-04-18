@@ -1,7 +1,9 @@
-# Score
+# Score and leaderboad.
 
-## Avatar score
+## Style
 
-## Engagement score
+Calculated by the stars of the accessory your wear.
 
-## Mission score
+## Engagement
+
+Calculated

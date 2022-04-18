@@ -1,4 +1,4 @@
-# Members
+# Members 👦
 
 This documents aims to describe the different types of members that are participating in the **Squad**. <br/>
 This document is not fixed and likely to evolve.
@@ -50,7 +50,7 @@ Legendary members are special contributors and public figures in the overall com
   - Access to monthly meeting of the Squad.
   - Ability to create missions and manage them.
   - Voting power to influence the direction of the Squad.
-  - Unique and valuable avatar offered by the Squad.
+  - Unique and valuable NFT avatar offered by the Squad.
 
 ## Core team and founders 🧑‍🔧
 
