@@ -43,7 +43,7 @@ To achieve our objectives, we will start by writting a **constitution** that wil
 
 ## Get involved 👷
 
-We have many initiatives that are running and we want everyone to be able to find a place in the community. <br/> We also know that people are looking for different level of engagements. <br/>
+We have many initiatives that are running and we want everyone to be able to find a place in the community. <br/> We also know that people are looking for different level of engagement. <br/>
 
 The goal is to offer different paths possible depending on what you are looking for.
 
@@ -52,5 +52,9 @@ The goal is to offer different paths possible depending on what you are looking 
 The first step to become an official member of the squad is to mint your **avatar**.
 
 ### Contributor
+
+Become a contributor
+
+Register here
 
 ### Project
