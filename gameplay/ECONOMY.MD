@@ -1,4 +1,4 @@
-# **ICP Squad : gameplay & economy**
+# **ICP Squad : economy**
 
 The goal of this paper is to create a summary of all aspects of the ICP Squad economy so we can take the right decision to bring the economy as close as what we are targetting as possible, in the end the market will decide but good decision will reinforce the possibility of a positive outcome.
 

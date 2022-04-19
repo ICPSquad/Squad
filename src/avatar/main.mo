@@ -1,40 +1,42 @@
-import AID "../dependencies/util/AccountIdentifier";
-import Admins "admins";
-import Assets "assets";
-import AssetsTypes "assets/types";
 import Array "mo:base/Array";
-import AvatarModule "types/avatar";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
-import ColorModule "types/color";
-import CombinationModule "types/combination";
 import Cycles "mo:base/ExperimentalCycles";
 import Debug "mo:base/Debug";
-import ExtAllowance "../dependencies/ext/Allowance";
-import ExtCommon "../dependencies/ext/Common";
-import ExtCore "../dependencies/ext/Core";
-import ExtModule "ext";
 import Hash "mo:base/Hash";
 import HashMap "mo:base/HashMap";
-import Http "types/http";
-import HttpModule "http";
-import Iter "mo:base/Iter";
 import Int "mo:base/Int";
+import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
-import PrincipalImproved "../dependencies/util/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
-import Utils "../dependencies/helpers/Array";
-import Entrepot "../dependencies/entrepot";
-import Cap "mo:cap/Cap";
+
 import CAPTypes "mo:cap/Types";
-import Root "mo:cap/Root";
 import Canistergeek "mo:canistergeek/canistergeek";
+import Cap "mo:cap/Cap";
+import Root "mo:cap/Root";
+
+import AID "../dependencies/util/AccountIdentifier";
+import Admins "admins";
+import Assets "assets";
+import AssetsTypes "assets/types";
+import AvatarModule "types/avatar";
+import ColorModule "types/color";
+import CombinationModule "types/combination";
+import Entrepot "../dependencies/entrepot";
+import ExtAllowance "../dependencies/ext/Allowance";
+import ExtCommon "../dependencies/ext/Common";
+import ExtCore "../dependencies/ext/Core";
+import ExtModule "ext";
+import Http "types/http";
+import HttpModule "http";
+import PrincipalImproved "../dependencies/util/Principal";
+import Utils "../dependencies/helpers/Array";
 
 
 shared (install) actor class erc721_token(upgradeMode : {#verify; #commit}) = this {
