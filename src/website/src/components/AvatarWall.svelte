@@ -66,8 +66,30 @@
       {
         image: "yellow-woman-2",
         theme: "yellow",
-        size: 3,
+        size: 2,
         delay: 0,
+      },
+      {
+        size: 1,
+      },
+      {
+        image: "blue-man",
+        theme: "purple",
+        size: 1,
+        delay: 500,
+      },
+      {
+        size: 1,
+      },
+      {
+        size: 1,
+      },
+
+      {
+        image: "green-man",
+        theme: "green",
+        size: 1,
+        delay: 500,
       },
     ],
     [
@@ -92,11 +114,31 @@
         size: 1,
         delay: 1000,
       },
+    ],
+    [
       {
-        image: "green-man",
-        theme: "yellow",
+        image: "pink-woman",
+        theme: "pink",
         size: 1,
-        delay: 1500,
+        delay: 0,
+      },
+      {
+        image: "blue-man",
+        theme: "purple",
+        size: 1,
+        delay: 0,
+      },
+      {
+        size: 1,
+      },
+      {
+        size: 1,
+      },
+      {
+        image: "green-woman-2",
+        theme: "green",
+        size: 2,
+        delay: 500,
       },
     ],
   ];
@@ -106,7 +148,7 @@
   const startAnimation = () => {
     setInterval(() => {
       nowShowing = nowShowing == sets.length - 1 ? 0 : nowShowing + 1;
-    }, 7000);
+    }, 5000);
   };
 
   onMount(() => {

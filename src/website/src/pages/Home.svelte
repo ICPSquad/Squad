@@ -4,29 +4,31 @@
   import AvatarWall from "../components/AvatarWall.svelte";
 </script>
 
-<Header />
-<main class="container">
-  <div class="hero-section">
-    <AvatarWall />
-    <div class="content">
-      <div class="squad-number">
-        <div><strong>5,238</strong> SQUAD MEMBERS</div>
-        <img
-          id="avatar-collage"
-          src="/assets/avatar-collage.png"
-          alt="Collage of ICP Squad Avatars"
-        />
+<div class="background">
+  <Header />
+  <main class="container">
+    <div class="hero-section">
+      <AvatarWall />
+      <div class="content">
+        <div class="squad-number">
+          <div><strong>5,238</strong> SQUAD MEMBERS</div>
+          <img
+            id="avatar-collage"
+            src="/assets/avatar-collage.png"
+            alt="Collage of ICP Squad Avatars"
+          />
+        </div>
+        <h1>Join the squad</h1>
+        <p class="large">
+          Start by minting your own ICP Squad avatar NFT, then get rewarded with
+          NFTs, ICP and other prizes as you explore the Internet Computer.
+        </p>
+        <button> Create Avatar → </button>
+        <button class="secondary"> Learn More </button>
       </div>
-      <h1>Join the squad</h1>
-      <p class="large">
-        Start by minting your own ICP Squad avatar NFT, then get rewarded with
-        NFTs, ICP and other prizes as you explore the Internet Computer.
-      </p>
-      <button> Create Avatar → </button>
-      <button class="secondary"> Learn More </button>
     </div>
-  </div>
-</main>
+  </main>
+</div>
 <Footer />
 
 <style lang="scss">
@@ -41,6 +43,11 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 40px;
+  }
+
+  .background {
+    background-image: url("/assets/images/home-hero-background.png");
+    background-position: cover;
   }
 
   .squad-number {
@@ -59,6 +66,7 @@
   }
 
   p.large {
+    font-size: 1.41rem;
     margin-bottom: 50px;
   }
 

@@ -1,9 +1,12 @@
 <script>
   export let color = "#E5E5E5";
+  export let rotate = 0;
+  export let height = 20;
 </script>
 
 <svg
-  height="20"
+  {height}
+  style="transform: rotate({rotate}deg)"
   viewBox="0 0 16 25"
   fill="none"
   xmlns="http://www.w3.org/2000/svg"

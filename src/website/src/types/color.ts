@@ -1,5 +1,4 @@
 import { Color } from "../../../declarations/avatar/avatar.did";
-// import store from "../store";
 
 export type ColorList = {
   Skin: Color;
@@ -11,47 +10,70 @@ export type ColorList = {
   Clothes: Color;
 };
 
-// export function changeColorInStore(new_color: Color, title: string) {
-//   switch (title) {
-//     case "Profile 👤":
-//       store.commit("setSkinColor", [new_color[0], new_color[1], new_color[2]]);
-//       return;
-//     case "Clothes 👔":
-//       store.commit("setClothesColor", [
-//         new_color[0],
-//         new_color[1],
-//         new_color[2],
-//       ]);
-//       return;
-//     case "Hairs 💇":
-//       store.commit("setHairColor", [new_color[0], new_color[1], new_color[2]]);
-//       return;
-//     case "Eyes 👀":
-//       store.commit("setEyesColor", [new_color[0], new_color[1], new_color[2]]);
-//       return;
-//     case "Eyebrows":
-//       store.commit("setEyebrowsColor", [
-//         new_color[0],
-//         new_color[1],
-//         new_color[2],
-//       ]);
-//       return;
-//     case "Background 🌈":
-//       store.commit("setBackgroundColor", [
-//         new_color[0],
-//         new_color[1],
-//         new_color[2],
-//       ]);
-//       return;
-//     case "Eyeliner":
-//       store.commit("setEyelinerColor", [
-//         new_color[0],
-//         new_color[1],
-//         new_color[2],
-//       ]);
-//       return;
-//   }
-// }
+export const defaultColors = {
+  Skin: [
+    [65, 22, 3, 1],
+    [167, 76, 1, 1],
+    [244, 175, 118, 1],
+    [254, 214, 167, 1],
+  ],
+  Hairs: [
+    [38, 13, 3, 1],
+    [77, 25, 5, 1],
+    [167, 76, 1, 1],
+    [240, 71, 71, 1],
+    [240, 208, 163, 1],
+    [176, 176, 176],
+    [251, 157, 212, 1],
+    [112, 247, 85, 1],
+  ],
+  Eyes: [
+    [30, 112, 220, 1],
+    [33, 0, 199, 1],
+    [14, 185, 105, 1],
+    [73, 141, 28, 1],
+    [77, 25, 5, 1],
+    [167, 76, 1, 1],
+    [167, 115, 53, 1],
+  ],
+  Eyebrows: [
+    [38, 13, 3, 1],
+    [77, 25, 5, 1],
+    [167, 76, 1, 1],
+    [240, 71, 71, 1],
+    [240, 208, 163, 1],
+    [251, 157, 212, 1],
+    [112, 247, 85, 1],
+  ],
+  Background: [
+    [0, 0, 0, 1],
+    [255, 0, 0, 1],
+  ],
+  Eyeliner: [
+    [164, 21, 143, 1],
+    [244, 126, 142, 1],
+    [234, 189, 169, 1],
+    [30, 112, 220, 1],
+    [33, 0, 199, 1],
+    [14, 185, 105, 1],
+    [73, 141, 28, 1],
+    [255, 187, 0, 1],
+    [168, 126, 11, 1],
+    [176, 176, 176],
+  ],
+  Clothes: [
+    [164, 21, 143, 1],
+    [244, 126, 142, 1],
+    [234, 189, 169, 1],
+    [30, 112, 220, 1],
+    [33, 0, 199, 1],
+    [14, 185, 105, 1],
+    [73, 141, 28, 1],
+    [255, 187, 0, 1],
+    [168, 126, 11, 1],
+    [176, 176, 176],
+  ],
+};
 
 export function changeCSSVariable(new_color: Color, title: string) {
   let root = document.documentElement;

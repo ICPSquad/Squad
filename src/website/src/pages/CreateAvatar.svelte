@@ -17,6 +17,7 @@
   } from "../../src/utils/list";
   import { categories, categoryToFolder } from "../../src/utils/categories";
   import Carat from "../icons/Carat.svelte";
+  import ColorPicker from "../components/ColorPicker.svelte";
 
   const categoryToItems = {
     Background: backgrounds,
@@ -38,7 +39,7 @@
     Clothes: ["Clothes"],
   };
 
-  let categoryShowing = "Hairs";
+  let categoryShowing = "Eyes";
   let items = [];
   let colorPickers = [];
   $: if (categoryShowing && categoryToItems[categoryShowing]) {
@@ -72,21 +73,9 @@
     },
   };
 
-  function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
-      : null;
-  }
-
-  const handleColorChange = (event) => {
-    const col = hexToRgb(event.target.value);
+  const updateAvatarColor = (componentName, col) => {
     let avatarNew = { ...avatar };
-    avatarNew.Colors[event.target.name] = [col.r, col.g, col.b, 1];
+    avatarNew.Colors[componentName] = [col.r, col.g, col.b, 1];
     avatar = { ...avatarNew };
     renderUpdatedAvatar(avatarNew);
   };
@@ -128,16 +117,12 @@
       {/each}
     </div>
     <div class="items">
-      {#each colorPickers as picker}
-        <div class="color-picker">
-          <input
-            on:change={handleColorChange}
-            name={picker}
-            type="color"
-            value="#e66465"
-          />
-          {picker} COLOR
-        </div>
+      {#each colorPickers as componentName}
+        <ColorPicker
+          {updateAvatarColor}
+          {componentName}
+          selectedColorRGB={avatar.Colors[componentName]}
+        />
       {/each}
       {#each items as item}
         <div
@@ -171,25 +156,10 @@
     --page-feature-color: #{$pink};
   }
 
-  input[type="color"] {
-    background-color: transparent;
-    border: 0;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    margin-right: 10px;
-  }
-
   .layout-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 40px;
-  }
-
-  .color-picker {
-    grid-column: span 3;
-    display: flex;
-    align-items: center;
   }
 
   .items {
