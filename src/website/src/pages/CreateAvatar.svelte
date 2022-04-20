@@ -15,9 +15,15 @@
     clothes,
     accessories,
   } from "../../src/utils/list";
-  import { categories, categoryToFolder } from "../../src/utils/categories";
+  import {
+    categories,
+    categoryToFolder,
+    categoryDisplayName,
+  } from "../../src/utils/categories";
   import Carat from "../icons/Carat.svelte";
   import ColorPicker from "../components/ColorPicker.svelte";
+  import { suggestedColors } from "../types/color";
+  import Shuffle from "../icons/Shuffle.svelte";
 
   const categoryToItems = {
     Background: backgrounds,
@@ -39,38 +45,91 @@
     Clothes: ["Clothes"],
   };
 
-  let categoryShowing = "Eyes";
+  let categoryShowing = "Profile";
   let items = [];
   let colorPickers = [];
   $: if (categoryShowing && categoryToItems[categoryShowing]) {
     let newItems = [...categoryToItems[categoryShowing]];
-    items = [...newItems];
+    items = categoryShowing == "Background" ? [] : [...newItems];
     colorPickers = categoryToColorPickers[categoryShowing]
       ? categoryToColorPickers[categoryShowing]
       : [];
   }
 
-  // $: items = categoryToItems[categoryShowing];
+  const randomlySelect = (numOptions) => {
+    return Math.floor(Math.random() * numOptions);
+  };
 
   let avatar = {
     Background: backgrounds[0],
-    Profile: profiles[1],
-    Ears: ears[2],
-    Eyes: eyes[1],
-    Nose: noses[0],
-    Mouth: mouths[2],
-    Hairs: hairs[10],
-    Clothes: clothes[2],
-    Accessory: accessories[1],
+    Profile: profiles[randomlySelect(profiles.length)],
+    Ears: ears[randomlySelect(ears.length)],
+    Eyes: eyes[randomlySelect(eyes.length)],
+    Nose: noses[randomlySelect(noses.length)],
+    Mouth: mouths[randomlySelect(mouths.length)],
+    Hairs: hairs[randomlySelect(hairs.length)],
+    Clothes: clothes[randomlySelect(clothes.length)],
+    // Accessory: accessories[1],
     Colors: {
-      Skin: [255, 255, 0, 1],
-      Hairs: [0, 169, 0, 1],
-      Eyes: [0, 169, 252, 1],
-      Eyebrows: [0, 169, 252, 1],
-      Background: [0, 169, 252, 1],
-      Eyeliner: [255, 0, 0, 1],
-      Clothes: [0, 169, 252, 1],
+      Skin: suggestedColors.Skin[randomlySelect(suggestedColors.Skin.length)],
+      Hairs:
+        suggestedColors.Hairs[randomlySelect(suggestedColors.Hairs.length)],
+      Eyes: suggestedColors.Eyes[randomlySelect(suggestedColors.Eyes.length)],
+      Eyebrows:
+        suggestedColors.Eyebrows[
+          randomlySelect(suggestedColors.Eyebrows.length)
+        ],
+      Background:
+        suggestedColors.Background[
+          randomlySelect(suggestedColors.Background.length)
+        ],
+      Eyeliner:
+        suggestedColors.Eyeliner[
+          randomlySelect(suggestedColors.Eyeliner.length)
+        ],
+      Clothes:
+        suggestedColors.Clothes[randomlySelect(suggestedColors.Clothes.length)],
     },
+  };
+
+  const randomlyResetAvatar = () => {
+    let avatarNew = {
+      Background: backgrounds[0],
+      Profile: profiles[randomlySelect(profiles.length)],
+      Ears: ears[randomlySelect(ears.length)],
+      Eyes: eyes[randomlySelect(eyes.length)],
+      Nose: noses[randomlySelect(noses.length)],
+      Mouth: mouths[randomlySelect(mouths.length)],
+      Hairs: hairs[randomlySelect(hairs.length)],
+      Clothes: clothes[randomlySelect(clothes.length)],
+      // Accessory: accessories[1],
+      Colors: {
+        Skin: suggestedColors.Skin[randomlySelect(suggestedColors.Skin.length)],
+        Hairs:
+          suggestedColors.Hairs[randomlySelect(suggestedColors.Hairs.length)],
+        Eyes: suggestedColors.Eyes[randomlySelect(suggestedColors.Eyes.length)],
+        Eyebrows:
+          suggestedColors.Eyebrows[
+            randomlySelect(suggestedColors.Eyebrows.length)
+          ],
+        Background:
+          suggestedColors.Background[
+            randomlySelect(suggestedColors.Background.length)
+          ],
+        Eyeliner:
+          suggestedColors.Eyeliner[
+            randomlySelect(suggestedColors.Eyeliner.length)
+          ],
+        Clothes:
+          suggestedColors.Clothes[
+            randomlySelect(suggestedColors.Clothes.length)
+          ],
+      },
+    };
+    avatar = { ...avatarNew };
+    const avatarDiv = document.getElementById("avatar");
+    // @ts-ignore
+    renderAvatar(avatarDiv, avatar);
   };
 
   const updateAvatarColor = (componentName, col) => {
@@ -93,7 +152,7 @@
   };
 
   onMount(() => {
-    renderUpdatedAvatar(avatar);
+    randomlyResetAvatar();
   });
 </script>
 
@@ -110,7 +169,7 @@
           class="category {categoryShowing == category ? 'selected' : ''}"
         >
           <div class="left">
-            {category}
+            {categoryDisplayName[category]}
           </div>
           <Carat color={categoryShowing == category ? "#40b1f5" : "#E5E5E5"} />
         </button>
@@ -141,6 +200,12 @@
     </div>
     <div class="avatar">
       <div id="avatar" />
+      <button class="secondary shuffle" on:click={randomlyResetAvatar}>
+        <div class="shuffle-icon">
+          <Shuffle />
+        </div>
+        Random Reset
+      </button>
     </div>
   </div>
 </main>
@@ -166,6 +231,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 20px;
+    grid-auto-rows: minmax(min-content, max-content);
   }
 
   .item {
@@ -194,6 +260,15 @@
     &.selected {
       background-color: $darkgrey;
       color: $blue;
+    }
+  }
+
+  button.shuffle {
+    margin-top: 20px;
+    line-height: 90%;
+    .shuffle-icon {
+      margin-right: 20px;
+      padding-top: 2px;
     }
   }
 </style>

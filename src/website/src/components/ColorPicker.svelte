@@ -1,12 +1,12 @@
 <script>
   import Carat from "../icons/Carat.svelte";
-  import { defaultColors } from "../types/color";
+  import { suggestedColors, colorCategoryDisplayName } from "../types/color";
 
   export let updateAvatarColor;
   export let componentName;
   export let selectedColorRGB;
 
-  let showDetails = true;
+  let showDetails = false;
 
   let selectedColorHex;
   $: selectedColorHex = rgbToHex(
@@ -27,7 +27,6 @@
   }
 
   function rgbToHex(r, g, b) {
-    console.log(r + "," + g + "," + b);
     return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   }
 
@@ -46,13 +45,13 @@
         style="background-color: {selectedColorHex}"
         class="currentColorSquare"
       />
-      {componentName ? componentName : ""} COLOR
+      {componentName ? colorCategoryDisplayName[componentName] : ""}
     </div>
     <Carat rotate={90} height={16} />
   </div>
   <div class="details {showDetails ? 'showing' : ''}">
     <div class="label">Suggested colors</div>
-    {#each defaultColors[componentName] as c}
+    {#each suggestedColors[componentName] as c}
       <div
         class="suggested-color"
         style="background-color: rgb({c[0] + ',' + c[1] + ',' + c[2]})"
@@ -60,13 +59,15 @@
           updateAvatarColor(componentName, { r: c[0], g: c[1], b: c[2] })}
       />
     {/each}
-    <button> <span>🎨</span> More colors </button>
-    <input
-      on:change={handleColorChange}
-      name={componentName}
-      type="color"
-      value={selectedColorHex}
-    />
+    <label>
+      <input
+        on:input={handleColorChange}
+        name={componentName}
+        type="color"
+        value={selectedColorHex}
+      />
+      <span>🎨</span> More colors
+    </label>
   </div>
 </div>
 
@@ -81,15 +82,26 @@
     margin-right: 10px;
   }
 
-  button {
+  label {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     background-color: transparent;
     border: 1px solid $midgrey;
+    border-radius: 12px;
+    width: 100%;
     text-transform: uppercase;
     color: $midgrey;
     font-weight: bold;
-    font-size: 0.8rem;
-    margin-top: 20px;
+    margin-top: 30px;
     padding: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    &:hover {
+      color: $white;
+      border-color: $white;
+    }
     span {
       font-size: 1.4rem;
       margin-right: 10px;
@@ -97,12 +109,12 @@
   }
 
   input[type="color"] {
-    background-color: transparent;
-    border: 0;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    margin-right: 10px;
+    display: inline-block;
+    height: 0;
+    width: 0;
+    border: none;
+    outline: none;
+    opacity: 0;
   }
 
   .color-picker {

@@ -1,4 +1,4 @@
-import { Color } from "../../../declarations/avatar/avatar.did";
+import type { Color } from "../../../declarations/avatar/avatar.did";
 
 export type ColorList = {
   Skin: Color;
@@ -10,7 +10,17 @@ export type ColorList = {
   Clothes: Color;
 };
 
-export const defaultColors = {
+export const colorCategoryDisplayName = {
+  Skin: "Skin",
+  Hairs: "Hair",
+  Eyes: "Eyes",
+  Eyebrows: "Eyebrows",
+  Background: "Background",
+  Eyeliner: "Eye shadow",
+  Clothes: "Clothes",
+};
+
+export const suggestedColors = {
   Skin: [
     [65, 22, 3, 1],
     [167, 76, 1, 1],
@@ -42,17 +52,24 @@ export const defaultColors = {
     [167, 76, 1, 1],
     [240, 71, 71, 1],
     [240, 208, 163, 1],
+    [176, 176, 176],
     [251, 157, 212, 1],
     [112, 247, 85, 1],
   ],
   Background: [
-    [0, 0, 0, 1],
-    [255, 0, 0, 1],
+    [164, 21, 143, 1],
+    [244, 126, 142, 1],
+    [30, 112, 220, 1],
+    [33, 0, 199, 1],
+    [14, 185, 105, 1],
+    [73, 141, 28, 1],
+    [255, 187, 0, 1],
+    [168, 126, 11, 1],
+    [176, 176, 176],
   ],
   Eyeliner: [
     [164, 21, 143, 1],
     [244, 126, 142, 1],
-    [234, 189, 169, 1],
     [30, 112, 220, 1],
     [33, 0, 199, 1],
     [14, 185, 105, 1],
@@ -64,7 +81,6 @@ export const defaultColors = {
   Clothes: [
     [164, 21, 143, 1],
     [244, 126, 142, 1],
-    [234, 189, 169, 1],
     [30, 112, 220, 1],
     [33, 0, 199, 1],
     [14, 185, 105, 1],

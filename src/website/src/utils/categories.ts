@@ -1,12 +1,12 @@
 export const categories = [
-  "Background",
-  "Ears",
   "Profile",
   "Hairs",
   "Eyes",
-  "Nose",
   "Mouth",
+  "Ears",
+  "Nose",
   "Clothes",
+  "Background",
 ];
 
 export const categoryToFolder = {
@@ -19,4 +19,16 @@ export const categoryToFolder = {
   Mouth: "mouths",
   Clothes: "clothes",
   Accessory: "accessories",
+};
+
+export const categoryDisplayName = {
+  Background: "Background",
+  Ears: "Ears",
+  Profile: "Profile & Skin",
+  Hairs: "Hair",
+  Eyes: "Eyes",
+  Nose: "Nose",
+  Mouth: "Mouth",
+  Clothes: "Clothes",
+  Accessory: "Accessories",
 };
