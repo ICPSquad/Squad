@@ -1,38 +1,32 @@
 import type { Principal } from '@dfinity/principal';
-export type AccountIdentifier = string;
-export interface AirdropObject {
-  'recipient' : Principal,
-  'accessory1' : [] | [string],
-  'accessory2' : [] | [string],
-  'material' : string,
-}
-export type AirdropResponse = { 'ok' : AirdropObject } |
-  { 'err' : string };
-export interface Audit {
-  'new_users' : bigint,
-  'new_items' : bigint,
-  'time' : bigint,
-  'new_icps' : ICP,
-  'new_avatar' : bigint,
-}
-export interface AvatarInformations {
-  'svg' : string,
-  'tokenIdentifier' : string,
-}
-export interface AvatarRequest {
-  'components' : Array<{ 'name' : string, 'layer' : number }>,
-  'colors' : Array<{ 'color' : Color, 'spot' : string }>,
-}
-export type AvatarResponse = { 'ok' : AvatarInformations } |
-  { 'err' : string };
-export type BlockIndex = bigint;
+export type AccountIdentifier = { 'principal' : Principal } |
+  { 'blob' : Array<number> } |
+  { 'text' : string };
 export type CanisterCyclesAggregatedData = Array<bigint>;
 export type CanisterHeapMemoryAggregatedData = Array<bigint>;
+export type CanisterLogFeature = { 'filterMessageByContains' : null } |
+  { 'filterMessageByRegex' : null };
+export interface CanisterLogMessages {
+  'data' : Array<LogMessagesData>,
+  'lastAnalyzedMessageTimeNanos' : [] | [Nanos],
+}
+export interface CanisterLogMessagesInfo {
+  'features' : Array<[] | [CanisterLogFeature]>,
+  'lastTimeNanos' : [] | [Nanos],
+  'count' : number,
+  'firstTimeNanos' : [] | [Nanos],
+}
+export type CanisterLogRequest = { 'getMessagesInfo' : null } |
+  { 'getMessages' : GetLogMessagesParameters } |
+  { 'getLatestMessages' : GetLatestLogMessagesParameters };
+export type CanisterLogResponse = { 'messagesInfo' : CanisterLogMessagesInfo } |
+  { 'messages' : CanisterLogMessages };
 export type CanisterMemoryAggregatedData = Array<bigint>;
 export interface CanisterMetrics { 'data' : CanisterMetricsData }
 export type CanisterMetricsData = { 'hourly' : Array<HourlyMetricsData> } |
   { 'daily' : Array<DailyMetricsData> };
 export type Color = [number, number, number, number];
+export type Colors = Array<{ 'color' : Color, 'spot' : string }>;
 export interface DailyMetricsData {
   'updateCalls' : bigint,
   'canisterHeapMemorySize' : NumericEntity,
@@ -40,24 +34,22 @@ export interface DailyMetricsData {
   'canisterMemorySize' : NumericEntity,
   'timeMillis' : bigint,
 }
-export type DetailValue = { 'I64' : bigint } |
-  { 'U64' : bigint } |
-  { 'Vec' : Array<DetailValue> } |
-  { 'Slice' : Array<number> } |
-  { 'Text' : string } |
-  { 'True' : null } |
-  { 'False' : null } |
-  { 'Float' : number } |
-  { 'Principal' : Principal };
-export interface Event {
-  'time' : bigint,
-  'operation' : string,
-  'details' : Array<[string, DetailValue]>,
-  'category' : LogCategory,
-  'caller' : Principal,
+export interface Details { 'meta' : Array<number>, 'description' : string }
+export interface GetLatestLogMessagesParameters {
+  'upToTimeNanos' : [] | [Nanos],
+  'count' : number,
+  'filter' : [] | [GetLogMessagesFilter],
 }
-export type ExtCoreUser = { 'principal' : Principal } |
-  { 'address' : AccountIdentifier };
+export interface GetLogMessagesFilter {
+  'analyzeCount' : number,
+  'messageRegex' : [] | [string],
+  'messageContains' : [] | [string],
+}
+export interface GetLogMessagesParameters {
+  'count' : number,
+  'filter' : [] | [GetLogMessagesFilter],
+  'fromTimeNanos' : [] | [Nanos],
+}
 export interface GetMetricsParameters {
   'dateToMillis' : bigint,
   'granularity' : MetricsGranularity,
@@ -70,93 +62,76 @@ export interface HourlyMetricsData {
   'canisterMemorySize' : CanisterMemoryAggregatedData,
   'timeMillis' : bigint,
 }
-export interface Hub {
-  'addUser' : (arg_0: Principal, arg_1: User) => Promise<Result>,
+export interface ICPSquadHub {
+  'acceptCycles' : () => Promise<undefined>,
   'add_admin' : (arg_0: Principal) => Promise<undefined>,
-  'airdrop' : () => Promise<AirdropResponse>,
-  'audit' : () => Promise<undefined>,
-  'balance' : () => Promise<ICP>,
-  'checkRegistration' : () => Promise<boolean>,
-  'check_status' : () => Promise<StatusRegistration>,
+  'availableCycles' : () => Promise<bigint>,
   'collectCanisterMetrics' : () => Promise<undefined>,
-  'confirm' : (arg_0: bigint) => Promise<Result>,
-  'confirm_new' : () => Promise<Result>,
+  'getCanisterLog' : (arg_0: [] | [CanisterLogRequest]) => Promise<
+      [] | [CanisterLogResponse]
+    >,
   'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
       [] | [CanisterMetrics]
     >,
-  'getInformations' : () => Promise<Array<[Principal, User]>>,
-  'getRank' : (arg_0: Principal) => Promise<[] | [bigint]>,
-  'isUserAuthorized' : () => Promise<Result>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
-  'mintRequest' : (arg_0: MintRequest) => Promise<AvatarResponse>,
-  'modifyHeight' : (arg_0: Principal, arg_1: bigint) => Promise<Result>,
-  'modifyRank' : (arg_0: Principal, arg_1: bigint) => Promise<Result>,
-  'modifyUser' : (arg_0: Principal, arg_1: User) => Promise<Result>,
-  'numberUsers' : () => Promise<bigint>,
-  'prejoin' : (
-      arg_0: string,
-      arg_1: [] | [string],
-      arg_2: [] | [string],
-      arg_3: [] | [string],
-      arg_4: SubAccount,
-    ) => Promise<Result_4>,
-  'process' : () => Promise<undefined>,
-  'recipe' : () => Promise<Result_3>,
-  'register' : (
-      arg_0: string,
-      arg_1: [] | [string],
-      arg_2: [] | [string],
-      arg_3: [] | [string],
-    ) => Promise<Result_2>,
-  'removeUser' : (arg_0: Principal) => Promise<Result_1>,
-  'showErrors' : () => Promise<Array<[Time, MintingError]>>,
-  'showPaymentErrors' : () => Promise<Array<[Time, PaymentError]>>,
-  'showPrejoins' : () => Promise<Array<[Principal, Infos]>>,
-  'showUser' : (arg_0: Principal) => Promise<[] | [User]>,
-  'show_audits' : () => Promise<Array<Audit>>,
-  'show_logs' : () => Promise<List>,
-  'show_robbers' : () => Promise<Array<SubAccount>>,
-  'transfer' : (arg_0: ICP, arg_1: Principal) => Promise<TransferResult>,
-  'updateAdminsData' : (arg_0: Principal, arg_1: boolean) => Promise<Result>,
-  'verification' : () => Promise<undefined>,
-  'verification_registrations' : () => Promise<undefined>,
-  'wallet_available' : () => Promise<bigint>,
-  'wallet_receive' : () => Promise<undefined>,
+  'mint' : (arg_0: MintInformation) => Promise<MintResult>,
+  'size' : () => Promise<bigint>,
 }
-export interface ICP { 'e8s' : bigint }
-export interface Infos {
-  'subaccount_to_send' : Array<number>,
-  'twitter' : [] | [string],
-  'memo' : bigint,
-  'email' : [] | [string],
-  'discord' : [] | [string],
-  'wallet' : string,
-}
-export interface Infos__1 {
-  'subaccount_to_send' : Array<number>,
-  'twitter' : [] | [string],
-  'memo' : bigint,
-  'email' : [] | [string],
-  'discord' : [] | [string],
-  'wallet' : string,
-}
-export interface InvoiceInfo {
+export interface Invoice {
   'id' : bigint,
+  'permissions' : [] | [Permissions],
+  'creator' : Principal,
+  'destination' : AccountIdentifier,
+  'token' : TokenVerbose,
+  'paid' : boolean,
+  'verifiedAtTime' : [] | [Time],
+  'amountPaid' : bigint,
   'expiration' : Time,
-  'account' : string,
+  'details' : [] | [Details],
   'amount' : bigint,
 }
-export type List = [] | [[Event, List]];
-export type LogCategory = { 'Result' : string } |
-  { 'Operation' : null } |
-  { 'Cronic' : null } |
-  { 'ErrorSystem' : null } |
-  { 'ErrorResult' : null };
+export interface LogMessagesData { 'timeNanos' : Nanos, 'message' : string }
 export type MetricsGranularity = { 'hourly' : null } |
   { 'daily' : null };
-export interface MintRequest { 'to' : ExtCoreUser, 'metadata' : AvatarRequest }
-export type MintingError = { 'Avatar' : string } |
-  { 'Verification' : string };
+export type MintErr = { 'Invoice' : Invoice } |
+  { 'Anonymous' : null } |
+  { 'AlreadyMinted' : null } |
+  { 'AvatarCanisterErr' : string } |
+  { 'Other' : string } |
+  {
+    'InvoiceCanisterErr' : {
+      'kind' : { 'InvalidAccount' : null } |
+        { 'InvalidDetails' : null } |
+        { 'InvalidAmount' : null } |
+        { 'InvalidDestination' : null } |
+        { 'TransferError' : null } |
+        { 'MaxInvoicesReached' : null } |
+        { 'BadSize' : null } |
+        { 'NotFound' : null } |
+        { 'NotAuthorized' : null } |
+        { 'InvalidToken' : null } |
+        { 'InvalidInvoiceId' : null } |
+        { 'Other' : null } |
+        { 'NotYetPaid' : null } |
+        { 'Expired' : null },
+      'message' : [] | [string],
+    }
+  };
+export interface MintInformation {
+  'mouth' : string,
+  'background' : string,
+  'ears' : string,
+  'eyes' : string,
+  'hair' : string,
+  'cloth' : string,
+  'nose' : string,
+  'colors' : Colors,
+  'profile' : string,
+}
+export type MintResult = { 'ok' : MintSuccess } |
+  { 'err' : MintErr };
+export interface MintSuccess { 'tokenId' : string }
+export type Nanos = bigint;
 export interface NumericEntity {
   'avg' : bigint,
   'max' : bigint,
@@ -164,54 +139,15 @@ export interface NumericEntity {
   'first' : bigint,
   'last' : bigint,
 }
-export interface PaymentError {
-  'request_associated' : [] | [Infos__1],
-  'error_message' : string,
-  'caller' : Principal,
+export interface Permissions {
+  'canGet' : Array<Principal>,
+  'canVerify' : Array<Principal>,
 }
-export interface RecipeInfos { 'block' : bigint, 'amount' : bigint }
-export type Result = { 'ok' : null } |
-  { 'err' : string };
-export type Result_1 = { 'ok' : string } |
-  { 'err' : string };
-export type Result_2 = { 'ok' : InvoiceInfo } |
-  { 'err' : string };
-export type Result_3 = { 'ok' : RecipeInfos } |
-  { 'err' : string };
-export type Result_4 = { 'ok' : bigint } |
-  { 'err' : string };
-export type Status = { 'OG' : null } |
-  { 'Staff' : null } |
-  { 'Level1' : null } |
-  { 'Level2' : null } |
-  { 'Level3' : null } |
-  { 'Legendary' : null };
-export type StatusRegistration = { 'NotRegistered' : null } |
-  { 'Member' : null } |
-  { 'NotConfirmed' : InvoiceInfo } |
-  { 'NotAuthenticated' : null };
-export type SubAccount = Array<number>;
 export type Time = bigint;
-export type TokenIdentifier = string;
-export type TransferError = {
-    'TxTooOld' : { 'allowed_window_nanos' : bigint }
-  } |
-  { 'BadFee' : { 'expected_fee' : ICP } } |
-  { 'TxDuplicate' : { 'duplicate_of' : BlockIndex } } |
-  { 'TxCreatedInFuture' : null } |
-  { 'InsufficientFunds' : { 'balance' : ICP } };
-export type TransferResult = { 'Ok' : BlockIndex } |
-  { 'Err' : TransferError };
-export type UpdateCallsAggregatedData = Array<bigint>;
-export interface User {
-  'height' : [] | [bigint],
-  'status' : Status,
-  'twitter' : [] | [string],
-  'rank' : [] | [bigint],
-  'email' : [] | [string],
-  'airdrop' : [] | [Array<string>],
-  'discord' : [] | [string],
-  'wallet' : string,
-  'avatar' : [] | [TokenIdentifier],
+export interface TokenVerbose {
+  'decimals' : bigint,
+  'meta' : [] | [{ 'Issuer' : string }],
+  'symbol' : string,
 }
-export interface _SERVICE extends Hub {}
+export type UpdateCallsAggregatedData = Array<bigint>;
+export interface _SERVICE extends ICPSquadHub {}

@@ -15,6 +15,29 @@ export type AccountIdentifierToBlobSuccess = Array<number>;
 export type AccountIdentifier__1 = { 'principal' : Principal } |
   { 'blob' : Array<number> } |
   { 'text' : string };
+export type CanisterCyclesAggregatedData = Array<bigint>;
+export type CanisterHeapMemoryAggregatedData = Array<bigint>;
+export type CanisterLogFeature = { 'filterMessageByContains' : null } |
+  { 'filterMessageByRegex' : null };
+export interface CanisterLogMessages {
+  'data' : Array<LogMessagesData>,
+  'lastAnalyzedMessageTimeNanos' : [] | [Nanos],
+}
+export interface CanisterLogMessagesInfo {
+  'features' : Array<[] | [CanisterLogFeature]>,
+  'lastTimeNanos' : [] | [Nanos],
+  'count' : number,
+  'firstTimeNanos' : [] | [Nanos],
+}
+export type CanisterLogRequest = { 'getMessagesInfo' : null } |
+  { 'getMessages' : GetLogMessagesParameters } |
+  { 'getLatestMessages' : GetLatestLogMessagesParameters };
+export type CanisterLogResponse = { 'messagesInfo' : CanisterLogMessagesInfo } |
+  { 'messages' : CanisterLogMessages };
+export type CanisterMemoryAggregatedData = Array<bigint>;
+export interface CanisterMetrics { 'data' : CanisterMetricsData }
+export type CanisterMetricsData = { 'hourly' : Array<HourlyMetricsData> } |
+  { 'daily' : Array<DailyMetricsData> };
 export interface CreateInvoiceArgs {
   'permissions' : [] | [Permissions],
   'token' : Token,
@@ -33,7 +56,14 @@ export interface CreateInvoiceErr {
 }
 export type CreateInvoiceResult = { 'ok' : CreateInvoiceSuccess } |
   { 'err' : CreateInvoiceErr };
-export interface CreateInvoiceSuccess { 'invoice' : Invoice }
+export interface CreateInvoiceSuccess { 'invoice' : Invoice__1 }
+export interface DailyMetricsData {
+  'updateCalls' : bigint,
+  'canisterHeapMemorySize' : NumericEntity,
+  'canisterCycles' : NumericEntity,
+  'canisterMemorySize' : NumericEntity,
+  'timeMillis' : bigint,
+}
 export interface Details { 'meta' : Array<number>, 'description' : string }
 export interface GetAccountIdentifierArgs {
   'principal' : Principal,
@@ -71,8 +101,59 @@ export interface GetInvoiceErr {
 }
 export type GetInvoiceResult = { 'ok' : GetInvoiceSuccess } |
   { 'err' : GetInvoiceErr };
-export interface GetInvoiceSuccess { 'invoice' : Invoice }
+export interface GetInvoiceSuccess { 'invoice' : Invoice__1 }
+export interface GetLatestLogMessagesParameters {
+  'upToTimeNanos' : [] | [Nanos],
+  'count' : number,
+  'filter' : [] | [GetLogMessagesFilter],
+}
+export interface GetLogMessagesFilter {
+  'analyzeCount' : number,
+  'messageRegex' : [] | [string],
+  'messageContains' : [] | [string],
+}
+export interface GetLogMessagesParameters {
+  'count' : number,
+  'filter' : [] | [GetLogMessagesFilter],
+  'fromTimeNanos' : [] | [Nanos],
+}
+export interface GetMetricsParameters {
+  'dateToMillis' : bigint,
+  'granularity' : MetricsGranularity,
+  'dateFromMillis' : bigint,
+}
+export interface HourlyMetricsData {
+  'updateCalls' : UpdateCallsAggregatedData,
+  'canisterHeapMemorySize' : CanisterHeapMemoryAggregatedData,
+  'canisterCycles' : CanisterCyclesAggregatedData,
+  'canisterMemorySize' : CanisterMemoryAggregatedData,
+  'timeMillis' : bigint,
+}
 export interface Invoice {
+  'acceptCycles' : () => Promise<undefined>,
+  'accountIdentifierToBlob' : (arg_0: AccountIdentifier__1) => Promise<
+      AccountIdentifierToBlobResult
+    >,
+  'add_admin' : (arg_0: Principal) => Promise<undefined>,
+  'availableCycles' : () => Promise<bigint>,
+  'collectCanisterMetrics' : () => Promise<undefined>,
+  'create_invoice' : (arg_0: CreateInvoiceArgs) => Promise<CreateInvoiceResult>,
+  'getCanisterLog' : (arg_0: [] | [CanisterLogRequest]) => Promise<
+      [] | [CanisterLogResponse]
+    >,
+  'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
+      [] | [CanisterMetrics]
+    >,
+  'get_account_identifier' : (arg_0: GetAccountIdentifierArgs) => Promise<
+      GetAccountIdentifierResult
+    >,
+  'get_balance' : (arg_0: GetBalanceArgs) => Promise<GetBalanceResult>,
+  'get_invoice' : (arg_0: GetInvoiceArgs) => Promise<GetInvoiceResult>,
+  'is_admin' : (arg_0: Principal) => Promise<boolean>,
+  'transfer' : (arg_0: TransferArgs) => Promise<TransferResult>,
+  'verify_invoice' : (arg_0: VerifyInvoiceArgs) => Promise<VerifyInvoiceResult>,
+}
+export interface Invoice__1 {
   'id' : bigint,
   'permissions' : [] | [Permissions],
   'creator' : Principal,
@@ -84,6 +165,17 @@ export interface Invoice {
   'expiration' : Time,
   'details' : [] | [Details],
   'amount' : bigint,
+}
+export interface LogMessagesData { 'timeNanos' : Nanos, 'message' : string }
+export type MetricsGranularity = { 'hourly' : null } |
+  { 'daily' : null };
+export type Nanos = bigint;
+export interface NumericEntity {
+  'avg' : bigint,
+  'max' : bigint,
+  'min' : bigint,
+  'first' : bigint,
+  'last' : bigint,
 }
 export interface Permissions {
   'canGet' : Array<Principal>,
@@ -112,6 +204,7 @@ export interface TransferError {
 export type TransferResult = { 'ok' : TransferSuccess } |
   { 'err' : TransferError };
 export interface TransferSuccess { 'blockHeight' : bigint }
+export type UpdateCallsAggregatedData = Array<bigint>;
 export interface VerifyInvoiceArgs { 'id' : bigint }
 export interface VerifyInvoiceErr {
   'kind' : { 'InvalidAccount' : null } |
@@ -127,19 +220,6 @@ export interface VerifyInvoiceErr {
 }
 export type VerifyInvoiceResult = { 'ok' : VerifyInvoiceSuccess } |
   { 'err' : VerifyInvoiceErr };
-export type VerifyInvoiceSuccess = { 'Paid' : { 'invoice' : Invoice } } |
-  { 'AlreadyVerified' : { 'invoice' : Invoice } };
-export interface _SERVICE {
-  'accountIdentifierToBlob' : (arg_0: AccountIdentifier__1) => Promise<
-      AccountIdentifierToBlobResult
-    >,
-  'create_invoice' : (arg_0: CreateInvoiceArgs) => Promise<CreateInvoiceResult>,
-  'get_account_identifier' : (arg_0: GetAccountIdentifierArgs) => Promise<
-      GetAccountIdentifierResult
-    >,
-  'get_balance' : (arg_0: GetBalanceArgs) => Promise<GetBalanceResult>,
-  'get_invoice' : (arg_0: GetInvoiceArgs) => Promise<GetInvoiceResult>,
-  'remaining_cycles' : () => Promise<bigint>,
-  'transfer' : (arg_0: TransferArgs) => Promise<TransferResult>,
-  'verify_invoice' : (arg_0: VerifyInvoiceArgs) => Promise<VerifyInvoiceResult>,
-}
+export type VerifyInvoiceSuccess = { 'Paid' : { 'invoice' : Invoice__1 } } |
+  { 'AlreadyVerified' : { 'invoice' : Invoice__1 } };
+export interface _SERVICE extends Invoice {}

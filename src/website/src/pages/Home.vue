@@ -31,9 +31,7 @@
     </div>
     <div class="flex flex-row w-full justify-center"></div>
     <div class="flex flex-row justify-center py-10">
-      <router-link to="/preorder">
-        <button class="text-2xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mb-8 mt-4 cursor-pointer mx-auto">👉 Join</button>
-      </router-link>
+      <button class="text-2xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mb-8 mt-4 cursor-pointer mx-auto" @click="message">👉 Join</button>
     </div>
 
     <div class="flex flex-col 2xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-semibold bg-gradient-to-l from-gray-600 via-gray-900 to-black text-white md:py-24 md:px-28 py-8 px-6 justify-around">
@@ -65,7 +63,7 @@
           <img src="Avatar-creativity.png" alt="Avatar" class="rounded-2xl" />
         </div>
       </div>
-      <router-link to="/center">
+      <router-link to="/">
         <button class="lg:text-3xl md:text-2xl text-xl shadow-2xl font-marker text-white bg-pink-600 rounded py-6 px-8 mt-8 cursor-pointer hidden md:block mx-auto">Create 🖍</button>
       </router-link>
     </div>
@@ -128,27 +126,15 @@ import { defineComponent, ref } from "vue";
 
 import Sidebar from "../components/Sidebar.vue";
 import Helmet from "../animations/Helmet.vue";
-import { Actor, HttpAgent } from "@dfinity/agent";
-import { idlFactory } from "declarations/hub/index";
 
 export default defineComponent({
   setup() {
-    const numberOfMembers = ref("∞");
+    const numberOfMembers = ref("5288");
     const updated = ref(false);
 
-    let agent = new HttpAgent();
-    let actor = Actor.createActor(idlFactory, {
-      agent,
-      canisterId: "p4y2d-yyaaa-aaaaj-qaixa-cai",
-    });
-    function updateNumberOfMembers() {
-      actor.numberUsers().then((number) => {
-        numberOfMembers.value = Number(number).toString();
-        updated.value = true;
-      });
+    function message() {
+      alert("The avatar minter is not available for the momemnt, our website is under maintenance. We are coming back with a new website, stay tuned!");
     }
-
-    updateNumberOfMembers();
 
     function isMobile() {
       let check = false;
@@ -173,6 +159,7 @@ export default defineComponent({
       numberOfMembers,
       updated,
       isMobileRef,
+      message,
     };
   },
   components: {

@@ -5,10 +5,10 @@
         <router-link to="/"> ICP Squad </router-link>
       </h1>
       <div class="flex-row gap-x-3 xl:gap-x-6 hidden lg:flex">
-        <router-link to="/center"><button-cypher class="h-12 xl:w-44 xl:h-12 px-4" text="Avatar 👤"></button-cypher></router-link>
-        <router-link to="/accessory"> <button-cypher class="h-12 xl:w-44 xl:h-12 px-4" text="Accessory 🧢"></button-cypher></router-link>
-        <router-link to="/lottery"> <button-cypher class="h-12 xl:w-44 xl:h-12 px-4" text="Mission 🎲"></button-cypher></router-link>
-        <router-link to="/education">
+        <router-link to="/"><button-cypher class="h-12 xl:w-44 xl:h-12 px-4" text="Avatar 👤"></button-cypher></router-link>
+        <router-link to="/"> <button-cypher class="h-12 xl:w-44 xl:h-12 px-4" text="Accessory 🧢"></button-cypher></router-link>
+        <router-link to="/"> <button-cypher class="h-12 xl:w-44 xl:h-12 px-4" text="Mission 🎲"></button-cypher></router-link>
+        <router-link to="/">
           <button-cypher class="block h-12 xl:w-44 xl:h-12 px-4" text="Education 💡"></button-cypher>
         </router-link>
       </div>

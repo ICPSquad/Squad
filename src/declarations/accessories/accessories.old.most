@@ -1,50 +1,121 @@
-type AccountIdentifier/5 = AccountIdentifier/4;
-type Asset = {contentType : Text; payload : [Blob]};
-type IndefiniteEvent/1 = IndefiniteEvent;
-type Item/1 = Item;
-type Listing/1 = Listing;
-type Settlement/1 = Settlement;
-type SubAccount/4 = SubAccount/3;
-type Template/1 = Template;
-type Time/2 = Time;
-type Token =
+// Version: 1.0.0
+type Accessory = {equipped : ?TokenIdentifier__1; name : Text; wear : Nat8};
+type AccountIdentifier__2 = Text;
+type AccountIdentifier__3 = Text;
+type AccountIdentifier__4 = AccountIdentifier__3;
+type AccountIdentifier__5 = AccountIdentifier__4;
+type Asset = {contentType : Text; payload : Blob};
+type Category = {#Accessory; #LegendaryAccessory; #Material};
+type DayCanisterCyclesData = [var Nat64];
+type DayCanisterHeapMemorySizeData = [var Nat64];
+type DayCanisterMemorySizeData = [var Nat64];
+type DayData =
   {
-    contentType : Text;
-    createdAt : Int;
-    isPrivate : Bool;
-    payload : [Blob];
-    properties : Properties
+    canisterCyclesData : DayCanisterCyclesData;
+    canisterHeapMemorySizeData : DayCanisterHeapMemorySizeData;
+    canisterMemorySizeData : DayCanisterMemorySizeData;
+    updateCallsData : DayUpdateCallsCountData
   };
-type TokenIndex/1 = TokenIndex;
-type Transaction/2 = Transaction/1;
-type UpgradeData/1 = UpgradeData;
+type DayDataId = Nat32;
+type DayUpdateCallsCountData = [var Nat64];
+type DetailValue =
+  {
+    #False;
+    #Float : Float;
+    #I64 : Int64;
+    #Principal : Principal;
+    #Slice : [Nat8];
+    #Text : Text;
+    #True;
+    #U64 : Nat64;
+    #Vec : [DetailValue]
+  };
+type File = {asset : Asset; meta : Meta};
+type FilePath = Text;
+type IndefiniteEvent =
+  {caller : Principal; details : [(Text, DetailValue)]; operation : Text};
+type IndefiniteEvent__1 = IndefiniteEvent;
+type Item =
+  {
+    #Accessory : Accessory;
+    #LegendaryAccessory : LegendaryAccessory;
+    #Material : Text
+  };
+type Item__1 = Item;
+type LegendaryAccessory = {date_creation : Int; name : Text};
+type Listing = {locked : ?Time__1; price : Nat64; seller : Principal};
+type Listing__1 = Listing;
+type LogMessageArray = [LogMessagesData];
+type LogMessagesData = {message : Text; timeNanos : Nanos};
+type LoggerUpgradeData = UpgradeData__1;
+type Meta =
+  {category : Category; description : Text; name : Text; tags : [Tag]};
+type Nanos = Nat64;
+type Recipe = [Text];
+type Settlement =
+  {
+    buyer : AccountIdentifier__2;
+    price : Nat64;
+    seller : Principal;
+    subaccount : SubAccount__2
+  };
+type Settlement__1 = Settlement;
+type SubAccount__2 = [Nat8];
+type SubAccount__3 = [Nat8];
+type SubAccount__4 = SubAccount__3;
+type SubAccount__5 = SubAccount__4;
+type Tag = Text;
+type Template =
+  {
+    #Accessory : {after_wear : Text; before_wear : Text; recipe : Recipe};
+    #LegendaryAccessory : Blob;
+    #Material : Blob
+  };
+type Template__1 = Template;
+type Time = Int;
+type Time__1 = Int;
+type Time__2 = Time;
+type TokenIdentifier__1 = Text;
+type TokenIdentifier__2 = Text;
+type TokenIndex__1 = Nat32;
+type TokenIndex__2 = TokenIndex__1;
+type Transaction =
+  {
+    buyer : AccountIdentifier__2;
+    price : Nat64;
+    seller : Principal;
+    time : Time__1;
+    token : TokenIdentifier__2
+  };
+type Transaction__1 = Transaction;
+type UpgradeData = {#v1 : {dayData : [UpgradeDataDayTuple]}};
+type UpgradeDataDayTuple = (DayDataId, DayData);
+type UpgradeData__1 =
+  {#v1 : {full : Bool; maxCount : Nat; next : Nat; queue : LogMessageArray}};
+type UpgradeData__2 = UpgradeData;
+type UpgradeData__3 = {admins : [Principal]};
+type UpgradeData__4 = UpgradeData__3;
+type UpgradeData__5 = {record : [(FilePath, File)]};
+type UpgradeData__6 = UpgradeData__5;
 actor {
-  stable var CONTRACT_METADATA : {name : Text; symbol : Text};
-  stable var INITALIZED : Bool;
-  stable var _blobsEntries : [(TokenIndex/1, Blob)];
-  stable var _canistergeekMonitorUD : ?UpgradeData/1;
-  stable var _eventsEntries : [(Time/2, IndefiniteEvent/1)];
-  stable var _itemsEntries : [(TokenIndex/1, Item/1)];
+  stable var _AdminsUD : ?UpgradeData__4;
+  stable var _AssetsUD : ?UpgradeData__6;
+  stable var _LogsUD : ?LoggerUpgradeData;
+  stable var _MonitorUD : ?UpgradeData__2;
+  stable var _blobsEntries : [(TokenIndex__2, Blob)];
+  stable var _eventsEntries : [(Time__2, IndefiniteEvent__1)];
+  stable var _itemsEntries : [(TokenIndex__2, Item__1)];
   stable var _minter : [Principal];
   stable var _nextTokenId : Nat32;
-  stable var _ownershipsEntries : [(AccountIdentifier/5, [TokenIndex/1])];
-  stable var _paymentsState : [(Principal, [SubAccount/4])];
-  stable var _refundsState : [(Principal, [SubAccount/4])];
-  stable var _registryEntries : [(TokenIndex/1, AccountIdentifier/5)];
-  stable var _templateEntries : [(Text, Template/1)];
-  stable var _tokenListingState : [(TokenIndex/1, Listing/1)];
-  stable var _tokenSettlementState : [(TokenIndex/1, Settlement/1)];
-  stable var _transactions : [Transaction/2];
+  stable var _ownershipsEntries : [(AccountIdentifier__5, [TokenIndex__2])];
+  stable var _paymentsState : [(Principal, [SubAccount__5])];
+  stable var _refundsState : [(Principal, [SubAccount__5])];
+  stable var _registryEntries : [(TokenIndex__2, AccountIdentifier__5)];
+  stable var _templateEntries : [(Text, Template__1)];
+  stable var _tokenListingState : [(TokenIndex__2, Listing__1)];
+  stable var _tokenSettlementState : [(TokenIndex__2, Settlement__1)];
+  stable var _transactions : [Transaction__1];
   stable var _usedPaymentAddressess :
-    [(AccountIdentifier/5, Principal, SubAccount/4)];
-  stable var admins : [Principal];
-  stable var adminsData : [Principal];
-  stable var circulationEntries : [(Text, Text)];
-  stable var count : Nat;
-  stable var id : Nat;
-  stable var nftEntries : [(Text, (?Principal, [Principal]), Token)];
-  stable var payloadSize : Nat;
-  stable var staticAssetsEntries : [(Text, Asset)];
-  stable var subaccount_to_check : [SubAccount/4];
-  stable var subaccounts_robber : [SubAccount/4]
+    [(AccountIdentifier__5, Principal, SubAccount__5)];
+  stable var count : Nat
 };

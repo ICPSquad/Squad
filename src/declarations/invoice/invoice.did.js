@@ -42,7 +42,7 @@ export const idlFactory = ({ IDL }) => {
     'symbol' : IDL.Text,
   });
   const Time = IDL.Int;
-  const Invoice = IDL.Record({
+  const Invoice__1 = IDL.Record({
     'id' : IDL.Nat,
     'permissions' : IDL.Opt(Permissions),
     'creator' : IDL.Principal,
@@ -55,7 +55,7 @@ export const idlFactory = ({ IDL }) => {
     'details' : IDL.Opt(Details),
     'amount' : IDL.Nat,
   });
-  const CreateInvoiceSuccess = IDL.Record({ 'invoice' : Invoice });
+  const CreateInvoiceSuccess = IDL.Record({ 'invoice' : Invoice__1 });
   const CreateInvoiceErr = IDL.Record({
     'kind' : IDL.Variant({
       'InvalidDetails' : IDL.Null,
@@ -72,6 +72,88 @@ export const idlFactory = ({ IDL }) => {
     'ok' : CreateInvoiceSuccess,
     'err' : CreateInvoiceErr,
   });
+  const GetLogMessagesFilter = IDL.Record({
+    'analyzeCount' : IDL.Nat32,
+    'messageRegex' : IDL.Opt(IDL.Text),
+    'messageContains' : IDL.Opt(IDL.Text),
+  });
+  const Nanos = IDL.Nat64;
+  const GetLogMessagesParameters = IDL.Record({
+    'count' : IDL.Nat32,
+    'filter' : IDL.Opt(GetLogMessagesFilter),
+    'fromTimeNanos' : IDL.Opt(Nanos),
+  });
+  const GetLatestLogMessagesParameters = IDL.Record({
+    'upToTimeNanos' : IDL.Opt(Nanos),
+    'count' : IDL.Nat32,
+    'filter' : IDL.Opt(GetLogMessagesFilter),
+  });
+  const CanisterLogRequest = IDL.Variant({
+    'getMessagesInfo' : IDL.Null,
+    'getMessages' : GetLogMessagesParameters,
+    'getLatestMessages' : GetLatestLogMessagesParameters,
+  });
+  const CanisterLogFeature = IDL.Variant({
+    'filterMessageByContains' : IDL.Null,
+    'filterMessageByRegex' : IDL.Null,
+  });
+  const CanisterLogMessagesInfo = IDL.Record({
+    'features' : IDL.Vec(IDL.Opt(CanisterLogFeature)),
+    'lastTimeNanos' : IDL.Opt(Nanos),
+    'count' : IDL.Nat32,
+    'firstTimeNanos' : IDL.Opt(Nanos),
+  });
+  const LogMessagesData = IDL.Record({
+    'timeNanos' : Nanos,
+    'message' : IDL.Text,
+  });
+  const CanisterLogMessages = IDL.Record({
+    'data' : IDL.Vec(LogMessagesData),
+    'lastAnalyzedMessageTimeNanos' : IDL.Opt(Nanos),
+  });
+  const CanisterLogResponse = IDL.Variant({
+    'messagesInfo' : CanisterLogMessagesInfo,
+    'messages' : CanisterLogMessages,
+  });
+  const MetricsGranularity = IDL.Variant({
+    'hourly' : IDL.Null,
+    'daily' : IDL.Null,
+  });
+  const GetMetricsParameters = IDL.Record({
+    'dateToMillis' : IDL.Nat,
+    'granularity' : MetricsGranularity,
+    'dateFromMillis' : IDL.Nat,
+  });
+  const UpdateCallsAggregatedData = IDL.Vec(IDL.Nat64);
+  const CanisterHeapMemoryAggregatedData = IDL.Vec(IDL.Nat64);
+  const CanisterCyclesAggregatedData = IDL.Vec(IDL.Nat64);
+  const CanisterMemoryAggregatedData = IDL.Vec(IDL.Nat64);
+  const HourlyMetricsData = IDL.Record({
+    'updateCalls' : UpdateCallsAggregatedData,
+    'canisterHeapMemorySize' : CanisterHeapMemoryAggregatedData,
+    'canisterCycles' : CanisterCyclesAggregatedData,
+    'canisterMemorySize' : CanisterMemoryAggregatedData,
+    'timeMillis' : IDL.Int,
+  });
+  const NumericEntity = IDL.Record({
+    'avg' : IDL.Nat64,
+    'max' : IDL.Nat64,
+    'min' : IDL.Nat64,
+    'first' : IDL.Nat64,
+    'last' : IDL.Nat64,
+  });
+  const DailyMetricsData = IDL.Record({
+    'updateCalls' : IDL.Nat64,
+    'canisterHeapMemorySize' : NumericEntity,
+    'canisterCycles' : NumericEntity,
+    'canisterMemorySize' : NumericEntity,
+    'timeMillis' : IDL.Int,
+  });
+  const CanisterMetricsData = IDL.Variant({
+    'hourly' : IDL.Vec(HourlyMetricsData),
+    'daily' : IDL.Vec(DailyMetricsData),
+  });
+  const CanisterMetrics = IDL.Record({ 'data' : CanisterMetricsData });
   const GetAccountIdentifierArgs = IDL.Record({
     'principal' : IDL.Principal,
     'token' : Token,
@@ -102,7 +184,7 @@ export const idlFactory = ({ IDL }) => {
     'err' : GetBalanceErr,
   });
   const GetInvoiceArgs = IDL.Record({ 'id' : IDL.Nat });
-  const GetInvoiceSuccess = IDL.Record({ 'invoice' : Invoice });
+  const GetInvoiceSuccess = IDL.Record({ 'invoice' : Invoice__1 });
   const GetInvoiceErr = IDL.Record({
     'kind' : IDL.Variant({
       'NotFound' : IDL.Null,
@@ -138,8 +220,8 @@ export const idlFactory = ({ IDL }) => {
   });
   const VerifyInvoiceArgs = IDL.Record({ 'id' : IDL.Nat });
   const VerifyInvoiceSuccess = IDL.Variant({
-    'Paid' : IDL.Record({ 'invoice' : Invoice }),
-    'AlreadyVerified' : IDL.Record({ 'invoice' : Invoice }),
+    'Paid' : IDL.Record({ 'invoice' : Invoice__1 }),
+    'AlreadyVerified' : IDL.Record({ 'invoice' : Invoice__1 }),
   });
   const VerifyInvoiceErr = IDL.Record({
     'kind' : IDL.Variant({
@@ -159,13 +241,27 @@ export const idlFactory = ({ IDL }) => {
     'ok' : VerifyInvoiceSuccess,
     'err' : VerifyInvoiceErr,
   });
-  return IDL.Service({
+  const Invoice = IDL.Service({
+    'acceptCycles' : IDL.Func([], [], []),
     'accountIdentifierToBlob' : IDL.Func(
         [AccountIdentifier__1],
         [AccountIdentifierToBlobResult],
         [],
       ),
+    'add_admin' : IDL.Func([IDL.Principal], [], []),
+    'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
+    'collectCanisterMetrics' : IDL.Func([], [], []),
     'create_invoice' : IDL.Func([CreateInvoiceArgs], [CreateInvoiceResult], []),
+    'getCanisterLog' : IDL.Func(
+        [IDL.Opt(CanisterLogRequest)],
+        [IDL.Opt(CanisterLogResponse)],
+        ['query'],
+      ),
+    'getCanisterMetrics' : IDL.Func(
+        [GetMetricsParameters],
+        [IDL.Opt(CanisterMetrics)],
+        ['query'],
+      ),
     'get_account_identifier' : IDL.Func(
         [GetAccountIdentifierArgs],
         [GetAccountIdentifierResult],
@@ -173,9 +269,10 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_balance' : IDL.Func([GetBalanceArgs], [GetBalanceResult], []),
     'get_invoice' : IDL.Func([GetInvoiceArgs], [GetInvoiceResult], ['query']),
-    'remaining_cycles' : IDL.Func([], [IDL.Nat], ['query']),
+    'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'transfer' : IDL.Func([TransferArgs], [TransferResult], []),
     'verify_invoice' : IDL.Func([VerifyInvoiceArgs], [VerifyInvoiceResult], []),
   });
+  return Invoice;
 };
 export const init = ({ IDL }) => { return []; };

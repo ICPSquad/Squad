@@ -33,13 +33,13 @@ In order to achieve this vision we need to create and support many concrete init
 
 - **Investement**.
 
-Making an impact in the worl means having capitals and using them accordingly to finance innovations and builders around the world. <br/> We aims to create a commmunity-driven DAO designed to provide funds to promising projects building on the Internet Computer.
+  Making an impact in the worl means having capitals and using them accordingly to finance innovations and builders around the world. <br/> We aims to create a commmunity-driven DAO designed to provide funds to promising projects building on the Internet Computer.
 
 - **Transparency and decentralization**
 
-Building and organizing a huge community in a **transparent** manner will require a lot of work. <br/> We strongly believe in a future where power and responsability are actually in the hands of peoples. <br/> Leaders will still be necesary and we are looking for people that can lead in our community but leaders also need to understand that being a leader of the community will also comes with responsability around your actions and decisions. <br/>
+  Building and organizing a huge community in a **transparent** manner will require a lot of work. <br/> We strongly believe in a future where power and responsability are actually in the hands of peoples. <br/> Leaders will still be necesary and we are looking for people that can lead in our community but leaders also need to understand that being a leader of the community will also comes with responsability around your actions and decisions. <br/>
 
-To achieve our objectives, we will start by writting a **constitution** that will contains the core values of ICP Squad. Building on this constitution we will regularly assess our own progress towards being a fully decentralized and transparent DAO.
+  To achieve our objectives, we will start by writting a **constitution** that will contains the core values of ICP Squad. Building on this constitution we will regularly assess our own progress towards being a fully decentralized and transparent DAO.
 
 ## Get involved 👷
 
@@ -47,14 +47,35 @@ We have many initiatives that are running and we want everyone to be able to fin
 
 The goal is to offer different paths possible depending on what you are looking for.
 
-### Avatar
+The first step to become a member of the squad is to mint your **avatar**.
 
-The first step to become an official member of the squad is to mint your **avatar**.
+### Member 👦
 
-### Contributor
+Once you are part of the squad you can get more involved in many ways, here's a few ideas.
 
-Become a contributor
+- Participate in discussions and be active on Discord.
+- Help us spread the world about the Squad (retweet, likes and share on social media)
+- Complete missions and increase your engagement score with our partners dapps.
+- Collect accessories and increase your style score.
 
-Register here
+### Contributor 🧑‍🔧
 
-### Project
+- Become a contributor on the media outlet : write articles, participate in AMAs, create videos.
+
+- Apply to create missions and manage the community : become a moderator.
+
+- Apply as a developer or artist to work in the core team.
+
+TODO : add other potential skills that can be helpful (developper, designer, musician, community manager...)
+
+### Project 🤝
+
+You are a project and wanna join our unified ecosystem of dapps ? <br/>
+Here is a list of service we provide.
+
+- User [engagement](ENGAGE-TO-EARN.MD) and [fun](MISSION.MD) on your dapp.
+- Visibility and marketing trough our media outlet.
+- Technical and design advice to your project.
+- Funding and continous cash flow with our [branded accessory]().
+- Educative content to help people understand what you are doing.
+- [Legendary avatar](LEGENDARY.MD) as founder in the ecosystem.

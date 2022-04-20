@@ -2,10 +2,6 @@ import { Actor } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import { Commit } from "vuex";
 
-import { Inventory } from "declarations/accessories/accessories.did.d";
-import { AvatarPreviewNew, LayerId } from "@/declarations/avatar/avatar.did";
-import { Slots } from "declarations/avatar/avatar.did";
-import { addAccessoryLayers, removeAccessoryLayers } from "../../utils/svg_new";
 import store from "..";
 import router from "../../router/router";
 
@@ -19,8 +15,6 @@ const state: {
   status: string;
   tokenIdentifier: string | null;
   rawAvatar: string | null;
-  avatarInfo: AvatarPreviewNew | null;
-  inventory: Inventory;
   hideClothing: boolean;
 } = {
   principal: null,
@@ -32,8 +26,6 @@ const state: {
   status: "disconnected",
   tokenIdentifier: null,
   rawAvatar: null,
-  avatarInfo: null,
-  inventory: [],
   hideClothing: false,
 };
 
@@ -61,31 +53,11 @@ const mutations = {
   setWallet(state: State, wallet: "Plug" | "Stoic") {
     state.wallet = wallet;
   },
-  setInventory(state: State, inventory: Inventory) {
-    state.inventory = inventory;
-  },
   setTokenIdentifier(state: State, tokenIdentifier: string) {
     state.tokenIdentifier = tokenIdentifier;
   },
   setRawAvatar(state: State, rawAvatar: string) {
     state.rawAvatar = rawAvatar;
-  },
-  setAvatarInfo(state: State, avatarInfo: AvatarPreviewNew) {
-    state.avatarInfo = avatarInfo;
-  },
-  addAccessory(state: State, { slot, name }: { slot: string; name: string }) {
-    state.avatarInfo!.slots[slot as keyof Slots] = [name];
-    state.avatarInfo!.layers = addAccessoryLayers(state.avatarInfo!.layers, name);
-    if (slot == "Body") {
-      state.hideClothing = true;
-    }
-  },
-  removeAccessory(state: State, { slot, name }: { slot: string; name: string }) {
-    state.avatarInfo!.slots[slot as keyof Slots] = [];
-    state.avatarInfo!.layers = removeAccessoryLayers(state.avatarInfo!.layers, name);
-    if (slot == "Body") {
-      state.hideClothing = false;
-    }
   },
 };
 
@@ -96,12 +68,10 @@ const getters = {
   getAuthenticatedActor_material: (state: State) => state.authenticatedActor_material,
   getAuthenticatedActor_ledger: (state: State) => state.authenticatedActor_ledger,
   getStatus: (state: State) => state.status,
-  getInventory: (state: State) => state.inventory,
   getRawAvatar: (state: State) => state.rawAvatar,
   getWallet: (state: State) => state.wallet,
   getTokenAvatar: (state: State) => state.tokenIdentifier,
   isAvatarLoaded: (state: State) => state.rawAvatar !== null,
-  isAvatarInfoLoaded: (state: State) => state.avatarInfo !== null,
   isInventoryConnected: (state: State) => state.authenticatedActor_material !== null,
   isConnected: (state: State) => state.authenticatedActor_hub !== null && state.authenticatedActor_nft, // TODO: is it really ok?
   isPrincipalSet: (state: State) => state.principal !== null,

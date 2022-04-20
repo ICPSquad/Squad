@@ -113,6 +113,7 @@ export interface ICPSquadNFT {
       arg_1: string,
       arg_2: Principal,
     ) => Promise<Result>,
+  'supply' : () => Promise<bigint>,
   'tokens' : (arg_0: AccountIdentifier__1) => Promise<Result_2>,
   'tokens_ext' : (arg_0: AccountIdentifier__1) => Promise<Result_1>,
   'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,

@@ -280,6 +280,7 @@ export const idlFactory = ({ IDL }) => {
         [Result],
         [],
       ),
+    'supply' : IDL.Func([], [IDL.Nat], ['query']),
     'tokens' : IDL.Func([AccountIdentifier__1], [Result_2], ['query']),
     'tokens_ext' : IDL.Func([AccountIdentifier__1], [Result_1], ['query']),
     'transfer' : IDL.Func([TransferRequest], [TransferResponse], []),

@@ -1,4 +1,4 @@
-# Legendary members 🦸‍♂️
+# Legendary 🦸‍♂️
 
 The goal of this paper is to details what legendary avatars are, how they are minted and what perks do they currently offer and what is planned for them in the future.
 
@@ -37,6 +37,6 @@ Owning a legendary avatar will provide **lifelong** advantages.
 - Ability to create missions and manage them.
 - Access to events and iniatitives organized by the Squad.
 
-# Issue
+# Improvements ✅
 
 Currently legendary avatars cannot equip accessories; need to resolve this issue as soon as possible as it introduces a discrepancy between the two types of avatar.

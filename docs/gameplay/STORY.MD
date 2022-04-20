@@ -1,3 +1,3 @@
 # Story 🎨
 
-We need to find a good story / lore for the ICP Squad.
+Todo : Need to define a good story/lore/universe for the Squad.

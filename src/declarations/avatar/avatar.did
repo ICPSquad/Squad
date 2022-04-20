@@ -198,6 +198,7 @@ type ICPSquadNFT =
    mint: (MintInformation) -> (Result_3);
    registerComponent: (text, Component) -> (Result);
    removeAccessory: (TokenIdentifier, text, principal) -> (Result);
+   supply: () -> (nat) query;
    tokens: (AccountIdentifier__1) -> (Result_2) query;
    tokens_ext: (AccountIdentifier__1) -> (Result_1) query;
    transfer: (TransferRequest) -> (TransferResponse);
