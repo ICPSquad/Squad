@@ -348,6 +348,10 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
+    public func tokenId(tokenId : TokenIndex ) : async Text {
+        Ext.TokenIdentifier.encode(Principal.fromActor(this), tokenId)
+    };
+
 
     //////////////////
     // NFT-helpers //

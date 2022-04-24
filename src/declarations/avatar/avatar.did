@@ -128,7 +128,6 @@ type MintInformation =
    mouth: text;
    nose: text;
    profile: text;
-   user: principal;
  };
 type MetricsGranularity = 
  variant {
@@ -195,7 +194,7 @@ type ICPSquadNFT =
    init_cap: () -> (Result);
    is_admin: (principal) -> (bool) query;
    metadata: (TokenIdentifier) -> (Result_4) query;
-   mint: (MintInformation) -> (Result_3);
+   mint: (MintInformation, principal) -> (Result_3);
    registerComponent: (text, Component) -> (Result);
    removeAccessory: (TokenIdentifier, text, principal) -> (Result);
    supply: () -> (nat) query;

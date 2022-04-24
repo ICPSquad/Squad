@@ -1,4 +1,52 @@
 export const idlFactory = ({ IDL }) => {
+  const Permissions = IDL.Record({
+    'canGet' : IDL.Vec(IDL.Principal),
+    'canVerify' : IDL.Vec(IDL.Principal),
+  });
+  const AccountIdentifier = IDL.Variant({
+    'principal' : IDL.Principal,
+    'blob' : IDL.Vec(IDL.Nat8),
+    'text' : IDL.Text,
+  });
+  const TokenVerbose = IDL.Record({
+    'decimals' : IDL.Int,
+    'meta' : IDL.Opt(IDL.Record({ 'Issuer' : IDL.Text })),
+    'symbol' : IDL.Text,
+  });
+  const Time = IDL.Int;
+  const Details = IDL.Record({
+    'meta' : IDL.Vec(IDL.Nat8),
+    'description' : IDL.Text,
+  });
+  const Invoice = IDL.Record({
+    'id' : IDL.Nat,
+    'permissions' : IDL.Opt(Permissions),
+    'creator' : IDL.Principal,
+    'destination' : AccountIdentifier,
+    'token' : TokenVerbose,
+    'paid' : IDL.Bool,
+    'verifiedAtTime' : IDL.Opt(Time),
+    'amountPaid' : IDL.Nat,
+    'expiration' : Time,
+    'details' : IDL.Opt(Details),
+    'amount' : IDL.Nat,
+  });
+  const Status = IDL.Variant({
+    'Invoice' : Invoice,
+    'Member' : IDL.Bool,
+    'InProgress' : IDL.Null,
+  });
+  const User__1 = IDL.Record({
+    'height' : IDL.Opt(IDL.Nat64),
+    'status' : Status,
+    'twitter' : IDL.Opt(IDL.Text),
+    'rank' : IDL.Opt(IDL.Nat64),
+    'email' : IDL.Opt(IDL.Text),
+    'discord' : IDL.Opt(IDL.Text),
+  });
+  const UpgradeData = IDL.Record({
+    'users' : IDL.Vec(IDL.Tuple(IDL.Principal, User__1)),
+  });
   const GetLogMessagesFilter = IDL.Record({
     'analyzeCount' : IDL.Nat32,
     'messageRegex' : IDL.Opt(IDL.Text),
@@ -81,6 +129,14 @@ export const idlFactory = ({ IDL }) => {
     'daily' : IDL.Vec(DailyMetricsData),
   });
   const CanisterMetrics = IDL.Record({ 'data' : CanisterMetricsData });
+  const User = IDL.Record({
+    'height' : IDL.Opt(IDL.Nat64),
+    'status' : Status,
+    'twitter' : IDL.Opt(IDL.Text),
+    'rank' : IDL.Opt(IDL.Nat64),
+    'email' : IDL.Opt(IDL.Text),
+    'discord' : IDL.Opt(IDL.Text),
+  });
   const Color = IDL.Tuple(IDL.Nat8, IDL.Nat8, IDL.Nat8, IDL.Nat8);
   const Colors = IDL.Vec(IDL.Record({ 'color' : Color, 'spot' : IDL.Text }));
   const MintInformation = IDL.Record({
@@ -95,38 +151,6 @@ export const idlFactory = ({ IDL }) => {
     'profile' : IDL.Text,
   });
   const MintSuccess = IDL.Record({ 'tokenId' : IDL.Text });
-  const Permissions = IDL.Record({
-    'canGet' : IDL.Vec(IDL.Principal),
-    'canVerify' : IDL.Vec(IDL.Principal),
-  });
-  const AccountIdentifier = IDL.Variant({
-    'principal' : IDL.Principal,
-    'blob' : IDL.Vec(IDL.Nat8),
-    'text' : IDL.Text,
-  });
-  const TokenVerbose = IDL.Record({
-    'decimals' : IDL.Int,
-    'meta' : IDL.Opt(IDL.Record({ 'Issuer' : IDL.Text })),
-    'symbol' : IDL.Text,
-  });
-  const Time = IDL.Int;
-  const Details = IDL.Record({
-    'meta' : IDL.Vec(IDL.Nat8),
-    'description' : IDL.Text,
-  });
-  const Invoice = IDL.Record({
-    'id' : IDL.Nat,
-    'permissions' : IDL.Opt(Permissions),
-    'creator' : IDL.Principal,
-    'destination' : AccountIdentifier,
-    'token' : TokenVerbose,
-    'paid' : IDL.Bool,
-    'verifiedAtTime' : IDL.Opt(Time),
-    'amountPaid' : IDL.Nat,
-    'expiration' : Time,
-    'details' : IDL.Opt(Details),
-    'amount' : IDL.Nat,
-  });
   const MintErr = IDL.Variant({
     'Invoice' : Invoice,
     'Anonymous' : IDL.Null,
@@ -154,10 +178,12 @@ export const idlFactory = ({ IDL }) => {
     }),
   });
   const MintResult = IDL.Variant({ 'ok' : MintSuccess, 'err' : MintErr });
+  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const ICPSquadHub = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
     'add_admin' : IDL.Func([IDL.Principal], [], []),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
+    'backup_users' : IDL.Func([], [UpgradeData], ['query']),
     'collectCanisterMetrics' : IDL.Func([], [], []),
     'getCanisterLog' : IDL.Func(
         [IDL.Opt(CanisterLogRequest)],
@@ -169,9 +195,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(CanisterMetrics)],
         ['query'],
       ),
+    'get_user' : IDL.Func([], [IDL.Opt(User)], ['query']),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'mint' : IDL.Func([MintInformation], [MintResult], []),
-    'size' : IDL.Func([], [IDL.Nat], ['query']),
+    'modify_user' : IDL.Func([User], [Result], []),
+    'whitelist' : IDL.Func([IDL.Principal], [Result], []),
   });
   return ICPSquadHub;
 };

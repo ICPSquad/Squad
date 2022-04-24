@@ -16,7 +16,7 @@ The accessories are divided into 5 categories depending on the slot they equip.
 - Hat 🎩
 - Eyes 👀
 - Body 👤
-- Special/Misc (Background, jewelry, discussion bubble..) 🌈
+- Misc (Background, jewelry, discussion bubble..) 🌈
 
 💡 Each accessory take only one slot. Multi-slot accessories have been discussed at one point, but they are not possible to implement with the current source code.
 
@@ -45,61 +45,61 @@ Materials are the starting point of our economy, they are used to create accesso
   </tr>
   <tr>
     <td> Cloth </td>
-    <td> <img src="cards/materials/Cloth.jpg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/materials/cloth.svg" width="150px" height="auto"> </img> </td>
     <td> 1/5</td>
     <td> 48 %</td>
     <td> 1  </td>
   </tr>
   <tr>
     <td> Wood </td>
-    <td> <img src="cards/materials/Wood.jpg" width="100px" height="auto"> </img> </td>
+    <td><img src="../../assets/cards/materials/wood.svg" width="150px" height="auto"> </img> </td>
     <td> 2/5</td>
     <td> 24 %</td>
     <td> 2  </td>
   </tr>
    <tr>
     <td> Glass </td>
-    <td> <img src="cards/materials/Glass.jpg" width="100px" height="auto"> </img> </td>
+    <td><img src="../../assets/cards/materials/glass.svg" width="150px" height="auto"> </img> </td>
     <td> 3/5</td>
     <td> 12 %</td>
     <td> 4 </td>
   </tr>
    <tr>
     <td> Metal </td>
-    <td> <img src="cards/materials/Metal.jpg" width="100px" height="auto"> </img> </td>
+    <td><img src="../../assets/cards/materials/metal.svg" width="150px" height="auto"> </img> </td>
     <td> 3/5</td>
     <td> 12 %</td>
     <td> 4  </td>
   </tr>
    <tr>
     <td> Circuit </td>
-    <td> <img src="cards/materials/Circuit.jpg" width="100px" height="auto"> </img> </td>
+    <td><img src="../../assets/cards/materials/circuit.svg" width="150px" height="auto"> </img> </td>
     <td> 4/5</td>
     <td> 3 %</td>
     <td> 16  </td>
+
   </tr>
    <tr>
     <td> Dfinity-stone </td>
-    <td> <img src="cards/materials/Dfinity-stone.jpg" width="100px" height="auto"> </img> </td>
+    <td><img src="../../assets/cards/materials/dfinity-stone.svg" width="150px" height="auto"> </img></td>
     <td> 5/5 </td>
     <td> 1 %</td>
     <td> 48 </td>
-  </tr>
-   <!-- <tr>
-    <td> Cronic essence </td>
-    <td> <img src="cards/materials/Cronic.png" width="100px" height="auto"> </img> </td>
-    <td> 5/5 </td>
-    <td> Cronic </td>
-    <td> ? </td>
-    <td> No </td>
+
   </tr>
    <tr>
-    <td> ICPunk essence </td>
-    <td> <img src="cards/materials/ICPunk.png" width="100px" height="auto"> </img> </td>
+    <td> Cronic-essence </td>
+    <td> <img src="../../assets/cards/materials/cronic-essence.svg" width="150px" height="auto"> </img> </td>
     <td> 5/5 </td>
-    <td> ICPunks </td>
+    <td> Unkown </td>
     <td> ? </td>
-    <td> No </td> -->
+  </tr>
+   <tr>
+    <td> Punk-essence </td>
+    <td> <img src="../../assets/cards/materials/punk-essence.svg" width="150px" height="auto"> </img> </td>
+    <td> 5/5 </td>
+    <td> Unkown </td>
+    <td> ?</td>
   </tr>
 </table>
 
@@ -164,7 +164,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Eyes 👀 </td>
     <td> Lab-glasses</td>
-    <td> <img src="cards/accessories/eyes/Lab-glasses.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/eyes/lab-glasses/lab-glasses-card.svg" width="150px" height="auto"> </img> </td>
     <td> Cloth : 3 <br/> Glass : 2 <br/> Metal : 1 </td>
     <td> 2/5</td>
     <td> Yes </td>
@@ -173,7 +173,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Eyes 👀 </td>
     <td> Monocle </td>
-    <td> <img src="cards/accessories/eyes/Monocle.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/eyes/monocle/monocle-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 2 <br/> Metal : 2 <br/> Glass : 3 </td>
     <td> 3/5</td>
     <td> Yes </td>
@@ -181,17 +181,18 @@ The number of accessories in circulation will be greatly dependent on the number
   </tr>
   <tr>
     <td> Eyes 👀 </td>
-    <td> Matrix-glasses </td>
-    <td> <img src="cards/accessories/eyes/Matrix-glasses.svg" width="100px" height="auto"> </img> </td>
+    <td> Sunglasses </td>
+    <td> <img src="../../assets/cards/accessories/eyes/sunglasses/sunglasses-card.svg" width="150" height="auto"> </img> </td>
     <td> <br/> Glass : 2 <br/> Metal : 1 </br> Circuit : 1 </td>
     <td> 3/5</td>
     <td> Yes </td>
     <td> 28 </td>
+
   </tr>
   <tr>
     <td> Eyes 👀 </td>
     <td> Dfinity-eyemask</td>
-    <td> <img src="cards/accessories/eyes/Dfinity-eyemask.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/eyes/dfinity-eyemask/dfinity-eyemask-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 3 <br/> Wood : 2 <br/> Dfinity-stone : 1 </td>
     <td> 5/5</td>
     <td> Yes </td>
@@ -200,7 +201,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Hat 🎩 </td>
     <td> Helicap </td>
-    <td> <img src="cards/accessories/hat/Helicap.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/hat/helicap/helicap-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 4 <br/> Wood : 3  </td>
     <td> 2/5</td>
     <td> Yes </td>
@@ -209,7 +210,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Hat 🎩 </td>
     <td> Marshall-hat </td>
-    <td> <img src="cards/accessories/hat/Marshall-hat.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/hat/marshall-hat/marshall-hat-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 3 <br/> Metal : 3  </td>
     <td> 3/5</td>
     <td> Yes </td>
@@ -217,8 +218,8 @@ The number of accessories in circulation will be greatly dependent on the number
   </tr>
   <tr>
     <td> Hat 🎩 </td>
-    <td> Assassin-hat </td>
-    <td> <img src="cards/accessories/hat/Assassin-hat.svg" width="100px" height="auto"> </img> </td>
+    <td> Assassin-hood </td>
+    <td> <img src="../../assets/cards/accessories/hat/assassin-hood/assassin-hood-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 4 <br/> Metal : 4 <br/> 
     <td> 3/5</td>
     <td> No </td>
@@ -227,17 +228,16 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Hat 🎩 </td>
     <td> Ninja-headband </td>
-    <td> <img src="cards/accessories/hat/Ninja-headband.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/hat/ninja-headband/ninja-headband-card.svg" width="150" height="auto"> </img> </td>
     <td> Wood : 3 <br/>  Glass : 1 <br> Metal : 3 </td>
     <td> 3/5</td>
     <td> Yes </td>
     <td> 22 </td>
   </tr>
-
   <tr>
     <td> Hat 🎩 </td>
     <td> Shinobi-hat </td>
-    <td> <img src="cards/accessories/hat/Shinobi-strawhat.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/hat/shinobi-hat/shinobi-hat-card.svg" width="150" height="auto"> </img> </td>
     <td>  Wood : 5 <br/> Metal : 5 </td>
     <td> 4/5</td>
     <td> No </td>
@@ -245,8 +245,8 @@ The number of accessories in circulation will be greatly dependent on the number
   </tr>
   <tr>
     <td> Hat 🎩 </td>
-    <td> Dark-magic-hood </td>
-    <td> <img src="cards/accessories/hat/Dark-magic-hood.svg" width="100px" height="auto"> </img> </td>
+    <td> Magic-hood </td>
+    <td> <img src="../../assets/cards/accessories/hat/magic-hood/magic-hood-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 1 <br/> Metal : 8  <br/> Dfinity-stone : 1 </td>
     <td> 5/5</td>
     <td> No </td>
@@ -255,7 +255,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Hat 🎩 </td>
     <td> Astro-helmet </td>
-    <td> <img src="cards/accessories/hat/Astro-helmet.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/hat/astro-helmet/astro-helmet-card.svg" width="150" height="auto"> </img> </td>
     <td> Glass : 2 <br/> Metal : 3 <br/> Circuit : 2 <br/> Dfinity-stone : 1 </td>
     <td> 5/5</td>
     <td> No </td>
@@ -263,8 +263,8 @@ The number of accessories in circulation will be greatly dependent on the number
   </tr>
   <tr>
     <td> Face 👦 </td>
-    <td> Oni-half-mask </td>
-    <td> <img src="cards/accessories/face/Oni-half-mask.svg" width="100px" height="auto"> </img> </td>
+    <td> Oni-face-mask </td>
+    <td> <img src="../../assets/cards/accessories/face/oni-face-mask/oni-face-mask-card.svg" width="150" height="auto"> </img> </td>
     <td> Wood : 4 <br/> Metal : 4 </td>
     <td> 3/5</td>
     <td> Yes </td>
@@ -273,7 +273,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Face 👦 </td>
     <td> Facemask </td>
-    <td> <img src="cards/accessories/face/Facemask.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/face/facemask/facemask-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 4 <br/> Metal : 6 </td>
     <td> 3/5</td>
     <td> Yes </td>
@@ -282,7 +282,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Body 👤 </td>
     <td> Helicap-tshirt </td>
-    <td> <img src="cards/accessories/body/Helicap-tshirt.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/body/helicap-tshirt/helicap-tshirt-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 4 <br/> Wood : 4 </td>
     <td> 2/5</td>
     <td> No </td>
@@ -291,7 +291,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Body 👤 </td>
     <td> Assassin-cap </td>
-    <td> <img src="cards/accessories/body/Assassin-cap.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/body/assassin-cap/assassin-cap-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 4 <br/> Glass : 3 <br/> Metal : 2 </td>
     <td> 3/5</td>
     <td> No </td>
@@ -299,8 +299,8 @@ The number of accessories in circulation will be greatly dependent on the number
   </tr>
    <tr>
     <td> Body 👤 </td>
-    <td> Yakuza-oni-jacket </td>
-    <td> <img src="cards/accessories/body/Yakuza-oni-jacket.svg" width="100px" height="auto"> </img> </td>
+    <td> Yakuza-suit </td>
+    <td> <img src="../../assets/cards/accessories/body/yakuza-suit/yakuza-suit-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 2 <br/> Glass : 3 <br/> Metal : 3 </td>
     <td> 3/5</td>
     <td> No </td>
@@ -309,7 +309,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Body 👤 </td>
     <td> Lab-coat </td>
-    <td> <img src="cards/accessories/body/Lab-coat.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/body/lab-coat/lab-coat-card.svg" width="150" height="auto"> </img> </td>
     <td> Glass : 3  <br/> Circuit : 1 </td>
     <td> 3/5</td>
     <td> No </td>
@@ -317,8 +317,8 @@ The number of accessories in circulation will be greatly dependent on the number
   </tr>
   <tr>
     <td> Body 👤 </td>
-    <td> Shinobi-jacket </td>
-    <td> <img src="cards/accessories/body/Shinobi-jacket.svg" width="100px" height="auto"> </img> </td>
+    <td> Shinobi-suit </td>
+    <td> <img src="../../assets/cards/accessories/body/shinobi-suit/shinobi-suit-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 2 <br/> Wood : 2 <br/> Metal : 3 <br/> Circuit : 1  </td>
     <td> 4/5</td>
     <td> No </td>
@@ -327,7 +327,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Body 👤 </td>
     <td> Devil-jacket </td>
-    <td> <img src="cards/accessories/body/Devil-jacket.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/body/devil-jacket/devil-jacket-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 6 <br/> Wood : 6 <br/> Metal : 6 <br/>  </td>
     <td> 4/5</td>
     <td> No </td>
@@ -335,8 +335,8 @@ The number of accessories in circulation will be greatly dependent on the number
   </tr>
   <tr>
     <td> Body 👤 </td>
-    <td> Dystopian-jacket </td>
-    <td> <img src="cards/accessories/body/Dystopian-jacket.svg" width="100px" height="auto"> </img> </td>
+    <td> Street-jacket </td>
+    <td> <img src="../../assets/cards/accessories/body/street-jacket/street-jacket-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 7 <br/> Glass : 1 </br> Circuit : 2 </td>
     <td> 4/5 </td>
     <td> No </td>
@@ -345,7 +345,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Body 👤 </td>
     <td> Magic-cap </td>
-    <td> <img src="cards/accessories/body/Dark-magic-body.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/body/magic-cap/magic-cap-card.svg" width="150" height="auto"> </img> </td>
     <td> Cloth : 9 <br/> Dfinity-stone : 1 </td>
     <td> 5/5</td>
     <td> No </td>
@@ -353,13 +353,32 @@ The number of accessories in circulation will be greatly dependent on the number
   </tr>
   <tr>
     <td> Body 👤 </td>
-    <td> Astro-body </td>
-    <td> <img src="cards/accessories/body/Astro-body.svg" width="100px" height="auto"> </img> </td>
+    <td> Astro-suit </td>
+    <td> <img src="../../assets/cards/accessories/body/astro-suit/astro-suit-card.svg" width="150" height="auto"> </img> </td>
     <td> Metal : 4 <br/> Glass : 3 <br/> Circuit : 2 <br/> Dfinity-stone : 1 </td>
     <td> 5/5</td>
     <td> No </td>
     <td> 98 </td>
   </tr>
+  <tr>
+    <td> Misc 🌈 </td>
+    <td> Snowfall </td>
+    <td> <img src="../../assets/cards/accessories/misc/snowfall/snowfall-card.svg" width="150" height="auto"> </img> </td>
+    <td> Cloth : 9 <br/> Dfinity-stone : 1 </td>
+    <td> 5/5</td>
+    <td> No </td>
+    <td> 57 </td>
+  </tr>
+  <tr>
+    <td> Misc 🌈 </td>
+    <td> Sunrise </td>
+    <td> <img src="../../assets/cards/accessories/misc/sunrise/sunrise-card.svg" width="150" height="auto"> </img> </td>
+    <td> Cloth : 9 <br/> Dfinity-stone : 1 </td>
+    <td> 5/5</td>
+    <td> No </td>
+    <td> 57 </td>
+  </tr>
+  
 </table>
 
 ### <u> **Limited edition** </u>
@@ -376,8 +395,17 @@ The number of accessories in circulation will be greatly dependent on the number
   </tr>
   <tr>
     <td> Hat 🎩 </td>
-    <td> Bootcamp-hat </td>
-    <td> <img src="cards/accessories/special/Bootcamp-hat.svg" width="100px" height="auto"> </img> </td>
+    <td> Mortaboard-hat </td>
+    <td> <img src="../../assets/cards/accessories/hat/mortaboard-hat/mortaboard-hat-card.svg" width="150px" height="auto"> </img> </td>
+    <td> Airdropped. </td>
+    <td> Motoko-bootcamp </td>
+    <td> No </td>
+    <td> ? </td>
+  </tr>
+  <tr>
+    <td> Body 👤 </td>
+    <td> Bootcamp-solider </td>
+    <td> <img src="../../assets/cards/accessories/body/bootcamp-soldier/bootcamp-soldier-card.svg" width="150px" height="auto"> </img> </td>
     <td> Airdropped. </td>
     <td> Motoko-bootcamp </td>
     <td> No </td>
@@ -386,7 +414,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Body 👤 </td>
     <td> Cronic-tshirt </td>
-    <td> <img src="cards/accessories/special/Cronic-tshirt.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/body/cronic-tshirt/cronic-tshirt-card.svg" width="150px" height="auto"> </img> </td>
     <td> ? </td>
     <td> Cronic </td>
     <td> No </td>
@@ -395,25 +423,25 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Eyes 👀 </td>
     <td> Cronic-eyepatch </td>
-    <td> <img src="cards/accessories/special/Cronic-eyepatch.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/eyes/cronic-eyepatch/cronic-eyepatch-card.svg" width="150px" height="auto"> </img> </td>
     <td> ? </td>
     <td> Cronic </td>
     <td> No </td>
     <td> Limited </td>
   </tr>
     <tr>
-    <td> Special 🌈</td>
-    <td> Cronic-universe </td>
-    <td> <img src="cards/accessories/special/Cronic-eyepatch.svg" width="100px" height="auto"> </img> </td>
+    <td> Misc 🌈</td>
+    <td> Cronic-hypnose </td>
+    <td> <img src="../../assets/cards/accessories/misc/cronic-hypnose/cronic-hypnose-card.svg" width="150px" height="auto"> </img> </td>
     <td> ? </td>
     <td> Cronic </td>
     <td> No </td>
     <td> Limited </td>
   </tr>
     <tr>
-    <td> Special 🌈 </td>
-    <td> Cronic-background </td>
-    <td> <img src="cards/accessories/special/Cronic-eyepatch.svg" width="100px" height="auto"> </img> </td>
+    <td> Misc 🌈 </td>
+    <td> Cronic-wallpaper </td>
+    <td> <img src="../../assets/cards/accessories/misc/cronic-wallpaper/cronic-wallpaper-card.svg" width="150px" height="auto"> </img> </td>
     <td> ? </td>
     <td> Cronic </td>
     <td> No </td>
@@ -422,7 +450,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Face 👦 </td>
     <td> Punk-mask </td>
-    <td> <img src="cards/accessories/special/Punk-mask.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/face/punk-mask/punk-mask-card.svg" width="150px" height="auto"> </img> </td>
     <td> ? </td>
     <td> ICPunk </td>
     <td> No </td>
@@ -431,7 +459,7 @@ The number of accessories in circulation will be greatly dependent on the number
   <tr>
     <td> Eyes 👀 </td>
     <td> Punk-glasses </td>
-    <td> <img src="cards/accessories/special/Punk-glasses.svg" width="100px" height="auto"> </img> </td>
+    <td> <img src="../../assets/cards/accessories/eyes/punk-glasses/punk-glasses-card.svg" width="150px" height="auto"> </img> </td>
     <td> ? </td>
     <td> ICPunk </td>
     <td> No </td>

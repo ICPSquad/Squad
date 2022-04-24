@@ -1,5 +1,0 @@
-type Invoice/1 = Invoice;
-actor {
-  stable var entries : [(Nat, Invoice/1)];
-  stable var invoiceCounter : Nat
-};

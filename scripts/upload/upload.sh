@@ -20,18 +20,26 @@ then
     esac
 fi
 
+echo "Do you want to upload legendary character (~4 min) [Y/n] "
+read input
+case $input in 
+    [yY][eE][sS]|[yY])
+        echo "Uploading legendary character ⭐️"
+        bash ./scripts/upload/upload_legendary_characters.sh $canister $network
+        ;;
+    [nN][oO]|[nN])
+        echo "Skipping legendary character"
+        ;;
+    *)
+        echo "Invalid input..."
+        exit 1
+        ;;
+esac
 
-echo "1/4 Uploading manifest for avatar 👦"
-bash ./scripts/upload/upload_manifest_avatar.sh $canister $network
+echo "Deploying all layers and registering the associated components to $canister on network $network."
+bash ./scripts/upload/upload_register_components_avatar.sh $canister $network 
 
-echo "2/4 Uploading manifest for accessories 🎩"
-bash ./scripts/upload/upload_manifest_accessories.sh $canister $network
 
-echo "3/4 Uploading manifest for legendary characters 🧙‍♂️"
-bash ./scripts/upload/upload_manifest_legendary_characters.sh $canister $network
-
-echo "4/4 Uploading manifest for components 👨‍🎨"
-bash ./scripts/upload/upload_manifest_components.sh $canister $network
 
 echo "Done 🌈"
 

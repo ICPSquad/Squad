@@ -16,6 +16,12 @@
       "type": "motoko",
       "main": "./src/invoice/main.mo"
     },
+    "ledger": {
+      "type": "custom",
+      "candid": "src/ledger/ledger.did",
+      "wasm": "target/wasm32-unknown-unknown/release/ledger.wasm",
+      "build": "cargo build --target wasm32-unknown-unknown --release --package ledger"
+    },
     "website": {
       "frontend": {
         "entrypoint": "src/website/src/index.html"

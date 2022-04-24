@@ -1,3 +1,25 @@
+type User__1 = 
+ record {
+   discord: opt text;
+   email: opt text;
+   height: opt nat64;
+   rank: opt nat64;
+   status: Status;
+   twitter: opt text;
+ };
+type User = 
+ record {
+   discord: opt text;
+   email: opt text;
+   height: opt nat64;
+   rank: opt nat64;
+   status: Status;
+   twitter: opt text;
+ };
+type UpgradeData = record {users: vec record {
+                                        principal;
+                                        User__1;
+                                      };};
 type UpdateCallsAggregatedData = vec nat64;
 type TokenVerbose = 
  record {
@@ -6,6 +28,17 @@ type TokenVerbose =
    symbol: text;
  };
 type Time = int;
+type Status = 
+ variant {
+   InProgress;
+   Invoice: Invoice;
+   Member: bool;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok;
+ };
 type Permissions = 
  record {
    canGet: vec principal;
@@ -96,13 +129,16 @@ type ICPSquadHub =
    acceptCycles: () -> ();
    add_admin: (principal) -> ();
    availableCycles: () -> (nat) query;
+   backup_users: () -> (UpgradeData) query;
    collectCanisterMetrics: () -> ();
    getCanisterLog: (opt CanisterLogRequest) ->
     (opt CanisterLogResponse) query;
    getCanisterMetrics: (GetMetricsParameters) -> (opt CanisterMetrics) query;
+   get_user: () -> (opt User) query;
    is_admin: (principal) -> (bool) query;
    mint: (MintInformation) -> (MintResult);
-   size: () -> (nat) query;
+   modify_user: (User) -> (Result);
+   whitelist: (principal) -> (Result);
  };
 type HourlyMetricsData = 
  record {

@@ -13,7 +13,8 @@
     "prebuild": "npm run copy:types",
     "prestart": "npm run copy:types",
     "start": "webpack serve --mode development --env development",
-    "copy:types": "rsync -avr .dfx/ic/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete src/declarations"
+    "deploy:local": "",
+    "deploy:remote": ""
   },
   "devDependencies": {
     "@dfinity/agent": "^0.10.1",
@@ -27,9 +28,12 @@
     "buffer": "6.0.3",
     "copy-webpack-plugin": "^9.0.1",
     "css-loader": "^6.5.0",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.0.0",
     "events": "3.3.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "5.3.1",
+    "isomorphic-fetch": "^3.0.0",
     "mini-css-extract-plugin": "^2.2.0",
     "postcss": "^8.3.11",
     "postcss-loader": "^6.1.1",

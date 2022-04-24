@@ -178,7 +178,6 @@ export const idlFactory = ({ IDL }) => {
     'hair' : IDL.Text,
     'cloth' : IDL.Text,
     'nose' : IDL.Text,
-    'user' : IDL.Principal,
     'colors' : Colors,
     'profile' : IDL.Text,
   });
@@ -273,7 +272,7 @@ export const idlFactory = ({ IDL }) => {
     'init_cap' : IDL.Func([], [Result], []),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'metadata' : IDL.Func([TokenIdentifier], [Result_4], ['query']),
-    'mint' : IDL.Func([MintInformation], [Result_3], []),
+    'mint' : IDL.Func([MintInformation, IDL.Principal], [Result_3], []),
     'registerComponent' : IDL.Func([IDL.Text, Component], [Result], []),
     'removeAccessory' : IDL.Func(
         [TokenIdentifier, IDL.Text, IDL.Principal],

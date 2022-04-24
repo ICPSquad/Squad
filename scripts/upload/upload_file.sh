@@ -13,7 +13,6 @@ extension="${file##*.}"
 contentType=$(file --mime-type -b $file)
 categoryCandid="variant {$category}"
 
-
 # Upper limit for chunks due to shell restrictions.
 threshold=250000
 
@@ -22,18 +21,8 @@ byteArray=( $(od -An -v -tuC $file))
 byteSize=${#byteArray[*]}
 threshold=250000
 
-log_line="Uploading $file of category $category with name $name and size $(( $byteSize / 1024 )) kb to canister $canister on network $network."
-echo $log_line
-
-
-echo "$log_line ...Emptying buffer"
-dfx canister --network $network call $canister uploadClear >> /dev/null
-
-
-echo "$log_line ...Uploading file"
 i=0
 while [ $i -le $byteSize ]; do
-    echo "$log_line ...Uploading #$(($i/$threshold+1))/$(($byteSize/$threshold+1))"
     payload="vec {"
     for byte in ${byteArray[@]:$i:$threshold}; do
         payload+="${byte};"
@@ -43,8 +32,6 @@ while [ $i -le $byteSize ]; do
     i=$(($i+$threshold))
 done
 
-echo "$log_line ...Finalizing"
-
 meta="record {
     name = \"$name\";
     tags = vec{ \"$tags_component\"; \"$tags_layer\" };
@@ -53,4 +40,4 @@ meta="record {
 }"
 finalizeArg="\"$contentType\",$meta,\"$name\""
 dfx canister --network $network call $canister uploadFinalize "($finalizeArg)" >> /dev/null
-echo "$log_line ...Done"
+echo "Uploaded $name to canister $canister on network $network with size $(( $byteSize / 1024 )) kb."

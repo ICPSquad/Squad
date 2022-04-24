@@ -1,4 +1,4 @@
-# Accessory 🎩
+# Accessories 🎩
 
 # Classical
 
