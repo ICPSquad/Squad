@@ -9,6 +9,7 @@ Material,Punk-essence
 Material,Cronic-essence
 Accessory,Assassin-cap,body,Cloth/Cloth/Cloth/Cloth/Glass/Glass/Glass/Metal/Metal
 Accessory,Astro-suit,body,Metal/Metal/Metal/Metal/Glass/Glass/Glass/Circuit/Circuit/Dfinity-stone
+Accessory,Bootcamp-soldier,body,None
 Accessory,Cronic-tshirt,body,Cronic-essence/Cronic-essence/Cronic-essence/Cloth/Cloth
 Accessory,Devil-jacket,body,Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Wood/Wood/Wood/Wood/Wood/Wood/Metal/Metal/Metal/Metal/Metal/Metal
 Accessory,Helicap-tshirt,body,Cloth/Cloth/Cloth/Cloth/Wood/Wood/Wood/Wood
@@ -31,10 +32,10 @@ Accessory,Astro-helmet,hat,Glass/Glass/Metal/Metal/Metal/Circuit/Circuit/Dfinity
 Accessory,Helicap,hat,Cloth/Cloth/Cloth/Cloth/Wood/Wood/Wood
 Accessory,Magic-hood,hat,Cloth/Metal/Metal/Metal/Metal/Metal/Metal/Metal/Metal/Dfinity-stone
 Accessory,Marshall-hat,hat,Cloth/Cloth/Cloth/Metal/Metal/Metal
-Accessory,Mortaboard-hat,bootcamp,hat,None
+Accessory,Mortaboard-hat,hat,None
 Accessory,Ninja-headband,hat,Wood/Wood/Wood/Glass/Metal/Metal/Metal
 Accessory,Shinobi-hat,hat,Wood/Wood/Wood/Wood/Wood/Metal/Metal/Metal/Metal/Metal
-Accessory,Cronic-background-cross,misc,Cronic-essence/Cronic-essence/Cronic-essence/Metal/
+Accessory,Cronic-background-cross,misc,Cronic-essence/Cronic-essence/Cronic-essence/Metal
 Accessory,Cronic-background-snow,misc,
 Accessory,Snowfall-background,misc,Cloth/Wood/Wood/Wood/Wood/Glass/Glass/Metal
 Accessory,Sunrise-background,misc,
