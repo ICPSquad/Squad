@@ -33,6 +33,13 @@ h3 {
   font-size: min(max(1.2rem, 3vw), 1.8rem); // Min, Variable, Max
 }
 
+h4 {
+  line-height: 115%;
+  margin-bottom: 1rem;
+  font-size: 1rem; // Fallback
+  font-size: min(max(1rem, 1.2vw), 1.5rem); // Min, Variable, Max
+}
+
 p.large {
   margin-bottom: 1rem;
   line-height: 140%;
