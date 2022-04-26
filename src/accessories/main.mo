@@ -687,6 +687,8 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     let _HttpHandler = Http.HttpHandler({
         _Admins = _Admins;
         _Items = _Items;
+        _Logs = _Logs;
+        cid = cid;
     });
 
     public query func http_request (request : Http.Request) : async Http.Response {

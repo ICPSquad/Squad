@@ -3,6 +3,7 @@ import { fetchIdentity } from "../keys";
 import { Template } from "../declarations/accessories/accessories.did.d";
 import { createReadStream, readFileSync } from "fs";
 import csvParser, { CsvParser } from "csv-parser";
+import { Principal } from "@dfinity/principal";
 
 const results = [];
 function createAccessory(name: string, slot: string, recipe: string): Template {
@@ -50,12 +51,16 @@ async function upload() {
     let element = results[i];
     if (element.category === "Material") {
       let template = createMaterial(element.name);
-      let result = await actor.addElements(element.name, template);
+      let result = await actor.addTemplate(element.name, template);
       console.log(JSON.stringify(result, null, 2));
+      let mint = await actor.mint(element.name, Principal.anonymous());
+      console.log(JSON.stringify(mint, null, 2));
     } else if (element.category === "Accessory") {
       let template = createAccessory(element.name, element.slot, element.recipe);
-      let result = await actor.addElements(element.name, template);
+      let result = await actor.addTemplate(element.name, template);
       console.log(JSON.stringify(result, null, 2));
+      let mint = await actor.mint(element.name, Principal.anonymous());
+      console.log(JSON.stringify(mint, null, 2));
     }
   }
 }

@@ -284,6 +284,26 @@ module {
             };
         };
 
+        public func getBlob(
+            index : TokenIndex
+        ) : ?Blob {
+            switch(_items.get(index)){
+                case(?#Material(name)){
+                    switch(_templates.get(name)){
+                        case(?#Material(blob)){
+                            _Logs.logMessage("CRITICAL ERROR : template not found for : " # name);
+                            return ?blob;
+                        };
+                        case(_) return null;
+                    };
+                };
+                case(?#Accessory(item)){
+                    return _blobs.get(index);
+                };
+                case(_) return null;
+            };
+        };
+
         ////////////////
         // HELPERS /////
         ////////////////

@@ -69,6 +69,9 @@ module {
         //
         mint(name : Text, index : TokenIndex) : Result<(), Text>;
 
+        //
+        getBlob(inde : TokenIndex) : ?Blob;
+
     };
 
 }

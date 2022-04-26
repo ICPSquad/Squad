@@ -13,7 +13,7 @@ if [ "$DEPLOYED_AVATAR_CANISTER_ID" != "$AVATAR_CANISTER_ID" ]; then
     echo "Deployed avatar canister id is not the same as the expected one."
     exit 1
 fi
-dfx deploy accessories --argument "(principal \"${ACCESSORIES_CANISTER_ID}\")"
+dfx deploy accessories --argument "(principal \"${ACCESSORIES_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\")"
 DEPLOYED_ACCESSORIES_CANISTER_ID=$(dfx canister id accessories)
 if [ "$DEPLOYED_ACCESSORIES_CANISTER_ID" != "$ACCESSORIES_CANISTER_ID" ]; then
     echo "Deployed accessories canister id is not the same as the expected one."

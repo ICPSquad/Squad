@@ -1,5 +1,7 @@
 import HashMap "mo:base/HashMap";
 
+import Canistergeek "mo:canistergeek/canistergeek";
+
 import Accessory "../types/accessory";
 import Admins "../admins";
 import Items "../items";
@@ -11,6 +13,8 @@ module HTTP {
     public type Dependencies = {
         _Admins : Admins.Admins;
         _Items : Items.Factory;
+        _Logs : Canistergeek.Logger;
+        cid : Principal;
     };
 
     public type HeaderField = (Text,Text);
