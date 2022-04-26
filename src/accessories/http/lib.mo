@@ -1,15 +1,17 @@
 import Array "mo:base/Array";
+import Char "mo:base/Char";
 import Cycles "mo:base/ExperimentalCycles";
+import Debug "mo:base/Debug";
 import Float "mo:base/Float";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
+import Nat32 "mo:base/Nat32";
 import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 
 import Ext "mo:ext/Ext";
 
-import Assets "../assets";
 import Types "types";
 module {
 
@@ -44,6 +46,24 @@ module {
                 };
                 case _ return _http404(?"Path not found");
             }
+        };
+
+        ///////////////////
+        // Utilities ////
+        ////////////////
+
+        func _textToNat32( txt : Text) : ?Nat32 {
+            if(txt.size() == 0) {
+                return null;
+            };
+            let chars = txt.chars();
+            var num : Nat32 = 0;
+            for (v in chars){
+                let charToNum = Char.toNat32(v)-48;
+                assert(charToNum >= 0 and charToNum <= 9);
+                num := num * 10 +  charToNum;          
+            };
+            ? num;
         };
 
         ////////////////////
@@ -90,76 +110,41 @@ module {
           };
         };
 
-        // @path : /assets/<text>
-        // @path : /asset/<text>
-        // Serves an asset based on filename.
-        func _httpAssetFilename(path : ?Text) : Types.Response {
-            switch(path){
-                case(?path){
-                    switch(state._Assets.getFile(path)){
-                        case(?record) {
-                            _renderAsset(record);
-                        };
-                        case _ _http404(?"Asset not found.");
-                    };
-                };
-                case _ return _httpAssetManifest(null);
-            };
-        };
 
-        // @path: /asset-manifest
-        // Serves a JSON list of all assets in the canister.
-        func _httpAssetManifest (path : ?Text) : Types.Response {
-            {
-                body = Text.encodeUtf8(
-                    "[\n" #
-                    Array.foldLeft<Assets.File, Text>(state._Assets.getManifest(), "", func (a, b) {
-                        let comma = switch (a == "") {
-                            case true "\t";
-                            case false ", ";
-                        };
-                        a # comma # "{\n" #
-                            "\t\t\"filename\": \"" # b.meta.name # "\",\n" #
-                            "\t\t\"url\": \"/assets/" # b.meta.name # "\",\n" #
-                            "\t\t\"description\": \"" # b.meta.description # "\",\n" #
-                            "\t\t\"tags\": [" # Array.foldLeft<Text, Text>(b.meta.tags, "", func (a, b) {
-                                let comma = switch (a == "") {
-                                    case true "";
-                                    case false ", ";
-                                };
-                                a # comma # "\"" # b # "\""
-                            }) # "]\n" #
-                        "\t}";
-                    }) #
-                    "\n]"
-                );
-                headers = [
-                    ("Content-Type", "application/json"),
-                ];
-                status_code = 200;
-                streaming_strategy = null;
-            }
-        };
+
+        // @path : /overview
+        // Serves an overview of all the minted assets.
+        // func () : Types.Response {
+        
+        // };
+
+        // @path : /tokenIndex/<tokenIndex>
+        // Serves the blob corresponding to this tokenIndex
+        // func _httpTokenIndex(tokenIndex : ?Text) : Types.Response {
+        //     switch(tokenIndex) {
+        //         case(null) return _http404(?"No tokenIndex specified");
+        //         case(? tokenIndex){
+        //             let index = _textToNat32(tokenIndex);
+        //             switch(index){
+        //                 case(? index){
+        //                     switch(state._blobs.get(index)){
+        //                         case(? blob) {
+        //                             _renderBlob(blob, "image/svg+xml");
+        //                         };
+        //                         case _ _http404(?"Asset not found for this index.");
+        //                     };
+        //                 };
+        //             }
+        //         }
+        //     }
+        // };
+
 
     
         ////////////////
         // Renderers //
         //////////////
 
-        // Create an HTTP response from an Asset Record.
-        func _renderAsset(
-            record : Assets.File,
-        ) : Types.Response {
-            {
-                body = record.asset.payload;
-                headers = [
-                    ("Content-Type", record.asset.contentType),
-                    ("Access-Control-Allow-Origin", "*"),
-                ];
-                status_code = 200;
-                streaming_strategy = null;
-            }
-        };
 
        
         // Create an HTTP response from an blob.
@@ -184,9 +169,7 @@ module {
         ////////////////
 
         let paths : [(Text , (path : ?Text) -> Types.Response)] = [
-            ("asset", _httpAssetFilename),
-            ("assets", _httpAssetFilename),
-            ("asset-manifest", _httpAssetManifest),
+            // ("tokenIndex", _httpTokenIndex) 
         ];
 
         };

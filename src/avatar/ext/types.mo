@@ -42,7 +42,7 @@ module {
     };
 
     public type UpgradeData = {
-        registry : [(TokenIndex, AccountIdentifier)]
+        registry : [(TokenIndex, AccountIdentifier)];
     };
 
     public type Interface = {

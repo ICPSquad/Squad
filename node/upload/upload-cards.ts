@@ -48,13 +48,14 @@ async function upload() {
   let size = results.length;
   for (let i = 0; i < size; i++) {
     let element = results[i];
-    console.log("Uploading: ", element.name);
-    if (element === "Material") {
+    if (element.category === "Material") {
       let template = createMaterial(element.name);
-      await actor.addElements(element.name, template);
+      let result = await actor.addElements(element.name, template);
+      console.log(JSON.stringify(result, null, 2));
     } else if (element.category === "Accessory") {
       let template = createAccessory(element.name, element.slot, element.recipe);
-      await actor.addElements(element.name, template);
+      let result = await actor.addElements(element.name, template);
+      console.log(JSON.stringify(result, null, 2));
     }
   }
 }

@@ -216,11 +216,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
 
     public shared ({caller}) func mint(
         info : MintInformation,
-        caller : Principal,
+        receiver : Principal,
     ) : async Result<TokenIdentifier, Text> {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        switch(_Ext.mint({ to = #principal(caller); metadata = null; })){
+        switch(_Ext.mint({ to = #principal(receiver); metadata = null; })){
             case(#err(#Other(e))) return #err(e);
             case(#err(#InvalidToken(e))) return #err(e);
             case(#ok(index)){

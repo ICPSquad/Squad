@@ -26,13 +26,14 @@ import Root "mo:cap/Root";
 
 import Accessory "types/accessory";
 import Admins "admins";
-import Assets "assets";
-import Entrepot "../dependencies/entrepot";
-import ExtCore "../dependencies/ext/Core";
+import Entrepot "entrepot";
+import ExtModule "ext";
 import Http "http";
+import Items "items";
 
 shared({ caller = creator }) actor class ICPSquadNFT(
-    cid : Principal
+    cid : Principal,
+    cid_avatar : Principal
 ) = this {
 
     ///////////
@@ -117,352 +118,87 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Logs.getLog(request);
     };
 
-    ////////////
-    // ASSET //
-    ///////////
+    //////////////////
+    // EXT - ERC721 //
+    /////////////////
 
-    public type FilePath = Assets.FilePath;
-    public type File = Assets.File;
+    type AccountIdentifier = Ext.AccountIdentifier;
+    type SubAccount = Ext.SubAccount;
+    type User = Ext.User;
+    type Balance = Ext.Balance;
+    type TokenIdentifier = Ext.TokenIdentifier;
+    type TokenIndex  = Ext.TokenIndex ;
+    type Extension = Ext.Extension;
+    type CommonError = Ext.CommonError;
+    type BalanceRequest = Ext.Core.BalanceRequest;
+    type BalanceResponse = Ext.Core.BalanceResponse;
+    type TransferRequest = Ext.Core.TransferRequest;
+    type TransferResponse = Ext.Core.TransferResponse;
 
-    stable var _AssetsUD : ?Assets.UpgradeData = null;
-    let _Assets = Assets.Assets();
+    stable var _ExtUD : ?ExtModule.UpgradeData = null;
+    let _Ext = ExtModule.Factory({
+        cid = cid; 
+        _Logs = _Logs;
+    });
 
-    public shared ({caller}) func upload(
-        bytes : [Nat8]
-    ) : async () {
-        assert(_Admins.isAdmin(caller));
+    public shared ({caller}) func transfer(request : TransferRequest) : async TransferResponse {
         _Monitor.collectMetrics();
-        _Assets.upload(bytes);
-    };
-
-    public shared ({caller}) func uploadFinalize (
-        contentType : Text,
-        meta : Assets.Meta,
-        filePath : Text,
-    ) : async Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        switch(_Assets.uploadFinalize(contentType,meta,filePath)){
-            case(#ok(())){
-                _Logs.logMessage("Uploaded file: " # filePath);
-                return #ok(());
+        switch(_Ext.transfer(caller, request)){
+            case(#err(#Other(e))) return #err(#Other(e));
+            case(#err(#InvalidToken(token))) return #err(#InvalidToken(token));
+            case(#ok(index)) {
+                let from = Text.map(Ext.User.toAccountIdentifier(request.from), Prim.charToLower);
+                let to = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
+                ignore(_registerEvent({
+                    operation = "transfer";
+                    details = [("token", #Text(request.token)), ("from", #Text(from)), ("to", #Text(to))];
+                    caller = caller;
+                }));
+                return #ok(index);
             };
-            case(#err(message)){
-                _Logs.logMessage("Failed to upload file: " # filePath);
-                return #err(message);
-            };
+            case(#err(_)) return #err(#Other("Unknown error"));
         }
     };
 
-    public shared ({caller}) func uploadClear() : async () {
-        assert(_Admins.isAdmin(caller));
+    public func tokenId(index : TokenIndex ) : async Text {
         _Monitor.collectMetrics();
-        _Assets.uploadClear();
-    };
-
-    public shared ({ caller }) func delete(
-        filePath : Text
-    ) : async Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Assets.delete(filePath);
-    };
-
-
-    /////////////////////////
-    // NFT - EXT - ERC721 //
-    ////////////////////////
-
-    type AccountIdentifier = ExtCore.AccountIdentifier;
-    type SubAccount = ExtCore.SubAccount;
-    type User = ExtCore.User;
-    type Balance = ExtCore.Balance;
-    type TokenIdentifier = ExtCore.TokenIdentifier;
-    type TokenIndex  = ExtCore.TokenIndex ;
-    type Extension = ExtCore.Extension;
-    type CommonError = ExtCore.CommonError;
-    type BalanceRequest = ExtCore.BalanceRequest;
-    type BalanceResponse = ExtCore.BalanceResponse;
-    type TransferRequest = ExtCore.TransferRequest;
-    type TransferResponse = ExtCore.TransferResponse;
-
-    private let EXTENSIONS : [Extension] = [];
-    private stable var _minter : [Principal]  = [];
-    private stable var _nextTokenId : TokenIndex  = 0;
-
-    private stable var _registryEntries : [(TokenIndex, AccountIdentifier)] = [];
-    private var _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.fromIter(_registryEntries.vals(), 0, ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
-
-    private stable var _ownershipsEntries : [(AccountIdentifier, [TokenIndex])] = [];
-    private var _ownerships : HashMap.HashMap<AccountIdentifier, [TokenIndex]> = HashMap.fromIter(_ownershipsEntries.vals(), _ownershipsEntries.size(), Text.equal, Text.hash);
-
-    public shared({caller}) func transfer(request : TransferRequest) : async TransferResponse {
-        if (request.amount != 1) {
-                return #err(#Other("Must use amount of 1"));
-        };
-        if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
-            return #err(#InvalidToken(request.token));
-        };
-        let token_index = ExtCore.TokenIdentifier.getIndex(request.token);
-        if(_isLocked(token_index)){
-
-        };
-        let owner = Text.map(Ext.User.toAccountIdentifier(request.from),Prim.charToLower);
-        let to = Text.map(Ext.User.toAccountIdentifier(request.to),Prim.charToLower);
-        let caller_account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, request.subaccount), Prim.charToLower);
-
-        switch (_registry.get(token_index)) {
-            case (?token_owner) {
-                if(owner == token_owner) {
-                    return #err(#Unauthorized(owner));
-                };
-                if (owner == caller_account) {
-                    return #err(#Unauthorized(caller_account));
-                };
-                _registry.put(token_index, to);
-                _tokenListing.delete(token_index);
-                _tokenSettlement.delete(token_index);
-                switch(_transferTokenOwnership(owner, ?to, token_index)){
-                    case(#ok){};
-                    case(#err(message)) return #err(#Other(message));
-                };
-                // Report event to CAP
-                let event : IndefiniteEvent = {
-                    operation = "transfer";
-                    details = [("token", #Text(request.token)),("from", #Text(owner)),("to", #Text(to))];
-                    caller = caller;
-                };
-                ignore(_registerEvent(event));
-                return #ok(request.amount);
-            };
-            case (_) {
-                return #err(#InvalidToken(request.token));
-            };
-        };
-    };
-
-    public shared ({caller}) func mint (name : Text, recipient : AccountIdentifier) : async Result.Result<(),Text> {
-        assert(_Admins.isAdmin(caller));
-        switch(_mint(name, recipient)){
-            case(#err(error)) return #err(error);
-            case(#ok(tokenId)){
-                let event : IndefiniteEvent = {
-                    operation = "mint";
-                    details = [("token", #Text(tokenId)),("name", #Text(name)),("to", #Text(recipient))];
-                    caller = caller;
-                };
-                ignore(_registerEvent(event));
-                return #ok;
-            };
-        };
-    };
-
-    public query func getMinter() : async [Principal] {
-        _minter;
-    };
-
-    public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
-        Iter.toArray(_registry.entries());
-    };
-
-    public query func getOwnership() : async [(AccountIdentifier, [TokenIndex])] {
-        Iter.toArray(_ownerships.entries());
-    };
-    
-    public query func supply() : async Nat {
-        _registry.size();
-    };
-
-    public query func nextTokenId(): async Nat {
-        Nat32.toNat(_nextTokenId);
+        Ext.TokenIdentifier.encode(Principal.fromActor(this), index)
     };
 
     public query func extensions() : async [Extension] {
-        EXTENSIONS;
-    };
-      
-    public query func metadata(token_identifier : TokenIdentifier): async Result.Result<Ext.Common.Metadata, ExtCore.CommonError> {
-        if (ExtCore.TokenIdentifier.isPrincipal(token_identifier, Principal.fromActor(this)) == false) {
-            return #err(#InvalidToken(token_identifier));
-        };
-        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
-        return #ok(#nonfungible({metadata = _blobs.get(token_index)}));
+        _Ext.extensions();
     };
 
-     public shared query (msg) func tokens_ext (account : AccountIdentifier) : async Result.Result<[(TokenIndex, ?Listing, ?Blob)], CommonError> {
-        let tokens = _generateTokensExt(account);
-        if (tokens.size() == 0) {
-            return #err(#Other ("No token detected for this user."));
-        } else {
-            let answer = #ok(tokens);
-            return answer;
-        }
+    public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
+        _Ext.getRegistry();
     };
-    
-    private func _generateTokensExt (a : AccountIdentifier) : [(TokenIndex, ?Listing, ?Blob)] {
-        var tokens = Buffer.Buffer<(TokenIndex, ?Listing, ?Blob)>(0);
-        switch(_ownerships.get(a)){
-            case(null) {};
-            case(?list){
-                for(token_index in list.vals()){
-                    tokens.add(token_index, _tokenListing.get(token_index), _blobs.get(token_index));
-                };
-            };
-        };
-        let array = tokens.toArray();
-        return array;
+
+    public query func getTokens() : async [(TokenIndex, Ext.Common.Metadata)] {
+        _Ext.getTokens();
+    };
+      
+    public query func metadata(tokenId : TokenIdentifier): async Result<Ext.Common.Metadata, Ext.CommonError> {
+       _Ext.metadata(tokenId)
+    };
+
+    public query func tokens(aid : AccountIdentifier) : async Result<[TokenIndex], CommonError> {
+        _Ext.tokens(aid);
+    };
+
+    public query func tokens_ext(aid : AccountIdentifier) : async Result<[(TokenIndex, ?ExtModule.Listing, ?Blob)], CommonError> {
+        _Ext.tokens_ext(aid);
     };
 
     public query func balance(request : BalanceRequest) : async BalanceResponse {
-            if (ExtCore.TokenIdentifier.isPrincipal(request.token, Principal.fromActor(this)) == false) {
-                return #err(#InvalidToken(request.token));
-            };
-            let token = ExtCore.TokenIdentifier.getIndex(request.token);
-            let aid = Text.map(Ext.User.toAccountIdentifier(request.user),Prim.charToLower);
-            switch (_registry.get(token)) {
-            case (?token_owner) {
-                        if (aid == token_owner) {
-                            return #ok(1);
-                        } else {					
-                            return #ok(0);
-                        };
-            };
-            case (_) {
-                return #err(#InvalidToken(request.token));
-            };
-        };
-    };
-    
-    public query func bearer(token : TokenIdentifier) : async Result.Result<AccountIdentifier, CommonError> {
-        if (ExtCore.TokenIdentifier.isPrincipal(token, Principal.fromActor(this)) == false) {
-            return #err(#InvalidToken(token));
-        };
-        let tokenind = ExtCore.TokenIdentifier.getIndex(token);
-        switch (_registry.get(tokenind)) {
-            case (?token_owner) {
-                        return #ok(token_owner);
-            };
-            case (_) {
-                return #err(#InvalidToken(token));
-            };
-        };
+        _Ext.balance(request);
     };
 
-    public func tokenId(tokenId : TokenIndex ) : async Text {
-        Ext.TokenIdentifier.encode(Principal.fromActor(this), tokenId)
+    public query func bearer(tokenId : TokenIdentifier) : async Result<AccountIdentifier, CommonError> {
+        _Ext.bearer(tokenId);
     };
 
-
-    //////////////////
-    // NFT-helpers //
-    /////////////////
-
-    //  Used to update _ownersToNfts hashmap. If new_account is null token is removed.
-    private func _transferTokenOwnership(old_account : AccountIdentifier, new_account : ?AccountIdentifier, token_index : TokenIndex) : Result.Result<(), Text> { 
-        //Remove from old_account
-        switch(_ownerships.get(old_account)){
-            case(null) return #err("This account doesn't own this token");
-            case(?tokens){
-                let new_tokens = Array.filter<TokenIndex>(tokens, func (x) {x!=token_index;});
-                _ownerships.put(old_account, new_tokens);
-                switch(new_account){
-                    case(null) return #ok; // Burn
-                    case(?new_account){
-                        switch(_ownerships.get(new_account)){
-                            case(null) {
-                                _ownerships.put(new_account, [token_index]);
-                                return #ok;
-                            };
-                            case(?tokens){
-                                let new_tokens = Array.append<TokenIndex>(tokens, [token_index]);
-                                _ownerships.put(new_account, new_tokens);
-                                return #ok;
-                            };
-                        };
-                    };
-                };
-            };
-        };
-    };
-
-    private func _mint(item : Text, recipient : AccountIdentifier) : Result.Result<TokenIdentifier,Text> {
-        switch(_templates.get(item)){
-            case(?#Material(blob)){
-                _registry.put(_nextTokenId, recipient);
-                _addOwnership(_nextTokenId, recipient);
-                _items.put(_nextTokenId, #Material(item));
-            };
-            case(?#LegendaryAccessory(blob)){
-                _registry.put(_nextTokenId, recipient);
-                _addOwnership(_nextTokenId, recipient);
-                _items.put(_nextTokenId, #LegendaryAccessory({name = item; date_creation = Time.now()}));
-            };
-            case(?#Accessory(template)){
-                _registry.put(_nextTokenId, recipient);
-                _addOwnership(_nextTokenId, recipient);
-                _items.put(_nextTokenId, #Accessory({name = item; wear = 100; equipped = null}));
-                _drawAccessory(_nextTokenId);
-            };
-            case(null) return #err("There is no item called : " #item);
-        };
-        let token_identifier = Ext.TokenIdentifier.encode(cid, _nextTokenId);
-        _nextTokenId += 1;
-        return #ok(token_identifier);
-    };
-
-    private func _addOwnership (token_id : TokenIndex, owner : AccountIdentifier) : () {
-        switch(_ownerships.get(owner)){
-            case(?list){
-                let new_list = Array.append<TokenIndex>(list, [token_id]);
-                _ownerships.put(owner, new_list);
-            };
-            case(null){
-                _ownerships.put(owner, [token_id]);
-            };
-        };
-    };
-
-
-    //////////
-    // HTTP //
-    //////////
-
-    let _HttpHandler = Http.HttpHandler({
-        _Admins = _Admins;
-        _Assets = _Assets;
-    });
-
-    public query func http_request (request : Http.Request) : async Http.Response {
-        if(Text.contains(request.url, #text("tokenid="))){
-            let iterator = Text.split(request.url, #text("tokenid="));
-            let array = Iter.toArray(iterator);
-            let token_identifier = array[array.size() - 1];
-            let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
-            switch(_items.get(token_index)){
-                case(null) {{body = Blob.fromArray([0]); headers = [("Content-Type", "text/html; charset=UTF-8")];  streaming_strategy = null; status_code = 404;}};
-                case(?#Material(name)) {_streamStaticAsset(name)};
-                case(?#LegendaryAccessory(legendary)) {_streamStaticAsset(legendary.name)};
-                case(?#Accessory(accessory)) {_streamAccessory(token_index)};
-            };
-        } else {
-        _HttpHandler.request(request);  
-        }
-    };
-
-    private func _streamStaticAsset(name : Text) : Http.Response {
-        switch(_templates.get(name)){
-            case(null) {{body = (Text.encodeUtf8("Template not found. (critical error)")); headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200;}};
-            case(?#Material(blob)){{body = blob; headers = [("Content-Type", "image/svg+xml")]; streaming_strategy = null; status_code = 200;}}; //TODO check content type
-            case(?#LegendaryAccessory(blob)){{body = blob; headers = [("Content-Type", "image/svg+xml")]; streaming_strategy = null; status_code = 200;}};
-            case(_) {{body = (Text.encodeUtf8("Error unreacheable")); headers = [("Content-Type", "image/svg+xml")]; streaming_strategy = null; status_code = 200;}};
-        }
-    };  
-
-    private func _streamAccessory(token_index : TokenIndex) : Http.Response {
-        switch(_blobs.get(token_index)){
-            case(null) {{body = (Text.encodeUtf8("Accessory not found. (critical error)")); headers = [("Content-Type", "text/html; charset=UTF-8")]; streaming_strategy = null; status_code = 200;}};
-            case(?blob) {{body = blob; headers = [("Content-Type", "image/svg+xml")]; streaming_strategy = null; status_code = 200; }}
-        }
+    public query func details(tokenId : TokenIdentifier) : async Result<(AccountIdentifier, ?ExtModule.Listing), CommonError> {
+        _Ext.details(tokenId);
     };
 
     //////////
@@ -566,8 +302,8 @@ shared({ caller = creator }) actor class ICPSquadNFT(
 	private stable var _paymentsState : [(Principal, [SubAccount])] = [];
 	private stable var _refundsState : [(Principal, [SubAccount])] = [];
 
-    private var _tokenListing : HashMap.HashMap<TokenIndex, Listing> = HashMap.fromIter(_tokenListingState.vals(), _tokenListingState.size(), ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
-    private var _tokenSettlement : HashMap.HashMap<TokenIndex, Settlement> = HashMap.fromIter(_tokenSettlementState.vals(), _tokenSettlementState.size(), ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
+    private var _tokenListing : HashMap.HashMap<TokenIndex, Listing> = HashMap.fromIter(_tokenListingState.vals(), _tokenListingState.size(), Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+    private var _tokenSettlement : HashMap.HashMap<TokenIndex, Settlement> = HashMap.fromIter(_tokenSettlementState.vals(), _tokenSettlementState.size(), Ext.TokenIndex.equal, Ext.TokenIndex.hash);
     private var _payments : HashMap.HashMap<Principal, [SubAccount]> = HashMap.fromIter(_paymentsState.vals(), 0, Principal.equal, Principal.hash);
     private var _refunds : HashMap.HashMap<Principal, [SubAccount]> = HashMap.fromIter(_refundsState.vals(), 0, Principal.equal, Principal.hash);
 
@@ -610,13 +346,25 @@ shared({ caller = creator }) actor class ICPSquadNFT(
 
     public shared(msg) func list (request : ListRequest) : async Result.Result<(), CommonError> {
         let token_identifier = request.token;
-        let token_index = ExtCore.TokenIdentifier.getIndex(request.token);
+        let token_index = switch(Ext.TokenIdentifier.decode(token_identifier)){
+            case(#err(_)) {
+                _Logs.logMessage("Ext/lib/balance/line78. Token identifier : " # request.token);
+                return #err(#InvalidToken(request.token))
+            };
+            case(#ok(canisterId, tokenIndex)) {
+                if(canisterId != cid){
+                    return #err(#InvalidToken(request.token));
+                };
+                tokenIndex;
+            };
+        };
         if(_isLocked(token_index)){
             return #err(#Other("Listing is locked"));
         };
-        if(_isEquipped(token_index)){
-            return #err(#Other("Cannot list an accessory that is currently equipped. Please remove it from your avatar before."));
-        };
+        //TODO
+        // if(_isEquipped(token_index)){
+        //     return #err(#Other("Cannot list an accessory that is currently equipped. Please remove it from your avatar before."));
+        // };
         switch(_tokenSettlement.get(token_index)){
             case(?settlement){
                 switch(await settle(token_identifier)){
@@ -655,7 +403,18 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         if(_isSubaccountIncorrect(subaccount)){
             return #err(#Other("Invalid subaccount"));
         };
-        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+        let token_index = switch(Ext.TokenIdentifier.decode(token_identifier)){
+            case(#err(_)) {
+                _Logs.logMessage("Ext/lib/balance/line78. Token identifier : " # token_identifier);
+                return #err(#InvalidToken(token_identifier))
+            };
+            case(#ok(canisterId, tokenIndex)) {
+                if(canisterId != cid){
+                    return #err(#InvalidToken(token_identifier));
+                };
+                tokenIndex;
+            };
+        };
         if(_isLocked(token_index)){
             return #err(#Other("Listing is locked"));
         };
@@ -697,7 +456,18 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     };
 
     public shared (msg) func settle (token_identifier : Text) : async Result.Result<(), CommonError> {
-        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
+        let token_index = switch(Ext.TokenIdentifier.decode(token_identifier)){
+            case(#err(_)) {
+                _Logs.logMessage("Ext/lib/balance/line78. Token identifier : " # token_identifier);
+                return #err(#InvalidToken(token_identifier))
+            };
+            case(#ok(canisterId, tokenIndex)) {
+                if(canisterId != cid){
+                    return #err(#InvalidToken(token_identifier));
+                };
+                tokenIndex;
+            };
+        };
         switch(_tokenSettlement.get(token_index)){
             case(null) return #err(#Other("Nothing to settle"));
             case(?settlement){
@@ -712,13 +482,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                             case(?p) Array.append(p, [settlement.subaccount]);
                             case(_) [settlement.subaccount];
                             });
-                            switch(_transferTokenOwnership(owner, ?settlement.buyer, token_index)){
-                                case(#err(e)) {
-                                    assert(false);
-                                    return #err(#Other(e));
-                                };
-                                case(#ok) {};
-                            };
                             _registry.put(token_index, settlement.buyer);
                             _transactions := Array.append(_transactions, [{token = token_identifier; seller = settlement.seller; price = settlement.price; buyer = settlement.buyer; time = Time.now();}]);
                             _tokenListing.delete(token_index);
@@ -762,22 +525,11 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     };
 
     public query func listings() : async [(TokenIndex, Listing, Metadata)] {
-        //TODO switch to a buffer! 
         var results : [(TokenIndex, Listing, Metadata)] = [];
         for(a in _tokenListing.entries()) {
             results := Array.append<(TokenIndex, Listing,Metadata)>(results, [(a.0, a.1, #nonfungible({ metadata = null }))]);
         };
         results;
-    };
-
-    //  Used by Entrepot to query the number of tokens, not sure exactly why it's needed but it doesn't work otherwise.
-    //  Doesn't seem to really need the metada so just put null to save calculations.
-    public query func getTokens() : async [(TokenIndex, Metadata)] {
-        var results = Buffer.Buffer<(TokenIndex, Metadata)>(0);
-        for (token_index in _registry.keys()){
-            results.add((token_index,#nonfungible({ metadata = null })));
-        };
-        return(results.toArray());
     };
 
     public query func settlements() : async [(TokenIndex, AccountIdentifier, Nat64)] {
@@ -834,379 +586,112 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     };
 
 
+    ////////////
+    // ITEMS //
+    //////////
 
-    //////////////////////////////////////
-    // ITEMS : MATERIALS & ACCESSORIES //
-    ////////////////////////////////////
+    public type Template = Items.Template;
+    public type Item = Items.Item;
 
-    let nftActor = actor("jmuqr-yqaaa-aaaaj-qaicq-cai") : actor {
-        wearAccessory : shared (Text, Text, Principal) -> async Result.Result<(),Text>;
-        removeAccessory : shared (Text, Text, Principal) -> async Result.Result<(), Text>;
-    };
+    stable var _ItemsUD : ?Items.UpgradeData = null;
+    let _Items = Items.Factory({
+        _Logs = _Logs;
+        _Ext = _Ext;
+        cid_avatar = cid_avatar; 
+        cid = cid;
+    });
 
-    public type Item = Accessory.Item;
-    public type Accessory = Accessory.Accessory;
-    public type LegendaryAccessory = Accessory.LegendaryAccessory;
-    public type Recipe = Accessory.Recipe;
-    public type Template = Accessory.Template;
-
-
-    //  Contains informations needed to create items. 
-    //  Material and legendary are stored as Blob (less memory consumption)
-    //  Template for accessories are stored as Text to modify the wear value programatically, they also integrate a recipe.
-    private stable var _templateEntries : [(Text, Template)] = [];
-    private var _templates : HashMap.HashMap<Text, Template> = HashMap.fromIter(_templateEntries.vals(),_templateEntries.size(), Text.equal, Text.hash);
-
-    //  Allow us to add a template  for items (materials/accessories/legendary) & recipe for accessory.
-    //  Items and legendary just need the name and a Blob.
-    //  Accessories are treated differently as they need to be dynamically updated for the wear-out-mechanism and integrate a recipe.
-    //  @auth : owner
-    public shared ({caller}) func addElements (name : Text, content : Template) : async Result.Result<Text, Text> {
+    public shared ({ caller }) func addTemplate(
+        name : Text,
+        template : Template
+    ) : async Result<Text,Text>{
         assert(_Admins.isAdmin(caller));
-        switch(_templates.get(name)){
-            case(?template) {
-                switch(content){
-                    case(#Accessory(infos)) {
-                        if(not(_verifyRecipe(infos.recipe))){
-                            return #err("Recipe is not correct");
-                        } else {
-                            _templates.put(name, content);
-                            return #ok(name # " has been replaced");
-                        };
-                    };
-                    case(_) {
-                        _templates.put(name, content);
-                        return #ok(name # " has been replaced");
-                    };
-                };
-            };
-            case(null) {
-                switch(content){
-                    case(#Accessory(infos)) {
-                        if(not(_verifyRecipe(infos.recipe))){
-                            return #err("Recipe is not correct");
-                        } else {
-                            _templates.put(name, content);
-                            return #ok(name # " has been added");
-                        };
-                    };
-                    case(_) {
-                        _templates.put(name, content);
-                        return #ok(name # " has been added");
-                    };
-                };
-            };
+        _Monitor.collectMetrics();
+        _Items.addTemplate(name, template);
+    };
+      
+    public shared({caller}) func wearAccessory(
+        accessory : TokenIdentifier, 
+        avatar : TokenIdentifier
+        ) : async Result.Result<(), Text> {
+        _Monitor.collectMetrics();
+        // TODO : verify that the accessory is not listed!
+        switch(_Ext.isOwner(caller, accessory)){
+            case(#err(e)) return #err(e);
+            case(#ok()){};
+        };
+        switch(await _Items.wearAccessory(accessory, avatar, caller)){
+            case(#ok()) return #ok;
+            case(#err(e)) return #err(e);
         };
     };
 
-
-    // Check if all the ingredients of the recipe do exists in store as materials
-    private func _verifyRecipe (recipe : Recipe) : Bool {
-        for(ingredient in recipe.vals()){
-            switch(_templates.get(ingredient)){
-                case(null) return false;
-                case(?item){
-                    switch(item){
-                        case(#Material(_)){};
-                        case(_) return false;
-                    };
-                };
-            };
+    public shared ({caller}) func removeAccessory(
+        accessory : TokenIdentifier,
+        avatar : TokenIdentifier 
+        ) : async Result.Result<(), Text> {
+        _Monitor.collectMetrics();
+        // TODO : verification here ?
+        switch(_Ext.isOwner(caller, accessory)){
+            case(#err(e)) return #err(e);
+            case(#ok()){};
         };
-        return true
-    };
-
-    //  Make the link between TokenIndex and the actual Item it represents.
-    private stable var _itemsEntries : [(TokenIndex, Item)] = [];
-    private var _items : HashMap.HashMap<TokenIndex, Item> = HashMap.fromIter(_itemsEntries.vals(), _itemsEntries.size(), ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
-
-    // Returns the name of an item.
-    private func _getNameItem(item : Item) : Text {
-        switch(item){
-            case(#Accessory(obj)) return (obj.name);
-            case(#Material(name)) return (name);
-            case(#LegendaryAccessory(obj)) return (obj.name);
+        switch(await _Items.removeAccessory(accessory, avatar, caller)){
+            case(#ok()) return #ok;
+            case(#err(e)) return #err(e);
         };
     };
 
+    // public shared ({caller}) func createAccessory(
 
-    // Returns a list that contains all items in circulation with their current supply!
-    public shared query ({caller}) func stats_circulation() : async [(Text, Nat32)] {
+    // ) : () {
+    //     //TODO
+    // };
+
+    // public shared ({caller}) func updateAccessories(
+
+    // ) : () {
+    //     //TODO
+    // };
+
+    public shared ({ caller }) func mint(
+        name : Text,
+        receiver : Principal,
+    ) : async Result<(), Text> {
         assert(_Admins.isAdmin(caller));
-        var circulation : HashMap.HashMap<Text, Nat32> = HashMap.HashMap<Text, Nat32>(0, Text.equal, Text.hash);
-        for(item in _items.vals()){
-            let name = _getNameItem(item);
-            switch(circulation.get(name)){
-                //  First time we encounter the item we add it to the hashamp
-                case(null) {
-                    circulation.put(name, 1);
-                };
-                // Increase count 
-                case(?value) {
-                    circulation.put(name, value + 1);
-                };
-            };
-        };
-        return(Iter.toArray(circulation.entries()));
-    };
-
-
-
-    //   Accessories stored as Blob after being drawn.
-    private stable var _blobsEntries : [(TokenIndex,Blob) ]= [];
-    private var _blobs : HashMap.HashMap<TokenIndex,Blob> = HashMap.fromIter(_blobsEntries.vals(), _blobsEntries.size(), ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
-
-    //  Draw the accessory corresponding to the TokenIndex with an updated wear_value and updates the corresponding blob.
-    private func _drawAccessory (token_index : TokenIndex) : () {
-        switch(_items.get(token_index)){
-            case(?#Accessory(item)){
-                switch(_templates.get(item.name)){
-                        case(?#Accessory(template)){
-                            let concatenated_svg = template.before_wear # "<text x=\"190.763px\" y=\"439.84px\" style=\"font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white\">" # Nat.toText(Nat8.toNat(item.wear)) # "</text>" # template.after_wear;
-                            let blob = Text.encodeUtf8(concatenated_svg);
-                            _blobs.put(token_index, blob);
-                        };
-                        case(_) assert(false);
-                    };
-            };
-            case(_){assert(false)};
-        };
-    };
-
-    private func _isEquipped(token_index : TokenIndex) : Bool {
-        switch(_items.get(token_index)){
-            case(?#Accessory(accessory)){
-                if(Option.isSome(accessory.equipped)){
-                    return true;
-                };
-            };
-            case(_){};
-        };
-        return false;
-    };
-
-    public shared ({caller}) func updateAccessories() : async () {
-        assert((caller == Principal.fromActor(this)));
-        for ((token_index, item) in _items.entries()){
-            switch(item){
-                case(#Accessory(accessory)){
-                    if(Option.isSome(accessory.equipped)) {
-                        let new_wear_value : Nat8 = accessory.wear - 1; 
-                        if(new_wear_value == 0) {
-                            switch(_burn(token_index)){
-                                case(#err(e)) {};
-                                case(#ok(owner)){
-                                    let event : IndefiniteEvent = {
-                                        operation = "burn";
-                                        details = [("token", #Text(Ext.TokenIdentifier.encode(cid, token_index))),("from", #Text(owner))];
-                                        caller = Principal.fromActor(this);
-                                    };
-                                    ignore(_registerEvent(event));
-                                };
-                            };
-                        } else  {
-                            let new_item = #Accessory({name = accessory.name; wear = new_wear_value; equipped = accessory.equipped;});
-                            _items.put(token_index, new_item);
-                            _drawAccessory(token_index);
-                        };
-                    } else {};
-                };
-                case(_){};
-            };
-        };
-    };
-
-    public shared({caller}) func wearAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text) : async Result.Result<(), Text> {
-        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);
-        switch(_registry.get(token_index)){
-            case(null) return #err("This token identifier doesn't exist!");
-            case(?owner){
-                if(Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower) != owner){
-                    return #err("Unauthorized");
-                };
-            };
-        };
-        if(_isLocked(token_index)){
-            return #err("Cannot equip an accessory that is currently listed.");
-        };
-        switch(_items.get(token_index)){
-            case(?#Accessory(item)){
-                let wear_value = item.wear;
-                if(wear_value == 1){
-                    return #err("Cannot equip this accessory; wear value is too low.")
-                };
-                switch(await nftActor.wearAccessory(token_identifier_avatar, item.name, caller)){
-                    case(#err(message)) return #err(message);
-                    case(#ok){
-                        //Decrease the wear value by one! 
-                        let new_item = #Accessory({name = item.name; wear = (item.wear - 1); equipped = ?token_identifier_avatar;});
-                        _items.put(token_index, new_item);
-                        _drawAccessory(token_index);
-                        return #ok;
-                    };
-                };
-            };
-            case(_) return #err("Not an accessory.");
-        };
-    };
-
-    public shared ({caller}) func removeAccessory (token_identifier_accessory : Text, token_identifier_avatar : Text ) : async Result.Result<(), Text> {
-        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier_accessory);
-        switch(_registry.get(token_index)){
-            case(null) return #err("This token identifier doesn't exist!");
-            case(?owner){
-                if(Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower) != owner){
-                    return #err("Unauthorized");
-                };
-            };
-        };
-        switch(_items.get(token_index)){
-            case(?#Accessory(item)){
-                let wear_value = item.wear;
-                if(wear_value == 1){
-                    return #err("Cannot desequip this accessory; wear value is too low.")
-                };
-                switch(await nftActor.removeAccessory(token_identifier_avatar, item.name, caller)){
-                    case(#err(message)) return #err(message);
-                    case(#ok){
-                        //Decrease the wear value by one! 
-                        let new_item = #Accessory({name = item.name; wear = (item.wear - 1); equipped =  null});
-                        _items.put(token_index, new_item);
-                        _drawAccessory(token_index);
-                        return #ok;
-                    };
-                };
-            };
-            case(_) return #err("Not an accessory.");
-        };
-    };
-
-    private func _burn (token_index : TokenIndex) : Result.Result<AccountIdentifier,Text> {
-        let token_identifier = Ext.TokenIdentifier.encode(cid, token_index);
-        let owner : ?AccountIdentifier = _registry.get(token_index);
-        switch(owner) {
-            case(null)(#err("No owner found for this token"));
-            case(?owner) {
-                switch(_ownerships.get(owner)){
-                    case(null)(#err("No list of NFTs found for this owner"));
-                    case(?list){
-                        let list_filtered = Array.filter<TokenIndex>(list, func(x) {x != token_index});
-                        _ownerships.put(owner, list_filtered);
-                        _registry.delete(token_index);
-                        _blobs.delete(token_index);
-                        _items.delete(token_index);
-                        _tokenListing.delete(token_index);
-                        _tokenSettlement.delete(token_index);
-                        return #ok(owner);
-                    };
-                };
-            };
-        };
-    };
-
-    public shared ({caller}) func burn (token_identifier : TokenIdentifier) : async Result.Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
-        switch(_burn(token_index)){
-            case(#err(text)) return #err(text);
-            case(#ok(owner)){
-                let event : IndefiniteEvent = {
-                    operation = "burn";
-                    details = [("token", #Text(token_identifier)), ("from", #Text(owner))];
-                    caller = caller;
-                };
-                ignore(_registerEvent(event));
-                return #ok;
-            };
-        };
-    };
-
-
-    public shared ({caller}) func createAccessory (name : Text, materials : [TokenIdentifier], subaccount : [Nat8]) : async Result.Result<TokenIdentifier, Text> {
-        //  Check subaccount is valid (not among the firsts to prevent cheating
-        if(_isSubaccountIncorrect(subaccount)){
-            return #err("Subaccount incorrect.");
-        };
-        let materials_tindex = Array.map<TokenIdentifier, TokenIndex>(materials, ExtCore.TokenIdentifier.getIndex);
-        for(token_index in materials_tindex.vals()){
-            switch(_registry.get(token_index)){
-                case(null) return #err("This token doesn't exist." # Ext.TokenIdentifier.encode(cid, token_index));
-                case(?account){
-                    if(Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower) != account){
-                        return #err("Unauthorized");
-                    };
-                };
-            };
-        };
-        switch(_templates.get(name)){
-            case(?#Accessory(template)){
-                let recipe : Recipe = template.recipe;
-                if(not _verifyMaterials(materials, recipe)){
-                    return #err("Materials doesn't fit the recipe.");
-                };
-                //  Burn materials
-                for (token_identifier in materials.vals()){
-                    let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
-                    // Check if material is locked (marketplace)
-                    if(_isLocked(token_index)){
+        _Monitor.collectMetrics();
+        switch(_Ext.mint({ to = #principal(receiver); metadata = null; })){
+            case(#err(#Other(e))) return #err(e);
+            case(#err(#InvalidToken(e))) return #err(e);
+            case(#ok(index)){
+                switch(_Items.mint(name, index)){
+                    case(#err(e)) {
+                        //  Revert all state changes since the beggining of this message (the token created is reverted).
                         assert(false);
-                        return #err("Material with token identifier : " # token_identifier # "is locked.");
+                        return #err("Unreacheable");
                     };
-                    switch(_burn(token_index)){
-                        case(#err(e)) {assert(false); return #err(e)};
-                        case(#ok(owner)){};
-                    };
-                    //  Need to register event to CAP because the internal function doesn't do it (not async).
-                    let event : IndefiniteEvent = {
-                        operation = "burn";
-                        details = [("item", #Text(token_identifier)), ("from", #Text(Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower)))];
-                        caller = caller;
-                    };
-                    ignore(_registerEvent(event));
-                };
-                //  Mint accessory
-                var token_identifier_accessory : Text = "";
-                let receiver_account : AccountIdentifier = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
-                switch(_mint(name, receiver_account)){
-                    case(#err(e)) return #err(e);
-                    case(#ok(identifier)){
-                        token_identifier_accessory := identifier;
-                    };
-                };
-                let event : IndefiniteEvent = {
-                    operation = "mint";
-                    details = [("name", #Text(name)), ("to", #Text(receiver_account))];
-                    caller = caller;
-                };
-                ignore(_registerEvent(event));
-                return #ok(token_identifier_accessory);
+                    case(#ok){
+                        _Logs.logMessage(name # " has been minted by " # Principal.toText(caller) # " for " # Principal.toText(receiver));
+                        return #ok;
+                    }
+                }
             };
-            case(_) return #err(name # " is not an accessory");
         };
     };
 
-    //  Check that the list of materials corresponds to the recipe 
-    private func _verifyMaterials(materials : [TokenIdentifier], recipe : Recipe) : Bool {
-        //Helper function to use in Map Filter to convert a TokenIdentifier to a optional Text.
-        let f = func (token_identifier : TokenIdentifier) : ?Text {
-            let token_index = ExtCore.TokenIdentifier.getIndex(token_identifier);
-            switch(_items.get(token_index)){
-                case(?#Material(name)) return (?name);
-                case(_) return null;
-            };
-        };
 
-        let ingredients = Array.mapFilter<TokenIdentifier,Text>(materials, f);
-        if(ingredients.size() != recipe.size()) {
-            return (false);
-        };
-        let ingredients_sorted = Array.sort<Text>(ingredients, Text.compare);
-        let recipe_sorted = Array.sort<Text>(recipe, Text.compare);
-        let result = Array.equal<Text>(ingredients_sorted, recipe_sorted, Text.equal);
+    //////////
+    // HTTP //
+    //////////
 
-        return(result);
+    let _HttpHandler = Http.HttpHandler({
+        _Admins = _Admins;
+        _Items = _Items;
+    });
+
+    public query func http_request (request : Http.Request) : async Http.Response {
+        _HttpHandler.request(request);  
     };
-
 
     ///////////////
     // HEARTBEAT //
@@ -1226,6 +711,33 @@ shared({ caller = creator }) actor class ICPSquadNFT(
             await collectCanisterMetrics();
         };
     };
+
+    //////////
+    // OLD //
+    ////////
+
+    //  Contains informations needed to create items. 
+    //  Material and legendary are stored as Blob (less memory consumption)
+    //  Template for accessories are stored as Text to modify the wear value programatically, they also integrate a recipe.
+    private stable var _templateEntries : [(Text, Template)] = [];
+    private var _templates : HashMap.HashMap<Text, Template> = HashMap.fromIter(_templateEntries.vals(),_templateEntries.size(), Text.equal, Text.hash);
+
+    //  Make the link between TokenIndex and the actual Item it represents.
+    private stable var _itemsEntries : [(TokenIndex, Item)] = [];
+    private var _items : HashMap.HashMap<TokenIndex, Item> = HashMap.fromIter(_itemsEntries.vals(), _itemsEntries.size(), Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+
+    //Accessories stored as Blob after being drawn.
+    private stable var _blobsEntries : [(TokenIndex,Blob) ]= [];
+    private var _blobs : HashMap.HashMap<TokenIndex,Blob> = HashMap.fromIter(_blobsEntries.vals(), _blobsEntries.size(), Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+
+    ///TOKEN
+    private stable var _nextTokenId : TokenIndex  = 0;
+    private stable var _registryEntries : [(TokenIndex, AccountIdentifier)] = [];
+    private var _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.fromIter(_registryEntries.vals(), 0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+
+    private stable var _ownershipsEntries : [(AccountIdentifier, [TokenIndex])] = [];
+    private var _ownerships : HashMap.HashMap<AccountIdentifier, [TokenIndex]> = HashMap.fromIter(_ownershipsEntries.vals(), _ownershipsEntries.size(), Text.equal, Text.hash);
+
 
 
     //////////////
@@ -1262,7 +774,5 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _paymentsState := [];
         _refundsState := [];
     };
-
-
 
 };

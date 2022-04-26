@@ -21,15 +21,14 @@ module {
     public type File = Types.File;
     public type UpgradeData = Types.UpgradeData;
     public type Meta = Types.Meta;
+    type Result<T,E> = Result.Result<T,E>;
 
     public class Assets() : Types.Interface {
         
         ////////////
         // State //
         //////////
-
-        type Result<T,E> = Result.Result<T,E>;
-
+        
         // The upload buffer, to add chunks of assets.
         private let buffer : Buffer.Buffer<Nat8> = Buffer.Buffer(0);
 

@@ -1,11 +1,16 @@
-import Admins "../admins";
-import Assets "../assets";
+import HashMap "mo:base/HashMap";
 
+import Accessory "../types/accessory";
+import Admins "../admins";
+import Items "../items";
 module HTTP {
+
+    type TokenIndex = Nat32;
+    type Item = Accessory.Item;
 
     public type Dependencies = {
         _Admins : Admins.Admins;
-        _Assets : Assets.Assets;
+        _Items : Items.Factory;
     };
 
     public type HeaderField = (Text,Text);
