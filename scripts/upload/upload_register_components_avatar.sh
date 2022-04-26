@@ -35,7 +35,7 @@ IFS=','
         category="variant {Avatar}"
         component="record{ name = \"$name\"; category = $category; layers = $layersCandid }"
         dfx canister --network $network call $canister registerComponent "(\"$name\", $component)" >> /dev/null
-        echo "Registered $name 📒"
+        echo "Registered $name."
     elif [ "$category" == "accessory" ];
     then
         OLDIFS=$IFS
@@ -60,7 +60,7 @@ IFS=','
         component="record{ name = \"$name\"; category = $category; layers = $layersCandid }"
         # Register component with all layers
         dfx canister --network $network call $canister registerComponent "(\"$name\", $component)" >> /dev/null
-        echo "Registered $name 📒"
+        echo "Registered $name."
     elif [ "$category" == "end" ];
     then
         break

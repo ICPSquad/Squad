@@ -5,6 +5,10 @@ import { createReadStream, readFileSync } from "fs";
 import csvParser, { CsvParser } from "csv-parser";
 import { Principal } from "@dfinity/principal";
 
+// This script is mainly configured to deploy locally... fix this later.
+const canisters = JSON.parse(readFileSync(`${__dirname}/../../.dfx/local/canister_ids.json`).toString());
+const accessoriesID = canisters.accessories.local;
+console.log("Deploying all cards to the accessory canister : " + accessoriesID + " on network : " + process.env.NETWORK.toLowerCase());
 const results = [];
 function createAccessory(name: string, slot: string, recipe: string): Template {
   const separator = `<text x="190.763px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white" id="wear_value"></text>`;
@@ -52,17 +56,24 @@ async function upload() {
     if (element.category === "Material") {
       let template = createMaterial(element.name);
       let result = await actor.addTemplate(element.name, template);
-      console.log(JSON.stringify(result, null, 2));
       let mint = await actor.mint(element.name, Principal.anonymous());
-      console.log(JSON.stringify(mint, null, 2));
+      if (result.hasOwnProperty("ok") && mint.hasOwnProperty("ok")) {
+        console.log(`${element.name} uploaded and minted successfully.`);
+      } else {
+        console.log(`${element.name} failed to upload.`);
+      }
     } else if (element.category === "Accessory") {
       let template = createAccessory(element.name, element.slot, element.recipe);
       let result = await actor.addTemplate(element.name, template);
-      console.log(JSON.stringify(result, null, 2));
       let mint = await actor.mint(element.name, Principal.anonymous());
-      console.log(JSON.stringify(mint, null, 2));
+      if (result.hasOwnProperty("ok") && mint.hasOwnProperty("ok")) {
+        console.log(`${element.name} uploaded and minted successfully.`);
+      } else {
+        console.log(`${element.name} failed to upload.`);
+      }
     }
   }
+  console.log("All assets have been uploaded to the accessory canister. 🎉");
 }
 
 createReadStream(`${__dirname}/../../assets/cards/manifest-cards.csv`)

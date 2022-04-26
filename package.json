@@ -9,12 +9,9 @@
     "Canister"
   ],
   "scripts": {
-    "build": "webpack",
-    "prebuild": "npm run copy:types",
-    "prestart": "npm run copy:types",
-    "start": "webpack serve --mode development --env development",
     "deploy:local": "",
-    "deploy:remote": ""
+    "build": "webpack",
+    "start": "webpack serve --mode development --env development"
   },
   "devDependencies": {
     "@dfinity/agent": "^0.10.1",

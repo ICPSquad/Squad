@@ -40,4 +40,4 @@ meta="record {
 }"
 finalizeArg="\"$contentType\",$meta,\"$name\""
 dfx canister --network $network call $canister uploadFinalize "($finalizeArg)" >> /dev/null
-echo "Uploaded $name to canister $canister on network $network with size $(( $byteSize / 1024 )) kb."
+echo "Uploaded $name with size $(( $byteSize / 1024 )) kb."
