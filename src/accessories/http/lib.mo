@@ -37,7 +37,7 @@ module {
         let HTML_BLOCK_START = "<!DOCTYPE html><html lang='en'><head><style>img{ width: 300px;height : 300px; padding : 10px 10px 10px 10px;}div{ margin : 25px 25px 25px 25px;}</style><meta charset='UTF-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>ICP Squad</title></head><body>";
         let HTML_BLOCK_END = "</body></html>";
         let SRC_IC = "https://" # Principal.toText(dependencies.cid) # ".raw.ic0.app/tokenIndex/";
-        let SRC_LOCAL = "http://r7inp-6aaaa-aaaaa-aaabq-cai.localhost:8000/tokenIndex/";
+        let SRC_LOCAL = "http://" # Principal.toText(dependencies.cid) # ".localhost:8000/tokenIndex/";
 
 
         //////////////////

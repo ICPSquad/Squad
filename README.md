@@ -20,6 +20,15 @@ Goals ✅
 - [ ] Integrate covercode.oo for code verification.
 - [ ] Multi-season and collection architecture.
 
+## Deploying locally and testing
+
+- Start your local replica and deploy canister with assets (this will take ~10min)
+
+```
+dfx start --clean --background
+npm run deploy:local
+```
+
 ## Invoice
 
 Canister : **if27l-eyaaa-aaaaj-qaq5a-cai** <br/>
@@ -86,22 +95,6 @@ URL : https://p3z4x-vaaaa-aaaaj-qaixq-cai.ic0.app/
 This canister is simply a frontend canister deployed on the IC. The website is built using VueJS, Typescript & Tailwind.
 
 TODO : add website requirements.
-
-## Deploying locally and contributing
-
-- Start your local replica and deploy the avatar canister first, then deploy the rest of the fleet.
-
-```
-dfx start --clean
-dfx deploy avatar --argument("rrkah-fqaaa-aaaaa-aaaaq-cai")
-dfx deploy
-```
-
-- Upload assets and setup configuration.
-
-```
-
-```
 
 ## Backup
 
