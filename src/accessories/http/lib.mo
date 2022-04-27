@@ -171,6 +171,22 @@ module {
             };
         };
 
+        // @path : /template/<name>
+        // Serves the template of the item with the given name.
+        func _httpTemplate(name : ?Text) : Types.Response {
+            switch(name){
+                case(null) return _http404(?"You need to specify a name");
+                case(? name){
+                    switch(_Items.getTemplate(name)){
+                        case(null) return _http404(?"No template found");
+                        case(? blob) {
+                            _renderBlob(blob, "image/svg+xml");
+                        };
+                    };
+                };
+            };
+        };
+
         // @path : /tokenIndex/<tokenIndex>
         // Serves the blob corresponding to this tokenIndex
         func _httpTokenIndex(tokenIndex : ?Text) : Types.Response {
@@ -252,7 +268,8 @@ module {
         let paths : [(Text , (path : ?Text) -> Types.Response)] = [
             ("tokenIndex", _httpTokenIndex), 
             ("tokenIdentifier", _httpTokenIdentifier), 
-            ("overview", _httpOverview)
+            ("template", _httpTemplate), 
+            ("overview", _httpOverview),
         ];
 
         };

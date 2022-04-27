@@ -42,6 +42,8 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     // ADMIN //
     ///////////
 
+    stable var creator : Principal = creator;
+
     stable var _AdminsUD : ?Admins.UpgradeData = null;
     let _Admins = Admins.Admins(creator);
 
@@ -49,11 +51,18 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Admins.isAdmin(p);
     };
 
-    public shared ({caller}) func add_admin(p : Principal) : async () {
+    public shared ({ caller }) func add_admin(p : Principal) : async () {
         _Admins.addAdmin(p, caller);
         _Monitor.collectMetrics();
         _Logs.logMessage("Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
     };
+
+    public shared ({ caller }) func delete_admin(p : Principal) : async () {
+        assert(caller == creator);
+        _Monitor.collectMetrics();
+        _Admins.remove(p, caller);
+        _Logs.logMessage("Removed admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
+    }
 
     //////////////
     // CYCLES  //

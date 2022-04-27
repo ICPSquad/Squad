@@ -458,45 +458,6 @@ Before minting an accessory, a **minting fee** will be asked. <br/>
 This fee has been voted on by the community to be initialized at **0.5 ICP**. <br/>
 The fee will evolve to adjust the rate of accessories and can be used to adujst our economy when needed to avoir hyper-inflation of accessories.
 
-## ICP Squad neuron 🧠
-
-An 8-years locked neuron.
-
-**How do we fund it ?**
-
-- Minting fee
-- Legendary accessories sale.
-- Other : mission fee ?
-
-**How do we harvest it and how do we distribute rewards ?**
-
-- Harvested every month / every week ?
-- Rewards put in a pool that is distributed to all accessory holders ?
-- Passive rewards only ?
-
-**How is it governed ?**
-
-We currently don't have a governance framework, we will probably follow a known actor of the NNS (Dfinity foundation/ ICA / Maximalist network) until we developed our own governance board (as discussed with missions/motoko bootcamp).
-
-## Passive income
-
-Every month/week/day ?
-
-Passive income for accessory holders only ?
-Prize pool coming from the neuron harvested rewards.
-
-How much ?
-Depends on number of starts + random factor.
-
-## Active income
-
-Every month
-
-- Missions : ICP Squad or others : quizz/tasks.
-- Application score : DSCVR/Gigaverse Labs/Cronic
-
-Prize pool : materials and accessories only ?
-
 ## Targets 🎯
 
 - Low barrier to entry : this project aims to promote engagement on the Internet Computer to outside persons and should stay accessible to anyone who wants to support the ecosystem.
@@ -510,12 +471,7 @@ Prize pool : materials and accessories only ?
   - Protection against bots and penalty for suspicious behaviours.
   - Legendary accessories : a way for whales to get involved without ruining the rest of the economy.
 
-- Long term market stability : TODO
-
 ## Max advantage ✋
-
-- Lowest ranked player : This player is the
-- Highest ranked player : Maximum score + accessory boost combined.
 
 The potential chance of rewards between the lowest ranked player and the highest ranked player will never be above 200x. <br/> This might seems a lot but it represents the maximum gap between the **most** active player and the **less** active one; also taking into account eventual accessories boosts.
 
@@ -531,15 +487,4 @@ The boost gap represents the maximum increase in chance of getting rewards that 
 
 This boost gap is 10x. This means a fully equipped player can get up to 10x higher chance of winning a reward vs a non-equipped player.
 
-## Legendary accessories 🧙
-
-Legendary auctions will be held to get your hands on the **legendary accessories** that **never** wear out !
-
-Here are some benefits of holding legenday accessories :
-
-- They never wear out, which guarantees continous rewards from ICP Squad Neuron as well as a boost for additional engage-to-earn rewards.
-- They will be **extremly rare** with less than 400 minted each year, it will take at least 12.5 years to reach a supply of 5000.
-- Membership perks for the DAO to come such as private DSCVR portal.
-- In the future we plan to enable features that will you safely rent / lend your accessories to other users for passive income while keeping them in your wallet; legendary accessories will be the most valuable assets to borrow.
-
-Legendary auctions : TODO
+TODO : Design the airdrop algorith accordingly.

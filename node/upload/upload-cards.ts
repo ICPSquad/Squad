@@ -5,9 +5,10 @@ import { createReadStream, readFileSync } from "fs";
 import csvParser, { CsvParser } from "csv-parser";
 import { Principal } from "@dfinity/principal";
 
-// This script is mainly configured to deploy locally... fix this later.
-const canisters = JSON.parse(readFileSync(`${__dirname}/../../.dfx/local/canister_ids.json`).toString());
-const accessoriesID = canisters.accessories.local;
+const canisters =
+  process.env.NETWORK === "IC" ? JSON.parse(readFileSync(`${__dirname}/../../canister_ids.json`).toString()) : JSON.parse(readFileSync(`${__dirname}/../../.dfx/local/canister_ids.json`).toString());
+const accessoriesID = process.env.NETWORK === "IC" ? canisters.accessories.ic : canisters.accessories.local;
+
 console.log("Deploying all cards to the accessory canister : " + accessoriesID + " on network : " + process.env.NETWORK.toLowerCase());
 const results = [];
 function createAccessory(name: string, slot: string, recipe: string): Template {
@@ -56,21 +57,11 @@ async function upload() {
     if (element.category === "Material") {
       let template = createMaterial(element.name);
       let result = await actor.addTemplate(element.name, template);
-      let mint = await actor.mint(element.name, Principal.anonymous());
-      if (result.hasOwnProperty("ok") && mint.hasOwnProperty("ok")) {
-        console.log(`${element.name} uploaded and minted successfully.`);
-      } else {
-        console.log(`${element.name} failed to upload.`);
-      }
+      console.log(JSON.stringify(result));
     } else if (element.category === "Accessory") {
       let template = createAccessory(element.name, element.slot, element.recipe);
       let result = await actor.addTemplate(element.name, template);
-      let mint = await actor.mint(element.name, Principal.anonymous());
-      if (result.hasOwnProperty("ok") && mint.hasOwnProperty("ok")) {
-        console.log(`${element.name} uploaded and minted successfully.`);
-      } else {
-        console.log(`${element.name} failed to upload.`);
-      }
+      console.log(JSON.stringify(result));
     }
   }
   console.log("All assets have been uploaded to the accessory canister. 🎉");

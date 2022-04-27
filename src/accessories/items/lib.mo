@@ -81,32 +81,8 @@ module {
         ///////////
 
         public func addTemplate(name : Text, template : Template) : Result<Text,Text> {
-            switch(_templates.get(name)){
-                case(?template) {
-                    switch(template){
-                        case(#Accessory(infos)) {
-                            _templates.put(name, template);
-                            return #ok(name # " has been replaced");
-                        };
-                        case(_) {
-                            _templates.put(name, template);
-                            return #ok(name # " has been replaced");
-                        };
-                    };
-                };
-                case(null) {
-                    switch(template){
-                        case(#Accessory(infos)) {
-                            _templates.put(name, template);
-                            return #ok(name # " has been added");
-                        };
-                        case(_) {
-                            _templates.put(name, template);
-                            return #ok(name # " has been added");
-                        };
-                    };
-                };
-            };
+           _templates.put(name, template);
+           return #ok("Template added for : "  # name);
         };
 
         public func wearAccessory(
@@ -319,6 +295,20 @@ module {
                     assert(false);
                     return false;
                 }
+            };
+        };
+
+        public func getTemplate(
+            name : Text
+        ) : ?Blob {
+            switch(_templates.get(name)){
+                case(?#Material(blob)){
+                    return ?blob;
+                };
+                case(?#Accessory(item)){
+                    return ? Text.encodeUtf8(item.before_wear # item.after_wear);
+                };
+                case(_) return null;
             };
         };
 

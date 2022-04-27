@@ -169,7 +169,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Ext.extensions();
     };
 
-    public query func getRegistry_2() : async [(TokenIndex, AccountIdentifier)] {
+    public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
         _Ext.getRegistry();
     };
 
@@ -606,13 +606,24 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     ) : async Result<Text,Text>{
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        _Items.addTemplate(name, template);
+        switch(_Items.addTemplate(name, template)){
+            case(#ok(msg)) {
+                _Logs.logMessage("Template added for : " # name # " by " # Principal.toText(caller) );
+                return #ok(msg);
+            };
+            case(#err((msg))) {
+                _Logs.logMessage("Failed to add template: " # name # ": " #msg);
+                return #err((msg));
+            };
+        }
+
     };
       
     public shared({caller}) func wearAccessory(
         accessory : TokenIdentifier, 
         avatar : TokenIdentifier
         ) : async Result.Result<(), Text> {
+        assert(false);
         _Monitor.collectMetrics();
         // TODO : verify that the accessory is not listed!
         switch(_Ext.isOwner(caller, accessory)){
@@ -629,6 +640,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         accessory : TokenIdentifier,
         avatar : TokenIdentifier 
         ) : async Result.Result<(), Text> {
+        assert(false);
         _Monitor.collectMetrics();
         // TODO : verification here ?
         switch(_Ext.isOwner(caller, accessory)){
@@ -723,38 +735,21 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     private stable var _templateEntries : [(Text, Template)] = [];
     private var _templates : HashMap.HashMap<Text, Template> = HashMap.fromIter(_templateEntries.vals(),_templateEntries.size(), Text.equal, Text.hash);
 
-    public shared query ({ caller }) func getTemplates() : async [(Text,Template)] {
-        assert(_Admins.isAdmin(caller));
-        Iter.toArray(_templates.entries());
-    };
 
     //  Make the link between TokenIndex and the actual Item it represents.
     private stable var _itemsEntries : [(TokenIndex, Item)] = [];
     private var _items : HashMap.HashMap<TokenIndex, Item> = HashMap.fromIter(_itemsEntries.vals(), _itemsEntries.size(), Ext.TokenIndex.equal, Ext.TokenIndex.hash);
 
-    public shared query ({ caller }) func getItems() : async [(TokenIndex, Item)] {
-        assert(_Admins.isAdmin(caller));
-        Iter.toArray(_items.entries());
-    };
 
     //Accessories stored as Blob after being drawn.
     private stable var _blobsEntries : [(TokenIndex,Blob) ]= [];
     private var _blobs : HashMap.HashMap<TokenIndex,Blob> = HashMap.fromIter(_blobsEntries.vals(), _blobsEntries.size(), Ext.TokenIndex.equal, Ext.TokenIndex.hash);
 
-    public shared query ({ caller }) func getBlobs() : async [(TokenIndex, Blob)] {
-        assert(_Admins.isAdmin(caller));
-        Iter.toArray(_blobs.entries());
-    };
 
     ///TOKEN
     private stable var _nextTokenId : TokenIndex  = 0;
     private stable var _registryEntries : [(TokenIndex, AccountIdentifier)] = [];
     private var _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.fromIter(_registryEntries.vals(), 0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
-
-    public shared query ({ caller }) func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
-        assert(_Admins.isAdmin(caller));
-        Iter.toArray(_registry.entries());
-    };
 
 
     //////////////

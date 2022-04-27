@@ -16,7 +16,7 @@ require("dotenv").config();
 
 function createActor<T>(canisterId: string | Principal, idlFactory: IDL.InterfaceFactory, options: HttpAgentOptions): ActorSubclass<T> {
   const agent = new HttpAgent({
-    host: process.env.HOST,
+    host: process.env.NETWORK === "IC" ? "https://mainnet.dfinity.network" : "http://localhost:8000",
     ...options,
   });
   if (process.env.NETWORK != "IC") {
@@ -31,11 +31,12 @@ function createActor<T>(canisterId: string | Principal, idlFactory: IDL.Interfac
   });
 }
 
-const canisters = JSON.parse(readFileSync(`${__dirname}/../.dfx/local/canister_ids.json`).toString());
-const avatarID = canisters.avatar.local;
-const accessoriesID = canisters.accessories.local;
-const invoiceID = canisters.invoice.local;
-const hubID = canisters.hub.local;
+const canisters =
+  process.env.NETWORK === "IC" ? JSON.parse(readFileSync(`${__dirname}/../canister_ids.json`).toString()) : JSON.parse(readFileSync(`${__dirname}/../.dfx/local/canister_ids.json`).toString());
+const avatarID = process.env.NETWORK === "IC" ? canisters.avatar.ic : canisters.avatar.local;
+const accessoriesID = process.env.NETWORK === "IC" ? canisters.accessories.ic : canisters.accessories.local;
+const hubID = process.env.NETWORK === "IC" ? canisters.hub.ic : canisters.hub.local;
+const invoiceID = process.env.NETWORK === "IC" ? canisters.invoice.ic : canisters.invoice.local;
 
 export function avatarActor(identity?: Identity): ActorSubclass<Avatar> {
   return createActor(avatarID, idlFactoryAvatar, {

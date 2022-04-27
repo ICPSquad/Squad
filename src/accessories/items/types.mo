@@ -72,6 +72,8 @@ module {
         //
         getBlob(index : TokenIndex) : ?Blob;
 
+        getTemplate(name : Text) : ?Blob;
+
         //
         isEquipped : (index : TokenIndex) -> Bool;
  

@@ -1,7 +1,0 @@
-# Accessories 🎩
-
-# Classical
-
-# Branded
-
-# Legendary

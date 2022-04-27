@@ -39,7 +39,6 @@ Backend :
 - [x] Entrepot integration.
 - [x] CAP integration.
 - [x] Accessory minter using materials.
-- [ ] Assets management.
 - [ ] Dynamic update and automatic burning.
 - [ ] Communication with the avatar canister to redraw the avatar when an accessory is equipped/desequipped.
 - [ ] Integration with branded accessories.
@@ -47,19 +46,22 @@ Backend :
 
 Frontend :
 
-- [ ] Accessory shop : user can combine his materials and pay the minting fee (0.5 ICP) to create a fresh accessory.
+- [ ] Accessory shop/minter : user can combine his materials and pay the minting fee (0.5 ICP) to create a fresh accessory.
 
 ## Gameplay : score, missions, leaderboard & airdrop.
 
 Backend :
 
+- [ ] Design and document the concept of mission : how to start one, how to validate one, what are the rewards...
+- [ ] Design and document the two Open Internet Services that will power the gameplay : score and missions.
 - [ ] Calculate **style** score based on the accessory the avatar is wearing.
-- [ ] Calculate **engagement** score on the missions & the engagement with other apps.
+- [ ] Calculate **engagement** score based on both the missions & the engagement with other apps.
 - [ ] Mix the two [scores](SCORES.MD) to calculate the ranking of each avatar and output the **leaderboard**.
-- [ ] Airdrop : monthly prizes should be automatically airdropped
-- [ ] At the end of each month a **prize pool** is airdropped to all users based on their ranking for this month and a randomn factor.
-- [ ]
-- [ ]
+- [ ] Algorithm : Design the algorithm to airdrop prizes to people based on their rank, need to be fair and fun and respect the specifications we described in the [economy](ECONOMY.MD).
+- [ ] Airdrop : monthly prizes should be automatically airdropped.
 
-- Display the prize pool and its corresponding value in $.
-- Create a transparent airdrop mechanism that will automatically be executed.
+Frontend :
+
+- [ ] User profile : display the avatar and it's current score, access to airdrops and (in the future) more options to customize the avatar (name, status)...
+- [ ] Leaderboard : TODO.
+- [ ] Mission board : TODO.

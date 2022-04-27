@@ -71,5 +71,3 @@ Team members will have a high level of trust also part of a **legal structure** 
 
   - KYC is required.
   - It's a job at this point dude (a really fun one though).
-
-TODO : Define role of moderators according to the mission system (that can create and manage missions).
