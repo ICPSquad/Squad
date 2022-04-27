@@ -169,7 +169,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Ext.extensions();
     };
 
-    public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
+    public query func getRegistry_2() : async [(TokenIndex, AccountIdentifier)] {
         _Ext.getRegistry();
     };
 
@@ -268,7 +268,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         };
     }; 
 
-
     ///////////////
     // ENTREPOT //
     /////////////
@@ -348,11 +347,12 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         let token_identifier = request.token;
         let token_index = switch(Ext.TokenIdentifier.decode(token_identifier)){
             case(#err(_)) {
-                _Logs.logMessage("Ext/lib/balance/line78. Token identifier : " # request.token);
+                _Logs.logMessage("Failed decoding this tokenIdentifier : " # request.token);
                 return #err(#InvalidToken(request.token))
             };
             case(#ok(canisterId, tokenIndex)) {
                 if(canisterId != cid){
+                    _Logs.logMessage("This token is not owned by this canister : " # request.token);   
                     return #err(#InvalidToken(request.token));
                 };
                 tokenIndex;
@@ -361,10 +361,9 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         if(_isLocked(token_index)){
             return #err(#Other("Listing is locked"));
         };
-        //TODO
-        // if(_isEquipped(token_index)){
-        //     return #err(#Other("Cannot list an accessory that is currently equipped. Please remove it from your avatar before."));
-        // };
+        if(_Items.isEquipped(token_index)){
+            return #err(#Other("Cannot list an accessory that is currently equipped. Please remove it from your avatar before."));
+        };
         switch(_tokenSettlement.get(token_index)){
             case(?settlement){
                 switch(await settle(token_identifier)){
@@ -374,7 +373,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
             };
             case(_){};
         };
-        switch(_registry.get(token_index)){
+        switch(_Ext.getOwner(token_index)){
             case(null) return #err(#InvalidToken(token_identifier));
             case(?account) {
                 if(account != Text.map(Ext.AccountIdentifier.fromPrincipal(msg.caller, request.from_subaccount),Prim.charToLower)){
@@ -482,7 +481,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                             case(?p) Array.append(p, [settlement.subaccount]);
                             case(_) [settlement.subaccount];
                             });
-                            _registry.put(token_index, settlement.buyer);
+                            _Ext.putOwner(token_index, settlement.buyer);
                             _transactions := Array.append(_transactions, [{token = token_identifier; seller = settlement.seller; price = settlement.price; buyer = settlement.buyer; time = Time.now();}]);
                             _tokenListing.delete(token_index);
                             _tokenSettlement.delete(token_index);
@@ -666,7 +665,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
             case(#ok(index)){
                 switch(_Items.mint(name, index)){
                     case(#err(e)) {
-                        //  Revert all state changes since the beggining of this message (the token created is reverted).
+                        //  Revert all state changes since the beggining of this message (ie the token created is reverted).
                         assert(false);
                         return #err("Unreacheable");
                     };
@@ -724,22 +723,38 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     private stable var _templateEntries : [(Text, Template)] = [];
     private var _templates : HashMap.HashMap<Text, Template> = HashMap.fromIter(_templateEntries.vals(),_templateEntries.size(), Text.equal, Text.hash);
 
+    public shared query ({ caller }) func getTemplates() : async [(Text,Template)] {
+        assert(_Admins.isAdmin(caller));
+        Iter.toArray(_templates.entries());
+    };
+
     //  Make the link between TokenIndex and the actual Item it represents.
     private stable var _itemsEntries : [(TokenIndex, Item)] = [];
     private var _items : HashMap.HashMap<TokenIndex, Item> = HashMap.fromIter(_itemsEntries.vals(), _itemsEntries.size(), Ext.TokenIndex.equal, Ext.TokenIndex.hash);
 
+    public shared query ({ caller }) func getItems() : async [(TokenIndex, Item)] {
+        assert(_Admins.isAdmin(caller));
+        Iter.toArray(_items.entries());
+    };
+
     //Accessories stored as Blob after being drawn.
     private stable var _blobsEntries : [(TokenIndex,Blob) ]= [];
     private var _blobs : HashMap.HashMap<TokenIndex,Blob> = HashMap.fromIter(_blobsEntries.vals(), _blobsEntries.size(), Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+
+    public shared query ({ caller }) func getBlobs() : async [(TokenIndex, Blob)] {
+        assert(_Admins.isAdmin(caller));
+        Iter.toArray(_blobs.entries());
+    };
 
     ///TOKEN
     private stable var _nextTokenId : TokenIndex  = 0;
     private stable var _registryEntries : [(TokenIndex, AccountIdentifier)] = [];
     private var _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.fromIter(_registryEntries.vals(), 0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
 
-    private stable var _ownershipsEntries : [(AccountIdentifier, [TokenIndex])] = [];
-    private var _ownerships : HashMap.HashMap<AccountIdentifier, [TokenIndex]> = HashMap.fromIter(_ownershipsEntries.vals(), _ownershipsEntries.size(), Text.equal, Text.hash);
-
+    public shared query ({ caller }) func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
+        assert(_Admins.isAdmin(caller));
+        Iter.toArray(_registry.entries());
+    };
 
 
     //////////////
@@ -747,34 +762,64 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     /////////////
 
     system func preupgrade() {
-        // EXT
+        _Logs.logMessage("Preupgrade");
         _registryEntries := Iter.toArray(_registry.entries());
-        _ownershipsEntries := Iter.toArray(_ownerships.entries());
-        // Items
         _itemsEntries := Iter.toArray(_items.entries());
         _templateEntries := Iter.toArray(_templates.entries());
         _blobsEntries := Iter.toArray(_blobs.entries());
-        // CAP
         _eventsEntries := Iter.toArray(_events.entries());
-        // Entrepot
         _tokenListingState := Iter.toArray(_tokenListing.entries());
         _tokenSettlementState := Iter.toArray(_tokenSettlement.entries());
         _paymentsState := Iter.toArray(_payments.entries());
         _refundsState := Iter.toArray(_refunds.entries());
+        //New 
+        _MonitorUD := ? _Monitor.preupgrade();
+        _LogsUD := ? _Logs.preupgrade();
+        _AdminsUD := ? _Admins.preupgrade();
+        _ItemsUD := ? _Items.preupgrade();
+        _ExtUD := ? _Ext.preupgrade();
     };
 
     system func postupgrade() {
-        // EXT
         _registryEntries := [];
-        _ownershipsEntries := [];
         _templateEntries := [];
         _itemsEntries := [];
         _blobsEntries := [];
-        //  Entrepot
         _tokenListingState := [];
         _tokenSettlementState := [];
         _paymentsState := [];
         _refundsState := [];
+        //New
+        _Monitor.postupgrade(_MonitorUD);
+        _MonitorUD := null;
+        _Logs.postupgrade(_LogsUD);
+        _LogsUD := null;
+        _Admins.postupgrade(_AdminsUD);
+        _AdminsUD := null;
+        _Items.postupgrade(_ItemsUD);
+        _ItemsUD := null;
+        _Ext.postupgrade(_ExtUD);
+        _ExtUD := null;
+        _Logs.logMessage("Postupgrade");
+    };
+
+
+    //////////////
+    // Init /////
+    /////////////
+
+    public shared ({ caller }) func init_state() : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Ext.postupgrade(?{
+            registry = Iter.toArray(_registry.entries());
+            nextIndex = _nextTokenId;
+        });
+        _Items.postupgrade(?{
+            items = Iter.toArray(_items.entries());
+            templates = Iter.toArray(_templates.entries());
+            blobs = Iter.toArray(_blobs.entries());
+        });
     };
 
 };

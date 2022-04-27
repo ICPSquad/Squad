@@ -44,6 +44,14 @@ module {
     public type Interface = {
 
         ////////////////
+        //  State    //
+        //////////////
+
+        preupgrade : () -> UpgradeData;
+
+        postupgrade : (ud : ?UpgradeData) -> ();
+
+        ////////////////
         // @ext:core //
         //////////////
 
@@ -97,8 +105,10 @@ module {
         // custom //
         ///////////
 
-        isOwner(caller : Principal, token : TokenIdentifier) : Result<(), Text>;
-        burn(token : TokenIdentifier) : Result<(), Text>;
+        putOwner : (index : TokenIndex, account : AccountIdentifier) -> ();
+        getOwner : (index : TokenIndex) -> ?AccountIdentifier;
+        isOwner : (caller : Principal, token : TokenIdentifier) -> Result<(), Text>;
+        burn : (token : TokenIdentifier) -> Result<(), Text>;
     };
 
 

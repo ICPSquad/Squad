@@ -296,6 +296,19 @@ module {
         ///////////////
         //  custom  //
         /////////////
+        
+        public func putOwner(
+            index : TokenIndex,
+            account : AccountIdentifier
+        ) : () {
+            _registry.put(index, account);
+        };
+
+        public func getOwner(
+            index : TokenIndex
+        ) : ?AccountIdentifier {
+            _registry.get(index);
+        };
 
         public func isOwner(
             caller : Principal,
@@ -337,5 +350,7 @@ module {
                 };
             };
         };
+
+
     };    
 }

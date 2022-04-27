@@ -304,6 +304,24 @@ module {
             };
         };
 
+        public func isEquipped(
+            index : TokenIndex
+        ) : Bool {
+            switch(_items.get(index)){
+                case(?#Material(name)){
+                    return false;
+                };
+                case(?#Accessory(item)){
+                    return(Option.isSome(item.equipped));
+                };
+                case(_) {
+                    _Logs.logMessage("Strange error : item not found for tokenIndex : " # Nat32.toText(index));
+                    assert(false);
+                    return false;
+                }
+            };
+        };
+
         ////////////////
         // HELPERS /////
         ////////////////

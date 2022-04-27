@@ -70,8 +70,11 @@ module {
         mint(name : Text, index : TokenIndex) : Result<(), Text>;
 
         //
-        getBlob(inde : TokenIndex) : ?Blob;
+        getBlob(index : TokenIndex) : ?Blob;
 
+        //
+        isEquipped : (index : TokenIndex) -> Bool;
+ 
     };
 
 }

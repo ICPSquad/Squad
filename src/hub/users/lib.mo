@@ -25,8 +25,6 @@ module {
 
         private let _users : HashMap.HashMap<Principal,User> = HashMap.HashMap<Principal,User>(0, Principal.equal, Principal.hash);
 
-        //TODO : actors declaration
-
         public func preupgrade() : UpgradeData {
             return ({
                 users = Iter.toArray(_users.entries());
