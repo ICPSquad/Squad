@@ -12,6 +12,7 @@ const canisters =
 
 const accessoriesID = process.env.NODE_ENV === "production" ? canisters.accessories.ic : canisters.accessories.local;
 const network = process.env.NODE_ENV === "production" ? "ic" : "local";
+
 console.log("Deploying all cards to the accessory canister : " + accessoriesID + " on network : " + network);
 
 const results = [];
@@ -76,7 +77,6 @@ async function upload() {
       }
     }
   }
-  console.log("All assets have been uploaded to the accessory canister. 🎉");
 }
 
 createReadStream(`${__dirname}/../../assets/cards/manifest-cards.csv`)

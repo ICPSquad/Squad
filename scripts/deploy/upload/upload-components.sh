@@ -2,9 +2,30 @@
 canister=${1:charlie}
 network=${2:local}
 
+#Confirm before deploying to mainnet
+if [[ $network != "local" ]]
+then
+    read -r -p "Do you confirm uploading to mainnet? [Y/n] " input
+        case $input in 
+            [yY][eE][sS]|[yY])
+                echo "Deploying to mainnet"
+                ;;
+            [nN][oO]|[nN])
+                echo "Aborting"
+                exit 0
+                ;;
+            *)
+                echo "Invalid input..."
+                exit 1
+                ;;
+    esac
+fi
 
-manifest="./scripts/upload/manifest-global.csv"
+manifest="./assets/avatar/manifest-components.csv"
 [ ! -f $manifest ] && { echo "$manifest file not found"; exit 99; }
+
+export ID=$(dfx canister id $canister)
+echo "Uploading all components into the $canister canister : $ID on network : $network"
 
 OLDIFS=$IFS
 IFS=','
@@ -25,7 +46,7 @@ IFS=','
             tag_component=$type
             [ ! -f $file ] && { echo "$file file not found"; exit 99; }
             # Upload file
-            bash ./scripts/upload/upload_file.sh $file $canister $network "AvatarComponent" $tag_component $tag_layer ""
+            bash ./scripts/deploy/upload/upload-file.sh $file $canister $network "AvatarComponent" $tag_component $tag_layer ""
         done
         for i in "${list[@]}"
         do
@@ -49,7 +70,7 @@ IFS=','
             tag_component=$type
             [ ! -f $file ] && { echo "$file file not found"; exit 99; }
             # Upload file
-            bash ./scripts/upload/upload_file.sh $file $canister $network "AccessoryComponent" $tag_component $tag_layer ""
+            bash ./scripts/deploy/upload/upload-file.sh $file $canister $network "AccessoryComponent" $tag_component $tag_layer ""
         done
         for i in "${list[@]}"
         do

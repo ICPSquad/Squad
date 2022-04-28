@@ -18,7 +18,7 @@ IFS=','
         tag_2="character"
             [ ! -f $file ] && { echo "$file file not found"; exit 99; }
             # Upload file
-            bash ./scripts/upload/upload_file.sh $file $canister $network "LegendaryCharacter" $tag_1 $tag_2 ""
+            bash ./scripts/deploy/upload/upload-file.sh $file $canister $network "LegendaryCharacter" $tag_1 $tag_2 ""
 	done
 } < $manifest
 IFS=$OLDIFS

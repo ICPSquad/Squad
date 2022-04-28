@@ -12,14 +12,12 @@ import { ICPSquadHub as Hub } from "./declarations/hub/hub.did.d";
 import { idlFactory as idlFactoryInvoice } from "./declarations/invoice/invoice.did";
 import { Invoice } from "./declarations/invoice/invoice.did.d";
 
-require("dotenv").config();
-
 function createActor<T>(canisterId: string | Principal, idlFactory: IDL.InterfaceFactory, options: HttpAgentOptions): ActorSubclass<T> {
   const agent = new HttpAgent({
-    host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://localhost:8000",
+    host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
     ...options,
   });
-  if (process.env.NODE_ENV != "production") {
+  if (process.env.NODE_ENV == "development") {
     agent.fetchRootKey().catch((err) => {
       console.warn("Unable to fetch root key. Check to ensure that your local replica is running");
       console.error(err);

@@ -2,8 +2,9 @@
 
 This repository contains all the code for the ICP Squad project. <br/> It contains 5 canisters that are all deployed on the Internet Computer. <br/> It also contains the assets that compose the collection, some audits that have been perfomed and scripts to help with deployments, testing and configuration.
 
-Goals ✅
-
+<img src="assets/others/main-board.jpeg" width="700px">
+ 
+## Requirements
 - [x] Avatar **minter** that allow for **customizable** NFT minting, integrate with the <a href="https://github.com/aviate-labs/ext.std" target="_blank"> **EXT** </a> standard and composable with accessories.
 - [x] Build the dynamic accessory collection, integrate with the <a href="https://github.com/aviate-labs/ext.std" target="_blank"> **EXT** </a> standard and <a href="https://github.com/Toniq-Labs/entrepot-app" target="_blank"> **Entrepot** </a> marketplace and composable with avatars.
 - [x] Integrates [**CAP**](https://cap.ooo) for transaction and mint history for both collections.
@@ -20,82 +21,62 @@ Goals ✅
 - [ ] Integrate covercode.oo for code verification.
 - [ ] Multi-season and collection architecture.
 
-## Deploying locally and testing
+## Getting started and deploying locally
 
-- Start your local replica and deploy canister with assets (this will take ~10min)
+Make sure you have :
+
+- Dfx installed (>= 0.9.3).
+- Node & npm.
+- Vessel (Package manager for Motoko) : https://github.com/dfinity/vessel
+
+Run the followings commands to start your replica, install dependencies and deploy the canisters :
 
 ```
-dfx start --clean --background
-npm run deploy:local
+dfx start --clean
+npm install
+vessel install
+npm run local
 ```
 
-## Invoice
+If you want to upload assets into the canisters run :
 
-Canister : **if27l-eyaaa-aaaaj-qaq5a-cai** <br/>
-Candid interface : https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=if27l-eyaaa-aaaaj-qaq5a-cai
+```
+npm run local:upload
+```
 
-This canister is directly inspired from the Invoice canister by Dfinity.
-Any canister can receive a request to purchase, create an invoice and store the Principal and the UUID of the invoice.
-The invoice canister abstracts away the NNS ledger complexity and allow the canister to chjck at any point the status of the payment with **verify_invoice**.
+## Interact using Node
 
-Goals ✅
+During the deploy process, a local identity that you can use within node has been set up inside keys/keys.json. <br/>
+This identity is automatically set up as admin for all the canisters (expect the ledger).
 
-- [x] Allow for invoice management for all needs.
-- [ ] Integrates [**CanisterGeek**](https://cusyh-iyaaa-aaaah-qcpba-cai.raw.ic0.app/) for **monitoring** and **logs** system.
-- [ ] Integrate covercode.oo for code verification.
+## Checking your balance and making ICP transfer using the ledger
 
-More details.
+During the deploy process, when the local ledger is set : 100 ICP are automatically minted to your ledger address id. You can check you balance and initate transfer using dfx. <br/>
 
-## Hub
+(Unfortunately there a currently no ways to use Plug or Stoic locally)
 
-Canister id : **p4y2d-yyaaa-aaaaj-qaixa-cai** <br/>
-Candid interface : https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=p4y2d-yyaaa-aaaaj-qaixa-cai
+- Checking your balance.
 
-This canister is responsible for the registration interface, keeping track of user data, cronic tasks and handling ICPs.
+```
+export LEDGER_ACC=$(dfx ledger account-id)
+dfx canister call ledger account_balance '(record { account = '$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$LEDGER_ACC'")]) + "}")')' })'
+```
 
-Goals ✅
+- Make a transfer to an account.
 
-- [x] Interface with the invoice canister for registration.
-- [x] Cronic tasks to send recipe of the week, run some audits and collect metrics by calling other canisters.
-- [x] Integrates [**CanisterGeek**](https://cusyh-iyaaa-aaaah-qcpba-cai.raw.ic0.app/) for **monitoring** and **logs** system.
-- [ ] Gameplay functionnalities (airdrop, missions, scores...).
+  - Get the textual representation of the AccountIdentifier you wanna send funds to.
 
-More details.
+    - You can use this tool to convert a principal to an account id : https://k7gat-daaaa-aaaae-qaahq-cai.ic0.app/docs/. <br/>
+    - You can also use the node script called account.ts.
 
-## Avatar
+  - Transform the account identifier to a 32-bytes blob.
 
-Canister id : **jmuqr-yqaaa-aaaaj-qaicq-cai** <br/>
-Candid interface : https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=jmuqr-yqaaa-aaaaj-qaicq-cai
+  ```
+  dfx canister call invoice accountIdentifierToBlob "(variant {"text" = "<YOUR_ACCOUNT>" })"
+  ```
 
-This canister is the home of the avatar nft collection.
+  - Send the update call to the ledger.
 
-Goals ✅
-
-TODO
-
-More details.
-
-## Accessory
-
-Canister id : **po6n2-uiaaa-aaaaj-qaiua-cai** <br/>
-Candid interface : https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=po6n2-uiaaa-aaaaj-qaiua-cai
-
-This canister is the home of the accessory nft collection.
-
-Goals ✅
-
-TODO
-
-More details.
-
-## Website
-
-URL : https://p3z4x-vaaaa-aaaaj-qaixq-cai.ic0.app/
-
-This canister is simply a frontend canister deployed on the IC. The website is built using VueJS, Typescript & Tailwind.
-
-TODO : add website requirements.
-
-## Backup
-
-TODO
+  ```
+  dfx canister call ledger transfer '( record { memo = 0; amount = record { e8s = 10_000_000_000 }; fee = record { e8s = 10000 }; to = blob "<YOUR_BLOB>" })'
+  ```

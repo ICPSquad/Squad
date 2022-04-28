@@ -12,22 +12,22 @@
     "dev": "vite",
     "serve": "vite preview",
     "build": "vite build",
-    "deploy:local": "bash scripts/deploy/deploy-local.sh"
+    "local": "bash scripts/deploy/deploy-local.sh",
+    "local:upload": "bash scripts/deploy/deploy-local.sh"
   },
   "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "next",
     "@dfinity/agent": "^0.10.1",
     "@dfinity/authentication": "^0.10.1",
     "@dfinity/candid": "^0.10.1",
     "@dfinity/identity": "^0.10.1",
     "@dfinity/principal": "^0.10.1",
-    "@sveltejs/vite-plugin-svelte": "next",
     "assert": "2.0.0",
     "autoprefixer": "^10.4.0",
     "buffer": "6.0.3",
     "copy-webpack-plugin": "^9.0.1",
     "css-loader": "^6.5.0",
     "csv-parser": "^3.0.0",
-    "dotenv": "^16.0.0",
     "events": "3.3.0",
     "file-loader": "^6.2.0",
     "isomorphic-fetch": "^3.0.0",
@@ -50,14 +50,7 @@
     "@dfinity/agent": "^0.10.1",
     "@dfinity/auth-client": "^0.10.1",
     "ic-stoic-identity": "^2.0.0",
-    "ictool": "^0.0.2",
     "js-sha256": "^0.9.0",
     "svelte-routing": "^1.6.0"
-  },
-  "browserslist": [
-    "last 2 chrome version",
-    "last 2 firefox version",
-    "last 2 safari version",
-    "last 2 edge version"
-  ]
+  }
 }
