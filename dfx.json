@@ -18,16 +18,8 @@
     },
     "ledger": {
       "type": "custom",
-      "candid": "src/ledger/ledger.did",
-      "wasm": "target/wasm32-unknown-unknown/release/ledger.wasm",
-      "build": "cargo build --target wasm32-unknown-unknown --release --package ledger"
-    },
-    "website": {
-      "frontend": {
-        "entrypoint": "src/website/src/index.html"
-      },
-      "source": ["src/website/assets", "dist/website"],
-      "type": "assets"
+      "candid": "src/ledger/ledger.public.did",
+      "wasm": "src/ledger/ledger.wasm"
     }
   },
   "defaults": {

@@ -6,10 +6,14 @@ import csvParser, { CsvParser } from "csv-parser";
 import { Principal } from "@dfinity/principal";
 
 const canisters =
-  process.env.NETWORK === "IC" ? JSON.parse(readFileSync(`${__dirname}/../../canister_ids.json`).toString()) : JSON.parse(readFileSync(`${__dirname}/../../.dfx/local/canister_ids.json`).toString());
-const accessoriesID = process.env.NETWORK === "IC" ? canisters.accessories.ic : canisters.accessories.local;
+  process.env.NODE_ENV === "production"
+    ? JSON.parse(readFileSync(`${__dirname}/../../canister_ids.json`).toString())
+    : JSON.parse(readFileSync(`${__dirname}/../../.dfx/local/canister_ids.json`).toString());
 
-console.log("Deploying all cards to the accessory canister : " + accessoriesID + " on network : " + process.env.NETWORK.toLowerCase());
+const accessoriesID = process.env.NODE_ENV === "production" ? canisters.accessories.ic : canisters.accessories.local;
+const network = process.env.NODE_ENV === "production" ? "ic" : "local";
+console.log("Deploying all cards to the accessory canister : " + accessoriesID + " on network : " + network);
+
 const results = [];
 function createAccessory(name: string, slot: string, recipe: string): Template {
   const separator = `<text x="190.763px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white" id="wear_value"></text>`;
@@ -57,11 +61,19 @@ async function upload() {
     if (element.category === "Material") {
       let template = createMaterial(element.name);
       let result = await actor.addTemplate(element.name, template);
-      console.log(JSON.stringify(result));
+      if (result.hasOwnProperty("ok")) {
+        console.log("Uploaded card for : " + element.name + ".");
+      } else {
+        console.log("Failed to upload card for : " + element.name + ".");
+      }
     } else if (element.category === "Accessory") {
       let template = createAccessory(element.name, element.slot, element.recipe);
       let result = await actor.addTemplate(element.name, template);
-      console.log(JSON.stringify(result));
+      if (result.hasOwnProperty("ok")) {
+        console.log("Uploaded card for : " + element.name + ".");
+      } else {
+        console.log("Failed to upload card for : " + element.name + ".");
+      }
     }
   }
   console.log("All assets have been uploaded to the accessory canister. 🎉");

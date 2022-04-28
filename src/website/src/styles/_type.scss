@@ -1,0 +1,62 @@
+@use "colours" as *;
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: "Poppins", sans-serif;
+}
+
+h1 {
+  line-height: 115%;
+  margin-bottom: 1.8rem;
+  font-size: 2.8rem; // Fallback
+  font-size: clamp(2rem, 5vw, 4rem); // Min, Variable, Max
+  overflow-wrap: break-word; // Backup in case string is too large for container
+  text-align: center;
+  text-transform: uppercase;
+}
+
+h2 {
+  line-height: 115%;
+  margin-bottom: 1.4rem;
+  font-size: 1.6rem; // Fallback
+  font-size: min(max(1.5rem, 4vw), 5rem); // Min, Variable, Max
+  // letter-spacing: -0.04rem;
+}
+
+h3 {
+  line-height: 115%;
+  margin-bottom: 1rem;
+  font-size: 1.2rem; // Fallback
+  font-size: min(max(1.2rem, 3vw), 1.8rem); // Min, Variable, Max
+}
+
+p.large {
+  margin-bottom: 1rem;
+  line-height: 140%;
+  font-size: 1.2rem; // Fallback
+  font-size: min(max(1.2rem, 2vw), 1.6rem); // Min, Variable, Max
+}
+
+p {
+  margin-bottom: 1rem;
+  line-height: 140%;
+  font-size: 1.2rem; // Fallback
+  font-size: min(max(1rem, 1.8vw), 1.3rem); // Min, Variable, Max
+}
+
+strong,
+.bold {
+  font-weight: bold;
+}
+
+.no-underline {
+  text-decoration: none;
+}
+
+.center {
+  text-align: center;
+}

@@ -5,12 +5,17 @@ AVATAR_CANISTER_ID="rrkah-fqaaa-aaaaa-aaaaq-cai"
 ACCESSORIES_CANISTER_ID="ryjl3-tyaaa-aaaaa-aaaba-cai"
 INVOICE_CANISTER_ID="r7inp-6aaaa-aaaaa-aaabq-cai"
 HUB_CANISTER_ID="rkp4c-7iaaa-aaaaa-aaaca-cai"
+LEDGER_CANISTER_ID="rno2w-sqaaa-aaaaa-aaacq-cai"
+
+echo "Using your default identity 👦"
+dfx identity use default
 
 echo "Creating the canisters 📭"
 dfx canister create avatar 
 dfx canister create accessories 
 dfx canister create invoice 
 dfx canister create hub
+dfx canister create ledger
 
 echo "Verifying the ids assigned to canisters 🔍"
 DEPLOYED_AVATAR_CANISTER_ID=$(dfx canister id avatar)
@@ -28,14 +33,17 @@ if [ "$DEPLOYED_INVOICE_CANISTER_ID" != "$INVOICE_CANISTER_ID" ]; then
     echo "Deployed invoice canister id is not the same as the expected one."
     exit 1
 fi
-echo "Ids assigned to canisters are correct ✅"
-
-echo "Deploying the module into canisters"
 DEPLOYED_HUB_CANISTER_ID=$(dfx canister id hub)
 if [ "$DEPLOYED_HUB_CANISTER_ID" != "$HUB_CANISTER_ID" ]; then
     echo "Deployed hub canister id is not the same as the expected one."
     exit 1
 fi
+DEPLOYED_LEDGER_CANISTER_ID=$(dfx canister id ledger)
+if [ "$DEPLOYED_LEDGER_CANISTER_ID" != "$LEDGER_CANISTER_ID" ]; then
+    echo "Deployed ledger canister id is not the same as the expected one."
+    exit 1
+fi
+
 echo "Building the WebAssembly modules 👷"
 dfx build avatar& > /dev/null 2>&1
 dfx build hub& > /dev/null 2>&1
@@ -45,13 +53,23 @@ wait
 
 
 echo "Deploying the modules into canisters 🚀"
-dfx canister install avatar --mode install --argument "(principal \"${AVATAR_CANISTER_ID}\")"& >> /dev/null 2>&1
+dfx canister install avatar --mode install --argument "(principal \"${AVATAR_CANISTER_ID}\")" >> /dev/null 2>&1
 dfx canister install accessories --mode install --argument "(principal \"${ACCESSORIES_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\")"& >> /dev/null 2>&1
-dfx canister install invoice --mode install& >> /dev/null 2>&1
-dfx canister install hub --mode install --argument "(principal \"${HUB_CANISTER_ID}\", principal \"${INVOICE_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\")"& >> /dev/null 2>&1
+dfx canister install invoice --mode install --argument "(principal \"${LEDGER_CANISTER_ID}\")" & >> /dev/null 2>&1
+dfx canister install hub --mode install --argument "(principal \"${HUB_CANISTER_ID}\", principal \"${INVOICE_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\", principal \"${LEDGER_CANISTER_ID}\" )"& >> /dev/null 2>&1
 wait
 
-echo "Giving the admin persmissions to the created identity 🔑"
+echo "Deploying the ledger 💰"
+sed -i "" 's/public.did/private.did/' dfx.json
+dfx identity new minter 
+dfx identity use minter
+export MINT_ACC=$(dfx ledger account-id)
+dfx identity use default 
+export LEDGER_ACC=$(dfx ledger account-id)
+dfx deploy ledger --argument "(record {minting_account = \"${MINT_ACC}\"; initial_values = vec { record { \"${LEDGER_ACC}\"; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}})" >> /dev/null 2>&1
+sed -i "" 's/private.did/public.did/' dfx.json
+
+echo "Giving the admin permissions to the identity (node) 🔑"
 admin=$(npx ts-node node/tasks/adminId.ts)
 dfx canister call avatar add_admin "(principal \"${admin}\")" > /dev/null 2>&1
 dfx canister call accessories add_admin "(principal \"${admin}\")" > /dev/null 2>&1
@@ -59,7 +77,7 @@ dfx canister call invoice add_admin "(principal \"${admin}\")" > /dev/null 2>&1
 dfx canister call hub add_admin "(principal \"${admin}\")" >  /dev/null 2>&1
 
 echo "Uploading assets into avatar & accessory canister (~10 min) 📦"
-npx ts-node node/upload/upload-cards.ts& 
+NODE_ENV="development" npx ts-node node/upload/upload-cards.ts& 
 bash scripts/upload/upload.sh $AVATAR_CANISTER_ID "local"
 wait
 

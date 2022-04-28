@@ -1,0 +1,70 @@
+@use "../styles/_reset.scss" as *;
+@use "../styles/_avatar.scss" as *;
+@use "colours" as *;
+@use "type" as *;
+
+:root {
+  --page-feature-color: #{$pink};
+}
+
+body {
+  background-color: $black;
+  color: $white;
+}
+
+a {
+  color: var(--page-feature-color);
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+.page-header {
+  width: 100%;
+  background-color: $verydarkgrey;
+  padding: 10px 0;
+  h1 {
+    color: var(--page-feature-color);
+    margin-bottom: 0;
+  }
+}
+
+button,
+.button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid transparent;
+  background-color: $pink;
+  text-transform: uppercase;
+  border-radius: 12px;
+  width: 100%;
+  padding: 10px 30px;
+  font-weight: bold;
+  color: $white;
+  cursor: pointer;
+  font-size: 1.2rem;
+
+  &.secondary {
+    border-color: $white;
+    background-color: $black;
+  }
+
+  &:hover {
+    filter: brightness(85%);
+  }
+}
+
+@media (max-width: 700px) {
+  .container {
+    padding: 20px;
+  }
+}

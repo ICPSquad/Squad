@@ -20,7 +20,9 @@ import ICP        "./ICPLedger";
 import T          "./Types";
 import U          "./Utils";
 
-shared ({ caller = creator }) actor class Invoice() = this {
+shared ({ caller = creator }) actor class Invoice(
+  ledger_cid : Principal, 
+) = this {
 
     ///////////
     // ADMIN //
@@ -96,6 +98,13 @@ shared ({ caller = creator }) actor class Invoice() = this {
         assert(_Admins.isAdmin(caller));
         _Logs.getLog(request);
     };
+
+    //////////////
+    // LEDGER ///
+    ////////////
+
+    let _Ledger : ICP.Factory = ICP.Factory(ledger_cid) ;
+
 
 // #region Types
   type Details = T.Details;
@@ -324,7 +333,7 @@ shared ({ caller = creator }) actor class Invoice() = this {
             })
          )
         );
-        let balance = await ICP.balance({account = defaultAccount});
+        let balance = await _Ledger.balance({account = defaultAccount});
         switch(balance) {
           case (#err err) {
             #err({
@@ -392,7 +401,7 @@ shared ({ caller = creator }) actor class Invoice() = this {
 
         switch (i.token.symbol) {
           case "ICP" {
-            let result : T.VerifyInvoiceResult = await ICP.verifyInvoice({
+            let result : T.VerifyInvoiceResult = await _Ledger.verifyInvoice({
               invoice = i;
               caller;
               canisterId;
@@ -438,7 +447,7 @@ shared ({ caller = creator }) actor class Invoice() = this {
           case "ICP" {
             let now = Nat64.fromIntWrap(Time.now());
 
-            let transferResult = await ICP.transfer({
+            let transferResult = await _Ledger.transfer({
               memo = 0;
               fee = {
                 e8s = 10000;

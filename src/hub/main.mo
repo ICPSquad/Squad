@@ -17,6 +17,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     cid : Principal,
     invoice : Principal,
     avatar : Principal,
+    ledger : Principal
 ) = this {
 
     ////////////

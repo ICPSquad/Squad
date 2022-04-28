@@ -18,5 +18,5 @@ dist/
 #saved data
 data/
 
-#keys (only locals)
+#keys (locals)
 keys/keys.json

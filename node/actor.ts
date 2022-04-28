@@ -16,10 +16,10 @@ require("dotenv").config();
 
 function createActor<T>(canisterId: string | Principal, idlFactory: IDL.InterfaceFactory, options: HttpAgentOptions): ActorSubclass<T> {
   const agent = new HttpAgent({
-    host: process.env.NETWORK === "IC" ? "https://mainnet.dfinity.network" : "http://localhost:8000",
+    host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://localhost:8000",
     ...options,
   });
-  if (process.env.NETWORK != "IC") {
+  if (process.env.NODE_ENV != "production") {
     agent.fetchRootKey().catch((err) => {
       console.warn("Unable to fetch root key. Check to ensure that your local replica is running");
       console.error(err);
@@ -32,11 +32,13 @@ function createActor<T>(canisterId: string | Principal, idlFactory: IDL.Interfac
 }
 
 const canisters =
-  process.env.NETWORK === "IC" ? JSON.parse(readFileSync(`${__dirname}/../canister_ids.json`).toString()) : JSON.parse(readFileSync(`${__dirname}/../.dfx/local/canister_ids.json`).toString());
-const avatarID = process.env.NETWORK === "IC" ? canisters.avatar.ic : canisters.avatar.local;
-const accessoriesID = process.env.NETWORK === "IC" ? canisters.accessories.ic : canisters.accessories.local;
-const hubID = process.env.NETWORK === "IC" ? canisters.hub.ic : canisters.hub.local;
-const invoiceID = process.env.NETWORK === "IC" ? canisters.invoice.ic : canisters.invoice.local;
+  process.env.NODE_ENV === "production"
+    ? JSON.parse(readFileSync(`${__dirname}/../canister_ids.json`).toString())
+    : JSON.parse(readFileSync(`${__dirname}/../.dfx/local/canister_ids.json`).toString());
+const avatarID = process.env.NODE_ENV === "production" ? canisters.avatar.ic : canisters.avatar.local;
+const accessoriesID = process.env.NODE_ENV === "production" ? canisters.accessories.ic : canisters.accessories.local;
+const hubID = process.env.NODE_ENV === "production" ? canisters.hub.ic : canisters.hub.local;
+const invoiceID = process.env.NODE_ENV === "production" ? canisters.invoice.ic : canisters.invoice.local;
 
 export function avatarActor(identity?: Identity): ActorSubclass<Avatar> {
   return createActor(avatarID, idlFactoryAvatar, {

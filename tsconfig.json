@@ -17,6 +17,7 @@
       "interfaces/*": ["src/website/src/interfaces/*"],
       "types/*": ["src/website/src/types/*"]
     },
+
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "allowJs": true,
     "outDir": "dist"
