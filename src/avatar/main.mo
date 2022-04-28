@@ -42,7 +42,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     // ADMIN //
     ///////////
 
-    stable var creator : Principal = creator;
+    stable var master : Principal = creator;
 
     stable var _AdminsUD : ?Admins.UpgradeData = null;
     let _Admins = Admins.Admins(creator);
@@ -58,11 +58,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     };
 
     public shared ({ caller }) func delete_admin(p : Principal) : async () {
-        assert(caller == creator);
+        assert(caller == master);
         _Monitor.collectMetrics();
-        _Admins.remove(p, caller);
+        _Admins.removeAdmin(p, caller);
         _Logs.logMessage("Removed admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
-    }
+    };
 
     //////////////
     // CYCLES  //
@@ -370,6 +370,15 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     public query func tokens_ext(aid : AccountIdentifier) : async Result<[(TokenIndex, ?ExtModule.Listing, ?Blob)], CommonError> {
         _Ext.tokens_ext(aid);
     };
+
+    public query func tokens_id(aid : AccountIdentifier) : async Result<[TokenIdentifier], CommonError> {
+        switch(_Ext.tokens(aid)){
+            case(#err(e)) return #err(e);
+            case(#ok(tokens)){
+                return(#ok(Array.map<TokenIndex,Text>(tokens, func(x) { Ext.TokenIdentifier.encode(cid, x) })));
+            }
+        }
+    }; 
 
     public query func balance(request : BalanceRequest) : async BalanceResponse {
         _Ext.balance(request);

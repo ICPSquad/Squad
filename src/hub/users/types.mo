@@ -60,8 +60,9 @@ module {
 
         // Returns the optional profile of the caller.
         getUser : (caller : Principal) -> ?User;
-        
-        //TODO whitelist
+
+        //Modify an user profile
+        modifyUser : (caller : Principal, user : User) -> Result<(), Text>;
     };
 
 

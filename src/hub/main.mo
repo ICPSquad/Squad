@@ -1,4 +1,5 @@
 import Cycles "mo:base/ExperimentalCycles";
+import Error "mo:base/Error";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Nat64 "mo:base/Nat64";
@@ -6,6 +7,7 @@ import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 
 import Canistergeek "mo:canistergeek/canistergeek";
+import Ext "mo:ext/Ext";
 
 import Admins "admins";
 import Invoice "invoice";
@@ -109,36 +111,35 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         creator = creator;
     });
 
-    ///////////////////
-    // USERS(old) ////
-    //////////////////
-
-    public type TokenIdentifier = Text;
-    
-    public type User = {
-        wallet : Text;
-        email : ?Text;
-        discord : ?Text;
-        twitter : ?Text;
-        rank : ?Nat64; 
-        height : ?Nat64;
-        avatar : ?TokenIdentifier;  // TokenIdentifier of the avatar created by the user - it might not be updated in the future if we decide to allow sell/transfer
-        airdrop : ?[Text];
-        status : Status;
+    public shared ({ caller }) func transfer(
+        amount : Nat,
+        account : Text
+    ) : async Result<Nat, Invoice.TransferError> {
+        assert(_Admins.isAdmin(caller));
+        await _Invoice.transfer(amount, account);
     };
 
-    public type Status =  {
-        #Level1;
-        #Level2;
-        #Level3;
-        #OG;
-        #Legendary;
-        #Staff;
+    public shared ({ caller }) func get_balance() : async Result<Nat,Invoice.GetBalanceErr> {
+        assert(_Admins.isAdmin(caller));
+        try {
+            await _Invoice.getBalance();
+        } catch e {
+            _Logs.logMessage("Error while getting balance : " # Error.message(e));
+            throw e
+        }
     };
 
-    stable var usersEntries : [(Principal,User)] = [];
-    let users : HashMap.HashMap<Principal,User> = HashMap.fromIter(usersEntries.vals(),0,Principal.equal, Principal.hash);
-
+    public shared ({ caller }) func verify_invoice(
+        id : Nat
+    ) : async Result<(), Invoice.VerifyInvoiceErr>{
+        assert(_Admins.isAdmin(caller));
+        try {
+            await _Invoice.verifyInvoice(id);
+        } catch e {
+            _Logs.logMessage("Error while getting balance : " # Error.message(e));
+            throw e
+        }
+    };
 
     //////////////
     // USERS ////
@@ -146,6 +147,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
 
     public type MintInformation = Types.MintInformation;
     public type MintResult = Types.MintResult;
+    public type TokenIdentifier = Ext.TokenIdentifier;
 
     stable var _UsersUD : ?Users.UpgradeData = null;
     private let _Users : Users.Users = Users.Users({
@@ -158,9 +160,9 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         mint : shared (info : MintInformation, caller : Principal) -> async Result<TokenIdentifier,Text>;
     };
 
-    private let AMOUNT_MINT = 1_000_000_000;
+    private let AMOUNT_MINT = 1_000_000_000; // 1 ICP
 
-    // To document
+    
     public shared ({ caller }) func mint(info : MintInformation) : async MintResult {
         _Monitor.collectMetrics();
         if(Principal.isAnonymous(caller)){
@@ -236,8 +238,8 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
 
     public shared ({ caller }) func whitelist(p : Principal) : async Result<(), Text> {
-        _Monitor.collectMetrics();
         assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
         switch(_Users.whitelist(p)){
             case(#ok()) {
                 _Logs.logMessage(Principal.toText(p) # "has been whitelisted by " # Principal.toText(caller));
@@ -258,11 +260,17 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Users.getUser(caller);
     };
 
-    public query ({ caller }) func backup_users() : async Users.UpgradeData {
+    public query ({ caller }) func size_users() : async Nat {
         _Monitor.collectMetrics();
+        _Users.getSize();
+    };
+
+    public query ({ caller }) func backup_users() : async Users.UpgradeData {
         assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
         _Users.preupgrade()
     };
+
 
     //////////////
     // UPGRADE //
@@ -274,7 +282,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
         _UsersUD := ?_Users.preupgrade();
-        usersEntries := Iter.toArray(users.entries());
     };
 
     system func postupgrade() {
@@ -286,7 +293,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _AdminsUD := null;
         _Users.postupgrade(_UsersUD);
         _UsersUD := null;
-       usersEntries := [];
     };
 
 

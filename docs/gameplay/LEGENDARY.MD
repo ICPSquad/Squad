@@ -37,6 +37,6 @@ Owning a legendary avatar will provide **lifelong** advantages.
 - Ability to create missions and manage them.
 - Access to events and iniatitives organized by the Squad.
 
-# Improvements ✅
+# Improvements
 
 Currently legendary avatars cannot equip accessories; need to resolve this issue as soon as possible as it introduces a discrepancy between the two types of avatar.
