@@ -1,4 +1,5 @@
-export const idlFactory = ({ IDL }) => {
+import { IDL } from "@dfinity/candid";
+export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
   const AccountIdentifier__1 = IDL.Variant({
     'principal' : IDL.Principal,
     'blob' : IDL.Vec(IDL.Nat8),
@@ -275,4 +276,3 @@ export const idlFactory = ({ IDL }) => {
   });
   return Invoice;
 };
-export const init = ({ IDL }) => { return []; };

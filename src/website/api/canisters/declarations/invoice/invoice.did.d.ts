@@ -2,6 +2,19 @@ import type { Principal } from '@dfinity/principal';
 export type AccountIdentifier = { 'principal' : Principal } |
   { 'blob' : Array<number> } |
   { 'text' : string };
+export interface AccountIdentifierToBlobErr {
+  'kind' : { 'InvalidAccountIdentifier' : null } |
+    { 'Other' : null },
+  'message' : [] | [string],
+}
+export type AccountIdentifierToBlobResult = {
+    'ok' : AccountIdentifierToBlobSuccess
+  } |
+  { 'err' : AccountIdentifierToBlobErr };
+export type AccountIdentifierToBlobSuccess = Array<number>;
+export type AccountIdentifier__1 = { 'principal' : Principal } |
+  { 'blob' : Array<number> } |
+  { 'text' : string };
 export type CanisterCyclesAggregatedData = Array<bigint>;
 export type CanisterHeapMemoryAggregatedData = Array<bigint>;
 export type CanisterLogFeature = { 'filterMessageByContains' : null } |
@@ -25,8 +38,25 @@ export type CanisterMemoryAggregatedData = Array<bigint>;
 export interface CanisterMetrics { 'data' : CanisterMetricsData }
 export type CanisterMetricsData = { 'hourly' : Array<HourlyMetricsData> } |
   { 'daily' : Array<DailyMetricsData> };
-export type Color = [number, number, number, number];
-export type Colors = Array<{ 'color' : Color, 'spot' : string }>;
+export interface CreateInvoiceArgs {
+  'permissions' : [] | [Permissions],
+  'token' : Token,
+  'details' : [] | [Details],
+  'amount' : bigint,
+}
+export interface CreateInvoiceErr {
+  'kind' : { 'InvalidDetails' : null } |
+    { 'InvalidAmount' : null } |
+    { 'InvalidDestination' : null } |
+    { 'MaxInvoicesReached' : null } |
+    { 'BadSize' : null } |
+    { 'InvalidToken' : null } |
+    { 'Other' : null },
+  'message' : [] | [string],
+}
+export type CreateInvoiceResult = { 'ok' : CreateInvoiceSuccess } |
+  { 'err' : CreateInvoiceErr };
+export interface CreateInvoiceSuccess { 'invoice' : Invoice__1 }
 export interface DailyMetricsData {
   'updateCalls' : bigint,
   'canisterHeapMemorySize' : NumericEntity,
@@ -35,12 +65,43 @@ export interface DailyMetricsData {
   'timeMillis' : bigint,
 }
 export interface Details { 'meta' : Array<number>, 'description' : string }
+export interface GetAccountIdentifierArgs {
+  'principal' : Principal,
+  'token' : Token,
+}
+export interface GetAccountIdentifierErr {
+  'kind' : { 'InvalidToken' : null } |
+    { 'Other' : null },
+  'message' : [] | [string],
+}
+export type GetAccountIdentifierResult = {
+    'ok' : GetAccountIdentifierSuccess
+  } |
+  { 'err' : GetAccountIdentifierErr };
+export interface GetAccountIdentifierSuccess {
+  'accountIdentifier' : AccountIdentifier,
+}
+export interface GetBalanceArgs { 'token' : Token }
 export interface GetBalanceErr {
   'kind' : { 'NotFound' : null } |
     { 'InvalidToken' : null } |
     { 'Other' : null },
   'message' : [] | [string],
 }
+export type GetBalanceResult = { 'ok' : GetBalanceSuccess } |
+  { 'err' : GetBalanceErr };
+export interface GetBalanceSuccess { 'balance' : bigint }
+export interface GetInvoiceArgs { 'id' : bigint }
+export interface GetInvoiceErr {
+  'kind' : { 'NotFound' : null } |
+    { 'NotAuthorized' : null } |
+    { 'InvalidInvoiceId' : null } |
+    { 'Other' : null },
+  'message' : [] | [string],
+}
+export type GetInvoiceResult = { 'ok' : GetInvoiceSuccess } |
+  { 'err' : GetInvoiceErr };
+export interface GetInvoiceSuccess { 'invoice' : Invoice__1 }
 export interface GetLatestLogMessagesParameters {
   'upToTimeNanos' : [] | [Nanos],
   'count' : number,
@@ -68,29 +129,31 @@ export interface HourlyMetricsData {
   'canisterMemorySize' : CanisterMemoryAggregatedData,
   'timeMillis' : bigint,
 }
-export interface ICPSquadHub {
+export interface Invoice {
   'acceptCycles' : () => Promise<undefined>,
+  'accountIdentifierToBlob' : (arg_0: AccountIdentifier__1) => Promise<
+      AccountIdentifierToBlobResult
+    >,
   'add_admin' : (arg_0: Principal) => Promise<undefined>,
   'availableCycles' : () => Promise<bigint>,
-  'backup_users' : () => Promise<UpgradeData>,
   'collectCanisterMetrics' : () => Promise<undefined>,
+  'create_invoice' : (arg_0: CreateInvoiceArgs) => Promise<CreateInvoiceResult>,
   'getCanisterLog' : (arg_0: [] | [CanisterLogRequest]) => Promise<
       [] | [CanisterLogResponse]
     >,
   'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
       [] | [CanisterMetrics]
     >,
-  'get_balance' : () => Promise<Result_3>,
-  'get_user' : () => Promise<[] | [User]>,
+  'get_account_identifier' : (arg_0: GetAccountIdentifierArgs) => Promise<
+      GetAccountIdentifierResult
+    >,
+  'get_balance' : (arg_0: GetBalanceArgs) => Promise<GetBalanceResult>,
+  'get_invoice' : (arg_0: GetInvoiceArgs) => Promise<GetInvoiceResult>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
-  'mint' : (arg_0: MintInformation) => Promise<MintResult>,
-  'modify_user' : (arg_0: User) => Promise<Result>,
-  'size_users' : () => Promise<bigint>,
-  'transfer' : (arg_0: bigint, arg_1: string) => Promise<Result_2>,
-  'verify_invoice' : (arg_0: bigint) => Promise<Result_1>,
-  'whitelist' : (arg_0: Principal) => Promise<Result>,
+  'transfer' : (arg_0: TransferArgs) => Promise<TransferResult>,
+  'verify_invoice' : (arg_0: VerifyInvoiceArgs) => Promise<VerifyInvoiceResult>,
 }
-export interface Invoice {
+export interface Invoice__1 {
   'id' : bigint,
   'permissions' : [] | [Permissions],
   'creator' : Principal,
@@ -106,44 +169,6 @@ export interface Invoice {
 export interface LogMessagesData { 'timeNanos' : Nanos, 'message' : string }
 export type MetricsGranularity = { 'hourly' : null } |
   { 'daily' : null };
-export type MintErr = { 'Invoice' : Invoice } |
-  { 'Anonymous' : null } |
-  { 'AlreadyMinted' : null } |
-  { 'AvatarCanisterErr' : string } |
-  { 'Other' : string } |
-  {
-    'InvoiceCanisterErr' : {
-      'kind' : { 'InvalidAccount' : null } |
-        { 'InvalidDetails' : null } |
-        { 'InvalidAmount' : null } |
-        { 'InvalidDestination' : null } |
-        { 'TransferError' : null } |
-        { 'MaxInvoicesReached' : null } |
-        { 'BadSize' : null } |
-        { 'NotFound' : null } |
-        { 'NotAuthorized' : null } |
-        { 'InvalidToken' : null } |
-        { 'InvalidInvoiceId' : null } |
-        { 'Other' : null } |
-        { 'NotYetPaid' : null } |
-        { 'Expired' : null },
-      'message' : [] | [string],
-    }
-  };
-export interface MintInformation {
-  'mouth' : string,
-  'background' : string,
-  'ears' : string,
-  'eyes' : string,
-  'hair' : string,
-  'cloth' : string,
-  'nose' : string,
-  'colors' : Colors,
-  'profile' : string,
-}
-export type MintResult = { 'ok' : MintSuccess } |
-  { 'err' : MintErr };
-export interface MintSuccess { 'tokenId' : string }
 export type Nanos = bigint;
 export interface NumericEntity {
   'avg' : bigint,
@@ -156,22 +181,17 @@ export interface Permissions {
   'canGet' : Array<Principal>,
   'canVerify' : Array<Principal>,
 }
-export type Result = { 'ok' : null } |
-  { 'err' : string };
-export type Result_1 = { 'ok' : null } |
-  { 'err' : VerifyInvoiceErr };
-export type Result_2 = { 'ok' : bigint } |
-  { 'err' : TransferError };
-export type Result_3 = { 'ok' : bigint } |
-  { 'err' : GetBalanceErr };
-export type Status = { 'Invoice' : Invoice } |
-  { 'Member' : boolean } |
-  { 'InProgress' : null };
 export type Time = bigint;
+export interface Token { 'symbol' : string }
 export interface TokenVerbose {
   'decimals' : bigint,
   'meta' : [] | [{ 'Issuer' : string }],
   'symbol' : string,
+}
+export interface TransferArgs {
+  'destination' : AccountIdentifier,
+  'token' : Token,
+  'amount' : bigint,
 }
 export interface TransferError {
   'kind' : { 'InvalidDestination' : null } |
@@ -181,24 +201,11 @@ export interface TransferError {
     { 'InsufficientFunds' : null },
   'message' : [] | [string],
 }
+export type TransferResult = { 'ok' : TransferSuccess } |
+  { 'err' : TransferError };
+export interface TransferSuccess { 'blockHeight' : bigint }
 export type UpdateCallsAggregatedData = Array<bigint>;
-export interface UpgradeData { 'users' : Array<[Principal, User__1]> }
-export interface User {
-  'height' : [] | [bigint],
-  'status' : Status,
-  'twitter' : [] | [string],
-  'rank' : [] | [bigint],
-  'email' : [] | [string],
-  'discord' : [] | [string],
-}
-export interface User__1 {
-  'height' : [] | [bigint],
-  'status' : Status,
-  'twitter' : [] | [string],
-  'rank' : [] | [bigint],
-  'email' : [] | [string],
-  'discord' : [] | [string],
-}
+export interface VerifyInvoiceArgs { 'id' : bigint }
 export interface VerifyInvoiceErr {
   'kind' : { 'InvalidAccount' : null } |
     { 'TransferError' : null } |
@@ -211,4 +218,8 @@ export interface VerifyInvoiceErr {
     { 'Expired' : null },
   'message' : [] | [string],
 }
-export interface _SERVICE extends ICPSquadHub {}
+export type VerifyInvoiceResult = { 'ok' : VerifyInvoiceSuccess } |
+  { 'err' : VerifyInvoiceErr };
+export type VerifyInvoiceSuccess = { 'Paid' : { 'invoice' : Invoice__1 } } |
+  { 'AlreadyVerified' : { 'invoice' : Invoice__1 } };
+export interface _SERVICE extends Invoice {}

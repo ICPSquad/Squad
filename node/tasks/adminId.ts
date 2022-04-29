@@ -1,8 +1,7 @@
 import { fetchIdentity, generateKey } from "../keys";
 
 try {
-  generateKey("admin");
+  fetchIdentity("admin");
 } catch {
-  // ignore
+  throw new Error("Error fetching admin key.");
 }
-console.log(fetchIdentity("admin").getPrincipal().toText());

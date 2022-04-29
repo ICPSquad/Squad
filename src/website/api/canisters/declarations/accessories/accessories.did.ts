@@ -1,4 +1,5 @@
-export const idlFactory = ({ IDL }) => {
+import { IDL } from "@dfinity/candid";
+export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
   const Recipe = IDL.Vec(IDL.Text);
   const Template = IDL.Variant({
     'Accessory' : IDL.Record({
@@ -297,6 +298,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'http_request' : IDL.Func([Request], [Response], ['query']),
     'init_cap' : IDL.Func([], [Result], []),
+    'init_state' : IDL.Func([], [], []),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'list' : IDL.Func([ListRequest], [Result_1], []),
     'listings' : IDL.Func(
@@ -342,4 +344,3 @@ export const idlFactory = ({ IDL }) => {
   });
   return ICPSquadNFT;
 };
-export const init = ({ IDL }) => { return [IDL.Principal, IDL.Principal]; };

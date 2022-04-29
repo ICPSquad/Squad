@@ -13,7 +13,8 @@
     "serve": "vite preview",
     "build": "vite build",
     "local": "bash scripts/deploy/deploy-local.sh",
-    "local:upload": "bash scripts/deploy/deploy-local.sh"
+    "local:upload": "bash scripts/deploy/upload-local.sh",
+    "declarations:ts": "bash scripts/utils/copy-dec.sh"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "next",

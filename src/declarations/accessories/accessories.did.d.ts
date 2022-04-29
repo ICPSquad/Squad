@@ -95,6 +95,7 @@ export interface ICPSquadNFT {
   'getTokens' : () => Promise<Array<[TokenIndex, Metadata]>>,
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init_cap' : () => Promise<Result>,
+  'init_state' : () => Promise<undefined>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
   'list' : (arg_0: ListRequest) => Promise<Result_1>,
   'listings' : () => Promise<Array<[TokenIndex, Listing__1, Metadata__1]>>,

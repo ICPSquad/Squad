@@ -298,6 +298,7 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
       ),
     'http_request' : IDL.Func([Request], [Response], ['query']),
     'init_cap' : IDL.Func([], [Result], []),
+    'init_state' : IDL.Func([], [], []),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'list' : IDL.Func([ListRequest], [Result_1], []),
     'listings' : IDL.Func(

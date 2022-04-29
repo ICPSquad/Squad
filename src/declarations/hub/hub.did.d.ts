@@ -35,6 +35,12 @@ export interface DailyMetricsData {
   'timeMillis' : bigint,
 }
 export interface Details { 'meta' : Array<number>, 'description' : string }
+export interface GetBalanceErr {
+  'kind' : { 'NotFound' : null } |
+    { 'InvalidToken' : null } |
+    { 'Other' : null },
+  'message' : [] | [string],
+}
 export interface GetLatestLogMessagesParameters {
   'upToTimeNanos' : [] | [Nanos],
   'count' : number,
@@ -74,10 +80,14 @@ export interface ICPSquadHub {
   'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
       [] | [CanisterMetrics]
     >,
+  'get_balance' : () => Promise<Result_3>,
   'get_user' : () => Promise<[] | [User]>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
   'mint' : (arg_0: MintInformation) => Promise<MintResult>,
   'modify_user' : (arg_0: User) => Promise<Result>,
+  'size_users' : () => Promise<bigint>,
+  'transfer' : (arg_0: bigint, arg_1: string) => Promise<Result_2>,
+  'verify_invoice' : (arg_0: bigint) => Promise<Result_1>,
   'whitelist' : (arg_0: Principal) => Promise<Result>,
 }
 export interface Invoice {
@@ -148,6 +158,12 @@ export interface Permissions {
 }
 export type Result = { 'ok' : null } |
   { 'err' : string };
+export type Result_1 = { 'ok' : null } |
+  { 'err' : VerifyInvoiceErr };
+export type Result_2 = { 'ok' : bigint } |
+  { 'err' : TransferError };
+export type Result_3 = { 'ok' : bigint } |
+  { 'err' : GetBalanceErr };
 export type Status = { 'Invoice' : Invoice } |
   { 'Member' : boolean } |
   { 'InProgress' : null };
@@ -156,6 +172,14 @@ export interface TokenVerbose {
   'decimals' : bigint,
   'meta' : [] | [{ 'Issuer' : string }],
   'symbol' : string,
+}
+export interface TransferError {
+  'kind' : { 'InvalidDestination' : null } |
+    { 'BadFee' : null } |
+    { 'InvalidToken' : null } |
+    { 'Other' : null } |
+    { 'InsufficientFunds' : null },
+  'message' : [] | [string],
 }
 export type UpdateCallsAggregatedData = Array<bigint>;
 export interface UpgradeData { 'users' : Array<[Principal, User__1]> }
@@ -174,5 +198,17 @@ export interface User__1 {
   'rank' : [] | [bigint],
   'email' : [] | [string],
   'discord' : [] | [string],
+}
+export interface VerifyInvoiceErr {
+  'kind' : { 'InvalidAccount' : null } |
+    { 'TransferError' : null } |
+    { 'NotFound' : null } |
+    { 'NotAuthorized' : null } |
+    { 'InvalidToken' : null } |
+    { 'InvalidInvoiceId' : null } |
+    { 'Other' : null } |
+    { 'NotYetPaid' : null } |
+    { 'Expired' : null },
+  'message' : [] | [string],
 }
 export interface _SERVICE extends ICPSquadHub {}

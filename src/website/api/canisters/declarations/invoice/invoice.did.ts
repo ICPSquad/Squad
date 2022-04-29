@@ -1,8 +1,36 @@
 import { IDL } from "@dfinity/candid";
 export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
+  const AccountIdentifier__1 = IDL.Variant({
+    'principal' : IDL.Principal,
+    'blob' : IDL.Vec(IDL.Nat8),
+    'text' : IDL.Text,
+  });
+  const AccountIdentifierToBlobSuccess = IDL.Vec(IDL.Nat8);
+  const AccountIdentifierToBlobErr = IDL.Record({
+    'kind' : IDL.Variant({
+      'InvalidAccountIdentifier' : IDL.Null,
+      'Other' : IDL.Null,
+    }),
+    'message' : IDL.Opt(IDL.Text),
+  });
+  const AccountIdentifierToBlobResult = IDL.Variant({
+    'ok' : AccountIdentifierToBlobSuccess,
+    'err' : AccountIdentifierToBlobErr,
+  });
   const Permissions = IDL.Record({
     'canGet' : IDL.Vec(IDL.Principal),
     'canVerify' : IDL.Vec(IDL.Principal),
+  });
+  const Token = IDL.Record({ 'symbol' : IDL.Text });
+  const Details = IDL.Record({
+    'meta' : IDL.Vec(IDL.Nat8),
+    'description' : IDL.Text,
+  });
+  const CreateInvoiceArgs = IDL.Record({
+    'permissions' : IDL.Opt(Permissions),
+    'token' : Token,
+    'details' : IDL.Opt(Details),
+    'amount' : IDL.Nat,
   });
   const AccountIdentifier = IDL.Variant({
     'principal' : IDL.Principal,
@@ -15,11 +43,7 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'symbol' : IDL.Text,
   });
   const Time = IDL.Int;
-  const Details = IDL.Record({
-    'meta' : IDL.Vec(IDL.Nat8),
-    'description' : IDL.Text,
-  });
-  const Invoice = IDL.Record({
+  const Invoice__1 = IDL.Record({
     'id' : IDL.Nat,
     'permissions' : IDL.Opt(Permissions),
     'creator' : IDL.Principal,
@@ -32,21 +56,22 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'details' : IDL.Opt(Details),
     'amount' : IDL.Nat,
   });
-  const Status = IDL.Variant({
-    'Invoice' : Invoice,
-    'Member' : IDL.Bool,
-    'InProgress' : IDL.Null,
+  const CreateInvoiceSuccess = IDL.Record({ 'invoice' : Invoice__1 });
+  const CreateInvoiceErr = IDL.Record({
+    'kind' : IDL.Variant({
+      'InvalidDetails' : IDL.Null,
+      'InvalidAmount' : IDL.Null,
+      'InvalidDestination' : IDL.Null,
+      'MaxInvoicesReached' : IDL.Null,
+      'BadSize' : IDL.Null,
+      'InvalidToken' : IDL.Null,
+      'Other' : IDL.Null,
+    }),
+    'message' : IDL.Opt(IDL.Text),
   });
-  const User__1 = IDL.Record({
-    'height' : IDL.Opt(IDL.Nat64),
-    'status' : Status,
-    'twitter' : IDL.Opt(IDL.Text),
-    'rank' : IDL.Opt(IDL.Nat64),
-    'email' : IDL.Opt(IDL.Text),
-    'discord' : IDL.Opt(IDL.Text),
-  });
-  const UpgradeData = IDL.Record({
-    'users' : IDL.Vec(IDL.Tuple(IDL.Principal, User__1)),
+  const CreateInvoiceResult = IDL.Variant({
+    'ok' : CreateInvoiceSuccess,
+    'err' : CreateInvoiceErr,
   });
   const GetLogMessagesFilter = IDL.Record({
     'analyzeCount' : IDL.Nat32,
@@ -130,6 +155,23 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'daily' : IDL.Vec(DailyMetricsData),
   });
   const CanisterMetrics = IDL.Record({ 'data' : CanisterMetricsData });
+  const GetAccountIdentifierArgs = IDL.Record({
+    'principal' : IDL.Principal,
+    'token' : Token,
+  });
+  const GetAccountIdentifierSuccess = IDL.Record({
+    'accountIdentifier' : AccountIdentifier,
+  });
+  const GetAccountIdentifierErr = IDL.Record({
+    'kind' : IDL.Variant({ 'InvalidToken' : IDL.Null, 'Other' : IDL.Null }),
+    'message' : IDL.Opt(IDL.Text),
+  });
+  const GetAccountIdentifierResult = IDL.Variant({
+    'ok' : GetAccountIdentifierSuccess,
+    'err' : GetAccountIdentifierErr,
+  });
+  const GetBalanceArgs = IDL.Record({ 'token' : Token });
+  const GetBalanceSuccess = IDL.Record({ 'balance' : IDL.Nat });
   const GetBalanceErr = IDL.Record({
     'kind' : IDL.Variant({
       'NotFound' : IDL.Null,
@@ -138,57 +180,31 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     }),
     'message' : IDL.Opt(IDL.Text),
   });
-  const Result_3 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : GetBalanceErr });
-  const User = IDL.Record({
-    'height' : IDL.Opt(IDL.Nat64),
-    'status' : Status,
-    'twitter' : IDL.Opt(IDL.Text),
-    'rank' : IDL.Opt(IDL.Nat64),
-    'email' : IDL.Opt(IDL.Text),
-    'discord' : IDL.Opt(IDL.Text),
+  const GetBalanceResult = IDL.Variant({
+    'ok' : GetBalanceSuccess,
+    'err' : GetBalanceErr,
   });
-  const Color = IDL.Tuple(IDL.Nat8, IDL.Nat8, IDL.Nat8, IDL.Nat8);
-  const Colors = IDL.Vec(IDL.Record({ 'color' : Color, 'spot' : IDL.Text }));
-  const MintInformation = IDL.Record({
-    'mouth' : IDL.Text,
-    'background' : IDL.Text,
-    'ears' : IDL.Text,
-    'eyes' : IDL.Text,
-    'hair' : IDL.Text,
-    'cloth' : IDL.Text,
-    'nose' : IDL.Text,
-    'colors' : Colors,
-    'profile' : IDL.Text,
-  });
-  const MintSuccess = IDL.Record({ 'tokenId' : IDL.Text });
-  const MintErr = IDL.Variant({
-    'Invoice' : Invoice,
-    'Anonymous' : IDL.Null,
-    'AlreadyMinted' : IDL.Null,
-    'AvatarCanisterErr' : IDL.Text,
-    'Other' : IDL.Text,
-    'InvoiceCanisterErr' : IDL.Record({
-      'kind' : IDL.Variant({
-        'InvalidAccount' : IDL.Null,
-        'InvalidDetails' : IDL.Null,
-        'InvalidAmount' : IDL.Null,
-        'InvalidDestination' : IDL.Null,
-        'TransferError' : IDL.Null,
-        'MaxInvoicesReached' : IDL.Null,
-        'BadSize' : IDL.Null,
-        'NotFound' : IDL.Null,
-        'NotAuthorized' : IDL.Null,
-        'InvalidToken' : IDL.Null,
-        'InvalidInvoiceId' : IDL.Null,
-        'Other' : IDL.Null,
-        'NotYetPaid' : IDL.Null,
-        'Expired' : IDL.Null,
-      }),
-      'message' : IDL.Opt(IDL.Text),
+  const GetInvoiceArgs = IDL.Record({ 'id' : IDL.Nat });
+  const GetInvoiceSuccess = IDL.Record({ 'invoice' : Invoice__1 });
+  const GetInvoiceErr = IDL.Record({
+    'kind' : IDL.Variant({
+      'NotFound' : IDL.Null,
+      'NotAuthorized' : IDL.Null,
+      'InvalidInvoiceId' : IDL.Null,
+      'Other' : IDL.Null,
     }),
+    'message' : IDL.Opt(IDL.Text),
   });
-  const MintResult = IDL.Variant({ 'ok' : MintSuccess, 'err' : MintErr });
-  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+  const GetInvoiceResult = IDL.Variant({
+    'ok' : GetInvoiceSuccess,
+    'err' : GetInvoiceErr,
+  });
+  const TransferArgs = IDL.Record({
+    'destination' : AccountIdentifier,
+    'token' : Token,
+    'amount' : IDL.Nat,
+  });
+  const TransferSuccess = IDL.Record({ 'blockHeight' : IDL.Nat64 });
   const TransferError = IDL.Record({
     'kind' : IDL.Variant({
       'InvalidDestination' : IDL.Null,
@@ -199,7 +215,15 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     }),
     'message' : IDL.Opt(IDL.Text),
   });
-  const Result_2 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : TransferError });
+  const TransferResult = IDL.Variant({
+    'ok' : TransferSuccess,
+    'err' : TransferError,
+  });
+  const VerifyInvoiceArgs = IDL.Record({ 'id' : IDL.Nat });
+  const VerifyInvoiceSuccess = IDL.Variant({
+    'Paid' : IDL.Record({ 'invoice' : Invoice__1 }),
+    'AlreadyVerified' : IDL.Record({ 'invoice' : Invoice__1 }),
+  });
   const VerifyInvoiceErr = IDL.Record({
     'kind' : IDL.Variant({
       'InvalidAccount' : IDL.Null,
@@ -214,13 +238,21 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     }),
     'message' : IDL.Opt(IDL.Text),
   });
-  const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : VerifyInvoiceErr });
-  const ICPSquadHub = IDL.Service({
+  const VerifyInvoiceResult = IDL.Variant({
+    'ok' : VerifyInvoiceSuccess,
+    'err' : VerifyInvoiceErr,
+  });
+  const Invoice = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
+    'accountIdentifierToBlob' : IDL.Func(
+        [AccountIdentifier__1],
+        [AccountIdentifierToBlobResult],
+        [],
+      ),
     'add_admin' : IDL.Func([IDL.Principal], [], []),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
-    'backup_users' : IDL.Func([], [UpgradeData], ['query']),
     'collectCanisterMetrics' : IDL.Func([], [], []),
+    'create_invoice' : IDL.Func([CreateInvoiceArgs], [CreateInvoiceResult], []),
     'getCanisterLog' : IDL.Func(
         [IDL.Opt(CanisterLogRequest)],
         [IDL.Opt(CanisterLogResponse)],
@@ -231,15 +263,16 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
         [IDL.Opt(CanisterMetrics)],
         ['query'],
       ),
-    'get_balance' : IDL.Func([], [Result_3], []),
-    'get_user' : IDL.Func([], [IDL.Opt(User)], ['query']),
+    'get_account_identifier' : IDL.Func(
+        [GetAccountIdentifierArgs],
+        [GetAccountIdentifierResult],
+        ['query'],
+      ),
+    'get_balance' : IDL.Func([GetBalanceArgs], [GetBalanceResult], []),
+    'get_invoice' : IDL.Func([GetInvoiceArgs], [GetInvoiceResult], ['query']),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
-    'mint' : IDL.Func([MintInformation], [MintResult], []),
-    'modify_user' : IDL.Func([User], [Result], []),
-    'size_users' : IDL.Func([], [IDL.Nat], ['query']),
-    'transfer' : IDL.Func([IDL.Nat, IDL.Text], [Result_2], []),
-    'verify_invoice' : IDL.Func([IDL.Nat], [Result_1], []),
-    'whitelist' : IDL.Func([IDL.Principal], [Result], []),
+    'transfer' : IDL.Func([TransferArgs], [TransferResult], []),
+    'verify_invoice' : IDL.Func([VerifyInvoiceArgs], [VerifyInvoiceResult], []),
   });
-  return ICPSquadHub;
+  return Invoice;
 };

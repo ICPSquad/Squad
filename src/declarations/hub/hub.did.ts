@@ -1,4 +1,5 @@
-export const idlFactory = ({ IDL }) => {
+import { IDL } from "@dfinity/candid";
+export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
   const Permissions = IDL.Record({
     'canGet' : IDL.Vec(IDL.Principal),
     'canVerify' : IDL.Vec(IDL.Principal),
@@ -129,6 +130,15 @@ export const idlFactory = ({ IDL }) => {
     'daily' : IDL.Vec(DailyMetricsData),
   });
   const CanisterMetrics = IDL.Record({ 'data' : CanisterMetricsData });
+  const GetBalanceErr = IDL.Record({
+    'kind' : IDL.Variant({
+      'NotFound' : IDL.Null,
+      'InvalidToken' : IDL.Null,
+      'Other' : IDL.Null,
+    }),
+    'message' : IDL.Opt(IDL.Text),
+  });
+  const Result_3 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : GetBalanceErr });
   const User = IDL.Record({
     'height' : IDL.Opt(IDL.Nat64),
     'status' : Status,
@@ -179,6 +189,32 @@ export const idlFactory = ({ IDL }) => {
   });
   const MintResult = IDL.Variant({ 'ok' : MintSuccess, 'err' : MintErr });
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+  const TransferError = IDL.Record({
+    'kind' : IDL.Variant({
+      'InvalidDestination' : IDL.Null,
+      'BadFee' : IDL.Null,
+      'InvalidToken' : IDL.Null,
+      'Other' : IDL.Null,
+      'InsufficientFunds' : IDL.Null,
+    }),
+    'message' : IDL.Opt(IDL.Text),
+  });
+  const Result_2 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : TransferError });
+  const VerifyInvoiceErr = IDL.Record({
+    'kind' : IDL.Variant({
+      'InvalidAccount' : IDL.Null,
+      'TransferError' : IDL.Null,
+      'NotFound' : IDL.Null,
+      'NotAuthorized' : IDL.Null,
+      'InvalidToken' : IDL.Null,
+      'InvalidInvoiceId' : IDL.Null,
+      'Other' : IDL.Null,
+      'NotYetPaid' : IDL.Null,
+      'Expired' : IDL.Null,
+    }),
+    'message' : IDL.Opt(IDL.Text),
+  });
+  const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : VerifyInvoiceErr });
   const ICPSquadHub = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
     'add_admin' : IDL.Func([IDL.Principal], [], []),
@@ -195,14 +231,15 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(CanisterMetrics)],
         ['query'],
       ),
+    'get_balance' : IDL.Func([], [Result_3], []),
     'get_user' : IDL.Func([], [IDL.Opt(User)], ['query']),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'mint' : IDL.Func([MintInformation], [MintResult], []),
     'modify_user' : IDL.Func([User], [Result], []),
+    'size_users' : IDL.Func([], [IDL.Nat], ['query']),
+    'transfer' : IDL.Func([IDL.Nat, IDL.Text], [Result_2], []),
+    'verify_invoice' : IDL.Func([IDL.Nat], [Result_1], []),
     'whitelist' : IDL.Func([IDL.Principal], [Result], []),
   });
   return ICPSquadHub;
-};
-export const init = ({ IDL }) => {
-  return [IDL.Principal, IDL.Principal, IDL.Principal];
 };

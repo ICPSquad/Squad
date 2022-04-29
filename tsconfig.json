@@ -13,9 +13,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "declarations/*": ["src/declarations/*"],
-      "interfaces/*": ["src/website/src/interfaces/*"],
-      "types/*": ["src/website/src/types/*"]
+      "@declarations/*": ["src/declarations/*"],
+      "@types/*": ["src/website/src/types/*"]
     },
 
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],

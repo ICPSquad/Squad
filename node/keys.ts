@@ -25,5 +25,3 @@ export function fetchIdentity(name: string): Identity {
   if (!keys[name]) throw Error(`No key found for name : ${name}`);
   return Ed25519KeyIdentity.fromParsedJson(JSON.parse(keys[name]));
 }
-
-console.log(fetchIdentity("admin").getPrincipal().toString());
