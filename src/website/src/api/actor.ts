@@ -4,14 +4,16 @@ import type { ActorSubclass, HttpAgentOptions, Identity } from "@dfinity/agent";
 import type { IDL } from "@dfinity/candid";
 import type { Principal } from "@dfinity/principal";
 import { readFileSync } from "fs";
-import { idlFactory as idlFactoryAvatar } from "./declarations/avatar/avatar.did";
-import type { ICPSquadNFT as Avatar } from "./declarations/avatar/avatar.did.d";
-import { idlFactory as idlFactoryAccessories } from "./declarations/accessories/accessories.did";
-import type { ICPSquadNFT as Accessories } from "./declarations/accessories/accessories.did.d";
-import { idlFactory as idlFactoryHub } from "./declarations/hub/hub.did";
-import type { ICPSquadHub as Hub } from "./declarations/hub/hub.did.d";
-import { idlFactory as idlFactoryInvoice } from "./declarations/invoice/invoice.did";
-import type { Invoice } from "./declarations/invoice/invoice.did.d";
+import { idlFactory as idlFactoryAvatar } from "@canisters/avatar/avatar.did";
+import type { ICPSquadNFT as Avatar } from "@canisters/avatar/avatar.did.d";
+import { idlFactory as idlFactoryAccessories } from "@canisters/accessories/accessories.did";
+import type { ICPSquadNFT as Accessories } from "@canisters/accessories/accessories.did.d";
+import { idlFactory as idlFactoryHub } from "@canisters/hub/hub.did";
+import type { ICPSquadHub as Hub } from "@canisters/hub/hub.did.d";
+import { idlFactory as idlFactoryInvoice } from "@canisters/invoice/invoice.did";
+import type { Invoice } from "@canisters/invoice/invoice.did.d";
+import { idlFactory as idlFactoryLedger } from "@canisters/ledger/ledger.did";
+import type { _SERVICE as Ledger } from "@canisters/ledger/ledger.did.d";
 
 function createActor<T>(canisterId: string | Principal, idlFactory: IDL.InterfaceFactory, options: HttpAgentOptions): ActorSubclass<T> {
   const agent = new HttpAgent({
@@ -38,6 +40,7 @@ const avatarID = process.env.NODE_ENV === "production" ? canisters.avatar.ic : c
 const accessoriesID = process.env.NODE_ENV === "production" ? canisters.accessories.ic : canisters.accessories.local;
 const hubID = process.env.NODE_ENV === "production" ? canisters.hub.ic : canisters.hub.local;
 const invoiceID = process.env.NODE_ENV === "production" ? canisters.invoice.ic : canisters.invoice.local;
+const ledgerID = process.env.NODE_ENV === "production" ? "rwlgt-iiaaa-aaaaa-aaaaa-cai" : canisters.ledger.local;
 
 export function avatarActor(identity?: Identity): ActorSubclass<Avatar> {
   return createActor(avatarID, idlFactoryAvatar, {
@@ -63,8 +66,8 @@ export function invoiceActor(identity?: Identity): ActorSubclass<Invoice> {
   });
 }
 
-export function ledgerActor(identity?: Identity): ActorSubclass<any> {
-  return createActor("dfinity:ledger", idlFactory, {
+export function ledgerActor(identity?: Identity): ActorSubclass<Ledger> {
+  return createActor(ledgerID, idlFactoryLedger, {
     identity,
   });
 }
