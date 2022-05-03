@@ -1,9 +1,10 @@
-import type { Invoice__1 as Invoice } from "@canisters/invoice/invoice.did.d";
+import type { AccountIdentifier, Invoice__1 as Invoice } from "@canisters/invoice/invoice.did.d";
 import type { Wallet } from "@src/types/wallet";
 import { StoicIdentity } from "ic-stoic-identity";
 import { ledgerActor } from "@src/api/actor";
 import type { Identity } from "@dfinity/agent";
 import type { TransferArgs, TransferResult } from "@canisters/ledger/ledger.did.d";
+import { accountIdentifierToBytes, accountIdentifierToString } from "./tools/accountIdentifier";
 
 export async function payInvoice(invoice: Invoice, wallet: Wallet): Promise<{ height: number }> {
   const { paid, expiration } = invoice;
@@ -15,15 +16,16 @@ export async function payInvoice(invoice: Invoice, wallet: Wallet): Promise<{ he
   }
   switch (wallet) {
     case "plug":
-      pay_plug(invoice.destination, invoice.memo, invoice.amount);
+      pay_plug(accountIdentifierToString(invoice.destination), Number(invoice.amount));
     case "stoic":
-      pay_stoic(invoice.address, invoice.memo, invoice.amount);
+      pay_stoic(accountIdentifierToString(invoice.destination), Number(invoice.amount));
+    default:
+      throw new Error("Unknown wallet");
   }
 }
 
 async function pay_plug(
   address: string,
-  memo: bigint,
   amount: number
 ): Promise<{
   height: number;
@@ -31,7 +33,7 @@ async function pay_plug(
   const resultTransfer = await window.ic.plug.requestTransfer({
     to: address,
     amount: amount,
-    memo: String(memo),
+    memo: BigInt(1234),
   });
   if (resultTransfer) {
     return {
@@ -42,7 +44,7 @@ async function pay_plug(
   }
 }
 
-async function pay_stoic(address: string, memo: bigint, amount: number): Promise<{ height: number }> {
+async function pay_stoic(address: string, amount: number): Promise<{ height: number }> {
   let identity: Identity;
   try {
     StoicIdentity.load().then(async (object) => {
@@ -61,7 +63,7 @@ async function pay_stoic(address: string, memo: bigint, amount: number): Promise
     to: Array.from(new Uint8Array(Buffer.from(address, "hex"))),
     amount: { e8s: BigInt(amount) },
     fee: { e8s: BigInt(10_000) },
-    memo: BigInt(memo),
+    memo: BigInt(12345),
     from_subaccount: [],
     created_at_time: [],
   };
