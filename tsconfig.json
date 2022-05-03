@@ -1,26 +1,51 @@
 {
+  "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "importHelpers": true,
     "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "target": "esnext",
+    "module": "esnext",
+    /**
+     * svelte-preprocess cannot figure out whether you have
+     * a value or a type, so tell TypeScript to enforce using
+     * `import type` instead of `import` for Types.
+     */
+    "importsNotUsedAsValues": "error",
+    "isolatedModules": true,
+    /**
+     * To have warnings / errors of the Svelte compiler at the
+     * correct position, enable source maps by default.
+     */
     "sourceMap": true,
-    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
+    /**
+     * Typecheck JS in `.svelte` and `.js` files by default.
+     * Disable checkJs if you'd like to use dynamic types in JS.
+     * Note that setting allowJs false does not prevent the use
+     * of JS in `.svelte` files.
+     */
+    "types": ["vite/client", "svelte", "node"],
     "paths": {
-      "@/*": ["src/*"],
-      "@declarations/*": ["src/declarations/*"],
-      "@types/*": ["src/website/src/types/*"]
-    },
-
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
-    "allowJs": true,
-    "outDir": "dist"
+      "@src/*": ["src/website/src/*"],
+      "@utils/*": ["src/website/src/utils/*"],
+      "@tasks/*": ["src/website/src/tasks/*"],
+      "@icons/*": ["src/website/src/icons/*"],
+      "@components/*": ["src/website/src/components/*"],
+      "@canisters/*": ["src/declarations/*"],
+      "@assets/*": ["assets/*"]
+    }
   },
-  "include": ["src/website/src/**/*.ts"],
-  "exclude": ["node_modules"]
+  /**
+   * Use global.d.ts instead of compilerOptions.types
+   * to avoid limiting type declarations.
+   */
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "importsNotUsedAsValues": "remove",
+      "isolatedModules": false
+    }
+  }
 }

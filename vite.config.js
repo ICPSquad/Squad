@@ -46,8 +46,13 @@ export default defineConfig({
   root: "./src/website/",
   resolve: {
     alias: {
-      // Here we tell Vite the "fake" modules that we want to define
-      ...aliases,
+      "@src": path.resolve(__dirname, "src/website/src"),
+      "@utils": path.resolve(__dirname, "src/website/src/utils"),
+      "@tasks": path.resolve(__dirname, "src/website/src/tasks"),
+      "@components": path.resolve(__dirname, "src/website/src/components"),
+      "@icons": path.resolve(__dirname, "src/website/src/icons"),
+      "@canisters": path.resolve(__dirname, "src/declarations"),
+      "@assets": path.resolve(__dirname, "assets"),
     },
   },
   server: {

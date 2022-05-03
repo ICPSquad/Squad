@@ -1,16 +1,17 @@
 import "isomorphic-fetch";
-import { Actor, ActorSubclass, HttpAgent, HttpAgentOptions, Identity } from "@dfinity/agent";
-import { IDL } from "@dfinity/candid";
-import { Principal } from "@dfinity/principal";
+import { Actor, HttpAgent } from "@dfinity/agent";
+import type { ActorSubclass, HttpAgentOptions, Identity } from "@dfinity/agent";
+import type { IDL } from "@dfinity/candid";
+import type { Principal } from "@dfinity/principal";
 import { readFileSync } from "fs";
 import { idlFactory as idlFactoryAvatar } from "./declarations/avatar/avatar.did";
-import { ICPSquadNFT as Avatar } from "./declarations/avatar/avatar.did.d";
+import type { ICPSquadNFT as Avatar } from "./declarations/avatar/avatar.did.d";
 import { idlFactory as idlFactoryAccessories } from "./declarations/accessories/accessories.did";
-import { ICPSquadNFT as Accessories } from "./declarations/accessories/accessories.did.d";
+import type { ICPSquadNFT as Accessories } from "./declarations/accessories/accessories.did.d";
 import { idlFactory as idlFactoryHub } from "./declarations/hub/hub.did";
-import { ICPSquadHub as Hub } from "./declarations/hub/hub.did.d";
+import type { ICPSquadHub as Hub } from "./declarations/hub/hub.did.d";
 import { idlFactory as idlFactoryInvoice } from "./declarations/invoice/invoice.did";
-import { Invoice } from "./declarations/invoice/invoice.did.d";
+import type { Invoice } from "./declarations/invoice/invoice.did.d";
 
 function createActor<T>(canisterId: string | Principal, idlFactory: IDL.InterfaceFactory, options: HttpAgentOptions): ActorSubclass<T> {
   const agent = new HttpAgent({

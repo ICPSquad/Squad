@@ -1,4 +1,4 @@
-import { Identity } from "@dfinity/agent";
+import type { Identity } from "@dfinity/agent";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 

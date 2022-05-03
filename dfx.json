@@ -20,6 +20,13 @@
       "type": "custom",
       "candid": "src/ledger/ledger.public.did",
       "wasm": "src/ledger/ledger.wasm"
+    },
+    "website-test": {
+      "frontend": {
+        "entrypoint": "./src/website/dit/index.html"
+      },
+      "source": ["./src/website/dist/"],
+      "type": "assets"
     }
   },
   "defaults": {

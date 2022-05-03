@@ -1,9 +1,8 @@
 import { accessoriesActor } from "../actor";
 import { fetchIdentity } from "../keys";
-import { Template } from "../declarations/accessories/accessories.did.d";
+import type { Template } from "../declarations/accessories/accessories.did.d";
 import { createReadStream, readFileSync } from "fs";
-import csvParser, { CsvParser } from "csv-parser";
-import { Principal } from "@dfinity/principal";
+import csvParser from "csv-parser";
 
 const canisters =
   process.env.NODE_ENV === "production"

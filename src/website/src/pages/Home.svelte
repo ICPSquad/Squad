@@ -1,7 +1,8 @@
-<script>
+<script lang="ts">
   import Header from "../components/Header.svelte";
   import Footer from "../components/Footer.svelte";
   import AvatarWall from "../components/AvatarWall.svelte";
+  import AvatarComponentsSvg from "../components/AvatarComponentsSvg.svelte";
 </script>
 
 <Header />
@@ -11,21 +12,15 @@
     <div class="content">
       <div class="squad-number">
         <div><strong>5,238</strong> SQUAD MEMBERS</div>
-        <img
-          id="avatar-collage"
-          src="/assets/avatar-collage.png"
-          alt="Collage of ICP Squad Avatars"
-        />
+        <img id="avatar-collage" src="/avatar-collage.png" alt="Collage of ICP Squad Avatars" />
       </div>
       <h1>Join the squad</h1>
-      <p class="large">
-        Start by minting your own ICP Squad avatar NFT, then get rewarded with
-        NFTs, ICP and other prizes as you explore the Internet Computer.
-      </p>
+      <p class="large">Start by minting your own ICP Squad avatar NFT, then get rewarded with NFTs, ICP and other prizes as you explore the Internet Computer.</p>
       <button> Create Avatar → </button>
       <button class="secondary"> Learn More </button>
     </div>
   </div>
+  <AvatarComponentsSvg />
 </main>
 <Footer />
 

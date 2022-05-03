@@ -1,7 +1,7 @@
 <script>
   import { Link } from "svelte-routing";
-  import Logo from "../../assets/Logo.svelte";
-  import Menu from "../../assets/icons/Menu.svelte";
+  import Logo from "@icons/Logo.svelte";
+  import Menu from "@icons/Menu.svelte";
 </script>
 
 <nav class="container">

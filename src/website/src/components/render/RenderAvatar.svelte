@@ -1,0 +1,354 @@
+<script lang="ts">
+  import { componentToClass, profileToClass } from "@utils/style";
+  import { getSortedComponents } from "@utils/layers";
+  import type { AvatarComponents } from "@src/types/avatar";
+  import type { AvatarColors } from "@src/types/color";
+  export let avatarComponents: AvatarComponents;
+  export let avatarColors: AvatarColors;
+  $: components = getSortedComponents(avatarComponents);
+</script>
+
+<svg
+  viewBox="0 0 800 800"
+  xmlns="http://www.w3.org/2000/svg"
+  class={profileToClass(avatarComponents.profile)}
+  style="
+--color_skin: rgb({avatarColors.skin[0]}, {avatarColors.skin[1]}, {avatarColors.skin[2]});
+--color_clothes : rgb({avatarColors.clothes[0]}, {avatarColors.clothes[1]}, {avatarColors.clothes[2]});
+--color_hairs_r : {avatarColors.hairs[0]};
+--color_hairs_g : {avatarColors.hairs[1]};
+--color_hairs_b : {avatarColors.hairs[2]};
+--color_eyes_r : {avatarColors.eyes[0]};
+--color_eyes_g : {avatarColors.eyes[1]};
+--color_eyes_b : {avatarColors.eyes[2]};
+--color_eyebrows_r : {avatarColors.eyebrows[0]};
+--color_eyebrows_g : {avatarColors.eyebrows[1]};
+--color_eyebrows_b : {avatarColors.eyebrows[2]};
+--color_eyeliner_r : {avatarColors.eyeliner[0]};
+--color_eyeliner_g : {avatarColors.eyeliner[1]};
+--color_eyeliner_b : {avatarColors.eyeliner[2]};
+--color_background_r : {avatarColors.background[0]};
+--color_background_g : {avatarColors.background[1]};
+--color_background_b : {avatarColors.background[2]};
+--color_background_a : {avatarColors.background[3]};
+"
+>
+  <style>
+    .Punk-body .Punk-crying-eyes {
+      clip-path: url(#Punk-head_svg__a);
+    }
+    .Miss-body .Punk-crying-eyes {
+      transform: translateY(-0.5px) !important;
+      clip-path: url(#_clip16_miss_head);
+    }
+    .Business-body .Punk-crying-eyes,
+    .Business-body .Juggalo-facemask-40 {
+      clip-path: url(#Punk-head_svg__a);
+    }
+
+    .Punk-body .Juggalo-facemask-40 {
+      clip-path: url(#_clip9_punk_body);
+    }
+    .Miss-body .Juggalo-facemask-40 {
+      clip-path: url(#_clip16_miss_head);
+    }
+
+    .Business-body .Punk.ears {
+      transform: translateY(15px);
+    }
+
+    .Business-body .Miss.ears,
+    .Business-body .Miss.mouth,
+    .Business-body .Punk.mouth {
+      transform: translateY(-10px);
+    }
+
+    .Business-body .Miss.eyes {
+      transform: translateY(-20px);
+    }
+
+    .Business.nose {
+      transform: translateY(-50px);
+    }
+    .Business-mouth {
+      transform: translateY(-30px) !important;
+    }
+
+    .Punk.nose,
+    .Miss.nose {
+      transform: translateY(-10px);
+    }
+
+    .Business-body .clothing-3,
+    .Business-body .clothing-4 {
+      transform: scale(1.67, 1.67) translate(-160px, -321px);
+    }
+
+    .Punk-body .clothing-1,
+    .Punk-body .clothing-2 {
+      transform: scale(1, 0.94) translate(0px, 150px);
+    }
+
+    .Punk-body .clothing-3,
+    .Punk-body .clothing-4 {
+      transform: scale(1.21, 1.2) translate(-70px, -120px);
+    }
+
+    .Miss-body .clothing-1,
+    .Miss-body .clothing-2 {
+      transform: scale(1, 0.8) translate(0px, 303px);
+    }
+
+    .Punk-body .Business.ears {
+      transform: translateY(-15px);
+    }
+
+    .Punk-body .Miss.ears {
+      transform: translateY(-20px);
+    }
+
+    .Punk-body .Miss.eyes {
+      transform: translateY(-10px);
+    }
+
+    .Punk-body .Business.mouth {
+      transform: translateY(10px);
+    }
+
+    .Punk-body .Hair-1,
+    .Punk-body .Hair-2,
+    .Punk-body .Hair-2-base,
+    .Punk-body .Hair-2-back,
+    .Punk-body .Hair-2-base-back,
+    .Punk-body .Hair-3,
+    .Punk-body .Hair-4,
+    .Punk-body .Hair-4-back,
+    .Punk-body .Hair-5,
+    .Punk-body .Hair-5-back,
+    .Punk-body .Hair-6,
+    .Punk-body .Hair-6-back,
+    .Punk-body .Hair-6-base,
+    .Punk-body .Hair-6-base-back,
+    .Punk-body .Hair-10,
+    .Punk-body .Hair-11,
+    .Punk-body .Hair-12,
+    .Punk-body .Hair-13,
+    .Punk-body .Hair-13-back,
+    .Punk-body .Hair-13-full,
+    .Punk-body .Hair-13-top {
+      transform: translateY(-17px);
+    }
+
+    .Punk-body .Hair-1-base {
+      transform: scale(1.02, 1) translate(-8px, -17px);
+    }
+
+    .Miss-body .Punk.ears {
+      transform: translateY(25px);
+    }
+
+    .Miss-body .Business.ears {
+      transform: translateY(10px);
+    }
+
+    .Miss-body .Business.mouth,
+    .Miss-body .Punk.mouth {
+      transform: translateY(10px);
+    }
+
+    .Miss-body .Punk.eyes,
+    .Miss-body .Business.eyes {
+      transform: translateY(15px);
+    }
+
+    .Business-body .Astro-suit-84,
+    .Business-body .Astro-suit-21 {
+      transform: scale(0.86) translate(60px, 30px);
+    }
+
+    .Punk-body .Cronic-tshirt-40,
+    .Punk-body .Helicap-tshirt-40,
+    .Punk-body .Lab-coat-15,
+    .Punk-body .Lab-coat-40,
+    .Punk-body .Street-jacket-15,
+    .Punk-body .Street-jacket-40 {
+      transform: translate(0px, 100px);
+    }
+
+    .Punk-body .Devil-jacket-15,
+    .Punk-body .Devil-jacket-30 {
+      transform: scale(0.9) translate(43px, 150px);
+    }
+
+    .Business-body .Magic-cap-21 {
+      transform: scale(1.2) translate(-65px, -185px);
+    }
+    .Business-body .Magic-cap-84 {
+      transform: translate(0px, -20px);
+    }
+
+    .Miss-body .Magic-cap-21 {
+      transform: scale(1.1) translate(-35.5px, -35px);
+    }
+
+    .Miss-body .Cronic-tshirt-40,
+    .Miss-body .Devil-jacket-15,
+    .Miss-body .Devil-jacket-30,
+    .Miss-body .Helicap-tshirt-40,
+    .Miss-body .Lab-coat-15,
+    .Miss-body .Lab-coat-40,
+    .Miss-body .Shinobi-suit-99,
+    .Miss-body .Shinobi-suit-15,
+    .Miss-body .Street-jacket-15,
+    .Miss-body .Street-jacket-40 {
+      transform: scale(0.82) translate(85px, 248px);
+    }
+
+    .Punk-body .Super-suit-40,
+    .Punk-body .Yakuza-suit-15,
+    .Punk-body .Yakuza-suit-30 {
+      transform: translate(0px, 50px);
+    }
+
+    .Miss-body .Super-suit-40,
+    .Miss-body .Yakuza-suit-15,
+    .Miss-body .Yakuza-suit-30 {
+      transform: scale(0.82) translate(85px, 210px);
+    }
+
+    .Business-body .Helicap-85,
+    .Business-body .Marshall-hat-85 {
+      transform: translate(0px, -10px);
+    }
+    .Punk-body .Helicap-85,
+    .Miss-body .Helicap-85 {
+      transform: translate(0px, -20px);
+    }
+
+    .Punk-body .Marshall-hat-85 {
+      transform: translate(0px, -30px);
+    }
+    .Miss-body .Marshall-hat-85 {
+      transform: translate(0px, -20px);
+    }
+
+    .Business-body .Mortaboard-hat-85 {
+      transform: translate(0px, -40px);
+    }
+    .Punk-body .Mortaboard-hat-85 {
+      transform: translate(0px, -60px);
+    }
+    .Miss-body .Mortaboard-hat-85 {
+      transform: translate(0px, -40px);
+    }
+
+    .Business-body .Shinobi-hat-16,
+    .Business-body .Shinobi-hat-85 {
+      transform: translate(0px, -10px);
+    }
+    .Punk-body .Shinobi-hat-16,
+    .Punk-body .Shinobi-hat-85 {
+      transform: translate(0px, -20px);
+    }
+
+    .Miss-body .Shinobi-hat-16,
+    .Miss-body .Shinobi-hat-85 {
+      transform: translate(0px, -20px);
+    }
+    .Business-body .Assassin-cap-21,
+    .Business-body .Assassin-cap-84 {
+      transform: translate(0px, -20px);
+    }
+  </style>
+  {#if avatarComponents.body}
+    <style>
+      .clothing {
+        visibility: hidden;
+      }
+    </style>
+  {/if}
+  {#if avatarComponents.hairs === "hair-13" && avatarComponents.hat}
+    <style>
+      .Hair-above {
+        visibility: hidden;
+      }
+      .Hair-behind {
+        visibility: hidden;
+      }
+    </style>
+  {/if}
+  {#if avatarComponents.hairs === "hair-9" || avatarComponents.hairs === "hair-8" || avatarComponents.hairs === "hair-7" || avatarComponents.hairs === "hair-6" || avatarComponents.hairs == "hair-4"}
+    <style>
+      .Business-body .Helicap-85,
+      .Business-body .Marshall-hat-85 {
+        transform: translate(0px, -40px) !important ;
+      }
+      .Punk-body .Marshall-hat-85 {
+        transform: translate(0px, -50px) !important ;
+      }
+      .Punk-body .Mortaboard-hat-85 {
+        transform: translate(0px, -60px) !important ;
+      }
+
+      .Miss-body .Marshall-hat-85 {
+        transform: translate(0px, -40px) !important ;
+      }
+      .Miss-body .Mortaboard-hat-85 {
+        transform: translate(0px, -60px) !important;
+      }
+    </style>
+  {/if}
+  {#if avatarComponents.body === "magic-cap" || avatarComponents.body === "assassin-cap"}
+    <style>
+      .Hair-above {
+        visibility: hidden;
+      }
+      .Hair-behind {
+        visibility: hidden;
+      }
+      .Hair {
+        visibility: hidden;
+      }
+      .Hat {
+        visibility: hidden;
+      }
+    </style>
+  {/if}
+  {#if avatarComponents.body === "assassin-cap" || avatarComponents.body === "astro-suit"}
+    <style>
+      #business-profile-20 {
+        visibility: hidden;
+      }
+    </style>
+  {/if}
+  {#if avatarComponents.body === "astro-suit"}
+    <style>
+      .Hat {
+        visibility: hidden;
+      }
+    </style>
+  {/if}
+  {#if avatarComponents.hat === "shinobi-hat"}
+    <style>
+      .Hair-above {
+        visibility: hidden;
+      }
+      .Hair-behind {
+        visibility: hidden;
+      }
+      .Hair {
+        visibility: hidden;
+      }
+    </style>
+  {/if}
+  {#if avatarComponents.face === "gas-mask" || avatarComponents.face === "kitsune-mask" || avatarComponents.face === "evil-mask"}
+    <style>
+      .Eyes {
+        visibility: hidden;
+      }
+    </style>
+  {/if}
+  {#each components as component}
+    <use xlink:href="#{component[0]}-{component[1]}" class={componentToClass(component[0], component[1])} />
+  {/each}
+</svg>

@@ -1,111 +1,89 @@
-<script>
-  import Header from "../components/Header.svelte";
-  import Footer from "../components/Footer.svelte";
-  import { onMount } from "svelte";
-  import { renderAvatar } from "../../src/utils/render";
-  import AvatarComponentsSvg from "../components/AvatarComponentsSvg.svelte";
-  import {
-    backgrounds,
-    ears,
-    profiles,
-    hairs,
-    eyes,
-    noses,
-    mouths,
-    clothes,
-    accessories,
-  } from "../../src/utils/list";
-  import { categories, categoryToFolder } from "../../src/utils/categories";
-  import Carat from "../icons/Carat.svelte";
+<script lang="ts">
+  import Carat from "@icons/Carat.svelte";
+  import Shuffle from "@icons/Shuffle.svelte";
+  import AvatarComponentsSvg from "@components/AvatarComponentsSvg.svelte";
+  import Header from "@components/Header.svelte";
+  import Footer from "@components/Footer.svelte";
+  import RenderAvatar from "@components/render/RenderAvatar.svelte";
+  import RenderComponent from "@components/render/RenderComponent.svelte";
+  import ColorPicker from "@components/ColorPicker.svelte";
+  import type { AvatarColors } from "../types/color.d";
+  import type { AvatarComponents } from "../types/avatar.d";
+  import { generateRandomAvatar } from "@tasks/generate-avatar";
+  import { generateRandomColor } from "@utils/color";
+  import { backgrounds, profiles, ears, mouths, eyes, noses, hairs, clothes } from "@utils/list";
 
+  import { faceAccessories, hatAccessories, eyesAccessories, bodyAccessories, miscAccessories } from "@utils/list";
+
+  // Section 1 : Without accessories (for mainnet)
+  /*   const categories = ["background", "profile", "ears", "mouth", "eyes", "nose", "hairs", "clothes"];
   const categoryToItems = {
-    Background: backgrounds,
-    Ears: ears,
-    Profile: profiles,
-    Hairs: hairs,
-    Eyes: eyes,
-    Nose: noses,
-    Mouth: mouths,
-    Clothes: clothes,
-    Accessory: accessories,
+    background: backgrounds,
+    ears: ears,
+    profile: profiles,
+    hairs: hairs,
+    eyes: eyes,
+    nose: noses,
+    mouth: mouths,
+    clothes: clothes,
+  }; */
+
+  // Section 2 : With accessories (for testing)
+  // IF YOU WANT TO USE THIS : Commnent out section 1 and uncomment section 2
+
+  const categories = ["background", "profile", "ears", "mouth", "eyes", "nose", "hairs", "clothes", "hat", "face", "glasses", "body", "misc"];
+  const categoryToItems = {
+    background: backgrounds,
+    ears: ears,
+    profile: profiles,
+    hairs: hairs,
+    eyes: eyes,
+    nose: noses,
+    mouth: mouths,
+    clothes: clothes,
+    hat: hatAccessories,
+    face: faceAccessories,
+    glasses: eyesAccessories,
+    body: bodyAccessories,
+    misc: miscAccessories,
   };
 
-  const categoryToColorPickers = {
-    Background: ["Background"],
-    Profile: ["Skin"],
-    Hairs: ["Hairs", "Eyebrows"],
-    Eyes: ["Eyes", "Eyeliner"],
-    Clothes: ["Clothes"],
-  };
-
-  let categoryShowing = "Hairs";
+  let categoryShowing = "eyes";
   let items = [];
+  $: items = categoryToItems[categoryShowing];
+
+  // Color management
   let colorPickers = [];
   $: if (categoryShowing && categoryToItems[categoryShowing]) {
     let newItems = [...categoryToItems[categoryShowing]];
-    items = [...newItems];
-    colorPickers = categoryToColorPickers[categoryShowing]
-      ? categoryToColorPickers[categoryShowing]
-      : [];
+    items = categoryShowing == "background" ? [] : [...newItems];
+    colorPickers = categoryToColorPickers[categoryShowing] ? categoryToColorPickers[categoryShowing] : [];
+    console.log("picker", colorPickers);
   }
-
-  // $: items = categoryToItems[categoryShowing];
-
-  let avatar = {
-    Background: backgrounds[0],
-    Profile: profiles[1],
-    Ears: ears[2],
-    Eyes: eyes[1],
-    Nose: noses[0],
-    Mouth: mouths[2],
-    Hairs: hairs[10],
-    Clothes: clothes[2],
-    Accessory: accessories[1],
-    Colors: {
-      Skin: [255, 255, 0, 1],
-      Hairs: [0, 169, 0, 1],
-      Eyes: [0, 169, 252, 1],
-      Eyebrows: [0, 169, 252, 1],
-      Background: [0, 169, 252, 1],
-      Eyeliner: [255, 0, 0, 1],
-      Clothes: [0, 169, 252, 1],
-    },
+  const categoryToColorPickers = {
+    background: ["background"],
+    profile: ["skin"],
+    hairs: ["hairs", "eyebrows"],
+    eyes: ["eyes", "eyeliner"],
+    clothes: ["clothes"],
   };
 
-  function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
-      : null;
-  }
-
-  const handleColorChange = (event) => {
-    const col = hexToRgb(event.target.value);
-    let avatarNew = { ...avatar };
-    avatarNew.Colors[event.target.name] = [col.r, col.g, col.b, 1];
-    avatar = { ...avatarNew };
-    renderUpdatedAvatar(avatarNew);
+  // Avatar management
+  let components: AvatarComponents = generateRandomAvatar(0);
+  const updateAvatarComponent = (category: string, item: string) => {
+    console.log("update", category, item);
+    components[category] = item;
   };
 
-  const updateAvatar = (category, item) => {
-    let avatarNew = { ...avatar };
-    avatarNew[category] = item;
-    avatar = { ...avatarNew };
-    renderUpdatedAvatar(avatarNew);
+  let colors: AvatarColors = generateRandomColor();
+  const updateAvatarColor = (name: string, color: any) => {
+    colors[name] = [color.r, color.g, color.b, 1];
   };
 
-  const renderUpdatedAvatar = (avatar) => {
-    const avatarDiv = document.getElementById("avatar");
-    renderAvatar(avatarDiv, avatar);
+  let randomlyResetAvatar = () => {
+    components = generateRandomAvatar(0);
+    colors = generateRandomColor();
   };
-
-  onMount(() => {
-    renderUpdatedAvatar(avatar);
-  });
 </script>
 
 <Header />
@@ -116,10 +94,7 @@
   <div class="layout-grid">
     <div class="categories">
       {#each categories as category}
-        <button
-          on:click={() => (categoryShowing = category)}
-          class="category {categoryShowing == category ? 'selected' : ''}"
-        >
+        <button on:click={() => (categoryShowing = category)} class="category {categoryShowing == category ? 'selected' : ''}">
           <div class="left">
             {category}
           </div>
@@ -128,34 +103,23 @@
       {/each}
     </div>
     <div class="items">
-      {#each colorPickers as picker}
-        <div class="color-picker">
-          <input
-            on:change={handleColorChange}
-            name={picker}
-            type="color"
-            value="#e66465"
-          />
-          {picker} COLOR
-        </div>
+      {#each colorPickers as componentName}
+        <ColorPicker {updateAvatarColor} {componentName} selectedColorRGB={colors[componentName]} />
       {/each}
       {#each items as item}
-        <div
-          on:click={() => updateAvatar(categoryShowing, item)}
-          class="item {item == avatar[categoryShowing] ? 'selected' : ''}"
-        >
-          <img
-            type="image/svg+xml"
-            src="/assets/avatar-components/{categoryToFolder[
-              categoryShowing
-            ]}/{item.name}.svg"
-            alt={item.name}
-          />
+        <div on:click={() => updateAvatarComponent(categoryShowing, item.name)} class="item {item == components[categoryShowing] ? 'selected' : ''}">
+          <RenderComponent name={item.name} layers={item.layers} />
         </div>
       {/each}
     </div>
     <div class="avatar">
-      <div id="avatar" />
+      <RenderAvatar avatarComponents={components} avatarColors={colors} />
+      <button class="secondary shuffle" on:click={randomlyResetAvatar}>
+        <div class="shuffle-icon">
+          <Shuffle />
+        </div>
+        Random Reset
+      </button>
     </div>
   </div>
 </main>
@@ -224,6 +188,14 @@
     &.selected {
       background-color: $darkgrey;
       color: $blue;
+    }
+  }
+  button.shuffle {
+    margin-top: 20px;
+    line-height: 90%;
+    .shuffle-icon {
+      margin-right: 20px;
+      padding-top: 2px;
     }
   }
 </style>
