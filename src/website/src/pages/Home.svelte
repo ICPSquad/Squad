@@ -50,7 +50,8 @@
 
   .background {
     background-image: url("/assets/images/home-hero-background.png");
-    background-position: cover;
+    background-size: cover;
+    background-repeat: no-repeat;
   }
 
   .squad-number {
