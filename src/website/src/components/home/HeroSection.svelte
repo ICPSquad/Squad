@@ -30,7 +30,7 @@
 
   div.container {
     --page-feature-color: #{$green};
-    min-height: 100vh;
+    padding-bottom: 100px;
   }
   .hero-section {
     display: grid;

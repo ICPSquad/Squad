@@ -21,8 +21,8 @@ h1 {
 h2 {
   line-height: 115%;
   margin-bottom: 1.4rem;
-  font-size: 1.6rem; // Fallback
-  font-size: min(max(1.5rem, 4vw), 5rem); // Min, Variable, Max
+  font-size: 1.4rem; // Fallback
+  font-size: min(max(1.4rem, 2.8vw), 4rem); // Min, Variable, Max
   // letter-spacing: -0.04rem;
 }
 
