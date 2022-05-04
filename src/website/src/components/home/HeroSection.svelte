@@ -1,6 +1,5 @@
 <script lang="ts">
   import AvatarWall from "@components/home/AvatarWall.svelte";
-  import { Link } from "svelte-routing";
 </script>
 
 <div class="container">
@@ -20,10 +19,8 @@
         Start by minting your own ICP Squad avatar NFT, then get rewarded with
         NFTs, ICP and other prizes as you explore the Internet Computer.
       </p>
-      <Link to="/create-avatar">
-        <button> Create Avatar → </button>
-      </Link>
-      <button class="secondary"> Learn More </button>
+      <a href="/create-avatar" class="button"> Create Avatar → </a>
+      <a href="#create" class="button secondary"> Learn More </a>
     </div>
   </div>
 </div>
@@ -61,7 +58,7 @@
     font-size: 1.41rem;
     margin-bottom: 50px;
   }
-  button {
+  .button {
     margin-bottom: 20px;
   }
 </style>

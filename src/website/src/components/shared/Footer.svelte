@@ -131,6 +131,7 @@
 
   footer {
     --page-feature-color: #{$pink};
+    border-top: 1px solid $verydarkgrey;
   }
 
   .top {
@@ -176,7 +177,7 @@
   }
 
   .sub-nav {
-    background-color: $darkgrey;
+    background-color: $verydarkgrey;
     .container {
       display: flex;
       justify-content: space-between;
