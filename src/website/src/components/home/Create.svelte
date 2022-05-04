@@ -3,7 +3,7 @@
   <p>
     Create your one-of-a-kind avatar NFT, which you can take into missions to
     earn NFTs and tokens. You’ll be able to customize basically all physical
-    attributes of your avatar.
+    attributes of&nbsp;your&nbsp;avatar.
   </p>
 
   <div class="video">
@@ -18,7 +18,7 @@
 
   section {
     max-width: 800px;
-    padding: 100px 0;
+    padding: 80px 0;
     text-align: center;
     display: flex;
     flex-direction: column;
