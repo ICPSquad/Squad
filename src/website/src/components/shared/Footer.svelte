@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Link } from "svelte-routing";
   import Logo from "@icons/Logo.svelte";
   import Discord from "@icons/Discord.svelte";
   import Twitter from "@icons/Twitter.svelte";
@@ -21,15 +20,15 @@
       items: [
         {
           label: "FAQs",
-          url: "faqs",
+          url: "/faqs",
         },
         {
           label: "How it works",
-          url: "how-it-works",
+          url: "/how-it-works",
         },
         {
           label: "Accessories",
-          url: "accessories",
+          url: "/accessories",
         },
       ],
     },
@@ -38,15 +37,15 @@
       items: [
         {
           label: "About Us",
-          url: "about-us",
+          url: "/about-us",
         },
         {
           label: "Partners",
-          url: "partners",
+          url: "/partners",
         },
         {
           label: "Legendary Avatars",
-          url: "legendary",
+          url: "/legendary",
         },
         {
           label: "Blog",
@@ -59,12 +58,16 @@
       title: "Engage",
       items: [
         {
+          label: "Create Avatar",
+          url: "/create-avatar",
+        },
+        {
           label: "Dashboard",
-          url: "dashboard",
+          url: "/dashboard",
         },
         {
           label: "Stats",
-          url: "stats",
+          url: "/stats",
         },
         {
           label: "Discord",
@@ -78,7 +81,7 @@
         },
         {
           label: "Contact",
-          url: "contact",
+          url: "/contact",
         },
       ],
     },
@@ -104,13 +107,11 @@
           <h3>{itemGroup.title}</h3>
           <div class="items">
             {#each itemGroup.items as item}
-              {#if item.external}
-                <a class="item" href={item.url} target="_blank">{item.label}</a>
-              {:else}
-                <Link to={item.url}>
-                  <div class="item">{item.label}</div>
-                </Link>
-              {/if}
+              <a
+                class="item"
+                href={item.url}
+                target={item.external ? "_blank" : ""}>{item.label}</a
+              >
             {/each}
           </div>
         </div>
@@ -120,9 +121,7 @@
   <div class="sub-nav">
     <div class="container">
       © {new Date().getFullYear()} Dfinity community
-      <Link to="/privacy">
-        <div class="privacy">Privacy Policy</div>
-      </Link>
+      <a href="/privacy" class="privacy">Privacy Policy</a>
     </div>
   </div>
 </footer>
