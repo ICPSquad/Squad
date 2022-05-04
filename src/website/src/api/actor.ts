@@ -1,9 +1,7 @@
-import "isomorphic-fetch";
 import { Actor, HttpAgent } from "@dfinity/agent";
 import type { ActorSubclass, HttpAgentOptions, Identity } from "@dfinity/agent";
 import type { IDL } from "@dfinity/candid";
 import type { Principal } from "@dfinity/principal";
-import { readFileSync } from "fs";
 import { idlFactory as idlFactoryAvatar } from "@canisters/avatar/avatar.did";
 import type { ICPSquadNFT as Avatar } from "@canisters/avatar/avatar.did.d";
 import { idlFactory as idlFactoryAccessories } from "@canisters/accessories/accessories.did";
@@ -14,10 +12,11 @@ import { idlFactory as idlFactoryInvoice } from "@canisters/invoice/invoice.did"
 import type { Invoice } from "@canisters/invoice/invoice.did.d";
 import { idlFactory as idlFactoryLedger } from "@canisters/ledger/ledger.did";
 import type { _SERVICE as Ledger } from "@canisters/ledger/ledger.did.d";
+import { avatarID, accessoriesID, hubID, invoiceID, ledgerID, HOST } from "@utils/const";
 
 function createActor<T>(canisterId: string | Principal, idlFactory: IDL.InterfaceFactory, options: HttpAgentOptions): ActorSubclass<T> {
   const agent = new HttpAgent({
-    host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
+    host: HOST,
     ...options,
   });
   if (process.env.NODE_ENV == "development") {
@@ -31,16 +30,6 @@ function createActor<T>(canisterId: string | Principal, idlFactory: IDL.Interfac
     canisterId,
   });
 }
-
-const canisters =
-  process.env.NODE_ENV === "production"
-    ? JSON.parse(readFileSync(`${__dirname}/../canister_ids.json`).toString())
-    : JSON.parse(readFileSync(`${__dirname}/../.dfx/local/canister_ids.json`).toString());
-const avatarID = process.env.NODE_ENV === "production" ? canisters.avatar.ic : canisters.avatar.local;
-const accessoriesID = process.env.NODE_ENV === "production" ? canisters.accessories.ic : canisters.accessories.local;
-const hubID = process.env.NODE_ENV === "production" ? canisters.hub.ic : canisters.hub.local;
-const invoiceID = process.env.NODE_ENV === "production" ? canisters.invoice.ic : canisters.invoice.local;
-const ledgerID = process.env.NODE_ENV === "production" ? "rwlgt-iiaaa-aaaaa-aaaaa-cai" : canisters.ledger.local;
 
 export function avatarActor(identity?: Identity): ActorSubclass<Avatar> {
   return createActor(avatarID, idlFactoryAvatar, {

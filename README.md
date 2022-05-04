@@ -12,14 +12,14 @@ This repository contains all the code for the ICP Squad project. <br/> It contai
 - [x] Compatible with **Plug** and **Stoic** wallets.
 - [x] **HTTP** interface for canister informations, asset preview and nft rendering.
 - [x] **Invoice** system for live and open minting in exchange of 1 ICP.
-- [ ] Finish the econony and early gameplay planning.
+- [x] Finish the econony and early gameplay planning.
 - [ ] Drainining and restoring state of all canister at any point to allow for backup system.
 - [ ] Mission, gameplay, airdrop and bootcamp integration.
 - [ ] Legendaries accessories and characters integration.
-- [ ] Dynamic algorithm for accessory resizing and equipment.
 - [ ] DAO wallet than can hold and distribute tokens and NFTs of multiple standards to the squad.
 - [ ] Integrate covercode.oo for code verification.
 - [ ] Multi-season and collection architecture.
+- [ ] Dynamic algorithm for accessory resizing.
 
 ## Getting started and deploying locally
 

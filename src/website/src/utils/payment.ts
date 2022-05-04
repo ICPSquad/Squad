@@ -4,7 +4,7 @@ import { StoicIdentity } from "ic-stoic-identity";
 import { ledgerActor } from "@src/api/actor";
 import type { Identity } from "@dfinity/agent";
 import type { TransferArgs, TransferResult } from "@canisters/ledger/ledger.did.d";
-import { accountIdentifierToBytes, accountIdentifierToString } from "./tools/accountIdentifier";
+import { accountIdentifierToString } from "./tools/accountIdentifier";
 
 export async function payInvoice(invoice: Invoice, wallet: Wallet): Promise<{ height: number }> {
   const { paid, expiration } = invoice;

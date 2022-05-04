@@ -203,7 +203,7 @@ module {
         public func mint(
             request : MintRequest
         ) : Ext.NonFungible.MintResponse {
-            let account_identifier = Ext.User.toAccountIdentifier(request.to);
+            let account_identifier = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
             let index = Nat32.fromNat(_registry.size());
             switch(_registry.get(index)) {
                 case (null) {

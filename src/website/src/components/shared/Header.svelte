@@ -1,7 +1,14 @@
-<script>
+<script lang="ts">
   import { Link } from "svelte-routing";
   import Logo from "@icons/Logo.svelte";
   import Menu from "@icons/Menu.svelte";
+  import { avatar } from "@src/store/avatar";
+  import { plugConnection } from "@utils/connection";
+
+  let tid: string | undefined;
+  avatar.subscribe(({ tokenIdentifier }) => {
+    tid = tokenIdentifier;
+  });
 </script>
 
 <nav class="container">
@@ -9,7 +16,7 @@
     <Logo />
   </Link>
   <div class="right">
-    <button> Connect Wallet </button>
+    <button on:click={plugConnection}> {tid ? tid : "Connect your wallet"} </button>
     <Menu />
   </div>
 </nav>

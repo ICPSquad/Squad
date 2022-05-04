@@ -11,29 +11,10 @@
   import type { AvatarComponents } from "../types/avatar.d";
   import { generateRandomAvatar } from "@tasks/generate-avatar";
   import { generateRandomColor } from "@utils/color";
-  import {
-    backgrounds,
-    profiles,
-    ears,
-    mouths,
-    eyes,
-    noses,
-    hairs,
-    clothes,
-  } from "@utils/list";
-  import {
-    faceAccessories,
-    hatAccessories,
-    eyesAccessories,
-    bodyAccessories,
-    miscAccessories,
-  } from "@utils/list";
-  import {
-    categoriesExludingAccessories,
-    categoriesIncludingAccessories,
-    categoryDisplayName,
-    categoryToColorPickers,
-  } from "@utils/categories";
+  import { backgrounds, profiles, ears, mouths, eyes, noses, hairs, clothes } from "@utils/list";
+  import { faceAccessories, hatAccessories, eyesAccessories, bodyAccessories, miscAccessories } from "@utils/list";
+  import { categoriesExludingAccessories, categoriesIncludingAccessories, categoryDisplayName, categoryToColorPickers } from "@utils/categories";
+  import { plugConnection } from "@utils/connection";
 
   const categoryToItems = {
     background: backgrounds,
@@ -53,9 +34,7 @@
 
   // Toggle this to include/exclude accessories
   const includeAccessories = true;
-  const categories = includeAccessories
-    ? categoriesIncludingAccessories
-    : categoriesExludingAccessories;
+  const categories = includeAccessories ? categoriesIncludingAccessories : categoriesExludingAccessories;
 
   let categoryShowing = "profile";
   let items = [];
@@ -66,9 +45,7 @@
   $: if (categoryShowing && categoryToItems[categoryShowing]) {
     let newItems = [...categoryToItems[categoryShowing]];
     items = categoryShowing == "background" ? [] : [...newItems];
-    colorPickers = categoryToColorPickers[categoryShowing]
-      ? categoryToColorPickers[categoryShowing]
-      : [];
+    colorPickers = categoryToColorPickers[categoryShowing] ? categoryToColorPickers[categoryShowing] : [];
     console.log("picker", colorPickers);
   }
 
@@ -98,10 +75,7 @@
   <div class="layout-grid">
     <div class="categories">
       {#each categories as category}
-        <button
-          on:click={() => (categoryShowing = category)}
-          class="category {categoryShowing == category ? 'selected' : ''}"
-        >
+        <button on:click={() => (categoryShowing = category)} class="category {categoryShowing == category ? 'selected' : ''}">
           <div class="left">
             {categoryDisplayName[category]}
           </div>
@@ -111,19 +85,10 @@
     </div>
     <div class="items">
       {#each colorPickers as componentName}
-        <ColorPicker
-          {updateAvatarColor}
-          {componentName}
-          selectedColorRGB={colors[componentName]}
-        />
+        <ColorPicker {updateAvatarColor} {componentName} selectedColorRGB={colors[componentName]} />
       {/each}
       {#each items as item}
-        <div
-          on:click={() => updateAvatarComponent(categoryShowing, item.name)}
-          class="item {item.name == components[categoryShowing]
-            ? 'selected'
-            : ''}"
-        >
+        <div on:click={() => updateAvatarComponent(categoryShowing, item.name)} class="item {item.name == components[categoryShowing] ? 'selected' : ''}">
           <RenderComponent name={item.name} layers={item.layers} />
         </div>
       {/each}

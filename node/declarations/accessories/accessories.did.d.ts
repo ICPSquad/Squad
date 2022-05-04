@@ -1,4 +1,9 @@
 import type { Principal } from '@dfinity/principal';
+export interface AccessoryInventory {
+  'tokenIdentifier' : string,
+  'name' : string,
+  'equipped' : boolean,
+}
 export type AccountIdentifier = string;
 export type AccountIdentifier__1 = string;
 export type AccountIdentifier__2 = string;
@@ -71,18 +76,18 @@ export interface HourlyMetricsData {
 }
 export interface ICPSquadNFT {
   'acceptCycles' : () => Promise<undefined>,
-  'addTemplate' : (arg_0: string, arg_1: Template) => Promise<Result__1_6>,
+  'addTemplate' : (arg_0: string, arg_1: Template) => Promise<Result__1_7>,
   'add_admin' : (arg_0: Principal) => Promise<undefined>,
   'allPayments' : () => Promise<Array<[Principal, Array<SubAccount__1>]>>,
   'allSettlements' : () => Promise<Array<[TokenIndex, Settlement]>>,
   'availableCycles' : () => Promise<bigint>,
   'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
-  'bearer' : (arg_0: TokenIdentifier) => Promise<Result__1_5>,
+  'bearer' : (arg_0: TokenIdentifier) => Promise<Result__1_6>,
   'clearPayments' : (arg_0: Principal, arg_1: Array<SubAccount__1>) => Promise<
       undefined
     >,
   'collectCanisterMetrics' : () => Promise<undefined>,
-  'details' : (arg_0: TokenIdentifier) => Promise<Result__1_4>,
+  'details' : (arg_0: TokenIdentifier) => Promise<Result__1_5>,
   'eventsSize' : () => Promise<bigint>,
   'extensions' : () => Promise<Array<Extension>>,
   'getCanisterLog' : (arg_0: [] | [CanisterLogRequest]) => Promise<
@@ -91,6 +96,7 @@ export interface ICPSquadNFT {
   'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
       [] | [CanisterMetrics]
     >,
+  'getInventory' : () => Promise<Result__1_4>,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__2]>>,
   'getTokens' : () => Promise<Array<[TokenIndex, Metadata]>>,
   'http_request' : (arg_0: Request) => Promise<Response>,
@@ -129,6 +135,9 @@ export interface ICPSquadNFT {
       Result
     >,
 }
+export type Inventory = Array<ItemInventory>;
+export type ItemInventory = { 'Accessory' : AccessoryInventory } |
+  { 'Material' : MaterialInventory };
 export interface ListRequest {
   'token' : TokenIdentifier__2,
   'from_subaccount' : [] | [SubAccount__2],
@@ -146,6 +155,10 @@ export interface Listing__1 {
   'price' : bigint,
 }
 export interface LogMessagesData { 'timeNanos' : Nanos, 'message' : string }
+export interface MaterialInventory {
+  'tokenIdentifier' : string,
+  'name' : string,
+}
 export type Memo = Array<number>;
 export type Metadata = {
     'fungible' : {
@@ -204,11 +217,13 @@ export type Result__1_2 = { 'ok' : null } |
   { 'err' : string };
 export type Result__1_3 = { 'ok' : Metadata } |
   { 'err' : CommonError__1 };
-export type Result__1_4 = { 'ok' : [AccountIdentifier__2, [] | [Listing]] } |
+export type Result__1_4 = { 'ok' : Inventory } |
+  { 'err' : string };
+export type Result__1_5 = { 'ok' : [AccountIdentifier__2, [] | [Listing]] } |
   { 'err' : CommonError };
-export type Result__1_5 = { 'ok' : AccountIdentifier__2 } |
+export type Result__1_6 = { 'ok' : AccountIdentifier__2 } |
   { 'err' : CommonError };
-export type Result__1_6 = { 'ok' : string } |
+export type Result__1_7 = { 'ok' : string } |
   { 'err' : string };
 export interface Settlement {
   'subaccount' : SubAccount__2,

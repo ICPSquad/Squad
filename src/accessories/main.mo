@@ -24,7 +24,6 @@ import Cap "mo:cap/Cap";
 import Ext "mo:ext/Ext";
 import Root "mo:cap/Root";
 
-import Accessory "types/accessory";
 import Admins "admins";
 import Entrepot "entrepot";
 import ExtModule "ext";
@@ -591,6 +590,10 @@ shared({ caller = creator }) actor class ICPSquadNFT(
 
     public type Template = Items.Template;
     public type Item = Items.Item;
+    public type Inventory = Items.Inventory;
+    public type ItemInventory = Items.ItemInventory;
+    public type MaterialInventory = Items.MaterialInventory;
+    public type AccessoryInventory = Items.AccessoryInventory;
 
     stable var _ItemsUD : ?Items.UpgradeData = null;
     let _Items = Items.Factory({
@@ -688,6 +691,10 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                 }
             };
         };
+    };
+
+    public query ({ caller }) func getInventory() : async Result<Inventory, Text> {
+        _Items.getInventory(caller);
     };
 
 

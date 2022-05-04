@@ -32,6 +32,23 @@ module {
         #Decreased ;
     };
 
+    public type Inventory = [ItemInventory];
+    public type ItemInventory = {
+        #Material : MaterialInventory;
+        #Accessory : AccessoryInventory;
+    };
+
+    public type MaterialInventory = {
+        name : Text;
+        tokenIdentifier : Text;
+    };
+
+    public type AccessoryInventory = {
+        name : Text;
+        tokenIdentifier : Text;
+        equipped : Bool;
+    };
+
     public type LegendaryAccessory = {
         name : Text;
         date_creation : Int;

@@ -1,3 +1,4 @@
+import Array "mo:base/Array";
 import Error "mo:base/Error";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
@@ -9,8 +10,6 @@ import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-import _blobs "mo:base/TrieSet";
-import _items "mo:base/TrieSet";
 
 import Ext "mo:ext/Ext";
 
@@ -27,6 +26,10 @@ module {
     public type Accessory = Types.Accessory;
     public type LegendaryAccessory = Types.LegendaryAccessory;
     public type Recipe = Types.Recipe;
+    public type Inventory = Types.Inventory;
+    public type ItemInventory = Types.ItemInventory;
+    public type MaterialInventory = Types.MaterialInventory;
+    public type AccessoryInventory = Types.AccessoryInventory;
     public type AccessoryUpdate = Types.AccessoryUpdate;
     public type UpgradeData = Types.UpgradeData;
     type TokenIndex = Ext.TokenIndex;
@@ -312,6 +315,21 @@ module {
             };
         };
 
+        public func getInventory(
+            caller : Principal
+        ) : Result<Inventory, Text> {
+            let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);  
+            switch(_Ext.tokens(account)){
+                case(#err(_)) {
+                    _Logs.logMessage("Error trying to retrieve tokens");
+                    return #err("Error trying to retrieve tokens");
+                };
+                case(#ok(list)){
+                     return(#ok(Array.map<TokenIndex, ItemInventory>(list, _tokenIndexToInventoryItem)));
+                };
+            };
+        };
+
         ////////////////
         // HELPERS /////
         ////////////////
@@ -364,6 +382,34 @@ module {
                 wear = wear;
                 equipped = accessory.equipped;
             })
+        };
+
+        func _tokenIndexToInventoryItem(
+            tokenIndex : TokenIndex
+        ) : ItemInventory {
+            switch(_items.get(tokenIndex)){
+                case(?#Material(name)){
+                    return #Material({
+                        name = name;
+                        tokenIdentifier = Ext.TokenIdentifier.encode(dependencies.cid, tokenIndex);
+                    });
+                };
+                case(?#Accessory(accessory)){
+                    return #Accessory({
+                        name = accessory.name;
+                        tokenIdentifier = Ext.TokenIdentifier.encode(dependencies.cid, tokenIndex);
+                        equipped = Option.isSome(accessory.equipped);
+                    });
+                };
+                case(_){
+                    _Logs.logMessage("Item not found for tokenIndex : " # Nat32.toText(tokenIndex));
+                    assert(false);
+                    return #Material({
+                        name = "Unreacheable";
+                        tokenIdentifier = Ext.TokenIdentifier.encode(dependencies.cid, tokenIndex);
+                    });
+                } 
+            }
         };
     };
 };

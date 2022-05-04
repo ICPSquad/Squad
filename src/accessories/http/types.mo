@@ -2,13 +2,12 @@ import HashMap "mo:base/HashMap";
 
 import Canistergeek "mo:canistergeek/canistergeek";
 
-import Accessory "../types/accessory";
 import Admins "../admins";
 import Items "../items";
 module HTTP {
 
     type TokenIndex = Nat32;
-    type Item = Accessory.Item;
+    type Item = Items.Item;
 
     public type Dependencies = {
         _Admins : Admins.Admins;
