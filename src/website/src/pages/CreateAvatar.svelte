@@ -120,7 +120,9 @@
       {#each items as item}
         <div
           on:click={() => updateAvatarComponent(categoryShowing, item.name)}
-          class="item {item == components[categoryShowing] ? 'selected' : ''}"
+          class="item {item.name == components[categoryShowing]
+            ? 'selected'
+            : ''}"
         >
           <RenderComponent name={item.name} layers={item.layers} />
         </div>
