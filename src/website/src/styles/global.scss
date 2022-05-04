@@ -15,9 +15,6 @@ body {
 a {
   color: var(--page-feature-color);
   text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-  }
 }
 
 .container {
@@ -59,7 +56,7 @@ button,
   }
 
   &:hover {
-    filter: brightness(85%);
+    filter: brightness(115%);
   }
 }
 
