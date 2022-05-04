@@ -56,6 +56,7 @@
 
 <style lang="scss">
   @use "../../styles" as *;
+
   .currentColorSquare,
   .suggested-color {
     width: 30px;

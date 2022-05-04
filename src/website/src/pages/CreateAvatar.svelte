@@ -6,7 +6,7 @@
   import Footer from "@src/components/shared/Footer.svelte";
   import RenderAvatar from "@components/render/RenderAvatar.svelte";
   import RenderComponent from "@components/render/RenderComponent.svelte";
-  import ColorPicker from "@components/ColorPicker.svelte";
+  import ColorPicker from "@src/components/create-avatar/ColorPicker.svelte";
   import type { AvatarColors } from "../types/color.d";
   import type { AvatarComponents } from "../types/avatar.d";
   import { generateRandomAvatar } from "@tasks/generate-avatar";

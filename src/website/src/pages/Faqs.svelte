@@ -1,14 +1,15 @@
 <script>
   import Header from "@src/components/shared/Header.svelte";
   import Footer from "@src/components/shared/Footer.svelte";
-  import Faq from "@components/Faq.svelte";
+  import Faq from "@src/components/faqs/Faq.svelte";
   const faqs = [
     {
       category: "ICP SQUAD NFT",
       articles: [
         {
           title: "What is ICP Squad NFT?",
-          content: "<p>ICP Squad NFT is the first Engage-to-Earn NFT game that rewards you with NFTs and tokens for engaging with Internet Computer dapps.</p>",
+          content:
+            "<p>ICP Squad NFT is the first Engage-to-Earn NFT game that rewards you with NFTs and tokens for engaging with Internet Computer dapps.</p>",
         },
         {
           title: "What is Engage-to-Earn?",
@@ -47,11 +48,13 @@
         },
         {
           title: "Will I be getting any accessory with my avatar?",
-          content: "<p>Current orders will only receive their avatar once it’s customized, accessories and elements was only an incentive during the pre-order process.</p>",
+          content:
+            "<p>Current orders will only receive their avatar once it’s customized, accessories and elements was only an incentive during the pre-order process.</p>",
         },
         {
           title: "Can I sell my ICP Squad NFT Avatar?",
-          content: "<p>We will allow the sale of avatars once season 1 is over.</p>",
+          content:
+            "<p>We will allow the sale of avatars once season 1 is over.</p>",
         },
         {
           title: "Can I sell my ICP Squad NFT accessories?",
@@ -59,7 +62,8 @@
               <a href="https://entrepot.app/marketplace/icpsquad2">Entrepot</a>. We will list them on other NFT marketplaces in the future.</p>`,
         },
         {
-          title: "Why can't I properly convert the SVG to other formats like JPG?",
+          title:
+            "Why can't I properly convert the SVG to other formats like JPG?",
           content:
             "<p>The SVG file has all of the artwork. A lot of online converters had issues with the CSS rules which are part of the images, and we are trying to figure out some kind of workaround. Those who have a vector editor on their computer (like Inkscape) should be able to export any resolution PNG from the downloaded SVG file. An easier route may be to open the SVG image in a browser, make it fullscreen, and then take a screenshot. </p>",
         },
