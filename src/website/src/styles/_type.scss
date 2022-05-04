@@ -11,7 +11,6 @@ h5 {
 
 h1 {
   line-height: 115%;
-  margin-bottom: 1.8rem;
   font-size: 2.8rem; // Fallback
   font-size: clamp(2rem, 5vw, 4rem); // Min, Variable, Max
   overflow-wrap: break-word; // Backup in case string is too large for container

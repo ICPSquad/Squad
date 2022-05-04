@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Header from "../components/Header.svelte";
-  import Footer from "../components/Footer.svelte";
-  import AvatarWall from "../components/AvatarWall.svelte";
+  import Header from "../components/shared/Header.svelte";
+  import Footer from "../components/shared/Footer.svelte";
+  import AvatarWall from "@components/home/AvatarWall.svelte";
   import { Link } from "svelte-routing";
 </script>
 

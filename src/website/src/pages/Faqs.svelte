@@ -1,6 +1,6 @@
 <script>
-  import Header from "@components/Header.svelte";
-  import Footer from "@components/Footer.svelte";
+  import Header from "@src/components/shared/Header.svelte";
+  import Footer from "@src/components/shared/Footer.svelte";
   import Faq from "@components/Faq.svelte";
   const faqs = [
     {

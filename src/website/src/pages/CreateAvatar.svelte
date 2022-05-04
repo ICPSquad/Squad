@@ -2,8 +2,8 @@
   import Carat from "@icons/Carat.svelte";
   import Shuffle from "@icons/Shuffle.svelte";
   import AvatarComponentsSvg from "@components/AvatarComponentsSvg.svelte";
-  import Header from "@components/Header.svelte";
-  import Footer from "@components/Footer.svelte";
+  import Header from "@src/components/shared/Header.svelte";
+  import Footer from "@src/components/shared/Footer.svelte";
   import RenderAvatar from "@components/render/RenderAvatar.svelte";
   import RenderComponent from "@components/render/RenderComponent.svelte";
   import ColorPicker from "@components/ColorPicker.svelte";
@@ -11,27 +11,30 @@
   import type { AvatarComponents } from "../types/avatar.d";
   import { generateRandomAvatar } from "@tasks/generate-avatar";
   import { generateRandomColor } from "@utils/color";
-  import { backgrounds, profiles, ears, mouths, eyes, noses, hairs, clothes } from "@utils/list";
+  import {
+    backgrounds,
+    profiles,
+    ears,
+    mouths,
+    eyes,
+    noses,
+    hairs,
+    clothes,
+  } from "@utils/list";
+  import {
+    faceAccessories,
+    hatAccessories,
+    eyesAccessories,
+    bodyAccessories,
+    miscAccessories,
+  } from "@utils/list";
+  import {
+    categoriesExludingAccessories,
+    categoriesIncludingAccessories,
+    categoryDisplayName,
+    categoryToColorPickers,
+  } from "@utils/categories";
 
-  import { faceAccessories, hatAccessories, eyesAccessories, bodyAccessories, miscAccessories } from "@utils/list";
-
-  // Section 1 : Without accessories (for mainnet)
-  /*   const categories = ["background", "profile", "ears", "mouth", "eyes", "nose", "hairs", "clothes"];
-  const categoryToItems = {
-    background: backgrounds,
-    ears: ears,
-    profile: profiles,
-    hairs: hairs,
-    eyes: eyes,
-    nose: noses,
-    mouth: mouths,
-    clothes: clothes,
-  }; */
-
-  // Section 2 : With accessories (for testing)
-  // IF YOU WANT TO USE THIS : Commnent out section 1 and uncomment section 2
-
-  const categories = ["background", "profile", "ears", "mouth", "eyes", "nose", "hairs", "clothes", "hat", "face", "glasses", "body", "misc"];
   const categoryToItems = {
     background: backgrounds,
     ears: ears,
@@ -48,7 +51,13 @@
     misc: miscAccessories,
   };
 
-  let categoryShowing = "eyes";
+  // Toggle this to include/exclude accessories
+  const includeAccessories = true;
+  const categories = includeAccessories
+    ? categoriesIncludingAccessories
+    : categoriesExludingAccessories;
+
+  let categoryShowing = "profile";
   let items = [];
   $: items = categoryToItems[categoryShowing];
 
@@ -57,15 +66,15 @@
   $: if (categoryShowing && categoryToItems[categoryShowing]) {
     let newItems = [...categoryToItems[categoryShowing]];
     items = categoryShowing == "background" ? [] : [...newItems];
-    colorPickers = categoryToColorPickers[categoryShowing] ? categoryToColorPickers[categoryShowing] : [];
+    colorPickers = categoryToColorPickers[categoryShowing]
+      ? categoryToColorPickers[categoryShowing]
+      : [];
     console.log("picker", colorPickers);
   }
-  const categoryToColorPickers = {
-    background: ["background"],
-    profile: ["skin"],
-    hairs: ["hairs", "eyebrows"],
-    eyes: ["eyes", "eyeliner"],
-    clothes: ["clothes"],
+
+  let colors: AvatarColors = generateRandomColor();
+  const updateAvatarColor = (name: string, color: any) => {
+    colors[name] = [color.r, color.g, color.b, 1];
   };
 
   // Avatar management
@@ -73,11 +82,6 @@
   const updateAvatarComponent = (category: string, item: string) => {
     console.log("update", category, item);
     components[category] = item;
-  };
-
-  let colors: AvatarColors = generateRandomColor();
-  const updateAvatarColor = (name: string, color: any) => {
-    colors[name] = [color.r, color.g, color.b, 1];
   };
 
   let randomlyResetAvatar = () => {
@@ -94,9 +98,12 @@
   <div class="layout-grid">
     <div class="categories">
       {#each categories as category}
-        <button on:click={() => (categoryShowing = category)} class="category {categoryShowing == category ? 'selected' : ''}">
+        <button
+          on:click={() => (categoryShowing = category)}
+          class="category {categoryShowing == category ? 'selected' : ''}"
+        >
           <div class="left">
-            {category}
+            {categoryDisplayName[category]}
           </div>
           <Carat color={categoryShowing == category ? "#40b1f5" : "#E5E5E5"} />
         </button>
@@ -104,10 +111,17 @@
     </div>
     <div class="items">
       {#each colorPickers as componentName}
-        <ColorPicker {updateAvatarColor} {componentName} selectedColorRGB={colors[componentName]} />
+        <ColorPicker
+          {updateAvatarColor}
+          {componentName}
+          selectedColorRGB={colors[componentName]}
+        />
       {/each}
       {#each items as item}
-        <div on:click={() => updateAvatarComponent(categoryShowing, item.name)} class="item {item == components[categoryShowing] ? 'selected' : ''}">
+        <div
+          on:click={() => updateAvatarComponent(categoryShowing, item.name)}
+          class="item {item == components[categoryShowing] ? 'selected' : ''}"
+        >
           <RenderComponent name={item.name} layers={item.layers} />
         </div>
       {/each}
@@ -134,34 +148,17 @@
   main {
     --page-feature-color: #{$pink};
   }
-
-  input[type="color"] {
-    background-color: transparent;
-    border: 0;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    margin-right: 10px;
-  }
-
   .layout-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 40px;
   }
-
-  .color-picker {
-    grid-column: span 3;
-    display: flex;
-    align-items: center;
-  }
-
   .items {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 20px;
+    grid-auto-rows: minmax(min-content, max-content);
   }
-
   .item {
     background-color: $darkgrey;
     border-radius: 10px;
@@ -172,12 +169,10 @@
       border-color: $green;
     }
   }
-
   #avatar-components {
     width: 0;
     height: 0;
   }
-
   button.category {
     background-color: $verydarkgrey;
     display: flex;
