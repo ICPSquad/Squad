@@ -1,13 +1,29 @@
-<script>
+<script lang="ts">
   import { onMount } from "svelte";
 
   import AvatarZapAnimate from "./AvatarZapAnimate.svelte";
 
-  const sets = [
+  enum Theme {
+    PINK = "pink",
+    PURPLE = "purple",
+    YELLOW = "yellow",
+    GREEN = "green",
+  }
+
+  type AnimatedItem = {
+    image?: string;
+    theme?: Theme;
+    size: number;
+    delay?: number;
+  };
+
+  type Set = AnimatedItem[];
+
+  const sets: Set[] = [
     [
       {
         image: "pink-woman",
-        theme: "pink",
+        theme: Theme.PINK,
         size: 2,
         delay: 0,
       },
@@ -16,7 +32,7 @@
       },
       {
         image: "blue-man",
-        theme: "purple",
+        theme: Theme.PURPLE,
         size: 1,
         delay: 500,
       },
@@ -25,7 +41,7 @@
       },
       {
         image: "yellow-woman",
-        theme: "yellow",
+        theme: Theme.YELLOW,
         size: 1,
         delay: 1000,
       },
@@ -33,13 +49,13 @@
     [
       {
         image: "blue-man-2",
-        theme: "purple",
+        theme: Theme.PURPLE,
         size: 1,
         delay: 500,
       },
       {
         image: "green-woman-2",
-        theme: "green",
+        theme: Theme.GREEN,
         size: 1,
         delay: 1000,
       },
@@ -48,7 +64,7 @@
       },
       {
         image: "pink-man",
-        theme: "pink",
+        theme: Theme.PINK,
         size: 2,
         delay: 0,
       },
@@ -57,7 +73,7 @@
       },
       {
         image: "yellow-man-2",
-        theme: "yellow",
+        theme: Theme.YELLOW,
         size: 1,
         delay: 1000,
       },
@@ -65,7 +81,7 @@
     [
       {
         image: "yellow-woman-2",
-        theme: "yellow",
+        theme: Theme.YELLOW,
         size: 3,
         delay: 0,
       },
@@ -73,13 +89,13 @@
     [
       {
         image: "blue-man-3",
-        theme: "purple",
+        theme: Theme.PURPLE,
         size: 1,
         delay: 500,
       },
       {
         image: "green-woman-3",
-        theme: "green",
+        theme: Theme.GREEN,
         size: 2,
         delay: 0,
       },
@@ -88,13 +104,13 @@
       },
       {
         image: "purple-man-2",
-        theme: "pink",
+        theme: Theme.PINK,
         size: 1,
         delay: 1000,
       },
       {
         image: "green-man",
-        theme: "yellow",
+        theme: Theme.YELLOW,
         size: 1,
         delay: 1500,
       },
