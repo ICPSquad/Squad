@@ -38,12 +38,8 @@ export type CanisterMemoryAggregatedData = Array<bigint>;
 export interface CanisterMetrics { 'data' : CanisterMetricsData }
 export type CanisterMetricsData = { 'hourly' : Array<HourlyMetricsData> } |
   { 'daily' : Array<DailyMetricsData> };
-export interface CreateInvoiceArgs {
-  'permissions' : [] | [Permissions],
-  'token' : Token,
-  'details' : [] | [Details],
-  'amount' : bigint,
-}
+export type Category = { 'AvatarMint' : null } |
+  { 'AccessoryFee' : null };
 export interface CreateInvoiceErr {
   'kind' : { 'InvalidDetails' : null } |
     { 'InvalidAmount' : null } |
@@ -137,7 +133,7 @@ export interface Invoice {
   'add_admin' : (arg_0: Principal) => Promise<undefined>,
   'availableCycles' : () => Promise<bigint>,
   'collectCanisterMetrics' : () => Promise<undefined>,
-  'create_invoice' : (arg_0: CreateInvoiceArgs) => Promise<CreateInvoiceResult>,
+  'create_invoice' : (arg_0: Category) => Promise<CreateInvoiceResult>,
   'getCanisterLog' : (arg_0: [] | [CanisterLogRequest]) => Promise<
       [] | [CanisterLogResponse]
     >,
@@ -151,7 +147,13 @@ export interface Invoice {
   'get_invoice' : (arg_0: GetInvoiceArgs) => Promise<GetInvoiceResult>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
   'transfer' : (arg_0: TransferArgs) => Promise<TransferResult>,
-  'verify_invoice' : (arg_0: VerifyInvoiceArgs) => Promise<VerifyInvoiceResult>,
+  'verify_invoice_accessory' : (arg_0: VerifyInvoiceArgs) => Promise<
+      VerifyInvoiceResult
+    >,
+  'verify_invoice_avatar' : (
+      arg_0: VerifyInvoiceArgs,
+      arg_1: Principal,
+    ) => Promise<VerifyInvoiceResult>,
 }
 export interface Invoice__1 {
   'id' : bigint,

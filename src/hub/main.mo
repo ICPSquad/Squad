@@ -10,7 +10,6 @@ import Canistergeek "mo:canistergeek/canistergeek";
 import Ext "mo:ext/Ext";
 
 import Admins "admins";
-import Invoice "invoice";
 import Types "types";
 import Users "users";
 shared ({ caller = creator }) actor class ICPSquadHub(
@@ -102,45 +101,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Logs.getLog(request);
     };
 
-    ///////////////
-    // INVOICE ///
-    /////////////
 
-    private let _Invoice : Invoice.Factory = Invoice.Factory({
-        invoice_cid = invoice;
-        cid = cid;
-        creator = creator;
-    });
-
-    public shared ({ caller }) func transfer(
-        amount : Nat,
-        account : Text
-    ) : async Result<Nat, Invoice.TransferError> {
-        assert(_Admins.isAdmin(caller));
-        await _Invoice.transfer(amount, account);
-    };
-
-    public shared ({ caller }) func get_balance() : async Result<Nat,Invoice.GetBalanceErr> {
-        assert(_Admins.isAdmin(caller));
-        try {
-            await _Invoice.getBalance();
-        } catch e {
-            _Logs.logMessage("Error while getting balance : " # Error.message(e));
-            throw e
-        }
-    };
-
-    public shared ({ caller }) func verify_invoice(
-        id : Nat
-    ) : async Result<(), Invoice.VerifyInvoiceErr>{
-        assert(_Admins.isAdmin(caller));
-        try {
-            await _Invoice.verifyInvoice(id);
-        } catch e {
-            _Logs.logMessage("Error while getting balance : " # Error.message(e));
-            throw e
-        }
-    };
 
     //////////////
     // USERS ////
@@ -153,7 +114,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     stable var _UsersUD : ?Users.UpgradeData = null;
     private let _Users : Users.Users = Users.Users({
         _Logs = _Logs;
-        _Invoice = _Invoice;
         cid_avatar = avatar;
     });
 
@@ -164,100 +124,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     private let AMOUNT_MINT = 1_000_000_000; // 1 ICP
 
     
-    public shared ({ caller }) func mint(info : MintInformation) : async MintResult {
-        _Monitor.collectMetrics();
-        if(Principal.isAnonymous(caller)){
-            _Logs.logMessage("Mint request from anonymous user");
-            return #err(#Anonymous);
-        };
-        switch(_Users.getUser(caller)){
-            case(? user){
-                switch(user.status){
-                    case(#Member(mint)){
-                        if(mint) {
-                            _Logs.logMessage("Double mint request from user " # Principal.toText(caller));
-                            return #err(#AlreadyMinted);
-                        } else {
-                            _Logs.logMessage("Send mint request to avatar canister for user : " # Principal.toText(caller));
-
-                            switch(await AVATAR.mint(info, caller)){
-                                    case(#ok(a)) {
-                                        _Users.modifyStatus(caller, #Member(true));
-                                        _Logs.logMessage("Mint request successfull : " # a # " minted for : " # Principal.toText(caller));
-                                        return #ok({ tokenId = a });
-                                    };
-                                    case (#err(e)) {
-                                        _Logs.logMessage("Mint request issue : " # e # " for : " #Principal.toText(caller));
-                                        return #err(#AvatarCanisterErr(e));
-                                };
-                            };
-                        }
-                    };
-                    case (#Invoice(invoice)) {
-                        _Users.modifyStatus(caller, #InProgress);
-                        switch(await _Invoice.verifyInvoice(invoice.id)){
-                            case(#ok){
-                                _Logs.logMessage("Send mint request to avatar canister for user : " # Principal.toText(caller));
-                                switch(await AVATAR.mint(info, caller)){
-                                    case(#ok(a)) {
-                                        _Users.modifyStatus(caller, #Member(true));
-                                        _Logs.logMessage("Mint request successfull : " # a # " minted for : " # Principal.toText(caller));
-                                        return #ok({ tokenId = a });
-                                    };
-                                    case (#err(e)) {
-                                        _Users.modifyStatus(caller, #Invoice(invoice));
-                                        _Logs.logMessage("Mint request issue : " # e # " for : " #Principal.toText(caller));
-                                        return #err(#AvatarCanisterErr(e));
-                                    };
-                                };
-                            };
-                            case(#err(e)) {
-                                _Logs.logMessage("Error when verifying invoice for user : " # Principal.toText(caller));
-                                _Users.modifyStatus(caller, #Invoice(invoice));
-                                return #err(#InvoiceCanisterErr(e));
-                            };
-                        };
-                    };
-                    case(#InProgress) {
-                        _Logs.logMessage("Re-entrancy attack from " # Principal.toText(caller));
-                        return #err(#Other("Re-entrancy attack detected"));
-                    };
-                };
-            };
-            case(null){
-                _Logs.logMessage("User " # Principal.toText(caller) # " not found");
-                return #err(#Other("User not found"));
-            };
-        };
-    };
-
-    /* 
-        This function is called by the user when he wants to mint an avatar. 
-    */
-    public shared ({ caller }) func create_invoice() : async Result<Invoice, Text> {
-        _Monitor.collectMetrics();
-        if(Principal.isAnonymous(caller)){
-            _Logs.logMessage("Join request from anonymous user");
-            return #err("Request from anonymous user");
-        };
-        switch(_Users.register(caller){
-            case(#err(e)){
-                return #err(e);
-            };
-            case(#ok()){
-                switch(await(_Invoice.createInvoice(caller, AMOUNT_MINT))){
-                    case(#ok(invoice)){
-                        _Users.modifyStatus(caller, #Invoice(invoice));
-                        return #ok(invoice));
-                    };
-                    case(#err(e)){
-                        _Logs.logMessage("Error when creating an invoice for user : " # Principal.toText(caller));
-                        return #err("Error when creating invoice.");
-                    }
-                };
-            };
-        };
-    };
 
     public shared ({ caller }) func whitelist(p : Principal) : async Result<(), Text> {
         assert(_Admins.isAdmin(caller));
@@ -316,9 +182,4 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Users.postupgrade(_UsersUD);
         _UsersUD := null;
     };
-
-
-
-
-
 };

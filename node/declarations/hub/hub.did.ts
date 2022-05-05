@@ -227,19 +227,3 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
         ['query'],
       ),
     'getCanisterMetrics' : IDL.Func(
-        [GetMetricsParameters],
-        [IDL.Opt(CanisterMetrics)],
-        ['query'],
-      ),
-    'get_balance' : IDL.Func([], [Result_3], []),
-    'get_user' : IDL.Func([], [IDL.Opt(User)], ['query']),
-    'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
-    'mint' : IDL.Func([MintInformation], [MintResult], []),
-    'modify_user' : IDL.Func([User], [Result], []),
-    'size_users' : IDL.Func([], [IDL.Nat], ['query']),
-    'transfer' : IDL.Func([IDL.Nat, IDL.Text], [Result_2], []),
-    'verify_invoice' : IDL.Func([IDL.Nat], [Result_1], []),
-    'whitelist' : IDL.Func([IDL.Principal], [Result], []),
-  });
-  return ICPSquadHub;
-};

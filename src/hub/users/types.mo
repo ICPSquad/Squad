@@ -16,8 +16,6 @@ module {
         height : ?Nat64;
         status : Status;
     };
-
-    public type InvoiceInfos = Invoice.Invoice;
     
     public type Status =  {
         #Invoice : Invoice.Invoice; // Invoice needs to be confirmed before being a member.
@@ -27,7 +25,6 @@ module {
 
     public type Dependencies = {
         _Logs : Canistergeek.Logger;
-        _Invoice : Invoice.Factory;
         cid_avatar :  Principal;
     };
 

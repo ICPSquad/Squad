@@ -41,9 +41,7 @@ module {
                 };
             };
         };
-
-        private let _Invoice = dependencies._Invoice;
-
+        
         ////////////
         // API ////
         ///////////

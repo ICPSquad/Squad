@@ -25,7 +25,7 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'InvalidToken' : TokenIdentifier__1,
     'Other' : IDL.Text,
   });
-  const Result_7 = IDL.Variant({
+  const Result_6 = IDL.Variant({
     'ok' : AccountIdentifier__1,
     'err' : CommonError,
   });
@@ -38,7 +38,7 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'seller' : IDL.Principal,
     'price' : IDL.Nat64,
   });
-  const Result_6 = IDL.Variant({
+  const Result_5 = IDL.Variant({
     'ok' : IDL.Tuple(AccountIdentifier__1, IDL.Opt(Listing)),
     'err' : CommonError,
   });
@@ -168,7 +168,7 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'streaming_strategy' : IDL.Opt(StreamingStrategy),
     'status_code' : IDL.Nat16,
   });
-  const Result_5 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError__1 });
+  const Result_4 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError__1 });
   const Color = IDL.Tuple(IDL.Nat8, IDL.Nat8, IDL.Nat8, IDL.Nat8);
   const Colors = IDL.Vec(IDL.Record({ 'color' : Color, 'spot' : IDL.Text }));
   const MintInformation = IDL.Record({
@@ -182,7 +182,7 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'colors' : Colors,
     'profile' : IDL.Text,
   });
-  const Result_4 = IDL.Variant({ 'ok' : TokenIdentifier, 'err' : IDL.Text });
+  const MintResult = IDL.Variant({ 'ok' : TokenIdentifier, 'err' : IDL.Text });
   const ComponentCategory = IDL.Variant({
     'Avatar' : IDL.Null,
     'Accessory' : IDL.Null,
@@ -245,12 +245,12 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'add_admin' : IDL.Func([IDL.Principal], [], []),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
-    'bearer' : IDL.Func([TokenIdentifier], [Result_7], ['query']),
+    'bearer' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
     'changeStyle' : IDL.Func([IDL.Text], [], []),
     'collectCanisterMetrics' : IDL.Func([], [], []),
     'delete' : IDL.Func([IDL.Text], [Result], []),
     'delete_admin' : IDL.Func([IDL.Principal], [], []),
-    'details' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
+    'details' : IDL.Func([TokenIdentifier], [Result_5], ['query']),
     'draw' : IDL.Func([TokenIdentifier], [Result], []),
     'eventsSize' : IDL.Func([], [IDL.Nat], ['query']),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
@@ -277,8 +277,8 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'http_request' : IDL.Func([Request], [Response], ['query']),
     'init_cap' : IDL.Func([], [Result], []),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
-    'metadata' : IDL.Func([TokenIdentifier], [Result_5], ['query']),
-    'mint' : IDL.Func([MintInformation, IDL.Principal], [Result_4], []),
+    'metadata' : IDL.Func([TokenIdentifier], [Result_4], ['query']),
+    'mint' : IDL.Func([MintInformation, IDL.Nat], [MintResult], []),
     'registerComponent' : IDL.Func([IDL.Text, Component], [Result], []),
     'removeAccessory' : IDL.Func(
         [TokenIdentifier, IDL.Text, IDL.Principal],

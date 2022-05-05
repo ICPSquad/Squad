@@ -1,6 +1,4 @@
 import Result "mo:base/Result";
-
-import Invoice "invoice";
 module {
 
     public type Color = (Nat8, Nat8, Nat8, Nat8);
@@ -17,18 +15,4 @@ module {
         colors : Colors;
     };
 
-    public type MintResult = Result.Result<MintSuccess,MintErr>;
-
-    public type MintSuccess = {
-        tokenId : Text;
-    };
-
-    public type MintErr = {
-        #Anonymous;
-        #AlreadyMinted;
-        #Invoice: Invoice.Invoice;
-        #InvoiceCanisterErr : Invoice.VerifyInvoiceErr or Invoice.CreateInvoiceErr;
-        #AvatarCanisterErr : Text;
-        #Other : Text;
-    };
 }

@@ -8,8 +8,6 @@ import { idlFactory as idlFactoryAvatar } from "./declarations/avatar/avatar.did
 import type { ICPSquadNFT as Avatar } from "./declarations/avatar/avatar.did.d";
 import { idlFactory as idlFactoryAccessories } from "./declarations/accessories/accessories.did";
 import type { ICPSquadNFT as Accessories } from "./declarations/accessories/accessories.did.d";
-import { idlFactory as idlFactoryHub } from "./declarations/hub/hub.did";
-import type { ICPSquadHub as Hub } from "./declarations/hub/hub.did.d";
 import { idlFactory as idlFactoryInvoice } from "./declarations/invoice/invoice.did";
 import type { Invoice } from "./declarations/invoice/invoice.did.d";
 import { idlFactory as idlFactoryLedger } from "./declarations/ledger/ledger.did";
@@ -38,7 +36,6 @@ const canisters =
     : JSON.parse(readFileSync(`${__dirname}/../.dfx/local/canister_ids.json`).toString());
 const avatarID = process.env.NODE_ENV === "production" ? canisters.avatar.ic : canisters.avatar.local;
 const accessoriesID = process.env.NODE_ENV === "production" ? canisters.accessories.ic : canisters.accessories.local;
-const hubID = process.env.NODE_ENV === "production" ? canisters.hub.ic : canisters.hub.local;
 const invoiceID = process.env.NODE_ENV === "production" ? canisters.invoice.ic : canisters.invoice.local;
 const ledgerID = process.env.NODE_ENV === "production" ? "ryjl3-tyaaa-aaaaa-aaaba-cai	" : canisters.ledger.local;
 
@@ -50,12 +47,6 @@ export function avatarActor(identity?: Identity): ActorSubclass<Avatar> {
 
 export function accessoriesActor(identity?: Identity): ActorSubclass<Accessories> {
   return createActor(accessoriesID, idlFactoryAccessories, {
-    identity,
-  });
-}
-
-export function hubActor(identity?: Identity): ActorSubclass<Hub> {
-  return createActor(hubID, idlFactoryHub, {
     identity,
   });
 }

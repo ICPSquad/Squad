@@ -86,12 +86,12 @@ export interface ICPSquadNFT {
   'add_admin' : (arg_0: Principal) => Promise<undefined>,
   'availableCycles' : () => Promise<bigint>,
   'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
-  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_7>,
+  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_6>,
   'changeStyle' : (arg_0: string) => Promise<undefined>,
   'collectCanisterMetrics' : () => Promise<undefined>,
   'delete' : (arg_0: string) => Promise<Result>,
   'delete_admin' : (arg_0: Principal) => Promise<undefined>,
-  'details' : (arg_0: TokenIdentifier) => Promise<Result_6>,
+  'details' : (arg_0: TokenIdentifier) => Promise<Result_5>,
   'draw' : (arg_0: TokenIdentifier) => Promise<Result>,
   'eventsSize' : () => Promise<bigint>,
   'extensions' : () => Promise<Array<Extension>>,
@@ -106,8 +106,8 @@ export interface ICPSquadNFT {
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init_cap' : () => Promise<Result>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
-  'metadata' : (arg_0: TokenIdentifier) => Promise<Result_5>,
-  'mint' : (arg_0: MintInformation, arg_1: Principal) => Promise<Result_4>,
+  'metadata' : (arg_0: TokenIdentifier) => Promise<Result_4>,
+  'mint' : (arg_0: MintInformation, arg_1: bigint) => Promise<MintResult>,
   'registerComponent' : (arg_0: string, arg_1: Component) => Promise<Result>,
   'removeAccessory' : (
       arg_0: TokenIdentifier,
@@ -167,6 +167,8 @@ export interface MintInformation {
   'colors' : Colors,
   'profile' : string,
 }
+export type MintResult = { 'ok' : TokenIdentifier } |
+  { 'err' : string };
 export type Nanos = bigint;
 export interface NumericEntity {
   'avg' : bigint,
@@ -197,13 +199,11 @@ export type Result_2 = {
   { 'err' : CommonError };
 export type Result_3 = { 'ok' : Array<TokenIndex> } |
   { 'err' : CommonError };
-export type Result_4 = { 'ok' : TokenIdentifier } |
-  { 'err' : string };
-export type Result_5 = { 'ok' : Metadata } |
+export type Result_4 = { 'ok' : Metadata } |
   { 'err' : CommonError__1 };
-export type Result_6 = { 'ok' : [AccountIdentifier__1, [] | [Listing]] } |
+export type Result_5 = { 'ok' : [AccountIdentifier__1, [] | [Listing]] } |
   { 'err' : CommonError };
-export type Result_7 = { 'ok' : AccountIdentifier__1 } |
+export type Result_6 = { 'ok' : AccountIdentifier__1 } |
   { 'err' : CommonError };
 export type StreamingCallback = (arg_0: StreamingCallbackToken) => Promise<
     StreamingCallbackResponse

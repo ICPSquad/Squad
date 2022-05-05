@@ -1,11 +1,12 @@
 import type { AvatarComponents } from "../types/avatar.d";
 import type { AvatarColors } from "../types/color.d";
-import type { MintInformation, Colors, MintResult, Invoice } from "@canisters/hub/hub.did.d";
-import type { MintErr } from "@canisters/hub/hub.did.d";
 import { get } from "svelte/store";
 import { user } from "@src/store/user";
 import { avatar } from "@src/store/avatar";
 import { actors } from "@src/store/actor";
+import type { MintInformation, Colors, MintResult } from "@canisters/avatar/avatar.did.d";
+import type { Invoice__1 as Invoice, Category } from "@canisters/invoice/invoice.did.d";
+
 /* 
     Create the mint request to send to the canister.
     @param {AvatarComponents} components - The components selected by the user.
@@ -33,12 +34,24 @@ function createMintRequest(components: AvatarComponents, color: AvatarColors): M
 function createColors(color: AvatarColors): Colors {
   var result = [];
   for (let key in color) {
-    result.push({
-      color: color[key],
-      spot: key,
-    });
+    // DO NOT TOUCH. THIS IS A DIRTY FIX. NEED TO BE CHANGED FOR SEASON 1.
+    if (key == "background") {
+      result.push({
+        color: [color[key][0], color[key][1], color[key][2], 100],
+        spot: capitalizeFirstLetter(key),
+      });
+    } else {
+      result.push({
+        color: color[key],
+        spot: capitalizeFirstLetter(key),
+      });
+    }
   }
   return result;
+}
+
+function capitalizeFirstLetter(word: string) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
 export function handleMintRequest(components: AvatarComponents, color: AvatarColors) {
@@ -49,25 +62,10 @@ export function handleMintRequest(components: AvatarComponents, color: AvatarCol
     console.log("Token Identifier :", get(avatar).tokenIdentifier);
     throw new Error("You already have an avatar");
   }
-  const { avatarActor: avatarActor } = get(actors);
-  if (!avatarActor) {
-    throw new Error("No avatar actor");
-  }
-  mintRequest(components, color).then((result) => {
-    console.log("Mint result :", result);
-  });
 }
 
-async function mintRequest(components: AvatarComponents, color: AvatarColors): Promise<MintResult | Invoice> {
-  const result = await get(actors).hubActor.mint(createMintRequest(components, color));
+export async function mintRequest(components: AvatarComponents, color: AvatarColors, invoiceId: number): Promise<MintResult> {
+  const result = await get(actors).avatarActor.mint(createMintRequest(components, color), BigInt(invoiceId));
   console.log("Mint result :", result);
-  if ("err" in result) {
-    if ("Invoice" in result.err) {
-      console.log("Invoice :", result.err.Invoice);
-      return result.err.Invoice;
-    }
-  } else {
-    console.log("Result :", result);
-    return result;
-  }
+  return result;
 }

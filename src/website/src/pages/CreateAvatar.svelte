@@ -14,7 +14,12 @@
   import { backgrounds, profiles, ears, mouths, eyes, noses, hairs, clothes } from "@utils/list";
   import { faceAccessories, hatAccessories, eyesAccessories, bodyAccessories, miscAccessories } from "@utils/list";
   import { categoriesExludingAccessories, categoriesIncludingAccessories, categoryDisplayName, categoryToColorPickers } from "@utils/categories";
-  import { handleMintRequest } from "@src/utils/mint";
+  import type { Invoice__1 as Invoice } from "@canisters/invoice/invoice.did.d";
+  import { user } from "../store/user";
+  import { get } from "svelte/store";
+  import { mintRequest } from "@utils/mint";
+  import { createInvoice } from "@utils/invoice";
+  import { payInvoice } from "@utils/payment";
 
   const categoryToItems = {
     background: backgrounds,
@@ -65,6 +70,24 @@
     components = generateRandomAvatar(0);
     colors = generateRandomColor();
   };
+
+  // Interractions with canister. Not sure how to manage the followings : UI/Error handling... ?
+
+  let state: "idle" | "waiting-invoice" | "waiting-payment" | "waiting-mint" | "done" = "idle";
+  let invoice: Invoice | undefined = undefined;
+
+  async function submit() {
+    if (state == "waiting-invoice" || state == "waiting-mint") {
+      return;
+    }
+    if (state == "waiting-payment") {
+      const result = await mintRequest(components, colors, Number(invoice.id) as number);
+      console.log("mint result", result);
+    }
+    invoice = await createInvoice("AvatarMint");
+    console.log("invoice", invoice);
+    state = "waiting-payment";
+  }
 </script>
 
 <Header />
@@ -101,7 +124,7 @@
         </div>
         Random Reset
       </button>
-      <button class="button" on:click={handleMintRequest(components, colors)}> Mint your avatar </button>
+      <button class="button" on:click={submit}> Mint your avatar </button>
     </div>
   </div>
 </main>

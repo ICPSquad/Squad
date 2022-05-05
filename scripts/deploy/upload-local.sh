@@ -1,6 +1,14 @@
 #!/bin/bash
+
+# Uploading the style
+value=$(<./assets/components/css_style.txt)
+dfx canister call avatar changeStyle "'($value)'" >> /dev/null 2>&1
+
 NODE_ENV="development" npx ts-node node/upload/upload-cards.ts& 
 echo "Uploading assets into avatar & accessory canister (~10 min) 📦"
+
+
+
 bash ./scripts/deploy/upload/upload-components.sh "avatar" "local"
 wait
 

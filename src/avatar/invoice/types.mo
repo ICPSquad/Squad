@@ -13,6 +13,8 @@ module {
 
     public type Result<A,B> = Result.Result<A,B>;
     public type Invoice = InvoiceType.Invoice;
+    public type VerifyInvoiceArgs = InvoiceType.VerifyInvoiceArgs;
+    public type VerifyInvoiceResult = InvoiceType.VerifyInvoiceResult;
 
     public type InvoiceInterface = actor {
         verify_invoice_avatar : shared(args : VerifyInvoiceArgs, caller : Principal) -> async VerifyInvoiceResult;
@@ -25,6 +27,6 @@ module {
         // @param id : The id of the invoice to verify.
         // @result(ok) : The invoice has been paid.
         // @result(err) : An error.
-        verifyInvoice : (id : Nat, caller : Principal) -> async Result<(), VerifyInvoiceErr>;
+        verifyInvoice : (id : Nat, caller : Principal) -> async Result<(), ()>;
     };
 };

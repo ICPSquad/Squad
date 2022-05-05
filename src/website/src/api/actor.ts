@@ -6,13 +6,11 @@ import { idlFactory as idlFactoryAvatar } from "@canisters/avatar/avatar.did";
 import type { ICPSquadNFT as Avatar } from "@canisters/avatar/avatar.did.d";
 import { idlFactory as idlFactoryAccessories } from "@canisters/accessories/accessories.did";
 import type { ICPSquadNFT as Accessories } from "@canisters/accessories/accessories.did.d";
-import { idlFactory as idlFactoryHub } from "@canisters/hub/hub.did";
-import type { ICPSquadHub as Hub } from "@canisters/hub/hub.did.d";
 import { idlFactory as idlFactoryInvoice } from "@canisters/invoice/invoice.did";
 import type { Invoice } from "@canisters/invoice/invoice.did.d";
 import { idlFactory as idlFactoryLedger } from "@canisters/ledger/ledger.did";
 import type { _SERVICE as Ledger } from "@canisters/ledger/ledger.did.d";
-import { avatarID, accessoriesID, hubID, invoiceID, ledgerID, HOST } from "@utils/const";
+import { avatarID, accessoriesID, invoiceID, ledgerID, HOST } from "@utils/const";
 
 function createActor<T>(canisterId: string | Principal, idlFactory: IDL.InterfaceFactory, options: HttpAgentOptions): ActorSubclass<T> {
   const agent = new HttpAgent({
@@ -39,12 +37,6 @@ export function avatarActor(identity?: Identity): ActorSubclass<Avatar> {
 
 export function accessoriesActor(identity?: Identity): ActorSubclass<Accessories> {
   return createActor(accessoriesID, idlFactoryAccessories, {
-    identity,
-  });
-}
-
-export function hubActor(identity?: Identity): ActorSubclass<Hub> {
-  return createActor(hubID, idlFactoryHub, {
     identity,
   });
 }
