@@ -3,7 +3,6 @@ import Result "mo:base/Result";
 import Canistergeek "mo:canistergeek/canistergeek";
 import Ext "mo:ext/Ext";
 
-import Admins "../admins";
 import InvoiceType "../../invoice/Types";
 
 module {
@@ -16,7 +15,7 @@ module {
     public type Invoice = InvoiceType.Invoice;
 
     public type InvoiceInterface = actor {
-        verify_invoice_avatar : shared(VerifyInvoiceArgs, caller : Principal) -> async VerifyInvoiceResult;
+        verify_invoice_avatar : shared(args : VerifyInvoiceArgs, caller : Principal) -> async VerifyInvoiceResult;
     };
 
     public type Interface = {

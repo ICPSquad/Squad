@@ -372,7 +372,7 @@ shared ({ caller = creator }) actor class Invoice(
 // #endregion
 
 
-public shared ({ caller }) func verify_invoice_avatar(args : T.VerifyInvoiceArgs) : async T.VerifyInvoiceResult {
+public shared ({ caller }) func verify_invoice_avatar(args : T.VerifyInvoiceArgs, caller : Principal) : async T.VerifyInvoiceResult {
   assert(caller == avatar_cid);
   let invoice = invoices.get(args.id);
   let canisterId = Principal.fromActor(this);
@@ -381,6 +381,7 @@ public shared ({ caller }) func verify_invoice_avatar(args : T.VerifyInvoiceArgs
     case(null) return #err({ message = ?"Invoice not found"; kind = #NotFound });
     case(? invoice){
       if(Option.isSome(invoice.verifiedAtTime)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
+      if(invoice.creator != caller) return #err({ message = ?"You do not have permission to verify this invoice"; kind = #NotAuthorized });
       switch(invoice.details){
         case(null) return #err({ message = ?"Invoice has no details"; kind = #Other });
         case(? details) {

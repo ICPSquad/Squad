@@ -26,9 +26,11 @@ import Assets "assets";
 import Avatar "avatar";
 import ExtModule "ext";
 import Http "http";
+import Invoice "invoice";
 
 shared ({ caller = creator }) actor class ICPSquadNFT(
     cid : Principal,
+    invoice_cid : Principal
 ) = this {
 
     ///////////
@@ -223,20 +225,35 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Avatar.drawAvatar(tokenId);
     };
 
+    let _Invoice = Invoice.Invoice({
+        invoice_cid = invoice_cid 
+    });
+
+
     public shared ({caller}) func mint(
         info : MintInformation,
-        receiver : Principal,
+        invoice_id : Nat
     ) : async Result<TokenIdentifier, Text> {
-        assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        switch(_Ext.mint({ to = #principal(receiver); metadata = null; })){
+        switch(_Invoice.verifyInvoice(invoice_id, caller)){
+            case(#ok()){};
+            case(#err()) {
+                _Logs.logMessage("Error during invoice verification for invoice : " # Nat.toText(invoice_id) # " by " # Principal.toText(caller));
+                return #err("Error during invoice verification");
+            };
+        }
+        switch(_Ext.mint({ to = #principal(caller); metadata = null; })){
             case(#err(#Other(e))) return #err(e);
             case(#err(#InvalidToken(e))) return #err(e);
             case(#ok(index)){
                 let tokenId = Ext.TokenIdentifier.encode(cid, index);
+                _Logs.logMessage("Minted token: " # tokenId);
                 switch(_Avatar.createAvatar(info, tokenId)){
                     case(#ok) return #ok(tokenId);
-                    case(#err(e)) return #err(e);
+                    case(#err(e)){
+                        _Logs.logMessage("Error during avatar creation for token: " # tokenId);
+                        return #err(e);
+                    };
                 };
             };
         };
