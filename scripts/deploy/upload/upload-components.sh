@@ -21,7 +21,7 @@ then
     esac
 fi
 
-manifest="./assets/avatar/manifest-components.csv"
+manifest="./assets/components/manifest-components.csv"
 [ ! -f $manifest ] && { echo "$manifest file not found"; exit 99; }
 
 export ID=$(dfx canister id $canister)
@@ -41,7 +41,7 @@ IFS=','
         layersCandid="vec {"
         for layer in "${list[@]}"
         do
-            file="assets/avatar/$type/$name/$name-$layer.svg"
+            file="assets/components/avatar/$type/$name/$name-$layer.svg"
             tag_layer=$layer
             tag_component=$type
             [ ! -f $file ] && { echo "$file file not found"; exit 99; }
@@ -65,7 +65,7 @@ IFS=','
         layersCandid="vec {"
         for layer in "${list[@]}"
         do
-            file="assets/avatar/accessories/$type/$name/$name-$layer.svg"
+            file="assets/components/accessories/$type/$name/$name-$layer.svg"
             tag_layer=$layer
             tag_component=$type
             [ ! -f $file ] && { echo "$file file not found"; exit 99; }
