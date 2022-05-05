@@ -22,6 +22,8 @@ import U          "./Utils";
 
 shared ({ caller = creator }) actor class Invoice(
   ledger_cid : Principal, 
+  avatar_cid : Principal,
+  accessory_cid : Principal
 ) = this {
 
     ///////////
@@ -137,17 +139,14 @@ shared ({ caller = creator }) actor class Invoice(
 */
 
 // #region Create Invoice
-  public shared ({caller}) func create_invoice (args : T.CreateInvoiceArgs) : async T.CreateInvoiceResult {
+  public type Category =  {
+    #AvatarMint;
+    #AccessoryFee;
+  };
+
+  public shared ({caller}) func create_invoice (category : Category) : async T.CreateInvoiceResult {
     let id : Nat = invoiceCounter;
-    // increment counter
     invoiceCounter += 1;
-    let inputsValid = areInputsValid(args);
-    if(not inputsValid) {
-      return #err({
-        message = ?"Bad size: one or more of your inputs exceeds the allowed size.";
-        kind = #BadSize;
-      });
-    };
 
     if(id > MAX_INVOICES){
       return #err({
@@ -157,7 +156,7 @@ shared ({ caller = creator }) actor class Invoice(
     };
 
     let destinationResult : T.GetDestinationAccountIdentifierResult = getDestinationAccountIdentifier({
-      token = args.token;
+      token = { symbol = "ICP" };
       invoiceId = id;
       caller
     });
@@ -171,26 +170,45 @@ shared ({ caller = creator }) actor class Invoice(
       };
       case (#ok result) {
         let destination : AccountIdentifier = result.accountIdentifier;
-        let token = getTokenVerbose(args.token);
-
-        let invoice : Invoice = {
-          id;
-          creator = caller;
-          details = args.details;
-          permissions = args.permissions;
-          amount = args.amount;
-          amountPaid = 0;
-          token;
-          verifiedAtTime = null;
-          paid = false;
-          // 1 week in nanoseconds
-          expiration = Time.now() + (1000 * 60 * 60 * 24 * 7 * 1_000_000);
-          destination;
+        let invoice : Invoice = switch(category){
+          case(#AvatarMint){
+            {
+              id;
+              creator = caller;
+              details = ?{ description = "avatar" ; meta = Blob.fromArray([0]) };
+              permissions = null; // Permission system is already implemented through the assertion system.
+              amount = 1_000_000_000;
+              amountPaid = 0;
+              token = getTokenVerbose({ symbol = "ICP" });
+              verifiedAtTime = null;
+              paid = false;
+              // 1 week in nanoseconds
+              expiration = Time.now() + (1000 * 60 * 60 * 24 * 7 * 1_000_000);
+              destination;
+            }
+          };
+          case(#AccessoryFee){
+            {
+              id;
+              creator = caller;
+              details = ?{ description = "accessory" ; meta = Blob.fromArray([0]) };
+              permissions = null; // Permission system is already implemented through the assertion system.
+              amount = 1_000_000_000;
+              amountPaid = 0;
+              token = getTokenVerbose({ symbol = "ICP" });
+              verifiedAtTime = null;
+              paid = false;
+              // 1 week in nanoseconds
+              expiration = Time.now() + (1000 * 60 * 60 * 24 * 7 * 1_000_000);
+              destination;
+            }
+          };
         };
 
         invoices.put(id, invoice);
+        _Logs.logMessage("Created invoice : " # Nat.toText(id) # " by " # Principal.toText(caller));
 
-        #ok({invoice});
+        return (#ok({invoice}));
       };
     };
   };
@@ -353,80 +371,78 @@ shared ({ caller = creator }) actor class Invoice(
   };
 // #endregion
 
-// #region Verify Invoice
-  public shared ({caller}) func verify_invoice (args : T.VerifyInvoiceArgs) : async T.VerifyInvoiceResult {
-    let invoice = invoices.get(args.id);
-    let canisterId = Principal.fromActor(this);
 
-    switch invoice {
-      case null{
-        #err({
-          message = ?"Invoice not found";
-          kind = #NotFound;
-        });
+public shared ({ caller }) func verify_invoice_avatar(args : T.VerifyInvoiceArgs) : async T.VerifyInvoiceResult {
+  assert(caller == avatar_cid);
+  let invoice = invoices.get(args.id);
+  let canisterId = Principal.fromActor(this);
+
+  switch(invoice){
+    case(null) return #err({ message = ?"Invoice not found"; kind = #NotFound });
+    case(? invoice){
+      if(Option.isSome(invoice.verifiedAtTime)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
+      switch(invoice.details){
+        case(null) return #err({ message = ?"Invoice has no details"; kind = #Other });
+        case(? details) {
+          if(details.description != "avatar") return #err({ message = ?"Invoice is not for avatar"; kind = #Other });
+        };
       };
-      case (?i) {
-        // Return if already verified
-        if (i.verifiedAtTime != null) {
-          return #ok(#AlreadyVerified {
-            invoice = i;
-          });
-        };
-        if (i.creator != caller) {
-          switch (i.permissions) {
-            case null {
-              return #err({
-                message = ?"You do not have permission to verify this invoice";
-                kind = #NotAuthorized;
-              });
-            };
-            case (?permissions) {
-              let hasPermission = Array.find<Principal>(
-                permissions.canVerify,
-                func (x : Principal) : Bool {
-                  return x == caller;
-                }
-              );
-              if (Option.isSome(hasPermission)) {
-                // May proceed
-              } else {
-                return #err({
-                  message = ?"You do not have permission to verify this invoice";
-                  kind = #NotAuthorized;
-                });
-              };
-            };
-          };
-        };
-
-        switch (i.token.symbol) {
-          case "ICP" {
-            let result : T.VerifyInvoiceResult = await _Ledger.verifyInvoice({
-              invoice = i;
-              caller;
-              canisterId;
-            });
-            switch result {
-              case (#ok value) {
-                switch (value) {
-                  case (#AlreadyVerified _) { };
-                  case (#Paid paidResult) {
-                    let replaced = invoices.replace(i.id, paidResult.invoice);
-                  };
+      switch(invoice.token.symbol){
+        case ("ICP"){
+          switch (await _Ledger.verifyInvoice({ invoice ; caller; canisterId })){
+            case(#err(_)) return #err({ message = ?"Issue when calling the ledger canister"; kind = #Other});
+            case(#ok (value)){
+              switch(value) {
+                case(#AlreadyVerified(_)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
+                case(#Paid paidResult) {
+                  let replaced = invoices.replace(invoice.id, paidResult.invoice);
+                  return #ok(#Paid { invoice = paidResult.invoice });
                 };
               };
-              case (#err _) {};
             };
-            result;
-          };
-          case _ {
-            errInvalidToken;
           };
         };
+        case(_) return #err({ message = ?"Invalid token"; kind = #Other });
       };
     };
   };
-// #endregion
+};
+
+public shared ({ caller }) func verify_invoice_accessory(args : T.VerifyInvoiceArgs) : async T.VerifyInvoiceResult {
+  assert(caller == accessory_cid);
+  let invoice = invoices.get(args.id);
+  let canisterId = Principal.fromActor(this);
+
+  switch(invoice){
+    case(null) return #err({ message = ?"Invoice not found"; kind = #NotFound });
+    case(? invoice){
+      if(Option.isSome(invoice.verifiedAtTime)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
+      switch(invoice.details){
+        case(null) return #err({ message = ?"Invoice has no details"; kind = #Other });
+        case(? details) {
+          if(details.description != "accessory") return #err({ message = ?"Invoice is not for avatar"; kind = #Other });
+        };
+      };
+      switch(invoice.token.symbol){
+        case ("ICP"){
+          switch (await _Ledger.verifyInvoice({ invoice ; caller; canisterId })){
+            case(#err(_)) return #err({ message = ?"Issue when calling the ledger canister"; kind = #Other});
+            case(#ok (value)){
+              switch(value) {
+                case(#AlreadyVerified(_)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
+                case(#Paid paidResult) {
+                  let replaced = invoices.replace(invoice.id, paidResult.invoice);
+                  return #ok(#Paid { invoice = paidResult.invoice });
+                };
+              };
+            };
+          };
+        };
+        case(_) return #err({ message = ?"Invalid token"; kind = #Other });
+      };
+    };
+  };
+};
 
 // #region Transfer
   public shared ({caller}) func transfer (args : T.TransferArgs) : async T.TransferResult {

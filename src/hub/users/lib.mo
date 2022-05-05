@@ -62,12 +62,11 @@ module {
 
         public func register(
             caller : Principal,
-            user : User
         ) : Result<(), Text> {
             switch(_users.get(caller)){
                 case(? some) return #err("User is already registered : " #Principal.toText(caller));
                 case(null) {
-                    _users.put(caller, user);
+                    _users.put(caller, _newUser());
                     return #ok;
                 };
             };
@@ -157,7 +156,7 @@ module {
                 email = null;
                 discord = null;
                 twitter = null;
-                rank = null;
+                rank = ?(Nat64.fromNat(getSize()));
                 height = null;
                 status = #Member(false);
             }

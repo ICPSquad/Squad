@@ -179,6 +179,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                             return #err(#AlreadyMinted);
                         } else {
                             _Logs.logMessage("Send mint request to avatar canister for user : " # Principal.toText(caller));
+
                             switch(await AVATAR.mint(info, caller)){
                                     case(#ok(a)) {
                                         _Users.modifyStatus(caller, #Member(true));
@@ -224,14 +225,34 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                 };
             };
             case(null){
-                _Users.modifyStatus(caller, #InProgress);
-                switch(await(_Invoice.createInvoice(caller,AMOUNT_MINT))){
+                _Logs.logMessage("User " # Principal.toText(caller) # " not found");
+                return #err(#Other("User not found"));
+            };
+        };
+    };
+
+    /* 
+        This function is called by the user when he wants to mint an avatar. 
+    */
+    public shared ({ caller }) func create_invoice() : async Result<Invoice, Text> {
+        _Monitor.collectMetrics();
+        if(Principal.isAnonymous(caller)){
+            _Logs.logMessage("Join request from anonymous user");
+            return #err("Request from anonymous user");
+        };
+        switch(_Users.register(caller){
+            case(#err(e)){
+                return #err(e);
+            };
+            case(#ok()){
+                switch(await(_Invoice.createInvoice(caller, AMOUNT_MINT))){
                     case(#ok(invoice)){
-                        ignore(_Users.register(caller, { email = null; twitter = null; discord = null; rank = ?(Nat64.fromNat(_Users.getSize())); height = null; status = #Invoice(invoice)}));
-                        return #err(#Invoice(invoice));
+                        _Users.modifyStatus(caller, #Invoice(invoice));
+                        return #ok(invoice));
                     };
                     case(#err(e)){
-                        return #err(#InvoiceCanisterErr(e));
+                        _Logs.logMessage("Error when creating an invoice for user : " # Principal.toText(caller));
+                        return #err("Error when creating invoice.");
                     }
                 };
             };

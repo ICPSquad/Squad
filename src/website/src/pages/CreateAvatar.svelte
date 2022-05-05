@@ -14,7 +14,7 @@
   import { backgrounds, profiles, ears, mouths, eyes, noses, hairs, clothes } from "@utils/list";
   import { faceAccessories, hatAccessories, eyesAccessories, bodyAccessories, miscAccessories } from "@utils/list";
   import { categoriesExludingAccessories, categoriesIncludingAccessories, categoryDisplayName, categoryToColorPickers } from "@utils/categories";
-  import { plugConnection } from "@utils/connection";
+  import { handleMintRequest } from "@src/utils/mint";
 
   const categoryToItems = {
     background: backgrounds,
@@ -101,6 +101,7 @@
         </div>
         Random Reset
       </button>
+      <button class="button" on:click={handleMintRequest(components, colors)}> Mint your avatar </button>
     </div>
   </div>
 </main>

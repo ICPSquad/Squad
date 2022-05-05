@@ -1,14 +1,18 @@
 import type { AvatarComponents } from "../types/avatar.d";
 import type { AvatarColors } from "../types/color.d";
-import type { MintInformation, Colors } from "@canisters/hub/hub.did.d";
-
+import type { MintInformation, Colors, MintResult, Invoice } from "@canisters/hub/hub.did.d";
+import type { MintErr } from "@canisters/hub/hub.did.d";
+import { get } from "svelte/store";
+import { user } from "@src/store/user";
+import { avatar } from "@src/store/avatar";
+import { actors } from "@src/store/actor";
 /* 
     Create the mint request to send to the canister.
     @param {AvatarComponents} components - The components selected by the user.
     @param {AvatarColors} colors - The colors selected by the user.
 */
 
-export function createMintRequest(components: AvatarComponents, color: AvatarColors): MintInformation {
+function createMintRequest(components: AvatarComponents, color: AvatarColors): MintInformation {
   return {
     mouth: components.mouth,
     background: components.background,
@@ -35,4 +39,35 @@ function createColors(color: AvatarColors): Colors {
     });
   }
   return result;
+}
+
+export function handleMintRequest(components: AvatarComponents, color: AvatarColors) {
+  if (!get(user).loggedIn) {
+    throw new Error("Not logged in");
+  }
+  if (get(avatar).tokenIdentifier) {
+    console.log("Token Identifier :", get(avatar).tokenIdentifier);
+    throw new Error("You already have an avatar");
+  }
+  const { avatarActor: avatarActor } = get(actors);
+  if (!avatarActor) {
+    throw new Error("No avatar actor");
+  }
+  mintRequest(components, color).then((result) => {
+    console.log("Mint result :", result);
+  });
+}
+
+async function mintRequest(components: AvatarComponents, color: AvatarColors): Promise<MintResult | Invoice> {
+  const result = await get(actors).hubActor.mint(createMintRequest(components, color));
+  console.log("Mint result :", result);
+  if ("err" in result) {
+    if ("Invoice" in result.err) {
+      console.log("Invoice :", result.err.Invoice);
+      return result.err.Invoice;
+    }
+  } else {
+    console.log("Result :", result);
+    return result;
+  }
 }

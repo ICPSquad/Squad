@@ -1,3 +1,3 @@
 export type AvatarStore = {
-  tokenIdentifier: string | null;
+  tokenIdentifier: string | null | undefined;
 };

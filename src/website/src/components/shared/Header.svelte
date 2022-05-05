@@ -2,13 +2,10 @@
   import { Link } from "svelte-routing";
   import Logo from "@icons/Logo.svelte";
   import Menu from "@icons/Menu.svelte";
-  import { avatar } from "@src/store/avatar";
+  import { user } from "@src/store/user";
   import { plugConnection } from "@utils/connection";
 
-  let tid: string | undefined;
-  avatar.subscribe(({ tokenIdentifier }) => {
-    tid = tokenIdentifier;
-  });
+  let connected: boolean = false;
 </script>
 
 <nav class="container">
@@ -16,7 +13,7 @@
     <Logo />
   </Link>
   <div class="right">
-    <button on:click={plugConnection}> {tid ? tid : "Connect your wallet"} </button>
+    <button on:click={plugConnection}> {$user.loggedIn ? "You are connected" : "Connect your wallet"} </button>
     <Menu />
   </div>
 </nav>
