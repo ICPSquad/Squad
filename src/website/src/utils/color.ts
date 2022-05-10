@@ -17,12 +17,14 @@ export function hexToRgb(hex: string): { r: number; g: number; b: number } {
 }
 
 export function generateRandomColor(): AvatarColors {
+  const hairAndEyebrows = suggestedColors.hairs[Math.floor(Math.random() * (suggestedColors.hairs.length - 2))];
+
   return {
     background: suggestedColors.background[Math.floor(Math.random() * suggestedColors.background.length)] as Color,
     skin: suggestedColors.skin[Math.floor(Math.random() * suggestedColors.skin.length)] as Color,
-    hairs: suggestedColors.hairs[Math.floor(Math.random() * suggestedColors.hairs.length)] as Color,
+    hairs: hairAndEyebrows as Color,
     eyes: suggestedColors.eyes[Math.floor(Math.random() * suggestedColors.eyes.length)] as Color,
-    eyebrows: suggestedColors.eyebrows[Math.floor(Math.random() * suggestedColors.eyebrows.length)] as Color,
+    eyebrows: hairAndEyebrows as Color,
     eyeliner: suggestedColors.eyeliner[Math.floor(Math.random() * suggestedColors.eyeliner.length)] as Color,
     clothes: suggestedColors.clothes[Math.floor(Math.random() * suggestedColors.clothes.length)] as Color,
   };

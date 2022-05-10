@@ -8,6 +8,7 @@
   import Accessories from "@src/pages/Accessories.svelte";
   import About from "@src/pages/About.svelte";
   import Partners from "@src/pages/Partners.svelte";
+  import RandomWall from "@src/pages/RandomWall.svelte"
 </script>
 
 <Router>
@@ -19,4 +20,5 @@
   <Route path="about-us"><About /></Route>
   <Route path="partners"><Partners /></Route>
   <Route path="random"><Random /></Route>
+  <Route path="random-wall"><RandomWall /></Route>
 </Router>

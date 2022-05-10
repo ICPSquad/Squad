@@ -2,7 +2,7 @@
   import AvatarComponentsSvg from "@components/AvatarComponentsSvg.svelte";
   import RenderAvatar from "@components/render/RenderAvatar.svelte";
   import { generateRandomColor } from "@src/utils/color";
-  import { generateRandomAvatar } from "@tasks/generate-avatar";
+  import { generateRandomAvatar, filterOption } from "@tasks/generate-avatar";
 </script>
 
 <div id="avatar-components">
@@ -10,10 +10,10 @@
 </div>
 <div class="container">
   <div class="content">
-    <RenderAvatar avatarComponents={generateRandomAvatar(0.5)} avatarColors={generateRandomColor()} />
+    <RenderAvatar avatarComponents={generateRandomAvatar(0, filterOption.Man)} avatarColors={generateRandomColor()} />
   </div>
 </div>
-<div />
+
 
 <style>
   #avatar-components {

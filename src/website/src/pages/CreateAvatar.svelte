@@ -9,7 +9,7 @@
   import ColorPicker from "@src/components/create-avatar/ColorPicker.svelte";
   import type { AvatarColors } from "../types/color.d";
   import type { AvatarComponents } from "../types/avatar.d";
-  import { generateRandomAvatar } from "@tasks/generate-avatar";
+  import { generateRandomAvatar, filterOption } from "@tasks/generate-avatar";
   import { generateRandomColor } from "@utils/color";
   import { backgrounds, profiles, ears, mouths, eyes, noses, hairs, clothes } from "@utils/list";
   import { faceAccessories, hatAccessories, eyesAccessories, bodyAccessories, miscAccessories } from "@utils/list";
@@ -38,7 +38,7 @@
   };
 
   // Toggle this to include/exclude accessories
-  const includeAccessories = true;
+  const includeAccessories = false;
   const categories = includeAccessories ? categoriesIncludingAccessories : categoriesExludingAccessories;
 
   let categoryShowing = "profile";
@@ -67,7 +67,7 @@
   };
 
   let randomlyResetAvatar = () => {
-    components = generateRandomAvatar(0);
+    components = generateRandomAvatar(0, Math.random() > 0.5 ? filterOption.Man : filterOption.Woman);
     colors = generateRandomColor();
   };
 
