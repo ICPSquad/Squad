@@ -20,7 +20,3 @@
   <Route path="partners"><Partners /></Route>
   <Route path="random"><Random /></Route>
 </Router>
-
-<style global lang="scss">
-  @use "./src/styles/global.scss" as *;
-</style>
