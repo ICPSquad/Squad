@@ -1,6 +1,7 @@
 <script>
   import Discord from "@icons/Discord.svelte";
   import Twitter from "@icons/Twitter.svelte";
+  import AvatarGrid from "@components/shared/AvatarGrid.svelte";
 </script>
 
 <section>
@@ -12,7 +13,9 @@
     </p>
   </div>
 
-  <div class="container">
+  <AvatarGrid />
+
+  <div class="container below-grid">
     <p>
       Start by minting your avatar, then get rewarded as you explore the
       Internet Computer.
@@ -63,5 +66,9 @@
     .discord {
       margin-right: 14px;
     }
+  }
+
+  .below-grid {
+    margin-top: 30px;
   }
 </style>

@@ -23,9 +23,9 @@ const filteredSets = {
   },
   [filterOption.Woman]: {
     profiles: [ ...profiles.slice(1) ],
-    hairs: [ ...hairs.slice(1,3), ...hairs.slice(5,9), hairs[11], hairs[15], hairs[17] ],
+    hairs: [ ...hairs.slice(1,3), ...hairs.slice(5,6), ...hairs.slice(8,9), hairs[11], hairs[15], hairs[17] ],
     eyes: [ ...eyes.slice(5,9) ],
-    mouths: [ ...mouths.slice(6,12) ],
+    mouths: [ ...mouths.slice(2,3), ...mouths.slice(6,12) ],
     noses: [ ...noses.slice(1) ]
   },
   [filterOption.Any]: {

@@ -60,7 +60,7 @@
   };
 
   // Avatar management
-  let components: AvatarComponents = generateRandomAvatar(0);
+  let components: AvatarComponents = generateRandomAvatar(0, Math.random() > 0.5 ? filterOption.Man : filterOption.Woman);
   const updateAvatarComponent = (category: string, item: string) => {
     console.log("update", category, item);
     components[category] = item;
