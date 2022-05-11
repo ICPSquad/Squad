@@ -8,12 +8,18 @@
 <div id="avatar-components">
   <AvatarComponentsSvg />
 </div>
+
 <div class="container">
   <div class="content">
-    <RenderAvatar avatarComponents={generateRandomAvatar(0, filterOption.Man)} avatarColors={generateRandomColor()} />
+    <RenderAvatar
+      avatarComponents={generateRandomAvatar(
+        0,
+        Math.random() > 0.5 ? filterOption.Man : filterOption.Woman
+      )}
+      avatarColors={generateRandomColor()}
+    />
   </div>
 </div>
-
 
 <style>
   #avatar-components {

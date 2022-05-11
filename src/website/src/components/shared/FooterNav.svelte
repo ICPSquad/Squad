@@ -1,0 +1,154 @@
+<script lang="ts">
+  import { Link } from "svelte-routing";
+
+  export let textAlignCenter = false;
+  export let closeMenu = () => {};
+
+  type LinkItem = {
+    label: string;
+    url: string;
+    external?: boolean;
+  };
+
+  type LinkGroup = {
+    title: string;
+    items: LinkItem[];
+  };
+
+  const footerNav: LinkGroup[] = [
+    {
+      title: "Learn",
+      items: [
+        {
+          label: "FAQs",
+          url: "/faqs",
+        },
+        {
+          label: "Accessories",
+          url: "/accessories",
+        },
+        {
+          label: "Roadmap",
+          url: "/about#roadmap",
+        },
+        // {
+        //   label: "Whitepaper",
+        //   url: "#",
+        // },
+      ],
+    },
+    {
+      title: "The Squad",
+      items: [
+        {
+          label: "About Us",
+          url: "/about-us",
+        },
+        {
+          label: "Partners",
+          url: "/partners",
+        },
+        {
+          label: "Legendary Avatars",
+          url: "/legendary",
+        },
+        {
+          label: "Blog",
+          url: "https://www.dfinitycommunity.com/tag/icpsquad/",
+          external: true,
+        },
+      ],
+    },
+    {
+      title: "Engage",
+      items: [
+        {
+          label: "Create Avatar",
+          url: "/create-avatar",
+        },
+        {
+          label: "Dashboard",
+          url: "/dashboard",
+        },
+        {
+          label: "Discord",
+          url: "https://discord.gg/SqtQ3UJR",
+          external: true,
+        },
+        {
+          label: "Twitter",
+          url: "https://twitter.com/ICPSquadNFT",
+          external: true,
+        },
+        {
+          label: "Contact",
+          url: "/contact",
+        },
+      ],
+    },
+  ];
+</script>
+
+<nav>
+  {#each footerNav as itemGroup}
+    <div>
+      <h3 style="text-align: {textAlignCenter ? 'center' : 'left'}">
+        {itemGroup.title}
+      </h3>
+      <div class="items">
+        {#each itemGroup.items as item}
+          {#if item.external}
+            <a
+              class="item"
+              style="text-align: {textAlignCenter ? 'center' : 'left'}"
+              href={item.url}
+              target={item.external ? "_blank" : ""}
+              >{item.label}
+            </a>
+          {:else}
+            <Link on:click={closeMenu} to={item.url}>
+              <div
+                class="item"
+                style="text-align: {textAlignCenter ? 'center' : 'left'}"
+              >
+                {item.label}
+              </div>
+            </Link>
+          {/if}
+        {/each}
+      </div>
+    </div>
+  {/each}
+</nav>
+
+<style lang="scss">
+  @use "../../styles" as *;
+
+  nav {
+    --page-feature-color: #{$pink};
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  .items {
+    display: flex;
+    flex-direction: column;
+  }
+
+  h3 {
+    color: var(--page-feature-color);
+    text-transform: uppercase;
+    font-size: 20px;
+  }
+
+  .item {
+    color: $white;
+    margin-bottom: 8px;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+</style>

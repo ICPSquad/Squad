@@ -1,91 +1,9 @@
 <script lang="ts">
+  import { Link } from "svelte-routing";
   import Logo from "@icons/Logo.svelte";
   import Discord from "@icons/Discord.svelte";
   import Twitter from "@icons/Twitter.svelte";
-
-  type LinkItem = {
-    label: string;
-    url: string;
-    external?: boolean;
-  };
-
-  type LinkGroup = {
-    title: string;
-    items: LinkItem[];
-  };
-
-  const footerNav: LinkGroup[] = [
-    {
-      title: "Learn",
-      items: [
-        {
-          label: "FAQs",
-          url: "/faqs",
-        },
-        {
-          label: "How it works",
-          url: "/how-it-works",
-        },
-        {
-          label: "Accessories",
-          url: "/accessories",
-        },
-      ],
-    },
-    {
-      title: "The Squad",
-      items: [
-        {
-          label: "About Us",
-          url: "/about-us",
-        },
-        {
-          label: "Partners",
-          url: "/partners",
-        },
-        {
-          label: "Legendary Avatars",
-          url: "/legendary",
-        },
-        {
-          label: "Blog",
-          url: "https://www.dfinitycommunity.com/tag/icpsquad/",
-          external: true,
-        },
-      ],
-    },
-    {
-      title: "Engage",
-      items: [
-        {
-          label: "Create Avatar",
-          url: "/create-avatar",
-        },
-        {
-          label: "Dashboard",
-          url: "/dashboard",
-        },
-        {
-          label: "Stats",
-          url: "/stats",
-        },
-        {
-          label: "Discord",
-          url: "https://discord.gg/SqtQ3UJR",
-          external: true,
-        },
-        {
-          label: "Twitter",
-          url: "https://twitter.com/ICPSquadNFT",
-          external: true,
-        },
-        {
-          label: "Contact",
-          url: "/contact",
-        },
-      ],
-    },
-  ];
+  import FooterNav from "./FooterNav.svelte";
 </script>
 
 <footer>
@@ -101,27 +19,14 @@
         </a>
       </div>
     </div>
-    <nav>
-      {#each footerNav as itemGroup}
-        <div>
-          <h3>{itemGroup.title}</h3>
-          <div class="items">
-            {#each itemGroup.items as item}
-              <a
-                class="item"
-                href={item.url}
-                target={item.external ? "_blank" : ""}>{item.label}</a
-              >
-            {/each}
-          </div>
-        </div>
-      {/each}
-    </nav>
+    <FooterNav />
   </div>
   <div class="sub-nav">
     <div class="container">
       © {new Date().getFullYear()} Dfinity community
-      <a href="/privacy" class="privacy">Privacy Policy</a>
+      <Link to="/privacy">
+        <div class="privacy">Privacy Policy</div>
+      </Link>
     </div>
   </div>
 </footer>
@@ -147,32 +52,6 @@
     justify-content: center;
     .discord {
       margin-right: 14px;
-    }
-  }
-
-  nav {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: 40px;
-    margin-bottom: 40px;
-  }
-
-  .items {
-    display: flex;
-    flex-direction: column;
-  }
-
-  h3 {
-    color: var(--page-feature-color);
-    text-transform: uppercase;
-    font-size: 20px;
-  }
-
-  .item {
-    color: $white;
-    margin-bottom: 8px;
-    &:hover {
-      text-decoration: underline;
     }
   }
 

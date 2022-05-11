@@ -1,15 +1,14 @@
 <script>
-  import AvatarComponentsSvg from "@components/AvatarComponentsSvg.svelte";
-  import RenderAvatar from "@components/render/RenderAvatar.svelte";
-  import { generateRandomColor } from "@src/utils/color";
-  import { generateRandomAvatar, filterOption } from "@tasks/generate-avatar";
   import { fade } from "svelte/transition";
-  import { elasticOut } from "svelte/easing";
 
+  const sets = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+  ];
+
+  let setShowing = 0;
   let visible = true;
-
-  const numAvatars = 18 * 4;
-  let items = new Array(numAvatars);
 
   const fadeSeconds = 1;
   const holdSeconds = 8;
@@ -18,14 +17,11 @@
   setInterval(() => {
     visible = false;
     setTimeout(() => {
+      setShowing = setShowing === 2 ? 0 : setShowing + 1;
       visible = true;
     }, fadeSeconds * 2 * 1000);
   }, totalSeconds * 1000);
 </script>
-
-<div id="avatar-components">
-  <AvatarComponentsSvg />
-</div>
 
 <div class="wall-container">
   {#if visible}
@@ -34,16 +30,15 @@
       in:fade={{ duration: fadeSeconds * 1000 }}
       out:fade={{ duration: fadeSeconds * 1000 }}
     >
-      {#each items as item}
-        <div class="avatar">
-          <RenderAvatar
-            avatarComponents={generateRandomAvatar(
-              0,
-              Math.random() > 0.5 ? filterOption.Man : filterOption.Woman
-            )}
-            avatarColors={generateRandomColor()}
-          />
-        </div>
+      {#each sets as set, index}
+        {#if setShowing === index}
+          {#each set as image}
+            <img
+              src="/assets/join-wall/set{image}.png"
+              alt="ICP Squad Avatars"
+            />
+          {/each}
+        {/if}
       {/each}
     </div>
   {/if}
@@ -58,15 +53,12 @@
     height: 230px;
   }
   .wall {
-    display: grid;
-    grid-template-columns: repeat(18, 50px);
-    grid-gap: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
-  .avatar {
-    display: inline-block;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    overflow: hidden;
+  img {
+    width: 360px;
+    height: 240px;
   }
 </style>

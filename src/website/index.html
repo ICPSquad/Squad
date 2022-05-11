@@ -26,5 +26,13 @@
       window.Buffer = Buffer;
     </script>
     <script type="module" src="/main.ts"></script>
+    <script>
+      history.pushState = new Proxy(history.pushState, {
+        apply(target, thisArg, argumentsList) {
+          Reflect.apply(target, thisArg, argumentsList);
+          window.scrollTo(0, 0);
+        },
+      });
+    </script>
   </body>
 </html>

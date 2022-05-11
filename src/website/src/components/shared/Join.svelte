@@ -22,15 +22,6 @@
     </p>
 
     <a href="/create-avatar" class="button"> Create Avatar → </a>
-
-    <div class="social">
-      <a class="discord" href="https://discord.gg/SqtQ3UJR" target="_blank">
-        <Discord />
-      </a>
-      <a href="https://twitter.com/ICPSquadNFT" target="_blank">
-        <Twitter />
-      </a>
-    </div>
   </div>
 </section>
 
@@ -39,7 +30,7 @@
 
   section {
     width: 100%;
-    padding: 80px 0;
+    padding: 60px 0;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -57,15 +48,6 @@
   .button {
     margin-top: 20px;
     max-width: 600px;
-  }
-
-  .social {
-    margin-top: 40px;
-    display: flex;
-    justify-content: center;
-    .discord {
-      margin-right: 14px;
-    }
   }
 
   .below-grid {
