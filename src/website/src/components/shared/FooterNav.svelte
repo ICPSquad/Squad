@@ -151,4 +151,10 @@
       text-decoration: underline;
     }
   }
+
+  @media (max-width: 600px) {
+    nav {
+      grid-template-columns: 100%;
+    }
+  }
 </style>
