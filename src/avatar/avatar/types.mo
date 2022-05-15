@@ -89,9 +89,12 @@ module {
 
     public type State = UpgradeData and Dependencies; 
 
-    ////////////
-    // OLD ////
-    ///////////
+    ////////////////////
+    // Star system ////
+    //////////////////
+
+    public type Stars = Nat;
+    public type Name = Text;
 
     public type Interface = {
         
@@ -127,6 +130,9 @@ module {
 
         // Get the optional avatar associated with the TokenIdentifier.
         getAvatar : TokenIdentifier -> ?Avatar;
+
+        // Get the optional slot associated with the TokenIdentifier.
+        getSlot : (TokenIdentifier) -> ?Slots;
 
         // Get the number of (normal) avatars & (legendaries) avatars created.
         getStats : () -> (Nat,Nat);

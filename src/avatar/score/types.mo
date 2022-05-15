@@ -3,7 +3,7 @@ import Time "mo:base/Time";
 import Canistergeek "mo:canistergeek/canistergeek";
 
 import Avatar "../avatar";
-import ExtModule "ext";
+import ExtModule "../ext";
 
 
 
@@ -13,10 +13,19 @@ module {
     public type DailyScore = Nat;
 
     public type AccountIdentifier = Text;
+    public type TokenIdentifier = Text;
 
     public type Stars = Nat;
     public type Name = Text;
-    public type Stats = [(Stars, Name)];
+    public type Stats = [(Name, Stars)];
+
+    public type Slots = {
+        Hat :  ?Text;
+        Eyes : ?Text;
+        Misc : ?Text;
+        Body : ?Text;
+        Face : ?Text;
+    };
 
     public type Dependencies = {
         cid : Principal;
@@ -24,10 +33,10 @@ module {
         _Logs : Canistergeek.Logger;
         _Avatar : Avatar.Factory;
         _Ext : ExtModule.Factory;
-    }
+    };
 
     public type UpgradeData = {
-        style_scores : [(AccountIdentifier, DailyScore)];
+        style_scores : [(TokenIdentifier, DailyScore)];
         stars_accessory : [(Name, Stars)];
         last_time_of_calculation : Time;
     };
@@ -47,7 +56,7 @@ module {
           Returns the a list of the current style scores for all the accounts. 
           DO NOT STORE THE SCORES MORE THAN A DAY. Need to be querried by the accessory canister regularly where all the history is stored.
         */
-        getStyleScores : () -> [(AccountIdentifier, DailyScore)];
+        getStyleScores : () -> [(TokenIdentifier, DailyScore)];
 
         /* Recalculate the scores of the avatar based on the accessory they are currently equipped with. 
             SHOULD BE CALLED ONCE DAILY AT A SPECIFIC TIME.

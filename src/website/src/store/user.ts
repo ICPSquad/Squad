@@ -12,6 +12,8 @@ export const user = writable<userStore>({
   discord: undefined,
 });
 
+//TODO : This block is useless and should be rewritten once the hub canister has been rewritten
+
 // actors.subscribe(async ({ hubActor }) => {
 //   console.log("hubActor", hubActor);
 //   if (hubActor) {

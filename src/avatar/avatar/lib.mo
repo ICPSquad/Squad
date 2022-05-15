@@ -8,6 +8,7 @@ import Option "mo:base/Option";
 import Prim "mo:prim";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
+import TrieMap "mo:base/TrieMap";
 
 import Ext "mo:ext/Ext";
 
@@ -41,7 +42,7 @@ module {
         public type Avatar = Types.Avatar;
         public type LayerId = Types.LayerId;
         public type TokenIdentifier = Ext.TokenIdentifier;
-
+    
         private let _avatars : HashMap.HashMap<TokenIdentifier,Avatar> = HashMap.HashMap<TokenIdentifier,Avatar>(0, Text.equal, Text.hash);
         private let _components : HashMap.HashMap<Text, Component> = HashMap.HashMap<Text,Component>(0 , Text.equal, Text.hash);
 
@@ -78,6 +79,7 @@ module {
         ////////////
         // API ////
         ///////////
+
 
         public func addComponent(
             name : Text,
@@ -287,6 +289,17 @@ module {
             let nb = _numberLegendaries();
             (_avatars.size() - nb,nb);
         };
+
+        public func getSlot(tokenId : TokenIdentifier) : ?Slots {
+            switch(_avatars.get(tokenId)){
+                case(? avatar) {
+                    return ?avatar.slots;
+                };
+                case(null) return null;
+            };
+        };
+
+
 
         //////////////////
         // UTILITIES ////

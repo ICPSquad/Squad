@@ -3,9 +3,13 @@
   import { getSortedComponents } from "@utils/layers";
   import type { AvatarComponents } from "@src/types/avatar";
   import type { AvatarColors } from "@src/types/color";
+import { ears, hairs } from "@src/utils/list";
   export let avatarComponents: AvatarComponents;
   export let avatarColors: AvatarColors;
   $: components = getSortedComponents(avatarComponents);
+
+  // List of hats that will trigger the hat version for the hairstylew when they are equipped.
+  let hats = ["helicap", "marshall-hat", "mortaboard-hat", "shinobi-hat"];
 </script>
 
 <svg
@@ -34,8 +38,9 @@
 "
 >
   <style>
+    
     .Punk-body .Punk-crying-eyes {
-      clip-path: url(#Punk-head_svg__a);
+      clip-path: url(#Business-head_svg__a);
     }
     .Miss-body .Punk-crying-eyes {
       transform: translateY(-0.5px) !important;
@@ -161,11 +166,6 @@
       transform: translateY(15px);
     }
 
-    .Business-body .Astro-suit-84,
-    .Business-body .Astro-suit-21 {
-      transform: scale(0.86) translate(60px, 30px);
-    }
-
     .Punk-body .Cronic-tshirt-40,
     .Punk-body .Helicap-tshirt-40,
     .Punk-body .Lab-coat-15,
@@ -197,8 +197,7 @@
     .Miss-body .Helicap-tshirt-40,
     .Miss-body .Lab-coat-15,
     .Miss-body .Lab-coat-40,
-    .Miss-body .Shinobi-suit-99,
-    .Miss-body .Shinobi-suit-15,
+
     .Miss-body .Street-jacket-15,
     .Miss-body .Street-jacket-40 {
       transform: scale(0.82) translate(85px, 248px);
@@ -216,49 +215,78 @@
       transform: scale(0.82) translate(85px, 210px);
     }
 
-    .Business-body .Helicap-85,
-    .Business-body .Marshall-hat-85 {
-      transform: translate(0px, -10px);
-    }
-    .Punk-body .Helicap-85,
-    .Miss-body .Helicap-85 {
-      transform: translate(0px, -20px);
-    }
-
-    .Punk-body .Marshall-hat-85 {
-      transform: translate(0px, -30px);
-    }
-    .Miss-body .Marshall-hat-85 {
-      transform: translate(0px, -20px);
-    }
-
     .Business-body .Mortaboard-hat-85 {
-      transform: translate(0px, -40px);
+      transform: scale(1.05) translate(-18px, -11px);
     }
+
     .Punk-body .Mortaboard-hat-85 {
-      transform: translate(0px, -60px);
+      transform: scale(1.08) translate(-28.5px, -21px);
     }
+
     .Miss-body .Mortaboard-hat-85 {
-      transform: translate(0px, -40px);
+      transform: scale(1.05) translate(-18px, -10px);
+    }
+    
+    .Magic-cap-9,
+    .Magic-cap-85 {
+      visibility: hidden;
     }
 
-    .Business-body .Shinobi-hat-16,
-    .Business-body .Shinobi-hat-85 {
-      transform: translate(0px, -10px);
-    }
-    .Punk-body .Shinobi-hat-16,
-    .Punk-body .Shinobi-hat-85 {
-      transform: translate(0px, -20px);
+  
+    .Miss-body .Magic-cap-22{
+      transform: scale(0.82) translate(90px, 254px);
     }
 
-    .Miss-body .Shinobi-hat-16,
-    .Miss-body .Shinobi-hat-85 {
-      transform: translate(0px, -20px);
+    .Miss-body .Magic-cap-85,
+    .Punk-body .Magic-cap-85{
+      transform: translate(0px, 30px);
     }
-    .Business-body .Assassin-cap-21,
-    .Business-body .Assassin-cap-84 {
-      transform: translate(0px, -20px);
+
+    .Punk-body .Magic-cap-22 {
+      transform: scale(0.92) translate(35px, 160px);
     }
+
+    .Business-body .Assassin-cap-21 {
+      transform: translate(0, -10px);
+    }
+
+    .Punk-body .Assassin-cap-21,
+
+    .Punk-body .Assassin-cap-23,
+    .Punk-body .Assassin-cap-86{
+      transform: scale(0.85) translate(70px, 150px);
+    }
+
+    .Miss-body .Assassin-cap-21,
+    .Miss-body .Assassin-cap-23,
+    .Miss-body .Assassin-cap-86{
+      transform: scale(0.73) translate(150px, 320px);
+    }
+
+    .Miss-body .Bootcamp-soldier-40,
+    .Miss-body .Bootcamp-soldier-15{
+      transform: scale(0.82) translate(85px, 250px);
+    }
+
+    .Punk-body .Bootcamp-soldier-40,
+    .Punk-body .Bootcamp-soldier-15{
+      transform: scale(1) translate(0px, 70px);
+    }
+
+    .Punk-body .Shinobi-suit-99,
+    .Punk-body .Shinobi-suit-15 {
+      transform: scale(0.9) translate(50px, 100px);
+    }
+
+    .Miss-body .Shinobi-suit-99,
+    .Miss-body .Shinobi-suit-15 {
+      transform: scale(0.82) translate(85px, 180px);
+    }
+
+    .Magic-hood-9,
+    .Magic-hood-85 {
+      transform: translate(0px, -15px);
+    }   
   </style>
   {#if avatarComponents.body}
     <style>
@@ -267,83 +295,127 @@
       }
     </style>
   {/if}
-  {#if avatarComponents.hairs === "hair-13" && avatarComponents.hat}
+  {#if hats.includes(avatarComponents.hat)}
     <style>
-      .Hair-above {
+      #classic-hair-back {
         visibility: hidden;
       }
-      .Hair-behind {
+      #classic-hair-front {
+        visibility: hidden;
+      }
+    </style>
+  {:else}
+    <style>
+      #hat-hair-back {
+        visibility: hidden;
+      }
+      #hat-hair-front {
         visibility: hidden;
       }
     </style>
   {/if}
-  {#if avatarComponents.hairs === "hair-9" || avatarComponents.hairs === "hair-8" || avatarComponents.hairs === "hair-7" || avatarComponents.hairs === "hair-6" || avatarComponents.hairs == "hair-4"}
+  {#if avatarComponents.hat === "magic-hood" || avatarComponents.hat === "assassin-hood"} 
     <style>
-      .Business-body .Helicap-85,
-      .Business-body .Marshall-hat-85 {
-        transform: translate(0px, -40px) !important ;
+      .Hair {
+          visibility: hidden;
+          }
+    </style>
+  {/if} 
+  {#if avatarComponents.hat === "magic-hood" && avatarComponents.body === "magic-cap"}
+  <style>
+    .Magic-hood-85,
+    .Magic-hood-9 {
+      visibility: hidden;
+    }
+    .Magic-cap-85 {
+      visibility: visible;
+    }    
+  </style>
+  {/if} 
+ {#if avatarComponents.hat === "magic-hood" && avatarComponents.body !== "magic-cap"}
+  <style>
+    .Ears {
+      visibility: hidden;
+    }
+  </style>
+  {/if} 
+  {#if avatarComponents.body === "assassin-cap"}
+    {#if avatarComponents.hat === "assassin-hood"}
+      <style>
+        .Assassin-hood-85,
+        .Assassin-hood-9 {
+          visibility: hidden;
+        }
+      </style>
+    {:else} 
+      <style>
+        .Assassin-cap-9,
+        .Assassin-cap-22,
+        .Assassin-cap-85{
+          visibility: hidden;
+        }
+      </style>
+    {/if}
+  {/if}
+  {#if avatarComponents.hat === "astro-helmet" && avatarComponents.hairs !== "hair-13"}
+  <style>
+  .Hair {
+      clip-path : url(#astro-helmet-mask);
+    }
+  </style>
+  {/if}
+  {#if avatarComponents.body === "shinobi-suit"} 
+    {#if avatarComponents.hat === "magic-hood" || avatarComponents.hat === "assassin-hood"}
+      <style>
+        .Business-body .Shinobi-suit-99,
+        .Business-body .Shinobi-suit-15 {
+          transform: scale(1) translate(0px, 70px);
+        }
+        #business-profile-20 {
+          visibility: hidden;
+        }
+      </style>
+    {:else if avatarComponents.hat === "astro-helmet"} 
+    <style>
+      .Business-body .Shinobi-suit-99,
+      .Business-body .Shinobi-suit-15 {
+        transform: scale(1.1) translate(-40px,-40px);
       }
-      .Punk-body .Marshall-hat-85 {
-        transform: translate(0px, -50px) !important ;
-      }
-      .Punk-body .Mortaboard-hat-85 {
-        transform: translate(0px, -60px) !important ;
+      .Punk-body .Shinobi-suit-99,
+      .Punk-body .Shinobi-suit-15 {
+        transform: scale(1.1) translate(-40px,-40px);
       }
 
-      .Miss-body .Marshall-hat-85 {
-        transform: translate(0px, -40px) !important ;
+      .Miss-body .Shinobi-suit-99,
+      .Miss-body .Shinobi-suit-15 {
+        transform: scale(1.1) translate(-40px,-40px);
       }
-      .Miss-body .Mortaboard-hat-85 {
-        transform: translate(0px, -60px) !important;
+    </style>
+    {/if}
+  {/if}
+  {#if avatarComponents.hat && avatarComponents.hat !== "ninja-headband"}
+    <style>
+      #horns {
+        visibility: hidden;
       }
     </style>
   {/if}
-  {#if avatarComponents.body === "magic-cap" || avatarComponents.body === "assassin-cap"}
+  {#if avatarComponents.hat === "marshall-hat" || avatarComponents.hat === "helicap" || avatarComponents.hat === "mortaboard-hat" || avatarComponents.hat === "shinobi-hat" }
     <style>
       .Hair-above {
         visibility: hidden;
       }
-      .Hair-behind {
+      #top-hair-15 {
         visibility: hidden;
       }
-      .Hair {
-        visibility: hidden;
-      }
-      .Hat {
+      .Hair-behind.Hair-13 {
         visibility: hidden;
       }
     </style>
   {/if}
-  {#if avatarComponents.body === "assassin-cap" || avatarComponents.body === "astro-suit"}
+  {#if avatarComponents.hat === "magic-hood" || avatarComponents.hat === "shinobi-hat" } 
     <style>
-      #business-profile-20 {
-        visibility: hidden;
-      }
-    </style>
-  {/if}
-  {#if avatarComponents.body === "astro-suit"}
-    <style>
-      .Hat {
-        visibility: hidden;
-      }
-    </style>
-  {/if}
-  {#if avatarComponents.hat === "shinobi-hat"}
-    <style>
-      .Hair-above {
-        visibility: hidden;
-      }
-      .Hair-behind {
-        visibility: hidden;
-      }
-      .Hair {
-        visibility: hidden;
-      }
-    </style>
-  {/if}
-  {#if avatarComponents.face === "gas-mask" || avatarComponents.face === "kitsune-mask" || avatarComponents.face === "evil-mask"}
-    <style>
-      .Eyes {
+      #energy-eyes {
         visibility: hidden;
       }
     </style>

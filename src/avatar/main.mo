@@ -1,35 +1,36 @@
+import AccountIdentifier "mo:principal/AccountIdentifier";
+import Admins "admins";
 import Array "mo:base/Array";
+import Assets "assets";
+import Avatar "avatar";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
+import Canistergeek "mo:canistergeek/canistergeek";
+import Cap "mo:cap/Cap";
 import Cycles "mo:base/ExperimentalCycles";
+import Ext "mo:ext/Ext";
+import ExtModule "ext";
 import Hash "mo:base/Hash";
 import HashMap "mo:base/HashMap";
+import Http "http";
 import Int "mo:base/Int";
+import Invoice "invoice";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Option "mo:base/Option";
 import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
+import Root "mo:cap/Root";
+import Scores "score";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import _Ext "mo:base/ExperimentalStableMemory";
-
-import AccountIdentifier "mo:principal/AccountIdentifier";
-import Canistergeek "mo:canistergeek/canistergeek";
-import Cap "mo:cap/Cap";
-import Ext "mo:ext/Ext";
-import Root "mo:cap/Root";
-
-import Admins "admins";
-import Assets "assets";
-import Avatar "avatar";
-import ExtModule "ext";
-import Http "http";
-import Invoice "invoice";
+import _Monitor "mo:canistergeek/typesModule";
 
 shared ({ caller = creator }) actor class ICPSquadNFT(
     cid : Principal,
+    accessory_cid : Principal,
     invoice_cid : Principal
 ) = this {
 
@@ -495,6 +496,42 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _HttpHandler.request(request);  
     };
 
+
+    /////////////
+    // SCORES ///
+    /////////////
+
+    public type Stats = Scores.Stats;
+    public type DailyScore = Scores.DailyScore;
+
+    stable var _ScoresUD: ?Scores.UpgradeData = null;
+    let _Scores = Scores.Factory({
+        cid = cid;
+        accessory_cid = accessory_cid;
+        _Logs = _Logs;
+        _Avatar = _Avatar;
+        _Ext = _Ext;
+    });
+
+    public shared ({ caller }) func uploadStats(
+        stats : Stats
+    ) : () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Scores.uploadStats(stats);
+    };
+
+    public shared ({ caller }) func calculateStyleScores() : () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Scores.calculateStyleScores();
+    };
+
+    public shared query ({ caller }) func getStyleScores() : async [(TokenIdentifier, DailyScore)] {
+        assert(_Admins.isAdmin(caller));
+        _Scores.getStyleScores();
+    };
+
     /////////////
     // UPGRADE //
     /////////////
@@ -507,6 +544,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _AssetsUD := ? _Assets.preupgrade();
         _AvatarUD := ? _Avatar.preupgrade();
         _ExtUD := ? _Ext.preupgrade();
+        _ScoresUD := ? _Scores.preupgrade();
         _eventsEntries := Iter.toArray(_events.entries());
     };
 
@@ -523,6 +561,8 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _AvatarUD := null;
         _Ext.postupgrade(_ExtUD);
         _ExtUD := null;
+        _Scores.postupgrade(_ScoresUD);
+        _ScoresUD := null;
         _eventsEntries := [];
     };
 
