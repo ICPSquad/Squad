@@ -5,7 +5,7 @@
 </script>
 
 <section>
-  <div class="container">
+  <div class="container above-grid">
     <h2>JOIN ICP SQUAD</h2>
     <p>
       <!-- To do: replace number with actual -->
@@ -30,7 +30,6 @@
 
   section {
     width: 100%;
-    padding: 60px 0;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -52,5 +51,17 @@
 
   .below-grid {
     margin-top: 30px;
+  }
+
+  @media (max-width: 800px) {
+    .above-grid {
+      padding-bottom: 0px;
+      margin-bottom: 20px;
+    }
+
+    .below-grid {
+      padding-top: 0px;
+      margin-top: 40px;
+    }
   }
 </style>

@@ -23,7 +23,6 @@
 
   .container {
     max-width: 800px;
-    padding: 80px 0;
     text-align: center;
     display: flex;
     flex-direction: column;

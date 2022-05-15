@@ -7,11 +7,7 @@
   import Discord from "@icons/Discord.svelte";
   import Twitter from "@icons/Twitter.svelte";
   import Cross from "@src/icons/Cross.svelte";
-  import FooterNav from "./FooterNav.svelte";
-  import Footer from "./Footer.svelte";
   import Menu from "./Menu.svelte";
-
-  let connected: boolean = false;
 
   let menuOpen: boolean = false;
 
@@ -29,23 +25,25 @@
   </Link>
   <div class="right">
     {#if !menuOpen}
-      <a
-        class="social-icon discord"
-        href="https://discord.gg/SqtQ3UJR"
-        target="_blank"
-      >
-        <Discord width={20} />
-      </a>
-      <a
-        class="social-icon"
-        href="https://twitter.com/ICPSquadNFT"
-        target="_blank"
-      >
-        <Twitter width={20} />
-      </a>
-      <button on:click={plugConnection}>
-        {$user.loggedIn ? "You are connected" : "Connect your wallet"}
-      </button>
+      <div class="hide-on-mobile">
+        <a
+          class="social-icon discord"
+          href="https://discord.gg/SqtQ3UJR"
+          target="_blank"
+        >
+          <Discord width={20} />
+        </a>
+        <a
+          class="social-icon"
+          href="https://twitter.com/ICPSquadNFT"
+          target="_blank"
+        >
+          <Twitter width={20} />
+        </a>
+        <button on:click={plugConnection}>
+          {$user.loggedIn ? "You are connected" : "Connect your wallet"}
+        </button>
+      </div>
     {/if}
     <div class="menu-open-close" on:click={() => (menuOpen = !menuOpen)}>
       {#if !menuOpen}
@@ -70,7 +68,8 @@
     z-index: 99;
   }
 
-  .right {
+  .right,
+  .hide-on-mobile {
     display: flex;
     align-items: center;
   }
@@ -103,5 +102,11 @@
 
   .menu-open-close {
     cursor: pointer;
+  }
+
+  @media (max-width: 800px) {
+    .hide-on-mobile {
+      display: none;
+    }
   }
 </style>

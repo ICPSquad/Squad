@@ -55,10 +55,43 @@
     margin-top: 40px;
   }
   p.large {
-    font-size: 1.41rem;
+    font-size: 1.4rem;
     margin-bottom: 50px;
   }
   .button {
     margin-bottom: 20px;
+  }
+
+  @media (max-width: 980px) {
+    .hero-section {
+      grid-template-columns: 100%;
+      justify-items: center;
+    }
+
+    .content {
+      display: grid;
+    }
+
+    .squad-number {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      grid-row-start: 5;
+      margin-top: 20px;
+      #avatar-collage {
+        margin-left: 0;
+        margin-top: 10px;
+      }
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 40px;
+    }
+    p.large {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-bottom: 50px;
+    }
   }
 </style>

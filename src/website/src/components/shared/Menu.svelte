@@ -7,7 +7,7 @@
 </script>
 
 <div class="menu-container">
-  <div class="menu-nav-container">
+  <div class="container menu-nav-container">
     <FooterNav textAlignCenter {closeMenu} />
     <button class="secondary"> Disconnect Wallet </button>
     <div class="social-icons">
@@ -33,7 +33,7 @@
     position: absolute;
     top: 0;
     width: 100%;
-    height: 100vh;
+    height: 300vh;
     background-color: $black;
     opacity: 1;
     z-index: 10;
