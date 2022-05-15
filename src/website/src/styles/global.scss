@@ -20,7 +20,7 @@ a {
 .container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 40px;
+  padding: 80px 40px;
 }
 
 .page-header {
@@ -62,6 +62,6 @@ button,
 
 @media (max-width: 700px) {
   .container {
-    padding: 20px;
+    padding: 80px 20px;
   }
 }

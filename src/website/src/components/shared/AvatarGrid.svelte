@@ -32,8 +32,11 @@
     >
       {#each sets as set, index}
         {#if setShowing === index}
-          {#each set as image}
+          {#each set as image, imageIndex}
             <img
+              class={imageIndex === 1 || imageIndex === 2
+                ? "hide-on-mobile"
+                : ""}
               src="/assets/join-wall/set{image}.png"
               alt="ICP Squad Avatars"
             />
@@ -60,5 +63,11 @@
   img {
     width: 360px;
     height: 240px;
+  }
+
+  @media (max-width: 800px) {
+    .hide-on-mobile {
+      display: none;
+    }
   }
 </style>

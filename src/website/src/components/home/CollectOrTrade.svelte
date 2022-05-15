@@ -36,7 +36,6 @@
 
   .container {
     max-width: 800px;
-    padding: 80px 0;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -66,5 +65,11 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+  }
+
+  @media (max-width: 680px) {
+    .cols {
+      grid-template-columns: 100%;
+    }
   }
 </style>
