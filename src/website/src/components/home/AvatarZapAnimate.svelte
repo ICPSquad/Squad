@@ -12,6 +12,7 @@
     1: 140,
     2: 300,
     3: 460,
+    9: 100, // Mobile
   };
 
   const color = {
@@ -67,7 +68,11 @@
     box-shadow: 0 0 30px #{color[theme].shadow}50;
     filter: drop-shadow(0px 0px 8px #{color[theme].shadow})"
 >
-  <img style="width: {pxSize[size] - 30}px" src="avatars/{image}.png" alt="ICP Squad Avatar of {image}" />
+  <img
+    style="width: {pxSize[size] - 30}px"
+    src="avatars/{image}.png"
+    alt="ICP Squad Avatar of {image}"
+  />
 </div>
 
 <style lang="scss">
