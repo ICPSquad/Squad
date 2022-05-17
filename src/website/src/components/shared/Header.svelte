@@ -72,6 +72,7 @@
   .hide-on-mobile {
     display: flex;
     align-items: center;
+    justify-content: center;
   }
 
   button {
@@ -102,11 +103,26 @@
 
   .menu-open-close {
     cursor: pointer;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   @media (max-width: 800px) {
     .hide-on-mobile {
       display: none;
+    }
+
+    .menu-open-close {
+      width: 26px;
+      height: 26px;
+    }
+
+    nav {
+      padding-top: 20px;
+      padding-bottom: 20px;
     }
   }
 </style>

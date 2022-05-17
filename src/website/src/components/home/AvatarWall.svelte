@@ -117,95 +117,59 @@
     ],
   ];
 
-  const mobileSets: Set[] = [
-    [
-      {
-        image: "pink-woman",
-        theme: Theme.PINK,
-        size: 1,
-        delay: 0,
-      },
-      {
-        image: "blue-man",
-        theme: Theme.PURPLE,
-        size: 1,
-        delay: 500,
-      },
-      {
-        image: "yellow-woman",
-        theme: Theme.YELLOW,
-        size: 1,
-        delay: 1000,
-      },
-    ],
-    [
-      {
-        image: "blue-man-2",
-        theme: Theme.PURPLE,
-        size: 1,
-        delay: 500,
-      },
-      {
-        image: "green-woman-2",
-        theme: Theme.GREEN,
-        size: 1,
-        delay: 1000,
-      },
-      {
-        image: "pink-man",
-        theme: Theme.PINK,
-        size: 1,
-        delay: 0,
-      },
-    ],
-    [
-      {
-        image: "yellow-woman-2",
-        theme: Theme.YELLOW,
-        size: 1,
-        delay: 0,
-      },
-
-      {
-        image: "green-man",
-        theme: Theme.GREEN,
-        size: 1,
-        delay: 1500,
-      },
-      {
-        image: "pink-woman",
-        theme: Theme.PINK,
-        size: 1,
-        delay: 0,
-      },
-    ],
-    [
-      {
-        image: "blue-man-3",
-        theme: Theme.PURPLE,
-        size: 1,
-        delay: 500,
-      },
-      {
-        image: "green-woman-3",
-        theme: Theme.GREEN,
-        size: 1,
-        delay: 0,
-      },
-      {
-        image: "purple-man-2",
-        theme: Theme.PINK,
-        size: 1,
-        delay: 1000,
-      },
-    ],
+  const mobileImages: AnimatedItem[] = [
+    {
+      image: "pink-woman",
+      theme: Theme.PINK,
+      size: 1,
+      delay: 0,
+    },
+    {
+      image: "blue-man",
+      theme: Theme.PURPLE,
+      size: 1,
+      delay: 500,
+    },
+    {
+      image: "yellow-woman",
+      theme: Theme.YELLOW,
+      size: 1,
+      delay: 1000,
+    },
+    {
+      image: "blue-man-2",
+      theme: Theme.PURPLE,
+      size: 1,
+      delay: 500,
+    },
+    {
+      image: "green-woman-2",
+      theme: Theme.GREEN,
+      size: 1,
+      delay: 1000,
+    },
+    {
+      image: "pink-man",
+      theme: Theme.PINK,
+      size: 1,
+      delay: 0,
+    },
+    {
+      image: "yellow-woman-2",
+      theme: Theme.YELLOW,
+      size: 1,
+      delay: 0,
+    },
   ];
 
   let nowShowing = 0;
+  let nowShowingMobile = 0;
 
   const startAnimation = () => {
     setInterval(() => {
       nowShowing = nowShowing == sets.length - 1 ? 0 : nowShowing + 1;
+      nowShowingMobile =
+        nowShowingMobile == mobileImages.length - 1 ? 0 : nowShowingMobile + 1;
     }, 7000);
   };
 
@@ -236,25 +200,16 @@
       {/each}
     {/if}
   {/each}
-  {#each mobileSets as set, index}
-    {#if nowShowing == index}
-      {#each set as item}
-        <div
-          class="mobile"
-          style="grid-column: span {item.size}; grid-row: span {item.size}"
-        >
-          {#if item.image}
-            <AvatarZapAnimate
-              image={item.image}
-              theme={item.theme}
-              size={9}
-              delay={item.delay}
-            />
-          {:else}
-            <div />
-          {/if}
-        </div>
-      {/each}
+  {#each mobileImages as item, index}
+    {#if nowShowingMobile == index}
+      <div class="mobile">
+        <AvatarZapAnimate
+          image={item.image}
+          theme={item.theme}
+          size={2}
+          delay={item.delay}
+        />
+      </div>
     {/if}
   {/each}
 </div>
@@ -281,10 +236,9 @@
 
   @media (max-width: 980px) {
     .grid {
-      --size: 100px;
-      grid-template-columns: repeat(3, var(--size));
+      --size: 300px;
+      grid-template-columns: var(--size);
       grid-template-rows: var(--size);
-      grid-gap: 10px;
     }
 
     .desktop {

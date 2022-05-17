@@ -63,6 +63,10 @@
   }
 
   @media (max-width: 980px) {
+    .container {
+      padding-top: 0px;
+    }
+
     .hero-section {
       grid-template-columns: 100%;
       justify-items: center;
@@ -86,12 +90,15 @@
 
     h1 {
       text-align: center;
-      margin-top: 40px;
+      margin-top: 20px;
     }
     p.large {
       text-align: center;
-      font-size: 1.2rem;
-      margin-bottom: 50px;
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+    .button {
+      margin-bottom: 10px;
     }
   }
 </style>

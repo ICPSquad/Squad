@@ -59,4 +59,10 @@
     flex-direction: row;
     align-items: center;
   }
+
+  @media (max-width: 980px) {
+    .container {
+      padding-top: 20px;
+    }
+  }
 </style>
