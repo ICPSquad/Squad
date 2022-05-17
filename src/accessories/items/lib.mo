@@ -1,6 +1,7 @@
 import Array "mo:base/Array";
 import Error "mo:base/Error";
 import HashMap "mo:base/HashMap";
+import TrieMap "mo:base/TrieMap";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
@@ -8,6 +9,7 @@ import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
 import Prim "mo:prim";
 import Principal "mo:base/Principal";
+import Buffer "mo:base/Buffer";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 
@@ -43,8 +45,9 @@ module {
         ///////////
         
         let _items : HashMap.HashMap<TokenIndex,Item> = HashMap.HashMap(0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
-        let _templates : HashMap.HashMap<Text,Template> = HashMap.HashMap(0, Text.equal, Text.hash);
         let _blobs : HashMap.HashMap<TokenIndex,Blob> = HashMap.HashMap(0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+        let _templates : HashMap.HashMap<Text,Template> = HashMap.HashMap(0, Text.equal, Text.hash);
+        let _recipes : TrieMap.TrieMap<Text, Recipe> = TrieMap.TrieMap(Text.equal, Text.hash);
 
         let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
             wearAccessory : shared (tokeniId : TokenIdentifier, name : Text, p : Principal) -> async Result<(), Text>;
@@ -59,6 +62,7 @@ module {
                 items = Iter.toArray(_items.entries());
                 templates = Iter.toArray(_templates.entries());
                 blobs = Iter.toArray(_blobs.entries());
+                recipes = Iter.toArray(_recipes.entries());
             })
         };
 
@@ -74,6 +78,9 @@ module {
                     for((index, blob) in ud.blobs.vals()){
                         _blobs.put(index, blob);
                     };
+                    for((name, recipe) in ud.recipes.vals()){
+                        _recipes.put(name, recipe);
+                    };
                 };
                 case _ {};
             };
@@ -86,6 +93,11 @@ module {
         public func addTemplate(name : Text, template : Template) : Result<Text,Text> {
            _templates.put(name, template);
            return #ok("Template added for : "  # name);
+        };
+
+        public func addRecipe(name : Text, recipe : Recipe) : Result<Text,Text> {
+            _recipes.put(name, recipe);
+            return #ok("Recipe added for : "  # name);
         };
 
         public func wearAccessory(
@@ -220,18 +232,11 @@ module {
             switch(_items.get(index)){
                 case(?#Accessory(item)){
                     if(item.wear <= 1){
-                        switch(_Ext.burn(accessory)){
-                            case(#ok(())) {
-                                _items.delete(index);
-                                _blobs.delete(index);
-                                _Logs.logMessage("Accessory " # accessory # " has been burned");
-                                return #ok(#Burned);
-                            };
-                            case(#err(e)) {
-                                _Logs.logMessage("CRITICAL ERROR during burn : " # e);
-                                return #err(e);
-                            };
-                        };
+                        _Ext.burn(index);
+                        _items.delete(index);
+                        _blobs.delete(index);
+                        _Logs.logMessage("Accessory " # accessory # " has been burned");
+                        return #ok(#Burned);
                     };
                     _items.put(index, _createAccessoryWear(item, item.wear - 1));
                     return #ok(#Decreased);
@@ -242,8 +247,6 @@ module {
                 };
             };
         };
-
-        // public func createAccessory()
 
         public func mint(
             name : Text,
@@ -261,6 +264,35 @@ module {
                 };
                 case(_) return #err("No template found");
             };
+        };
+
+        public func getRecipe(
+            name : Text
+        ) : ?Recipe {
+            _recipes.get(name);
+        };
+
+        public func getMaterials(
+            caller  : Principal
+        ) : [(TokenIndex, Text)] {
+            let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+            let tokens = switch(_Ext.tokens(account)){
+                case(#err(e)) {
+                    return [];
+                };
+                case(#ok(list)) {list};
+            };
+            let materials = Buffer.Buffer<(TokenIndex, Text)>(0);
+            for(token in tokens.vals()){
+                switch(_items.get(token)){
+                    case(?#Material(name)){
+                        materials.add((token, name));
+                    };
+                    case(_) {
+                    };
+                };
+            };
+            return materials.toArray();
         };
 
         public func getBlob(
@@ -330,9 +362,63 @@ module {
             };
         };
 
+        public func getItems() : [(Text, [TokenIndex])] {
+            let map = TrieMap.TrieMap<Text, Buffer.Buffer<TokenIndex>>(Text.equal, Text.hash);
+            for((index, item) in _items.entries()){
+                let name = _itemToName(item);
+                switch(map.get(name)){
+                    case(? buffer){
+                        buffer.add(index);
+                    };
+                    case(null) {
+                        let buffer = Buffer.Buffer<TokenIndex>(0);
+                        buffer.add(index);
+                        map.put(name, buffer);
+                    };
+                };
+            };
+            // Add items with 0 supply!
+            for((name) in _templates.keys()){
+                switch(map.get(name)){
+                    case(? buffer){};
+                    case(null) {
+                        let buffer = Buffer.Buffer<TokenIndex>(0);
+                        map.put(name, buffer);
+                    };
+                };
+            };
+            let buffer = Buffer.Buffer<(Text, [TokenIndex])>(0);
+            for((name, list) in map.entries()){
+                buffer.add((name, list.toArray()));
+            };
+            return buffer.toArray();
+        };
+
+        public func burn(
+            index : TokenIndex
+        ) : () {
+            _items.delete(index);
+            _blobs.delete(index);
+        };
+
         ////////////////
         // HELPERS /////
         ////////////////
+
+        func _itemToName(item : Item) : Text {
+            switch(item){
+                case(#Material(name)){
+                    return name;
+                };
+                case(#Accessory(item)){
+                    return item.name;
+                };
+                case(_) {
+                    assert(false);
+                    return "";
+                };
+            }
+        };
 
         func _drawAccessory (token_index : TokenIndex) : () {
             switch(_items.get(token_index)){

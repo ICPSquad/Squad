@@ -6,8 +6,6 @@ import Cap "mo:cap/Cap";
 import Ext "mo:ext/Ext";
 
 import Avatar "../avatar";
-
-
 module {
 
     public type Result<A,B> = Result.Result<A,B>;

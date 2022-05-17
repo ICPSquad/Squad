@@ -38,7 +38,7 @@
   };
 
   // Toggle this to include/exclude accessories
-  const includeAccessories = false;
+  const includeAccessories = true;
   const categories = includeAccessories ? categoriesIncludingAccessories : categoriesExludingAccessories;
 
   let categoryShowing = "profile";

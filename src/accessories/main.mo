@@ -26,13 +26,16 @@ import Root "mo:cap/Root";
 
 import Admins "admins";
 import Entrepot "entrepot";
+import Invoice "invoice";
 import ExtModule "ext";
 import Http "http";
+import StatsTypes "stats/types";
 import Items "items";
 
 shared({ caller = creator }) actor class ICPSquadNFT(
     cid : Principal,
-    cid_avatar : Principal
+    cid_avatar : Principal,
+    cid_invoice : Principal
 ) = this {
 
     ///////////
@@ -328,6 +331,38 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
+    private func _getPrice(index : TokenIndex) : Result<Nat, ()> {
+        switch(_tokenListing.get(index)){
+            case(?listing){
+                return #ok(Nat64.toNat(listing.price));
+            };
+            case(_) {
+                return #err();
+            };
+        };
+    };
+
+    private func _getFloorPrice(indexs : [TokenIndex]) : ?Nat {
+        if(indexs.size() == 0){
+            return null
+        };
+        var prices = Buffer.Buffer<Nat>(0);
+        for(index in indexs.vals()){
+            switch(_getPrice(index)){
+                case(#err()){};
+                case(#ok(value)){
+                    prices.add(value);
+                };
+            };
+        };
+        let array_prices = prices.toArray();
+        if(array_prices.size() == 0){
+            return null
+        };
+        let array_sorted = Array.sort<Nat>(array_prices, Nat.compare);
+        return ?array_sorted[0];
+    };
+
     private func _isSubaccountIncorrect (subaccount : SubAccount) : Bool {
         var c : Nat = 0;
         var failed : Bool = true;
@@ -561,7 +596,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         Iter.toArray(_payments.entries())
     };
 
-     public query func stats() : async (Nat64, Nat64, Nat64, Nat64, Nat, Nat, Nat) {
+    public query func stats() : async (Nat64, Nat64, Nat64, Nat64, Nat, Nat, Nat) {
         var res : (Nat64, Nat64, Nat64) = Array.foldLeft<Transaction, (Nat64, Nat64, Nat64)>(_transactions, (0,0,0), func (b : (Nat64, Nat64, Nat64), a : Transaction) : (Nat64, Nat64, Nat64) {
         var total : Nat64 = b.0 + a.price;
         var high : Nat64 = b.1;
@@ -580,8 +615,16 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                 floor := a.1.price;
             };
         };
-        (res.0, res.1, res.2, floor, _tokenListing.size(), _registry.size(), _transactions.size());
+        (res.0, res.1, res.2, floor, _tokenListing.size(), _Ext.size(), _transactions.size());
     };
+
+    ////////////////
+    // INVOICE ////
+    //////////////
+
+    let _Invoice = Invoice.Factory({
+        invoice_cid = cid_invoice;
+    });
 
 
     ////////////
@@ -656,11 +699,72 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
-    // public shared ({caller}) func createAccessory(
-
-    // ) : () {
-    //     //TODO
-    // };
+    public shared ({caller}) func create_accessory(
+        name : Text,
+        invoice_id : Nat
+    ) : async Result.Result<TokenIdentifier, Text> {
+        _Monitor.collectMetrics();
+        let recipe = switch(_Items.getRecipe(name)){
+            case(null) return #err("No recipe found for : " # name);
+            case(?recipe){recipe};
+        };
+        switch(await _Invoice.verifyInvoice(invoice_id, caller)){
+            case(#ok){};
+            case(#err) {
+                _Logs.logMessage("Error during invoice verification for invoice : " # Nat.toText(invoice_id) # " by " # Principal.toText(caller));
+                return #err("Error during invoice verification");
+            };
+        };
+        let materials = _Items.getMaterials(caller);
+        // Filter out all materials that are locked on Entrepot to avoid concurrency issues.
+        var materials_available = Array.filter<(TokenIndex, Text)>(materials, func(x) {
+            not _isLocked(x.0)
+        });
+        // Create the list of materials that will be used for the recipes.
+        let materials_used = Buffer.Buffer<(TokenIndex)>(0);
+        for (material in recipe.vals()){
+            let material_used = switch(Array.find<(TokenIndex,Text)>(materials_available, func(x) {
+                x.1 == material
+            })){
+                case(null) return #err("Not enough : " # material);
+                case(?x){ x };
+            };
+            // Add the tokenIndex to the actually used materials and remove it from the list of available materials to avoid reusing.
+            materials_used.add(material_used.0);
+            materials_available := Array.filter<(TokenIndex,Text)>(materials, func(x) { x.0 == material_used.0 });
+        };
+        // Remove the materials from every database (they are burned).
+        for(tokenIndex in materials_used.toArray().vals()){
+            ignore(_Items.burn(tokenIndex));
+            ignore(_Ext.burn(tokenIndex));
+            ignore(_tokenListing.delete(tokenIndex));
+            ignore(_tokenSettlement.delete(tokenIndex));
+        };
+        // Create the token and the associated accessory.
+        let request : Ext.NonFungible.MintRequest = {
+            to = #principal(caller);
+            metadata = null;
+        };
+        switch(_Ext.mint(request)){
+              case(#err(_)) {
+                  assert(false);
+                  return #err("Error fatal during minting of token");
+              };
+              case(#ok(tokenIndex)){
+                  switch(_Items.mint(name, tokenIndex)){
+                      case(#err(_)){
+                          assert(false);
+                          return #err("Error fatal during minting of accessory");
+                      };
+                      case(#ok()){
+                          let tokenIdentifier = Ext.TokenIdentifier.encode(cid, tokenIndex);
+                          _Logs.logMessage("Accessory created : " # name # " by " # Principal.toText(caller) # "with identifier " # tokenIdentifier);
+                          return #ok(tokenIdentifier);
+                      };
+                  };
+              };
+        };
+    };
 
     // public shared ({caller}) func updateAccessories(
 
@@ -712,6 +816,25 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     public query func http_request (request : Http.Request) : async Http.Response {
         _HttpHandler.request(request);  
     };
+
+
+    ////////////
+    // STATS //
+    //////////
+
+    public type Name = StatsTypes.Name;
+    public type Supply = StatsTypes.Supply;
+    public type Floor = StatsTypes.Floor;
+
+    public query func get_stats_items() : async [(Text, Supply, ?Floor)] {
+        let items = _Items.getItems();
+        let buffer = Buffer.Buffer<(Text, Supply, ?Floor)>(items.size());
+        for (item in items.vals()){
+            buffer.add((item.0, item.1.size(), _getFloorPrice(item.1)));
+        };
+        return buffer.toArray();
+    };
+
 
     ///////////////
     // HEARTBEAT //
@@ -804,24 +927,4 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _ExtUD := null;
         _Logs.logMessage("Postupgrade");
     };
-
-
-    //////////////
-    // Init /////
-    /////////////
-
-    public shared ({ caller }) func init_state() : async () {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Ext.postupgrade(?{
-            registry = Iter.toArray(_registry.entries());
-            nextIndex = _nextTokenId;
-        });
-        _Items.postupgrade(?{
-            items = Iter.toArray(_items.entries());
-            templates = Iter.toArray(_templates.entries());
-            blobs = Iter.toArray(_blobs.entries());
-        });
-    };
-
 };

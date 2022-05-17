@@ -1,36 +1,37 @@
+import AccountIdentifier "mo:principal/AccountIdentifier";
+import Admins "admins";
 import Array "mo:base/Array";
+import Assets "assets";
+import Avatar "avatar";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
+import Canistergeek "mo:canistergeek/canistergeek";
+import Cap "mo:cap/Cap";
 import Cycles "mo:base/ExperimentalCycles";
+import Ext "mo:ext/Ext";
+import ExtModule "ext";
 import Hash "mo:base/Hash";
-import HashMap "mo:base/HashMap";
+import TrieMap "mo:base/TrieMap";
+import Http "http";
 import Int "mo:base/Int";
+import Invoice "invoice";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Option "mo:base/Option";
 import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
+import Root "mo:cap/Root";
+import Scores "scores";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
-import _Ext "mo:base/ExperimentalStableMemory";
-
-import AccountIdentifier "mo:principal/AccountIdentifier";
-import Canistergeek "mo:canistergeek/canistergeek";
-import Cap "mo:cap/Cap";
-import Ext "mo:ext/Ext";
-import Root "mo:cap/Root";
-
-import Admins "admins";
-import Assets "assets";
-import Avatar "avatar";
-import ExtModule "ext";
-import Http "http";
-import Invoice "invoice";
+import Users "users";
 
 shared ({ caller = creator }) actor class ICPSquadNFT(
     cid : Principal,
-    invoice_cid : Principal
+    accessory_cid : Principal,
+    invoice_cid : Principal,
+    hub_cid : Principal
 ) = this {
 
     ///////////
@@ -237,14 +238,28 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     public type MintResult = Result<TokenIdentifier, Text>;
     public shared ({caller}) func mint(
         info : MintInformation,
-        invoice_id : Nat
+        invoice_id : ?Nat
     ) : async MintResult {
         _Monitor.collectMetrics();
-        switch(await _Invoice.verifyInvoice(invoice_id, caller)){
-            case(#ok){};
-            case(#err) {
-                _Logs.logMessage("Error during invoice verification for invoice : " # Nat.toText(invoice_id) # " by " # Principal.toText(caller));
-                return #err("Error during invoice verification");
+        switch(invoice_id) {
+            case(null) {
+                switch(_Users.getUser(caller)){
+                    case(null) return #err("No user found");
+                    case(? user){
+                        if(user.minted) {
+                            return #err("User already minted");
+                        };
+                    };
+                 };
+            };
+            case(?id) {
+                switch(await _Invoice.verifyInvoice(id, caller)){
+                    case(#ok){};
+                    case(#err) {
+                        _Logs.logMessage("Error during invoice verification for invoice : " # Nat.toText(id) # " by " # Principal.toText(caller));
+                        return #err("Error during invoice verification");
+                    };
+                };
             };
         };
         switch(_Ext.mint({ to = #principal(caller); metadata = null; })){
@@ -254,7 +269,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
                 let tokenId = Ext.TokenIdentifier.encode(cid, index);
                 _Logs.logMessage("Minted token: " # tokenId);
                 switch(_Avatar.createAvatar(info, tokenId)){
-                    case(#ok) return #ok(tokenId);
+                    case(#ok) {
+                        _Logs.logMessage("Created avatar: " # tokenId # "by " # Principal.toText(caller));
+                        _Users.welcome(caller, invoice_id, tokenId);
+                        return #ok(tokenId);
+                    };
                     case(#err(e)){
                         _Logs.logMessage("Error during avatar creation for token: " # tokenId);
                         return #err(e);
@@ -448,7 +467,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
 
     //  This hashmap is used to store events & register them later to avoid any lost event in case of CAP error or message lost.
     private stable var _eventsEntries : [(Time, IndefiniteEvent)] = [];
-    let _events : HashMap.HashMap<Time, IndefiniteEvent> = HashMap.fromIter(_eventsEntries.vals(), _eventsEntries.size(), Int.equal, Int.hash);
+    let _events : TrieMap.TrieMap<Time, IndefiniteEvent> = TrieMap.fromEntries<Time,IndefiniteEvent>(_eventsEntries.vals(), Int.equal, Int.hash);
     
     //  Periodically called through heartbeat to verify that all events have been reported 
     public shared ({caller}) func verificationEvents() : async () {
@@ -495,6 +514,83 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _HttpHandler.request(request);  
     };
 
+    //////////////
+    // Users ////
+    /////////////
+
+    public type Name = Users.Name;
+    public type Message = Users.Message;
+    public type UserData = Users.User;
+
+    stable var _UsersUD : ?Users.UpgradeData = null;
+    private let _Users : Users.Users = Users.Users({
+        cid = cid;
+        _Logs = _Logs;
+        _Ext = _Ext;
+    });
+
+    public shared query ({ caller }) func get_user() : async ?UserData {
+        _Users.getUser(caller);
+    };
+
+    public shared ({ caller }) func modify_user(user : UserData) : async Result<(), Text> {
+        _Monitor.collectMetrics();
+        _Users.modifyUser(caller, user);
+    };
+
+    public shared ({ caller }) func get_all_users() : async [(Principal,UserData)] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Users.getUsers();
+    };
+
+    public shared ({ caller }) func calculate_accounts() : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Users.calculateAccounts();
+    };
+
+    public shared query ({ caller }) func get_infos_leaderboard() : async [(Principal, ?Name, ?Message, ?TokenIdentifier)] {
+        assert(_Admins.isAdmin(caller) or caller == hub_cid);
+        _Monitor.collectMetrics();
+        _Users.getInfosLeaderboard();
+    };
+
+    /////////////
+    // SCORES ///
+    /////////////
+
+    public type Stats = Scores.Stats;
+    public type StyleScore = Scores.StyleScore;
+
+    stable var _ScoresUD: ?Scores.UpgradeData = null;
+    let _Scores = Scores.Factory({
+        cid = cid;
+        accessory_cid = accessory_cid;
+        _Logs = _Logs;
+        _Avatar = _Avatar;
+        _Ext = _Ext;
+    });
+
+    public shared ({ caller }) func uploadStats(
+        stats : Stats
+    ) : () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Scores.uploadStats(stats);
+    };
+
+    public shared ({ caller }) func calculate_style_score() : () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Scores.calculateStyleScores();
+    };
+
+    public shared query ({ caller }) func get_style_score() : async [(TokenIdentifier, StyleScore)] {
+        assert(_Admins.isAdmin(caller) or caller == hub_cid) ;
+        _Scores.getStyleScores();
+    };
+
     /////////////
     // UPGRADE //
     /////////////
@@ -507,6 +603,8 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _AssetsUD := ? _Assets.preupgrade();
         _AvatarUD := ? _Avatar.preupgrade();
         _ExtUD := ? _Ext.preupgrade();
+        _ScoresUD := ? _Scores.preupgrade();
+        _UsersUD := ? _Users.preupgrade();
         _eventsEntries := Iter.toArray(_events.entries());
     };
 
@@ -523,7 +621,14 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _AvatarUD := null;
         _Ext.postupgrade(_ExtUD);
         _ExtUD := null;
+        _Scores.postupgrade(_ScoresUD);
+        _ScoresUD := null;
+        _Users.postupgrade(_UsersUD);
+        _UsersUD := null;
         _eventsEntries := [];
+
+        // Override default number of stored log messages to save memory
+       _Logs.setMaxMessagesCount(1000);
     };
 
 };

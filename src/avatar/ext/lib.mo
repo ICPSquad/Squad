@@ -1,5 +1,5 @@
 import Buffer "mo:base/Buffer";
-import HashMap "mo:base/HashMap";
+import TrieMap "mo:base/TrieMap";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
@@ -44,7 +44,7 @@ module {
         type MintRequest = Types.MintRequest;
 
         let CANISTER_ID = dependencies.cid;
-        private let _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.HashMap<TokenIndex,AccountIdentifier>(0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+        private let _registry : TrieMap.TrieMap<TokenIndex, AccountIdentifier> = TrieMap.TrieMap<TokenIndex,AccountIdentifier>(Ext.TokenIndex.equal, Ext.TokenIndex.hash);
 
         let _Logs = dependencies._Logs;
 

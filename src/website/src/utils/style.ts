@@ -13,7 +13,7 @@ export function componentToClass(name: string, layer: number): string {
         return "Body" + " " + capitalizeFirstLetter(replaceDash(name)) + " " + capitalizeFirstLetter(name);
       } else if (layer == 35) {
         return "Head" + " " + capitalizeFirstLetter(replaceDash(name)) + " " + capitalizeFirstLetter(name);
-      } else if (layer == 22) {
+      } else if (layer == 25) {
         return "Neck" + " " + capitalizeFirstLetter(replaceDash(name)) + " " + capitalizeFirstLetter(name);
       } else {
         throw new Error("Invalid layer for a profile");

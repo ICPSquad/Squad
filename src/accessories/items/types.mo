@@ -60,6 +60,7 @@ module {
         items : [(TokenIndex, Item)];
         templates : [(Text, Template)];
         blobs : [(TokenIndex, Blob)];
+        recipes : [(Text, Recipe)];
     };
 
     public type Dependencies = {

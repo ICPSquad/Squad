@@ -108,7 +108,7 @@ module {
         putOwner : (index : TokenIndex, account : AccountIdentifier) -> ();
         getOwner : (index : TokenIndex) -> ?AccountIdentifier;
         isOwner : (caller : Principal, token : TokenIdentifier) -> Result<(), Text>;
-        burn : (token : TokenIdentifier) -> Result<(), Text>;
+        burn : (index : TokenIndex ) -> ();
     };
 
 

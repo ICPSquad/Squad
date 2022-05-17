@@ -126,6 +126,7 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
   });
   const CanisterMetrics = IDL.Record({ 'data' : CanisterMetricsData });
   const TokenIndex = IDL.Nat32;
+  const DailyScore = IDL.Nat;
   const Metadata = IDL.Variant({
     'fungible' : IDL.Record({
       'decimals' : IDL.Nat8,
@@ -240,12 +241,16 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'description' : IDL.Text,
     'category' : Category,
   });
+  const Name = IDL.Text;
+  const Stars = IDL.Nat;
+  const Stats = IDL.Vec(IDL.Tuple(Name, Stars));
   const ICPSquadNFT = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
     'add_admin' : IDL.Func([IDL.Principal], [], []),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
     'bearer' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
+    'calculateStyleScores' : IDL.Func([], [], ['oneway']),
     'changeStyle' : IDL.Func([IDL.Text], [], []),
     'collectCanisterMetrics' : IDL.Func([], [], []),
     'delete' : IDL.Func([IDL.Text], [Result], []),
@@ -267,6 +272,11 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'getRegistry' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(TokenIndex, AccountIdentifier__1))],
+        ['query'],
+      ),
+    'getStyleScores' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(TokenIdentifier, DailyScore))],
         ['query'],
       ),
     'getTokens' : IDL.Func(
@@ -293,6 +303,7 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'upload' : IDL.Func([IDL.Vec(IDL.Nat8)], [], []),
     'uploadClear' : IDL.Func([], [], []),
     'uploadFinalize' : IDL.Func([IDL.Text, Meta, IDL.Text], [Result], []),
+    'uploadStats' : IDL.Func([Stats], [], ['oneway']),
     'verificationEvents' : IDL.Func([], [], []),
     'wearAccessory' : IDL.Func(
         [TokenIdentifier, IDL.Text, IDL.Principal],

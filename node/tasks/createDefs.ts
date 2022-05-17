@@ -6,7 +6,7 @@ console.log("Creating the definitons for all components");
 const DIR_ASSETS = `${__dirname}/../../assets`;
 
 const DIR = `${__dirname}/../../src/website/assets`;
-const PATH = `defs.svg`;
+const PATH = `${__dirname}/../../src/website/src/components/AvatarComponentsSvg.svelte`;
 
 const csv_string = readFileSync(`${DIR_ASSETS}/components/manifest-components.csv`, "utf8").toString();
 const csv_parsed = Papa.parse(csv_string, {
