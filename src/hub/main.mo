@@ -5,18 +5,16 @@ import Iter "mo:base/Iter";
 import Nat64 "mo:base/Nat64";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
-
 import Canistergeek "mo:canistergeek/canistergeek";
+import Date "mo:canistergeek/dateModule";
 import Ext "mo:ext/Ext";
-
 import Admins "admins";
-import Types "types";
-import Users "users";
+import Leaderboard "leaderboard";
+
 shared ({ caller = creator }) actor class ICPSquadHub(
     cid : Principal,
-    invoice : Principal,
-    avatar : Principal,
-    ledger : Principal
+    cid_invoice : Principal,
+    cid_avatar : Principal,
 ) = this {
 
     ////////////
@@ -103,61 +101,28 @@ shared ({ caller = creator }) actor class ICPSquadHub(
 
 
 
-    //////////////
-    // USERS ////
-    ////////////
+    ////////////////////
+    // Leaderboard ////
+    ///////////////////
 
-    public type MintInformation = Types.MintInformation;
-    public type MintResult = Types.MintResult;
-    public type TokenIdentifier = Ext.TokenIdentifier;
+    public type Leaderboard = Leaderboard.Leaderboard;
 
-    stable var _UsersUD : ?Users.UpgradeData = null;
-    private let _Users : Users.Users = Users.Users({
-        _Logs = _Logs;
-        cid_avatar = avatar;
+    stable var _LeaderboardUD : ?Leaderboard.UpgradeData = null;
+    let _Leaderboard = Leaderboard.Factory({
+        cid_avatar = cid_avatar;
     });
 
-    let AVATAR = actor(Principal.toText(avatar)) : actor {
-        mint : shared (info : MintInformation, caller : Principal) -> async Result<TokenIdentifier,Text>;
-    };
-
-    private let AMOUNT_MINT = 1_000_000_000; // 1 ICP
-
-    
-
-    public shared ({ caller }) func whitelist(p : Principal) : async Result<(), Text> {
+    public shared ({ caller }) func update_leaderboard() : async () {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        switch(_Users.whitelist(p)){
-            case(#ok()) {
-                _Logs.logMessage(Principal.toText(p) # "has been whitelisted by " # Principal.toText(caller));
-                return #ok;
-            };
-            case(#err(e)){
-                return #err(e);
-            };
-        };
+        await _Leaderboard.updateLeaderboard();
     };
 
-    public shared ({ caller }) func modify_user(user : Users.User) : async Result<(),Text> {
-        _Monitor.collectMetrics();
-        _Users.modifyUser(caller, user);
-    };
-
-    public query ({ caller }) func get_user() : async ?Users.User {
-        _Users.getUser(caller);
-    };
-
-    public query ({ caller }) func size_users() : async Nat {
-        _Monitor.collectMetrics();
-        _Users.getSize();
-    };
-
-    public query ({ caller }) func backup_users() : async Users.UpgradeData {
+    public query ({ caller }) func get_leaderboard() : async ?Leaderboard {
         assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Users.preupgrade()
+        _Leaderboard.getCurrentLeaderboard();
     };
+
 
 
     //////////////
@@ -169,7 +134,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
-        _UsersUD := ?_Users.preupgrade();
     };
 
     system func postupgrade() {
@@ -179,7 +143,5 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _MonitorUD := null;
         _Admins.postupgrade(_AdminsUD);
         _AdminsUD := null;
-        _Users.postupgrade(_UsersUD);
-        _UsersUD := null;
     };
 };

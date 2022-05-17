@@ -11,7 +11,7 @@ import Cycles "mo:base/ExperimentalCycles";
 import Ext "mo:ext/Ext";
 import ExtModule "ext";
 import Hash "mo:base/Hash";
-import HashMap "mo:base/HashMap";
+import TrieMap "mo:base/TrieMap";
 import Http "http";
 import Int "mo:base/Int";
 import Invoice "invoice";
@@ -22,16 +22,16 @@ import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Root "mo:cap/Root";
-import Scores "score";
+import Scores "scores";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
-import _Ext "mo:base/ExperimentalStableMemory";
-import _Monitor "mo:canistergeek/typesModule";
+import Users "users";
 
 shared ({ caller = creator }) actor class ICPSquadNFT(
     cid : Principal,
     accessory_cid : Principal,
-    invoice_cid : Principal
+    invoice_cid : Principal,
+    hub_cid : Principal
 ) = this {
 
     ///////////
@@ -449,7 +449,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
 
     //  This hashmap is used to store events & register them later to avoid any lost event in case of CAP error or message lost.
     private stable var _eventsEntries : [(Time, IndefiniteEvent)] = [];
-    let _events : HashMap.HashMap<Time, IndefiniteEvent> = HashMap.fromIter(_eventsEntries.vals(), _eventsEntries.size(), Int.equal, Int.hash);
+    let _events : TrieMap.TrieMap<Time, IndefiniteEvent> = TrieMap.fromEntries<Time,IndefiniteEvent>(_eventsEntries.vals(), Int.equal, Int.hash);
     
     //  Periodically called through heartbeat to verify that all events have been reported 
     public shared ({caller}) func verificationEvents() : async () {
@@ -496,13 +496,45 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _HttpHandler.request(request);  
     };
 
+    //////////////
+    // Users ////
+    /////////////
+
+    public type Name = Users.Name;
+    public type Message = Users.Message;
+
+    stable var _UsersUD : ?Users.UpgradeData = null;
+    private let _Users : Users.Users = Users.Users({
+        cid = cid;
+        _Logs = _Logs;
+        _Ext = _Ext;
+    });
+
+
+    public shared ({ caller }) func calculate_accounts() : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Users.calculateAccounts();
+    };
+
+    public shared ({ caller }) func get_users() : async [(Principal,Users.User)] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Users.getUsers();
+    };
+
+    public shared query ({ caller }) func get_infos_leaderboard() : async [(Principal, ?Name, ?Message, ?TokenIdentifier)] {
+        assert(_Admins.isAdmin(caller) or caller == hub_cid);
+        _Monitor.collectMetrics();
+        _Users.getInfosLeaderboard();
+    };
 
     /////////////
     // SCORES ///
     /////////////
 
     public type Stats = Scores.Stats;
-    public type DailyScore = Scores.DailyScore;
+    public type StyleScore = Scores.StyleScore;
 
     stable var _ScoresUD: ?Scores.UpgradeData = null;
     let _Scores = Scores.Factory({
@@ -521,14 +553,14 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Scores.uploadStats(stats);
     };
 
-    public shared ({ caller }) func calculateStyleScores() : () {
+    public shared ({ caller }) func calculate_style_score() : () {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         _Scores.calculateStyleScores();
     };
 
-    public shared query ({ caller }) func getStyleScores() : async [(TokenIdentifier, DailyScore)] {
-        assert(_Admins.isAdmin(caller));
+    public shared query ({ caller }) func get_style_score() : async [(TokenIdentifier, StyleScore)] {
+        assert(_Admins.isAdmin(caller) or caller == hub_cid) ;
         _Scores.getStyleScores();
     };
 
@@ -545,6 +577,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _AvatarUD := ? _Avatar.preupgrade();
         _ExtUD := ? _Ext.preupgrade();
         _ScoresUD := ? _Scores.preupgrade();
+        _UsersUD := ? _Users.preupgrade();
         _eventsEntries := Iter.toArray(_events.entries());
     };
 
@@ -563,7 +596,12 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _ExtUD := null;
         _Scores.postupgrade(_ScoresUD);
         _ScoresUD := null;
+        _Users.postupgrade(_UsersUD);
+        _UsersUD := null;
         _eventsEntries := [];
+
+        // Override default number of stored log messages to save memory
+       _Logs.setMaxMessagesCount(1000);
     };
 
 };

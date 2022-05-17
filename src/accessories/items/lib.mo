@@ -1,6 +1,7 @@
 import Array "mo:base/Array";
 import Error "mo:base/Error";
 import HashMap "mo:base/HashMap";
+import TrieMap "mo:base/TrieMap";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
@@ -8,6 +9,7 @@ import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
 import Prim "mo:prim";
 import Principal "mo:base/Principal";
+import Buffer "mo:base/Buffer";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 
@@ -330,9 +332,56 @@ module {
             };
         };
 
+        public func getItems() : [(Text, [TokenIndex])] {
+            let map = TrieMap.TrieMap<Text, Buffer.Buffer<TokenIndex>>(Text.equal, Text.hash);
+            for((index, item) in _items.entries()){
+                let name = _itemToName(item);
+                switch(map.get(name)){
+                    case(? buffer){
+                        buffer.add(index);
+                    };
+                    case(null) {
+                        let buffer = Buffer.Buffer<TokenIndex>(0);
+                        buffer.add(index);
+                        map.put(name, buffer);
+                    };
+                };
+            };
+            // Add items with 0 supply!
+            for((name) in _templates.keys()){
+                switch(map.get(name)){
+                    case(? buffer){};
+                    case(null) {
+                        let buffer = Buffer.Buffer<TokenIndex>(0);
+                        map.put(name, buffer);
+                    };
+                };
+            };
+            let buffer = Buffer.Buffer<(Text, [TokenIndex])>(0);
+            for((name, list) in map.entries()){
+                buffer.add((name, list.toArray()));
+            };
+            return buffer.toArray();
+        };
+
         ////////////////
         // HELPERS /////
         ////////////////
+
+        func _itemToName(item : Item) : Text {
+            switch(item){
+                case(#Material(name)){
+                    return name;
+                };
+                case(#Accessory(item)){
+                    return item.name;
+                };
+                case(_) {
+                    assert(false);
+                    return "";
+                };
+            }
+        };
 
         func _drawAccessory (token_index : TokenIndex) : () {
             switch(_items.get(token_index)){

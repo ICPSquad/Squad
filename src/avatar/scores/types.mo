@@ -11,6 +11,7 @@ module {
     public type Time = Time.Time;
 
     public type DailyScore = Nat;
+    public type StyleScore = Nat;
 
     public type AccountIdentifier = Text;
     public type TokenIdentifier = Text;

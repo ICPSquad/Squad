@@ -28,6 +28,7 @@ import Admins "admins";
 import Entrepot "entrepot";
 import ExtModule "ext";
 import Http "http";
+import StatsTypes "stats/types";
 import Items "items";
 
 shared({ caller = creator }) actor class ICPSquadNFT(
@@ -328,6 +329,38 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
+    private func _getPrice(index : TokenIndex) : Result<Nat, ()> {
+        switch(_tokenListing.get(index)){
+            case(?listing){
+                return #ok(Nat64.toNat(listing.price));
+            };
+            case(_) {
+                return #err();
+            };
+        };
+    };
+
+    private func _getFloorPrice(indexs : [TokenIndex]) : ?Nat {
+        if(indexs.size() == 0){
+            return null
+        };
+        var prices = Buffer.Buffer<Nat>(0);
+        for(index in indexs.vals()){
+            switch(_getPrice(index)){
+                case(#err()){};
+                case(#ok(value)){
+                    prices.add(value);
+                };
+            };
+        };
+        let array_prices = prices.toArray();
+        if(array_prices.size() == 0){
+            return null
+        };
+        let array_sorted = Array.sort<Nat>(array_prices, Nat.compare);
+        return ?array_sorted[0];
+    };
+
     private func _isSubaccountIncorrect (subaccount : SubAccount) : Bool {
         var c : Nat = 0;
         var failed : Bool = true;
@@ -561,7 +594,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         Iter.toArray(_payments.entries())
     };
 
-     public query func stats() : async (Nat64, Nat64, Nat64, Nat64, Nat, Nat, Nat) {
+    public query func stats() : async (Nat64, Nat64, Nat64, Nat64, Nat, Nat, Nat) {
         var res : (Nat64, Nat64, Nat64) = Array.foldLeft<Transaction, (Nat64, Nat64, Nat64)>(_transactions, (0,0,0), func (b : (Nat64, Nat64, Nat64), a : Transaction) : (Nat64, Nat64, Nat64) {
         var total : Nat64 = b.0 + a.price;
         var high : Nat64 = b.1;
@@ -712,6 +745,25 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     public query func http_request (request : Http.Request) : async Http.Response {
         _HttpHandler.request(request);  
     };
+
+
+    ////////////
+    // STATS //
+    //////////
+
+    public type Name = StatsTypes.Name;
+    public type Supply = StatsTypes.Supply;
+    public type Floor = StatsTypes.Floor;
+
+    public query func get_stats_items() : async [(Text, Supply, ?Floor)] {
+        let items = _Items.getItems();
+        let buffer = Buffer.Buffer<(Text, Supply, ?Floor)>(items.size());
+        for (item in items.vals()){
+            buffer.add((item.0, item.1.size(), _getFloorPrice(item.1)));
+        };
+        return buffer.toArray();
+    };
+
 
     ///////////////
     // HEARTBEAT //

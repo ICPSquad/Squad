@@ -52,6 +52,7 @@ export interface DailyMetricsData {
   'canisterMemorySize' : NumericEntity,
   'timeMillis' : bigint,
 }
+export type DailyScore = bigint;
 export type Extension = string;
 export interface GetLatestLogMessagesParameters {
   'upToTimeNanos' : [] | [Nanos],
@@ -87,6 +88,7 @@ export interface ICPSquadNFT {
   'availableCycles' : () => Promise<bigint>,
   'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
   'bearer' : (arg_0: TokenIdentifier) => Promise<Result_6>,
+  'calculateStyleScores' : () => Promise<undefined>,
   'changeStyle' : (arg_0: string) => Promise<undefined>,
   'collectCanisterMetrics' : () => Promise<undefined>,
   'delete' : (arg_0: string) => Promise<Result>,
@@ -102,6 +104,7 @@ export interface ICPSquadNFT {
       [] | [CanisterMetrics]
     >,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__1]>>,
+  'getStyleScores' : () => Promise<Array<[TokenIdentifier, DailyScore]>>,
   'getTokens' : () => Promise<Array<[TokenIndex, Metadata]>>,
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init_cap' : () => Promise<Result>,
@@ -124,6 +127,7 @@ export interface ICPSquadNFT {
   'uploadFinalize' : (arg_0: string, arg_1: Meta, arg_2: string) => Promise<
       Result
     >,
+  'uploadStats' : (arg_0: Stats) => Promise<undefined>,
   'verificationEvents' : () => Promise<undefined>,
   'wearAccessory' : (
       arg_0: TokenIdentifier,
@@ -169,6 +173,7 @@ export interface MintInformation {
 }
 export type MintResult = { 'ok' : TokenIdentifier } |
   { 'err' : string };
+export type Name = string;
 export type Nanos = bigint;
 export interface NumericEntity {
   'avg' : bigint,
@@ -205,6 +210,8 @@ export type Result_5 = { 'ok' : [AccountIdentifier__1, [] | [Listing]] } |
   { 'err' : CommonError };
 export type Result_6 = { 'ok' : AccountIdentifier__1 } |
   { 'err' : CommonError };
+export type Stars = bigint;
+export type Stats = Array<[Name, Stars]>;
 export type StreamingCallback = (arg_0: StreamingCallbackToken) => Promise<
     StreamingCallbackResponse
   >;

@@ -10,7 +10,7 @@ lab-coat,3
 magic-cap,5
 shinobi-suit,3
 street-jacket,4
-super-suit,?
+super-suit,0
 yakuza-suit,3
 cronic-eyepatch,5
 dfinity-eyemask,5
@@ -19,10 +19,10 @@ monocle,2
 punk-glasses,5
 sunglasses,3
 boring-mask,1
-evil-mask,?
+evil-mask,0
 facemask,3
-gas-mask,?
-juggalo-facemask,?
+gas-mask,0
+juggalo-facemask,0
 kitsune-mask,
 oni-face-mask,3
 punk-mask,5

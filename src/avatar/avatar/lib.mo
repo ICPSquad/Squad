@@ -43,8 +43,8 @@ module {
         public type LayerId = Types.LayerId;
         public type TokenIdentifier = Ext.TokenIdentifier;
     
-        private let _avatars : HashMap.HashMap<TokenIdentifier,Avatar> = HashMap.HashMap<TokenIdentifier,Avatar>(0, Text.equal, Text.hash);
-        private let _components : HashMap.HashMap<Text, Component> = HashMap.HashMap<Text,Component>(0 , Text.equal, Text.hash);
+        private let _avatars : TrieMap.TrieMap<TokenIdentifier,Avatar> = TrieMap.TrieMap<TokenIdentifier,Avatar>(Text.equal, Text.hash);
+        private let _components : TrieMap.TrieMap<Text, Component> = TrieMap.TrieMap<Text,Component>(Text.equal, Text.hash);
 
         private var css_style : Text = "";
 
@@ -298,7 +298,6 @@ module {
                 case(null) return null;
             };
         };
-
 
 
         //////////////////

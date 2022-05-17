@@ -5,7 +5,9 @@ import Text "mo:base/Text";
 import Time "mo:base/Time";
 import TrieMap "mo:base/TrieMap";
 import Result "mo:base/Result";
+import Principal "mo:base/Principal";
 import Types "types";
+
 
 module {
 
@@ -16,7 +18,7 @@ module {
     public type Result<A,B> = Result.Result<A,B>;
     public type UpgradeData = Types.UpgradeData;
     public type Stats = Types.Stats;
-    public type DailyScore = Types.DailyScore;
+    public type StyleScore = Types.StyleScore;
 
     public class Factory (dependencies : Types.Dependencies) : Types.Interface {
 
@@ -30,6 +32,7 @@ module {
         type Time = Time.Time;
         type Slots = Types.Slots;
         type TokenIdentifier = Types.TokenIdentifier;
+        type StyleScore = Types.StyleScore;
 
         private let CID : Principal = dependencies.cid;
         private let ACCESSORY_CID : Principal = dependencies.accessory_cid;
@@ -40,7 +43,7 @@ module {
 
         private var last_time_of_calculation : Time = 0;
 
-        private let styleScores : TrieMap.TrieMap<TokenIdentifier, DailyScore> = TrieMap.TrieMap<TokenIdentifier, DailyScore>(Text.equal, Text.hash);
+        private let styleScores : TrieMap.TrieMap<TokenIdentifier, StyleScore> = TrieMap.TrieMap<TokenIdentifier, StyleScore>(Text.equal, Text.hash);
         private let starsAccessory : TrieMap.TrieMap<Name,Stars> = TrieMap.TrieMap<Name,Stars>(Text.equal, Text.hash);
 
         //////////////
@@ -82,16 +85,16 @@ module {
             return last_time_of_calculation;
         };
 
-        public func getStyleScores() : [(TokenIdentifier, DailyScore)] {
+        public func getStyleScores() : [(TokenIdentifier, StyleScore)] {
             return Iter.toArray(styleScores.entries());
         };
 
         public func calculateStyleScores() : () {
             if(not (_isTimeToCalculate())){
-                _Logs.logMessage("Not time to calculate : " # Int.toText((Time.now())));
+                _Logs.logMessage("Not time to calculate");
                 return;
             };
-            _Logs.logMessage("Calculating style scores : " # Int.toText(Time.now()));
+            _Logs.logMessage("Calculating style scores ");
             let registry = _Ext.getRegistry();
             for ((tokenIndex, account ) in registry.vals()){
                 let tokenIdentifier = Ext.TokenIdentifier.encode(CID, tokenIndex);
@@ -104,7 +107,8 @@ module {
                     };
                 };
             };
-            _Logs.logMessage("Calculated style scores :" # Int.toText(Time.now()));
+            last_time_of_calculation := Time.now();
+            _Logs.logMessage("Calculated style scores");
         };
 
 

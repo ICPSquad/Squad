@@ -2,7 +2,7 @@ import Array "mo:base/Array";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
-import HashMap "mo:base/HashMap";
+import TrieMap "mo:base/TrieMap";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Result "mo:base/Result";
@@ -33,7 +33,7 @@ module {
         private let buffer : Buffer.Buffer<Nat8> = Buffer.Buffer(0);
 
         // The records that have been uploaded, stored by filePath.
-        private let files : HashMap.HashMap<FilePath,File> = HashMap.HashMap(0, Text.equal, Text.hash);
+        private let files : TrieMap.TrieMap<FilePath,File> = TrieMap.TrieMap(Text.equal, Text.hash);
 
         public func preupgrade() : UpgradeData {
             {
