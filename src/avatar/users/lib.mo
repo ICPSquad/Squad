@@ -81,6 +81,47 @@ module {
             };
         };
 
+        public func welcome(
+            caller : Principal,
+            invoice_id : ?Nat,
+            avatar : TokenIdentifier
+        ) : () {
+            switch(_users.get(caller)){
+                case(null) {
+                    let new_user = {
+                        name = null;
+                        email = null;
+                        discord = null;
+                        twitter = null;
+                        rank = ?Nat64.fromNat(_users.size());
+                        height = null;
+                        minted = true;
+                        account_identifier = ?Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+                        invoice_id = invoice_id;
+                        message_leaderboard = null;
+                        selected_avatar = ?avatar;
+                    };
+                    _users.put(caller, new_user);
+                };
+                case(? user){
+                    let new_user = {
+                        name = user.name;
+                        email = user.email;
+                        discord = user.discord;
+                        twitter = user.twitter;
+                        rank = user.rank;
+                        height = user.height;
+                        minted = user.minted;
+                        account_identifier = user.account_identifier;
+                        invoice_id = invoice_id;
+                        message_leaderboard = user.message_leaderboard;
+                        selected_avatar = ?avatar;
+                    };
+                    _users.put(caller, new_user);
+                };
+            };
+        };
+
         public func getUser(
             caller : Principal
         ) : ?User {
@@ -170,7 +211,7 @@ module {
         func _getAvatar(p : Principal, user : User) : ?TokenIdentifier {
             let account = switch(user.account_identifier){
                 case(? some) some;
-                case(null) Ext.AccountIdentifier.fromPrincipal(p, null);
+                case(null) Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
             };
             switch(user.selected_avatar){
                 case(null) return null;

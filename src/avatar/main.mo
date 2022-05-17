@@ -238,14 +238,28 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     public type MintResult = Result<TokenIdentifier, Text>;
     public shared ({caller}) func mint(
         info : MintInformation,
-        invoice_id : Nat
+        invoice_id : ?Nat
     ) : async MintResult {
         _Monitor.collectMetrics();
-        switch(await _Invoice.verifyInvoice(invoice_id, caller)){
-            case(#ok){};
-            case(#err) {
-                _Logs.logMessage("Error during invoice verification for invoice : " # Nat.toText(invoice_id) # " by " # Principal.toText(caller));
-                return #err("Error during invoice verification");
+        switch(invoice_id) {
+            case(null) {
+                switch(_Users.getUser(caller)){
+                    case(null) return #err("No user found");
+                    case(? user){
+                        if(user.minted) {
+                            return #err("User already minted");
+                        };
+                    };
+                 };
+            };
+            case(?id) {
+                switch(await _Invoice.verifyInvoice(id, caller)){
+                    case(#ok){};
+                    case(#err) {
+                        _Logs.logMessage("Error during invoice verification for invoice : " # Nat.toText(id) # " by " # Principal.toText(caller));
+                        return #err("Error during invoice verification");
+                    };
+                };
             };
         };
         switch(_Ext.mint({ to = #principal(caller); metadata = null; })){
@@ -255,7 +269,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
                 let tokenId = Ext.TokenIdentifier.encode(cid, index);
                 _Logs.logMessage("Minted token: " # tokenId);
                 switch(_Avatar.createAvatar(info, tokenId)){
-                    case(#ok) return #ok(tokenId);
+                    case(#ok) {
+                        _Logs.logMessage("Created avatar: " # tokenId # "by " # Principal.toText(caller));
+                        _Users.welcome(caller, invoice_id, tokenId);
+                        return #ok(tokenId);
+                    };
                     case(#err(e)){
                         _Logs.logMessage("Error during avatar creation for token: " # tokenId);
                         return #err(e);
@@ -502,6 +520,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
 
     public type Name = Users.Name;
     public type Message = Users.Message;
+    public type UserData = Users.User;
 
     stable var _UsersUD : ?Users.UpgradeData = null;
     private let _Users : Users.Users = Users.Users({
@@ -510,17 +529,25 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Ext = _Ext;
     });
 
+    public shared query ({ caller }) func get_user() : async ?UserData {
+        _Users.getUser(caller);
+    };
+
+    public shared ({ caller }) func modify_user(user : UserData) : async Result<(), Text> {
+        _Monitor.collectMetrics();
+        _Users.modifyUser(caller, user);
+    };
+
+    public shared ({ caller }) func get_all_users() : async [(Principal,UserData)] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Users.getUsers();
+    };
 
     public shared ({ caller }) func calculate_accounts() : async () {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         _Users.calculateAccounts();
-    };
-
-    public shared ({ caller }) func get_users() : async [(Principal,Users.User)] {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Users.getUsers();
     };
 
     public shared query ({ caller }) func get_infos_leaderboard() : async [(Principal, ?Name, ?Message, ?TokenIdentifier)] {

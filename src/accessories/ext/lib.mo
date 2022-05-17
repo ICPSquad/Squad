@@ -25,7 +25,7 @@ module {
     public type TokenIndex = Types.TokenIndex;
     public type TokenIdentifier = Types.TokenIdentifier;
 
-    public class Factory(dependencies : Types.Dependencies) : Types.Interface {
+    public class Factory(dependencies : Types.Dependencies) {
 
         ////////////
         // State //
@@ -333,22 +333,10 @@ module {
             };
         };
 
-        public func burn(
-            tokenId : TokenIdentifier
-        ) : Result<(), Text> {
-            let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
-                case (#err(e)) { return #err(e) };
-                case (#ok(_, tokenIndex)) { tokenIndex; };
-            };
-            switch(_registry.get(index)){
-                case(null) {
-                    return #err("This token doesn't exist.");
-                };
-                case(? _){
-                    _registry.delete(index);
-                    return #ok(());
-                };
-            };
+       public func burn(
+            index : TokenIndex
+        ) : () {
+            _registry.delete(index);
         };
 
 
