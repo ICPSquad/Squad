@@ -1,87 +1,74 @@
 <script lang="ts">
-  import Carat from "@icons/Carat.svelte";
-  import Shuffle from "@icons/Shuffle.svelte";
   import AvatarComponentsSvg from "@components/AvatarComponentsSvg.svelte";
   import Header from "@src/components/shared/Header.svelte";
   import Footer from "@src/components/shared/Footer.svelte";
-  import RenderAvatar from "@components/render/RenderAvatar.svelte";
-  import RenderComponent from "@components/render/RenderComponent.svelte";
-  import ColorPicker from "@src/components/create-avatar/ColorPicker.svelte";
   import type { AvatarColors } from "../types/color.d";
   import type { AvatarComponents } from "../types/avatar.d";
   import { generateRandomAvatar, filterOption } from "@tasks/generate-avatar";
   import { generateRandomColor } from "@utils/color";
-  import { backgrounds, profiles, ears, mouths, eyes, noses, hairs, clothes } from "@utils/list";
-  import { faceAccessories, hatAccessories, eyesAccessories, bodyAccessories, miscAccessories } from "@utils/list";
-  import { categoriesExludingAccessories, categoriesIncludingAccessories, categoryDisplayName, categoryToColorPickers } from "@utils/categories";
   import type { Invoice__1 as Invoice } from "@canisters/invoice/invoice.did.d";
   import { user } from "../store/user";
   import { get } from "svelte/store";
   import { mintRequest } from "@utils/mint";
   import { createInvoice } from "@utils/invoice";
   import { payInvoice } from "@utils/payment";
+  import Categories from "@src/components/create-avatar/Categories.svelte";
+  import ItemSelection from "@src/components/create-avatar/ItemSelection.svelte";
+  import AvatarPreview from "@src/components/create-avatar/AvatarPreview.svelte";
 
-  const categoryToItems = {
-    background: backgrounds,
-    ears: ears,
-    profile: profiles,
-    hairs: hairs,
-    eyes: eyes,
-    nose: noses,
-    mouth: mouths,
-    clothes: clothes,
-    hat: hatAccessories,
-    face: faceAccessories,
-    glasses: eyesAccessories,
-    body: bodyAccessories,
-    misc: miscAccessories,
+  // Include accessories?
+  let includeAccessories = false;
+
+  // Category showing
+  let categoryShowing = "profile";
+  const setCategoryShowing = (category) => {
+    categoryShowing = category;
   };
 
-  // Toggle this to include/exclude accessories
-  const includeAccessories = true;
-  const categories = includeAccessories ? categoriesIncludingAccessories : categoriesExludingAccessories;
-
-  let categoryShowing = "profile";
-  let items = [];
-  $: items = categoryToItems[categoryShowing];
-
   // Color management
-  let colorPickers = [];
-  $: if (categoryShowing && categoryToItems[categoryShowing]) {
-    let newItems = [...categoryToItems[categoryShowing]];
-    items = categoryShowing == "background" ? [] : [...newItems];
-    colorPickers = categoryToColorPickers[categoryShowing] ? categoryToColorPickers[categoryShowing] : [];
-    console.log("picker", colorPickers);
-  }
-
   let colors: AvatarColors = generateRandomColor();
   const updateAvatarColor = (name: string, color: any) => {
     colors[name] = [color.r, color.g, color.b, 1];
   };
 
   // Avatar management
-  let components: AvatarComponents = generateRandomAvatar(0, Math.random() > 0.5 ? filterOption.Man : filterOption.Woman);
+  let components: AvatarComponents = generateRandomAvatar(
+    0,
+    Math.random() > 0.5 ? filterOption.Man : filterOption.Woman
+  );
   const updateAvatarComponent = (category: string, item: string) => {
     console.log("update", category, item);
     components[category] = item;
   };
 
+  // Random reset function
   let randomlyResetAvatar = () => {
-    components = generateRandomAvatar(0, Math.random() > 0.5 ? filterOption.Man : filterOption.Woman);
+    components = generateRandomAvatar(
+      0,
+      Math.random() > 0.5 ? filterOption.Man : filterOption.Woman
+    );
     colors = generateRandomColor();
   };
 
   // Interractions with canister. Not sure how to manage the followings : UI/Error handling... ?
-
-  let state: "idle" | "waiting-invoice" | "waiting-payment" | "waiting-mint" | "done" = "idle";
+  let state:
+    | "idle"
+    | "waiting-invoice"
+    | "waiting-payment"
+    | "waiting-mint"
+    | "done" = "idle";
   let invoice: Invoice | undefined = undefined;
 
-  async function submit() {
+  async function handleSubmit() {
     if (state == "waiting-invoice" || state == "waiting-mint") {
       return;
     }
     if (state == "waiting-payment") {
-      const result = await mintRequest(components, colors, Number(invoice.id) as number);
+      const result = await mintRequest(
+        components,
+        colors,
+        Number(invoice.id) as number
+      );
       console.log("mint result", result);
     }
     invoice = await createInvoice("AvatarMint");
@@ -96,36 +83,15 @@
 </div>
 <main class="container">
   <div class="layout-grid">
-    <div class="categories">
-      {#each categories as category}
-        <button on:click={() => (categoryShowing = category)} class="category {categoryShowing == category ? 'selected' : ''}">
-          <div class="left">
-            {categoryDisplayName[category]}
-          </div>
-          <Carat color={categoryShowing == category ? "#40b1f5" : "#E5E5E5"} />
-        </button>
-      {/each}
-    </div>
-    <div class="items">
-      {#each colorPickers as componentName}
-        <ColorPicker {updateAvatarColor} {componentName} selectedColorRGB={colors[componentName]} />
-      {/each}
-      {#each items as item}
-        <div on:click={() => updateAvatarComponent(categoryShowing, item.name)} class="item {item.name == components[categoryShowing] ? 'selected' : ''}">
-          <RenderComponent name={item.name} layers={item.layers} />
-        </div>
-      {/each}
-    </div>
-    <div class="avatar">
-      <RenderAvatar avatarComponents={components} avatarColors={colors} />
-      <button class="secondary shuffle" on:click={randomlyResetAvatar}>
-        <div class="shuffle-icon">
-          <Shuffle />
-        </div>
-        Random Reset
-      </button>
-      <button class="button" on:click={submit}> Mint your avatar </button>
-    </div>
+    <Categories {includeAccessories} {categoryShowing} {setCategoryShowing} />
+    <ItemSelection
+      {colors}
+      {updateAvatarColor}
+      {updateAvatarComponent}
+      {categoryShowing}
+      {components}
+    />
+    <AvatarPreview {components} {randomlyResetAvatar} {colors} {handleSubmit} />
   </div>
 </main>
 <Footer />
@@ -144,44 +110,35 @@
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 40px;
   }
-  .items {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: 20px;
-    grid-auto-rows: minmax(min-content, max-content);
-  }
-  .item {
-    background-color: $darkgrey;
-    border-radius: 10px;
-    max-height: 125px;
-    overflow: hidden;
-    border: 3px solid transparent;
-    &.selected {
-      border-color: $green;
-    }
-  }
   #avatar-components {
     width: 0;
     height: 0;
   }
-  button.category {
-    background-color: $verydarkgrey;
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 40px;
-    border-radius: 0;
-    margin-bottom: 1px;
-    &.selected {
-      background-color: $darkgrey;
-      color: $blue;
-    }
+  button.mint {
+    margin-top: 20px;
+  }
+  p.small {
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .avatar {
+    position: relative;
   }
   button.shuffle {
-    margin-top: 20px;
-    line-height: 90%;
+    position: absolute;
+    --size: 54px;
+    width: var(--size);
+    height: var(--size);
+    padding: 0;
+    border-radius: 50%;
+    background-color: $black;
+    border: 2px solid $green;
+    right: 10px;
+    top: 10px;
     .shuffle-icon {
-      margin-right: 20px;
-      padding-top: 2px;
+      padding-top: 4px;
     }
   }
 </style>
