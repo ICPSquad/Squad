@@ -101,7 +101,7 @@
       font-size: 1rem;
       margin-bottom: 20px;
     }
-    .button {
+    button {
       margin-bottom: 10px;
     }
   }

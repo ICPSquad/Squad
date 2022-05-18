@@ -97,4 +97,11 @@
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 40px;
   }
+
+  @media (max-width: 600px) {
+    .grid {
+      grid-template-columns: 100%;
+      grid-gap: 20px;
+    }
+  }
 </style>
