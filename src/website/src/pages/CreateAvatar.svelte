@@ -109,6 +109,7 @@
 
   @media (max-width: 960px) {
     .layout-grid {
+      grid-template-columns: 3fr 3fr 4fr;
       grid-gap: 10px;
       grid-auto-flow: dense;
     }
