@@ -28,8 +28,6 @@
   // console.log("invoice", invoice);
   // state = "waiting-payment";
 
-  $: console.log(state);
-
   const handleConnectPlug = () => {
     // TO DO
 

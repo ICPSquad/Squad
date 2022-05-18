@@ -96,4 +96,10 @@
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 40px;
   }
+
+  @media (max-width: 960px) {
+    .layout-grid {
+      grid-template-columns: 100%;
+    }
+  }
 </style>

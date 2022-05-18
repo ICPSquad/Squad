@@ -13,24 +13,59 @@
 
   export let categoryShowing: string;
   export let setCategoryShowing: (category: string) => void;
+
+  let listExpanded: boolean = false;
+
+  const handleSetCategory = (category: string) => {
+    listExpanded = false;
+    setCategoryShowing(category);
+  };
 </script>
 
-<div class="categories">
-  {#each categories as category}
-    <button
-      on:click={() => setCategoryShowing(category)}
-      class="category {categoryShowing == category ? 'selected' : ''}"
-    >
+<div>
+  <div class="categories desktop">
+    {#each categories as category}
+      <button
+        on:click={() => setCategoryShowing(category)}
+        class="category {categoryShowing == category ? 'selected' : ''}"
+      >
+        <div class="left">
+          {categoryDisplayName[category]}
+        </div>
+        <Carat color={categoryShowing == category ? "#40b1f5" : "#E5E5E5"} />
+      </button>
+    {/each}
+  </div>
+  <div class="categories mobile">
+    <button on:click={() => (listExpanded = !listExpanded)} class="category">
       <div class="left">
-        {categoryDisplayName[category]}
+        {categoryDisplayName[categoryShowing]}
       </div>
-      <Carat color={categoryShowing == category ? "#40b1f5" : "#E5E5E5"} />
+      <Carat rotate={listExpanded ? -90 : 90} color={"#E5E5E5"} />
     </button>
-  {/each}
+    {#if listExpanded}
+      {#each categories as category}
+        {#if categoryShowing !== category}
+          <button
+            on:click={() => handleSetCategory(category)}
+            class="category {categoryShowing == category ? 'selected' : ''}"
+          >
+            <div class="left">
+              {categoryDisplayName[category]}
+            </div>
+          </button>
+        {/if}
+      {/each}
+    {/if}
+  </div>
 </div>
 
 <style lang="scss">
   @use "./src/website/src/styles" as *;
+
+  .categories.mobile {
+    display: none;
+  }
 
   button.category {
     background-color: $verydarkgrey;
@@ -42,6 +77,25 @@
     &.selected {
       background-color: $darkgrey;
       color: $blue;
+    }
+  }
+
+  div.carat {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &.mobile {
+      display: none;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .categories.desktop {
+      display: none;
+    }
+
+    .categories.mobile {
+      display: block;
     }
   }
 </style>
