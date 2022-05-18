@@ -1,22 +1,32 @@
 <script lang="ts">
   import Shuffle from "@src/icons/Shuffle.svelte";
+  import AvatarComponentsSvg from "../AvatarComponentsSvg.svelte";
   import RenderAvatar from "../render/RenderAvatar.svelte";
+  import type { State } from "./types";
 
   export let components;
   export let randomlyResetAvatar;
   export let colors;
   export let handleSubmit;
+  export let state: State;
 </script>
 
 <div class="avatar">
-  <button class="shuffle" on:click={randomlyResetAvatar}>
-    <div class="shuffle-icon">
-      <Shuffle />
-    </div>
-  </button>
+  {#if state === "creating-avatar"}
+    <button class="shuffle" on:click={randomlyResetAvatar}>
+      <div class="shuffle-icon">
+        <Shuffle />
+      </div>
+    </button>
+  {/if}
   <RenderAvatar avatarComponents={components} avatarColors={colors} />
-  <button class="mint" on:click={handleSubmit}> I'm ready to mint → </button>
-  <p class="small">Minting your avatar as an NFT costs 1 ICP</p>
+  {#if state === "creating-avatar"}
+    <button class="mint" on:click={handleSubmit}> I'm ready to mint → </button>
+    <p class="small">Minting your avatar as an NFT costs 1 ICP</p>
+  {/if}
+</div>
+<div id="avatar-components">
+  <AvatarComponentsSvg />
 </div>
 
 <style lang="scss">
