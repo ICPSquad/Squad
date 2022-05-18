@@ -50,7 +50,7 @@
         },
         {
           label: "Legendary Avatars",
-          url: "/legendary",
+          url: "/legendary-avatars",
         },
         {
           label: "Blog",
