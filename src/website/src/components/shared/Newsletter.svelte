@@ -8,7 +8,6 @@
   let message = "";
 
   const handleSubmit = () => {
-    console.log(email);
     message = "You are subscribed!";
     setTimeout(function () {
       message = "";

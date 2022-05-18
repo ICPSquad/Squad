@@ -18,7 +18,6 @@ export async function plugConnection (): Promise<void> {
 
   const principal = await window.ic.plug.agent.getPrincipal();
   user.update((u) => ({ ...u, wallet: "plug", loggedIn: true, principal }));
-  console.log("creating actors");
   const avatarActor = await window.ic.plug.createActor({
     canisterId: avatarID,
     interfaceFactory: idlFactoryAvatar,
@@ -36,6 +35,5 @@ export async function plugConnection (): Promise<void> {
     interfaceFactory: idlFactoryLedger,
   });
   actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor }));
-  console.log("connection established");
   return 
 };

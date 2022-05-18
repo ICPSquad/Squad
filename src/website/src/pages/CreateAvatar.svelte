@@ -32,7 +32,6 @@
     Math.random() > 0.5 ? filterOption.Man : filterOption.Woman
   );
   const updateAvatarComponent = (category: string, item: string) => {
-    console.log("update", category, item);
     components[category] = item;
   };
 
@@ -45,8 +44,7 @@
     colors = generateRandomColor();
   };
 
-  // Interractions with canister. Not sure how to manage the followings : UI/Error handling... ?
-  let state: State = "creating-avatar";
+  let state: State = "avatar-minted";
   let setState = (newState: State) => {
     state = newState;
   };

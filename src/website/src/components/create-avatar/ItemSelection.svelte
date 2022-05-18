@@ -55,7 +55,6 @@
     colorPickers = categoryToColorPickers[categoryShowing]
       ? categoryToColorPickers[categoryShowing]
       : [];
-    console.log("picker", colorPickers);
   }
 </script>
 

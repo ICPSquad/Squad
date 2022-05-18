@@ -10,7 +10,6 @@ export async function createInvoice(type: string): Promise<Invoice> {
   const category: Category = stringTypeToVariant(type);
   const create_invoice_result = await invoiceActor.create_invoice(category);
   if ("ok" in create_invoice_result) {
-    console.log("Invoice created :", create_invoice_result.ok);
     return create_invoice_result.ok.invoice;
   } else {
     throw new Error("Error during invoice creation");

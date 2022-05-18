@@ -15,7 +15,6 @@
   );
 
   const handleColorChange = (event) => {
-    console.log("color", event.target.value);
     const col = hexToRgb(event.target.value);
     updateAvatarColor(componentName, col);
   };

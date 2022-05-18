@@ -3,8 +3,6 @@
   export let layers: [number];
   export let category: string;
 
-  console.log(category);
-
   const zoom = {
     mouth: "255 350 300 300",
     eyes: "200 150 400 400",

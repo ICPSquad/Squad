@@ -5,5 +5,5 @@ export type State =
   | "waiting-payment"
   | "waiting-payment-processing"
   | "waiting-mint"
-  | "avatar-minted";
+  | "avatar-minted"
   | "error";
