@@ -11,7 +11,7 @@
   import Checkout from "@src/components/create-avatar/Checkout.svelte";
   import type { State } from "@src/components/create-avatar/types";
 
-  // Include accessories?
+  // Include accessories : (default is false, only include for testing purposes)
   let includeAccessories = false;
 
   // Category showing
@@ -43,8 +43,8 @@
     );
     colors = generateRandomColor();
   };
-
-  let state: State = "avatar-minted";
+  
+  let state: State = "creating-avatar";
   let setState = (newState: State) => {
     state = newState;
   };

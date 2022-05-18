@@ -103,7 +103,7 @@
   {#if state === "waiting-wallet-connection"}
     <p>Please connect a wallet to continue</p>
     <button on:click={() => handleConnectPlug()}>Plug wallet</button>
-    <!-- <button on:click={() => handleConnectStoic()}>Stoic wallet</button> -->I%27ve%20just%20minted%20my%20ICPSquad%20avatar%2C%20fully%20on%20the%20Internet%20Computer%20%E2%88%9E.%0AYou%20can%20join%20here%20%3A%20
+    <!-- <button on:click={() => handleConnectStoic()}>Stoic wallet</button> -->
     <div class="back" on:click={() => setState("creating-avatar")}>← Back</div>
   {:else if state === "waiting-invoice"}
     <Spinner message="Please wait..." />
