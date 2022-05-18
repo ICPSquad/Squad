@@ -1,76 +1,87 @@
 <script lang="ts">
   import type { Invoice__1 as Invoice } from "@canisters/invoice/invoice.did.d";
   import type { State } from "@src/components/create-avatar/types";
+  import { plugConnection } from "@src/utils/connection";
   import { user } from "@src/store/user";
   import { get } from "svelte/store";
   import { mintRequest } from "@utils/mint";
   import { createInvoice } from "@utils/invoice";
   import { payInvoice } from "@utils/payment";
   import Spinner from "./Spinner.svelte";
+  import type { AvatarComponents } from "@src/types/avatar.d";
+  import type { AvatarColors } from "@src/types/color.d";
 
   export let state: State;
   export let setState: (newState: State) => void;
 
+  export let colors : AvatarColors | undefined;
+  export let components : AvatarComponents | undefined;
+
   let invoice: Invoice | undefined = undefined;
+  let error_message : string | undefined;
+  let token_identifier : string | undefined;
 
-  // if (state == "waiting-invoice" || state == "waiting-mint") {
-  //   return;
-  // }
-  // if (state == "waiting-payment") {
-  //   const result = await mintRequest(
-  //     components,
-  //     colors,
-  //     Number(invoice.id) as number
-  //   );
-  //   console.log("mint result", result);
-  // }
-  // invoice = await createInvoice("AvatarMint");
-  // console.log("invoice", invoice);
-  // state = "waiting-payment";
-
-  const handleConnectPlug = () => {
-    // TO DO
-
-    // once connected
+ async function handleConnectPlug() {
+    await plugConnection();
     setState("waiting-invoice");
-  };
+ }
 
-  const handleConnectStoic = () => {
-    // TO DO
-
-    // once connected
-    setState("waiting-invoice");
-  };
+  // const handleConnectStoic = () => {
+  //   await stoic
+  //   setState("waiting-invoice");
+  // };
 
   $: if (state === "waiting-invoice") {
-    // TO DO - Generate invoice
-
-    // Simulate waiting for invoice
-    setTimeout(() => {
-      // once have invoice
-      setState("waiting-payment");
-    }, 4000);
+    handleInvoice();
   }
 
-  const handlePayment = () => {
-    setState("waiting-payment-processing");
-    // TO DO - Process payment
+  const handleInvoice = async () => {
+    invoice = await createInvoice("AvatarMint");
+    setState("waiting-payment")
+  }
 
-    // Simulate processing payment
-    setTimeout(() => {
-      // once payment confirmed
+  const handlePayment = async () => {
+    setState("waiting-payment-processing");
+    if(!invoice) {
+      throw new Error("Invoice is not defined");
+    } 
+    const {wallet : Wallet} = get(user);
+    console.log("wallet", Wallet);
+    if(!Wallet) {
+      throw new Error("Wallet is not defined");
+    }
+    const result = await payInvoice(invoice, Wallet);
+    if(result.height > 0) {
       setState("waiting-mint");
-    }, 4000);
+    } else {
+      setState("error")
+      error_message = "Payment failed";
+    }
   };
 
-  $: if (state === "waiting-mint") {
-    // TO DO - Mint avatar
+  const handlePreorder = () => {
+    if(confirm("If you joined the preorder list but never minted your avatar, you can skip payment. This won't work otherwise. Were you part of the preorder?")) {
+      setState("waiting-mint");
+    };
+  }
 
-    // Simulate waiting for mint
-    setTimeout(() => {
-      // once done
+  $: if (state === "waiting-mint") {
+    handleMint();
+  }
+
+  const handleMint = async () => {
+    const result = await mintRequest(
+      components,
+      colors,
+      invoice ? Number(invoice.id) : undefined
+    );
+    if("ok" in result) {
+      token_identifier = result.ok; 
       setState("avatar-minted");
-    }, 4000);
+    } else {
+      setState("error");
+      error_message = result.err;
+    }
   }
 </script>
 
@@ -78,20 +89,27 @@
   <h3>Mint your avatar</h3>
   {#if state === "waiting-wallet-connection"}
     <p>Please connect a wallet to continue</p>
-    <button on:click={() => handleConnectPlug()}>Connect Plug wallet</button>
-    <button on:click={() => handleConnectStoic()}>Connect Stoic wallet</button>
+    <button on:click={() => handleConnectPlug()}>Plug wallet</button>
+    <!-- <button on:click={() => handleConnectStoic()}>Stoic wallet</button> -->
     <div class="back" on:click={() => setState("creating-avatar")}>← Back</div>
   {:else if state === "waiting-invoice"}
     <Spinner message="Please wait..." />
   {:else if state === "waiting-payment"}
-    <p>Minting your avatar costs 1 ICP</p>
+    <p>You will receive the avatar directly in your wallet.</p>
     <button on:click={() => handlePayment()}>Pay 1 ICP and Mint</button>
+    <button on:click={() => handlePreorder()}>Preorder member ?</button>
   {:else if state === "waiting-payment-processing"}
     <Spinner message="Processing payment..." />
   {:else if state === "waiting-mint"}
     <Spinner message="Minting avatar..." />
   {:else if state === "avatar-minted"}
-    <p>Your avatar is minted! 🎉</p>
+    <p>Congratulation : Your avatar has been minted 🎉 </p>
+    <p> Your token identifier : { token_identifier } </p>
+    <button> Share 🚀</button>
+  {:else if state === "error"}
+    <p>An errorr occured 😵‍💫</p>
+    <p>{ error_message }</p>
+    <button> Contact our support</button>
   {/if}
 </div>
 

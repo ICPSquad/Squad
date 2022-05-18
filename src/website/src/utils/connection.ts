@@ -7,7 +7,7 @@ import { idlFactory as idlFactoryLedger } from "@canisters/ledger/ledger.did";
 import { actors } from "@src/store/actor";
 import { user } from "@src/store/user";
 
-export const plugConnection = async () => {
+export async function plugConnection (): Promise<void> {
   const result = await window.ic.plug.requestConnect({
     whitelist: [avatarID, accessoriesID, invoiceID, ledgerID],
     host: HOST,
@@ -17,9 +17,8 @@ export const plugConnection = async () => {
   }
 
   const principal = await window.ic.plug.agent.getPrincipal();
-  console.log("principal", principal);
   user.update((u) => ({ ...u, wallet: "plug", loggedIn: true, principal }));
-
+  console.log("creating actors");
   const avatarActor = await window.ic.plug.createActor({
     canisterId: avatarID,
     interfaceFactory: idlFactoryAvatar,
@@ -37,4 +36,6 @@ export const plugConnection = async () => {
     interfaceFactory: idlFactoryLedger,
   });
   actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor }));
+  console.log("connection established");
+  return 
 };

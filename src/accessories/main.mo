@@ -835,6 +835,19 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         return buffer.toArray();
     };
 
+    public query func sanity_check() : async (Nat,Nat,Nat,Nat) {
+        _Items.sanityCheck();
+    };
+
+    // public func init_item() : async () {
+    //     _Items.postupgrade(?{
+    //         items = Iter.toArray(_items.entries());
+    //         templates = Iter.toArray(_templates.entries());
+    //         blobs = Iter.toArray(_blobs.entries());
+    //         recipes = [];
+    //     })
+    // };
+
 
     ///////////////
     // HEARTBEAT //

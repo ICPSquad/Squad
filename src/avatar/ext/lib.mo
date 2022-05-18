@@ -204,7 +204,7 @@ module {
             request : MintRequest
         ) : Ext.NonFungible.MintResponse {
             let account_identifier = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
-            let index = Nat32.fromNat(_registry.size());
+            let index = _getMaxTokenIndex() + 1;
             switch(_registry.get(index)) {
                 case (null) {
                     _registry.put(index, account_identifier);
@@ -284,6 +284,16 @@ module {
 
         public func size() : Nat {
             _registry.size();
+        };
+
+        func _getMaxTokenIndex() : Nat32 {
+            var maximum : Nat32 = 0;
+            for(index in _registry.keys()) {
+                if(index > maximum) {
+                    maximum := index;
+                };
+            };
+            return maximum;
         };
     };    
 }

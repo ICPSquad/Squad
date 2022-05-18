@@ -1,5 +1,4 @@
-import { IDL } from "@dfinity/candid";
-export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
+export const idlFactory = ({ IDL }) => {
   const AccountIdentifier = IDL.Vec(IDL.Nat8);
   const AccountBalanceArgs = IDL.Record({ 'account' : AccountIdentifier });
   const Tokens = IDL.Record({ 'e8s' : IDL.Nat64 });
@@ -31,3 +30,4 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'transfer' : IDL.Func([TransferArgs], [TransferResult], []),
   });
 };
+export const init = ({ IDL }) => { return []; };

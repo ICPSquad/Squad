@@ -5,7 +5,6 @@ module {
     public type Result<A,B> = Result.Result<A,B>;
 
     public type Name = Text;
-    public type Message = Text;
     public type TokenIdentifier = Text;
 
     public type User = {
@@ -18,7 +17,6 @@ module {
         minted : Bool; // Indicates if the user has already minted his avatar.
         account_identifier : ?Text; // Stores the default account identifier (SubAccount 0).
         invoice_id : ?Nat; // Optional invoice id used during registration. (New registration system)
-        message_leaderboard : ?Message;
         selected_avatar : ?TokenIdentifier;
     };
 

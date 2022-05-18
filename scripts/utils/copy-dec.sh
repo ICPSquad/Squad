@@ -12,8 +12,6 @@ pushd src/declarations
     rm **/index.js
     rm **/*.did
     for f in **/*.js; do
-        sed -i '' -e '$ d' "$f"
-        sed -i '' -e 's/export const idlFactory = ({ IDL }) => {/import { IDL } from \"@dfinity\/candid\";\nexport const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {/g' "$f"
         mv -- "$f" "${f%.js}.ts"
     done
 popd

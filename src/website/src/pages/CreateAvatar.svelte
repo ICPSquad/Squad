@@ -80,7 +80,7 @@
         />
       </div>
     {:else}
-      <Checkout {state} {setState} />
+      <Checkout {colors} {components} {state} {setState} />
     {/if}
     <div class="avatar-preview">
       <AvatarPreview

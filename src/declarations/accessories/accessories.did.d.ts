@@ -46,6 +46,7 @@ export interface DailyMetricsData {
   'timeMillis' : bigint,
 }
 export type Extension = string;
+export type Floor = bigint;
 export interface GetLatestLogMessagesParameters {
   'upToTimeNanos' : [] | [Nanos],
   'count' : number,
@@ -87,6 +88,7 @@ export interface ICPSquadNFT {
       undefined
     >,
   'collectCanisterMetrics' : () => Promise<undefined>,
+  'create_accessory' : (arg_0: string, arg_1: bigint) => Promise<Result_3>,
   'details' : (arg_0: TokenIdentifier) => Promise<Result__1_5>,
   'eventsSize' : () => Promise<bigint>,
   'extensions' : () => Promise<Array<Extension>>,
@@ -99,9 +101,9 @@ export interface ICPSquadNFT {
   'getInventory' : () => Promise<Result__1_4>,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__2]>>,
   'getTokens' : () => Promise<Array<[TokenIndex, Metadata]>>,
+  'get_stats_items' : () => Promise<Array<[string, Supply, [] | [Floor]]>>,
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init_cap' : () => Promise<Result>,
-  'init_state' : () => Promise<undefined>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
   'list' : (arg_0: ListRequest) => Promise<Result_1>,
   'listings' : () => Promise<Array<[TokenIndex, Listing__1, Metadata__1]>>,
@@ -207,6 +209,8 @@ export type Result_1 = { 'ok' : null } |
   { 'err' : CommonError };
 export type Result_2 = { 'ok' : AccountIdentifier__2 } |
   { 'err' : CommonError };
+export type Result_3 = { 'ok' : TokenIdentifier } |
+  { 'err' : string };
 export type Result__1 = {
     'ok' : Array<[TokenIndex, [] | [Listing], [] | [Array<number>]]>
   } |
@@ -252,6 +256,7 @@ export type StreamingStrategy = {
 export type SubAccount = Array<number>;
 export type SubAccount__1 = Array<number>;
 export type SubAccount__2 = Array<number>;
+export type Supply = bigint;
 export type Template = {
     'Accessory' : {
       'after_wear' : string,

@@ -52,7 +52,6 @@ export interface DailyMetricsData {
   'canisterMemorySize' : NumericEntity,
   'timeMillis' : bigint,
 }
-export type DailyScore = bigint;
 export type Extension = string;
 export interface GetLatestLogMessagesParameters {
   'upToTimeNanos' : [] | [Nanos],
@@ -88,7 +87,8 @@ export interface ICPSquadNFT {
   'availableCycles' : () => Promise<bigint>,
   'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
   'bearer' : (arg_0: TokenIdentifier) => Promise<Result_6>,
-  'calculateStyleScores' : () => Promise<undefined>,
+  'calculate_accounts' : () => Promise<undefined>,
+  'calculate_style_score' : () => Promise<undefined>,
   'changeStyle' : (arg_0: string) => Promise<undefined>,
   'collectCanisterMetrics' : () => Promise<undefined>,
   'delete' : (arg_0: string) => Promise<Result>,
@@ -104,13 +104,21 @@ export interface ICPSquadNFT {
       [] | [CanisterMetrics]
     >,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__1]>>,
-  'getStyleScores' : () => Promise<Array<[TokenIdentifier, DailyScore]>>,
   'getTokens' : () => Promise<Array<[TokenIndex, Metadata]>>,
+  'get_all_users' : () => Promise<Array<[Principal, UserData]>>,
+  'get_infos_leaderboard' : () => Promise<
+      Array<[Principal, [] | [Name__2], [] | [TokenIdentifier]]>
+    >,
+  'get_style_score' : () => Promise<Array<[TokenIdentifier, StyleScore]>>,
+  'get_user' : () => Promise<[] | [UserData]>,
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init_cap' : () => Promise<Result>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
   'metadata' : (arg_0: TokenIdentifier) => Promise<Result_4>,
-  'mint' : (arg_0: MintInformation, arg_1: bigint) => Promise<MintResult>,
+  'mint' : (arg_0: MintInformation, arg_1: [] | [bigint]) => Promise<
+      MintResult
+    >,
+  'modify_user' : (arg_0: UserData) => Promise<Result>,
   'registerComponent' : (arg_0: string, arg_1: Component) => Promise<Result>,
   'removeAccessory' : (
       arg_0: TokenIdentifier,
@@ -174,6 +182,8 @@ export interface MintInformation {
 export type MintResult = { 'ok' : TokenIdentifier } |
   { 'err' : string };
 export type Name = string;
+export type Name__1 = string;
+export type Name__2 = string;
 export type Nanos = bigint;
 export interface NumericEntity {
   'avg' : bigint,
@@ -230,11 +240,13 @@ export type StreamingStrategy = {
       'callback' : StreamingCallback,
     }
   };
+export type StyleScore = bigint;
 export type SubAccount = Array<number>;
 export type Tag = string;
 export type Time = bigint;
 export type TokenIdentifier = string;
 export type TokenIdentifier__1 = string;
+export type TokenIdentifier__2 = string;
 export type TokenIndex = number;
 export interface TransferRequest {
   'to' : User,
@@ -257,4 +269,16 @@ export type TransferResponse = { 'ok' : Balance } |
 export type UpdateCallsAggregatedData = Array<bigint>;
 export type User = { 'principal' : Principal } |
   { 'address' : AccountIdentifier };
+export interface UserData {
+  'height' : [] | [bigint],
+  'selected_avatar' : [] | [TokenIdentifier__2],
+  'invoice_id' : [] | [bigint],
+  'twitter' : [] | [string],
+  'name' : [] | [Name__1],
+  'rank' : [] | [bigint],
+  'minted' : boolean,
+  'email' : [] | [string],
+  'account_identifier' : [] | [string],
+  'discord' : [] | [string],
+}
 export interface _SERVICE extends ICPSquadNFT {}

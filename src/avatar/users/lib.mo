@@ -20,7 +20,6 @@ module {
     public type UpgradeData = Types.UpgradeData;
     public type User = Types.User;
     public type Name = Types.Name;
-    public type Message = Types.Message;
     public type TokenIndex = Ext.TokenIndex;
     type Result<A,B> = Result.Result<A,B>;
     type TokenIdentifier = Text;
@@ -98,7 +97,6 @@ module {
                         minted = true;
                         account_identifier = ?Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
                         invoice_id = invoice_id;
-                        message_leaderboard = null;
                         selected_avatar = ?avatar;
                     };
                     _users.put(caller, new_user);
@@ -114,7 +112,6 @@ module {
                         minted = user.minted;
                         account_identifier = user.account_identifier;
                         invoice_id = invoice_id;
-                        message_leaderboard = user.message_leaderboard;
                         selected_avatar = ?avatar;
                     };
                     _users.put(caller, new_user);
@@ -155,7 +152,6 @@ module {
                         minted = user.minted;
                         account_identifier = ?account;
                         invoice_id = user.invoice_id;
-                        message_leaderboard = user.message_leaderboard;
                         selected_avatar = user.selected_avatar;
                     };
                     _users.put(p, new_user);
@@ -167,10 +163,10 @@ module {
             return Iter.toArray(_users.entries());
         };
 
-        public func getInfosLeaderboard() : [(Principal, ?Name, ?Message, ?TokenIdentifier)] {
-            var buffer : Buffer.Buffer<(Principal, ?Name, ?Message, ?TokenIdentifier)> = Buffer.Buffer<(Principal, ?Name, ?Message, ?TokenIdentifier)>(0);
+        public func getInfosLeaderboard() : [(Principal, ?Name, ?TokenIdentifier)] {
+            var buffer : Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier)> = Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier)>(0);
             for((p, user) in _users.entries()) {
-                let infos = (p, user.name, user.message_leaderboard, _getAvatar(p, user));
+                let infos = (p, user.name, _getAvatar(p, user));
                 buffer.add(infos);
             };
             return buffer.toArray();
@@ -191,7 +187,6 @@ module {
                 minted = false;
                 account_identifier = null;
                 invoice_id = null;
-                message_leaderboard = null;
                 selected_avatar = null;
             }
         };

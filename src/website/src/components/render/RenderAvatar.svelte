@@ -40,7 +40,7 @@ import { ears, hairs } from "@src/utils/list";
   <style>
     
     .Punk-body .Punk-crying-eyes {
-      clip-path: url(#Business-head_svg__a);
+      clip-path: url(#Punk-head_svg__a);
     }
     .Miss-body .Punk-crying-eyes {
       transform: translateY(-0.5px) !important;

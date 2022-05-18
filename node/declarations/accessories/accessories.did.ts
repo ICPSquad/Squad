@@ -1,5 +1,4 @@
-import { IDL } from "@dfinity/candid";
-export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
+export const idlFactory = ({ IDL }) => {
   const Recipe = IDL.Vec(IDL.Text);
   const Template = IDL.Variant({
     'Accessory' : IDL.Record({
@@ -50,6 +49,7 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'ok' : AccountIdentifier__2,
     'err' : CommonError,
   });
+  const Result_3 = IDL.Variant({ 'ok' : TokenIdentifier, 'err' : IDL.Text });
   const SubAccount = IDL.Vec(IDL.Nat8);
   const Time__1 = IDL.Int;
   const Listing = IDL.Record({
@@ -169,6 +169,8 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     }),
     'nonfungible' : IDL.Record({ 'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)) }),
   });
+  const Supply = IDL.Nat;
+  const Floor = IDL.Nat;
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
   const Request = IDL.Record({
     'url' : IDL.Text,
@@ -288,6 +290,7 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
     'bearer' : IDL.Func([TokenIdentifier], [Result__1_6], ['query']),
     'clearPayments' : IDL.Func([IDL.Principal, IDL.Vec(SubAccount__1)], [], []),
     'collectCanisterMetrics' : IDL.Func([], [], []),
+    'create_accessory' : IDL.Func([IDL.Text, IDL.Nat], [Result_3], []),
     'details' : IDL.Func([TokenIdentifier], [Result__1_5], ['query']),
     'eventsSize' : IDL.Func([], [IDL.Nat], ['query']),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
@@ -312,9 +315,13 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(TokenIndex, Metadata))],
         ['query'],
       ),
+    'get_stats_items' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, Supply, IDL.Opt(Floor)))],
+        ['query'],
+      ),
     'http_request' : IDL.Func([Request], [Response], ['query']),
     'init_cap' : IDL.Func([], [Result], []),
-    'init_state' : IDL.Func([], [], []),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'list' : IDL.Func([ListRequest], [Result_1], []),
     'listings' : IDL.Func(
@@ -359,4 +366,7 @@ export const idlFactory : IDL.InterfaceFactory = ({ IDL }) => {
       ),
   });
   return ICPSquadNFT;
+};
+export const init = ({ IDL }) => {
+  return [IDL.Principal, IDL.Principal, IDL.Principal];
 };

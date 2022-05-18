@@ -519,7 +519,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     /////////////
 
     public type Name = Users.Name;
-    public type Message = Users.Message;
     public type UserData = Users.User;
 
     stable var _UsersUD : ?Users.UpgradeData = null;
@@ -550,7 +549,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Users.calculateAccounts();
     };
 
-    public shared query ({ caller }) func get_infos_leaderboard() : async [(Principal, ?Name, ?Message, ?TokenIdentifier)] {
+    public shared query ({ caller }) func get_infos_leaderboard() : async [(Principal, ?Name, ?TokenIdentifier)] {
         assert(_Admins.isAdmin(caller) or caller == hub_cid);
         _Monitor.collectMetrics();
         _Users.getInfosLeaderboard();

@@ -14,13 +14,14 @@ export async function payInvoice(invoice: Invoice, wallet: Wallet): Promise<{ he
   if (expiration < Date.now() * 100_000) {
     throw new Error("This invoice has already been paid");
   }
-  switch (wallet) {
-    case "plug":
-      pay_plug(accountIdentifierToString(invoice.destination), Number(invoice.amount));
-    case "stoic":
-      pay_stoic(accountIdentifierToString(invoice.destination), Number(invoice.amount));
-    default:
-      throw new Error("Unknown wallet");
+  if(wallet === "plug") {
+    //@ts-ignore
+    return await pay_plug(invoice.destination.text, Number(invoice.amount));
+  } else if(wallet === "stoic") {
+    //@ts-ignore
+    return await pay_stoic(invoice.destination.text, Number(invoice.amount));
+  } else {
+    throw new Error("Unknown wallet");
   }
 }
 
@@ -30,10 +31,11 @@ async function pay_plug(
 ): Promise<{
   height: number;
 }> {
+  console.log("Payplug");
   const resultTransfer = await window.ic.plug.requestTransfer({
     to: address,
     amount: amount,
-    memo: BigInt(1234),
+    memo: "12345",
   });
   if (resultTransfer) {
     return {

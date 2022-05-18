@@ -54,18 +54,10 @@ function capitalizeFirstLetter(word: string) {
   return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
-export function handleMintRequest(components: AvatarComponents, color: AvatarColors) {
-  if (!get(user).loggedIn) {
-    throw new Error("Not logged in");
-  }
-  if (get(avatar).tokenIdentifier) {
-    console.log("Token Identifier :", get(avatar).tokenIdentifier);
-    throw new Error("You already have an avatar");
-  }
-}
-
-export async function mintRequest(components: AvatarComponents, color: AvatarColors, invoiceId: number): Promise<MintResult> {
-  const result = await get(actors).avatarActor.mint(createMintRequest(components, color), BigInt(invoiceId));
+export async function mintRequest(components: AvatarComponents, color: AvatarColors, invoiceId?: number): Promise<MintResult> {
+  let id : [bigint] | [] = invoiceId ? [BigInt(invoiceId)] : [];
+  console.log("Minting avatar with invoiceId: ", id);
+  const result = await get(actors).avatarActor.mint(createMintRequest(components, color), id);
   console.log("Mint result :", result);
   return result;
 }

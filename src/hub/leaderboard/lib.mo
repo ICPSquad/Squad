@@ -41,7 +41,12 @@ module {
 
     public class Factory (dependencies : Types.Dependencies) {
 
+
+        /* We keep a screenshot of the scores and of the leaderboard everyday */
         let _leaderboards : TrieMap.TrieMap<Date,Leaderboard> = TrieMap.TrieMap<Date,Leaderboard>(dateEqual, dateHash);
+        let style_score_daily : TrieMap.TrieMap<Date, [(TokenIdentifier, StyleScore)]> = TrieMap.TrieMap<Date, [(TokenIdentifier, StyleScore)]>(dateEqual, dateHash);
+        let engagement_score_daily : TrieMap.TrieMap<Date, [(Principal, EngagementScore)]> = TrieMap.TrieMap<Date, [(TokenIdentifier, EngagementScore)]>(dateEqual, dateHash);
+        let mission_score_daily : TrieMap.TrieMap<Date, [(Principal, MissionScore)]> = TrieMap.TrieMap<Date, [(TokenIdentifier, MissionScore)]>(dateEqual, dateHash);
 
         let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
             get_style_score : shared () -> async [(TokenIdentifier, StyleScore)];
@@ -73,7 +78,7 @@ module {
             let styles = await AVATAR_ACTOR.get_style_score();
             // let mission = _Missions.get_mission_score();
             // let engagement = _Engagement.get_engagement_score();
-            var buffer : Buffer.Buffer<(Principal, ?Name, ?Message, ?TokenIdentifier, ?StyleScore, ?EngagementScore, ?MissionScore, TotalScore)> = Buffer.Buffer<(Principal, ?Name, ?Message, ?TokenIdentifier, ?StyleScore, ?EngagementScore, ?MissionScore, TotalScore)>(0);
+            var buffer : Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, ?MissionScore, TotalScore)> = Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, ?MissionScore, TotalScore)>(0);
             for((p, name, message, tokenid) in infos.vals()){
                 let style_score : ?StyleScore = switch(tokenid){
                     case(null) {null};
@@ -86,7 +91,7 @@ module {
                 };
                 // Todo: Find mission score
                 // Todo: Find engagement score
-                buffer.add((p, name, message, tokenid, style_score, null, null, _getTotalScore(style_score, null, null)));
+                buffer.add((p, name, tokenid, style_score, null, null, _getTotalScore(style_score, null, null)));
             };
             switch(Date.Date.nowToDatePartsISO8601()){
                 case(null) assert(false);

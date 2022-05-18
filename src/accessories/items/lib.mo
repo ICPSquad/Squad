@@ -90,6 +90,10 @@ module {
         // API /////
         ///////////
 
+        public func sanityCheck() : (Nat,Nat,Nat,Nat) {
+            return(_items.size(), _blobs.size(), _templates.size(), _recipes.size());
+        };
+
         public func addTemplate(name : Text, template : Template) : Result<Text,Text> {
            _templates.put(name, template);
            return #ok("Template added for : "  # name);

@@ -186,7 +186,7 @@ shared ({ caller = creator }) actor class Invoice(
               paid = false;
               // 1 week in nanoseconds
               expiration = Time.now() + (1000 * 60 * 60 * 24 * 7 * 1_000_000);
-              destination;
+              destination = destination;
             }
           };
           case(#AccessoryFee){
@@ -202,7 +202,7 @@ shared ({ caller = creator }) actor class Invoice(
               paid = false;
               // 1 week in nanoseconds
               expiration = Time.now() + (1000 * 60 * 60 * 24 * 7 * 1_000_000);
-              destination;
+              destination = destination;
             }
           };
         };
