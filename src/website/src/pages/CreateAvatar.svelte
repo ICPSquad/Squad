@@ -63,24 +63,34 @@
 <main class="container">
   <div class="layout-grid">
     {#if state === "creating-avatar"}
-      <Categories {includeAccessories} {categoryShowing} {setCategoryShowing} />
-      <ItemSelection
-        {colors}
-        {updateAvatarColor}
-        {updateAvatarComponent}
-        {categoryShowing}
-        {components}
-      />
+      <div class="categories">
+        <Categories
+          {includeAccessories}
+          {categoryShowing}
+          {setCategoryShowing}
+        />
+      </div>
+      <div class="item-selection">
+        <ItemSelection
+          {colors}
+          {updateAvatarColor}
+          {updateAvatarComponent}
+          {categoryShowing}
+          {components}
+        />
+      </div>
     {:else}
       <Checkout {state} {setState} />
     {/if}
-    <AvatarPreview
-      {components}
-      {randomlyResetAvatar}
-      {colors}
-      {handleSubmit}
-      {state}
-    />
+    <div class="avatar-preview">
+      <AvatarPreview
+        {components}
+        {randomlyResetAvatar}
+        {colors}
+        {handleSubmit}
+        {state}
+      />
+    </div>
   </div>
 </main>
 <Footer />
@@ -99,7 +109,17 @@
 
   @media (max-width: 960px) {
     .layout-grid {
-      grid-template-columns: 100%;
+      grid-gap: 10px;
+      grid-auto-flow: dense;
+    }
+    .categories {
+      grid-column: span 2;
+    }
+    .item-selection {
+      grid-column: span 2;
+    }
+    .avatar-preview {
+      grid-row: span 2;
     }
   }
 </style>

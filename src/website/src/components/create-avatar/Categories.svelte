@@ -90,6 +90,10 @@
   }
 
   @media (max-width: 960px) {
+    button.category {
+      padding: 12px 20px;
+    }
+
     .categories.desktop {
       display: none;
     }

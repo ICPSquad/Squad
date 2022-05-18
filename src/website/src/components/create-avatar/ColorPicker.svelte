@@ -134,4 +134,18 @@
     font-size: 0.8rem;
     margin-bottom: 10px;
   }
+
+  @media (max-width: 960px) {
+    .color-picker {
+      padding: 10px 20px;
+      grid-column: span 4;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .color-picker {
+      padding: 10px 20px;
+      grid-column: span 3;
+    }
+  }
 </style>

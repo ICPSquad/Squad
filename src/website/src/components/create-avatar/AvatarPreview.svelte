@@ -21,7 +21,9 @@
   {/if}
   <RenderAvatar avatarComponents={components} avatarColors={colors} />
   {#if state === "creating-avatar"}
-    <button class="mint" on:click={handleSubmit}> I'm ready to mint → </button>
+    <button class="mint" on:click={handleSubmit}>
+      <span class="hide-on-mobile">I'm ready to&nbsp;</span> mint →
+    </button>
     <p class="small">Minting your avatar as an NFT costs 1 ICP</p>
   {/if}
 </div>
@@ -68,7 +70,36 @@
     right: 10px;
     top: 10px;
     .shuffle-icon {
-      padding-top: 4px;
+      padding: 12px 8px 8px 8px;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .hide-on-mobile {
+      display: none;
+    }
+
+    button.shuffle {
+      --size: 40px;
+    }
+
+    p.small {
+      font-size: 0.7rem;
+    }
+
+    button.mint {
+      margin-top: 10px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    button.shuffle {
+      --size: 24px;
+      top: 4px;
+      right: 4px;
+      .shuffle-icon {
+        padding: 4px 4px 4px 4px;
+      }
     }
   }
 </style>

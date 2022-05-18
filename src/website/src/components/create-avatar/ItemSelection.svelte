@@ -96,4 +96,18 @@
       border-color: $green;
     }
   }
+
+  @media (max-width: 960px) {
+    .items {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-gap: 10px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .items {
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-gap: 10px;
+    }
+  }
 </style>

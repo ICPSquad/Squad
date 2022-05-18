@@ -44,7 +44,7 @@ button,
   text-transform: uppercase;
   border-radius: 12px;
   width: 100%;
-  padding: 10px 30px;
+  padding: 10px;
   font-weight: bold;
   color: $white;
   cursor: pointer;
@@ -63,5 +63,10 @@ button,
 @media (max-width: 700px) {
   .container {
     padding: 40px 20px;
+  }
+
+  button,
+  .button {
+    font-size: 0.8rem;
   }
 }
