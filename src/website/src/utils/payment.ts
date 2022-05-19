@@ -31,7 +31,6 @@ async function pay_plug(
 ): Promise<{
   height: number;
 }> {
-  console.log("Payplug");
   const resultTransfer = await window.ic.plug.requestTransfer({
     to: address,
     amount: amount,

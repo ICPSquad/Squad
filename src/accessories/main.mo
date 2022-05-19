@@ -363,6 +363,24 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         return ?array_sorted[0];
     };
 
+    /* Returns the optional last price at which a transaction was made for one of the tokenIdentifier  */
+    private func _getLastPrice(tokenIds : [TokenIdentifier]) : ?Nat {
+        let transactions : [Transaction] = Array.filter<Transaction>(_transactions, func(x) {Option.isSome(Array.find<TokenIdentifier>(tokenIds, func(a) {a == x.token}))});
+        if(transactions.size() == 0){
+            return null
+        } else {
+            var last_price = transactions[0].price;
+            var last_time = transactions[0].time;
+            for(transaction in transactions.vals()){
+                if(transaction.time > last_time){
+                    last_time := transaction.time;
+                    last_price := transaction.price;
+                };
+            };
+            ?Nat64.toNat(last_price);
+        };
+    };
+
     private func _isSubaccountIncorrect (subaccount : SubAccount) : Bool {
         var c : Nat = 0;
         var failed : Bool = true;
@@ -825,28 +843,17 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     public type Name = StatsTypes.Name;
     public type Supply = StatsTypes.Supply;
     public type Floor = StatsTypes.Floor;
+    public type LastSoldPrice = StatsTypes.LastSoldPrice;
 
-    public query func get_stats_items() : async [(Text, Supply, ?Floor)] {
+    public query func get_stats_items() : async [(Text, Supply, ?Floor, ?LastSoldPrice)] {
         let items = _Items.getItems();
-        let buffer = Buffer.Buffer<(Text, Supply, ?Floor)>(items.size());
+        let buffer = Buffer.Buffer<(Text, Supply, ?Floor, ?LastSoldPrice)>(items.size());
         for (item in items.vals()){
-            buffer.add((item.0, item.1.size(), _getFloorPrice(item.1)));
+            let tokenIds = Array.map<TokenIndex, TokenIdentifier>(item.1, func(index : TokenIndex) {Ext.TokenIdentifier.encode(cid, index)});
+            buffer.add((item.0, item.1.size(), _getFloorPrice(item.1), _getLastPrice(tokenIds)));
         };
         return buffer.toArray();
     };
-
-    public query func sanity_check() : async (Nat,Nat,Nat,Nat) {
-        _Items.sanityCheck();
-    };
-
-    // public func init_item() : async () {
-    //     _Items.postupgrade(?{
-    //         items = Iter.toArray(_items.entries());
-    //         templates = Iter.toArray(_templates.entries());
-    //         blobs = Iter.toArray(_blobs.entries());
-    //         recipes = [];
-    //     })
-    // };
 
 
     ///////////////
