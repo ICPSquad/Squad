@@ -421,6 +421,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         }
     }; 
 
+    public query func tokens_ids() : async [TokenIdentifier] {
+        let registry = _Ext.getRegistry();
+        return Array.map<(TokenIndex, AccountIdentifier), TokenIdentifier>(registry, func(x) { Ext.TokenIdentifier.encode(cid, x.0) });
+    };
+
     public query func balance(request : BalanceRequest) : async BalanceResponse {
         _Ext.balance(request);
     };

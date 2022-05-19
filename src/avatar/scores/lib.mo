@@ -127,7 +127,7 @@ module {
         func _calculateScore(tokenId : TokenIdentifier) : ?Nat {
             switch(_Avatar.getSlot(tokenId)){
                 case(null) {
-                    _Logs.logMessage("No slot found for token " # tokenId);
+                    _Logs.logMessage("No slot found for token :" # tokenId);
                     return null;
                 };
                 case(? slot){
@@ -175,7 +175,7 @@ module {
         func _getScore(name : Text) : Nat {
             switch(starsAccessory.get(name)){
                 case(null) {
-                    _Logs.logMessage("No score found for name :" # name);
+                    _Logs.logMessage("No score found for name : " # name);
                     return 0;
                 };
                 case(? stars){

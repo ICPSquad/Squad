@@ -845,7 +845,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     public type Floor = StatsTypes.Floor;
     public type LastSoldPrice = StatsTypes.LastSoldPrice;
 
-    public query func get_stats_items() : async [(Text, Supply, ?Floor, ?LastSoldPrice)] {
+    public query func get_stats_items() : async [(Text, Supply, ?Floor, ?LastSoldPrice)] {)
         let items = _Items.getItems();
         let buffer = Buffer.Buffer<(Text, Supply, ?Floor, ?LastSoldPrice)>(items.size());
         for (item in items.vals()){

@@ -10,6 +10,7 @@ import Date "mo:canistergeek/dateModule";
 import Ext "mo:ext/Ext";
 import Admins "admins";
 import Leaderboard "leaderboard";
+import Style "style";
 
 shared ({ caller = creator }) actor class ICPSquadHub(
     cid : Principal,
@@ -99,29 +100,37 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Logs.getLog(request);
     };
 
+    //////////////
+    // STYLE ////
+    ////////////
 
+    stable var _StyleUD: ? Style.UpgradeData = null;
+    private let _Style : Style.Factory = Style.Factory({
+        cid_avatar = cid_avatar;
+        _Logs = _Logs;
+    });
 
     ////////////////////
     // Leaderboard ////
     ///////////////////
 
-    public type Leaderboard = Leaderboard.Leaderboard;
+    // public type Leaderboard = Leaderboard.Leaderboard;
 
-    stable var _LeaderboardUD : ?Leaderboard.UpgradeData = null;
-    let _Leaderboard = Leaderboard.Factory({
-        cid_avatar = cid_avatar;
-    });
+    // stable var _LeaderboardUD : ?Leaderboard.UpgradeData = null;
+    // let _Leaderboard = Leaderboard.Factory({
+    //     cid_avatar = cid_avatar;
+    // });
 
-    public shared ({ caller }) func update_leaderboard() : async () {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Leaderboard.updateLeaderboard();
-    };
+    // public shared ({ caller }) func update_leaderboard() : async () {
+    //     assert(_Admins.isAdmin(caller));
+    //     _Monitor.collectMetrics();
+    //     await _Leaderboard.updateLeaderboard();
+    // };
 
-    public query ({ caller }) func get_leaderboard() : async ?Leaderboard {
-        assert(_Admins.isAdmin(caller));
-        _Leaderboard.getCurrentLeaderboard();
-    };
+    // public query ({ caller }) func get_leaderboard() : async ?Leaderboard {
+    //     assert(_Admins.isAdmin(caller));
+    //     _Leaderboard.getCurrentLeaderboard();
+    // };
 
 
 
@@ -134,6 +143,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
+        _StyleUD := ? _Style.preupgrade();
     };
 
     system func postupgrade() {
@@ -143,5 +153,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _MonitorUD := null;
         _Admins.postupgrade(_AdminsUD);
         _AdminsUD := null;
+        _Style.postupgrade(_StyleUD);
+        _StyleUD := null;
     };
 };
