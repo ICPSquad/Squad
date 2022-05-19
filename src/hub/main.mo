@@ -1,15 +1,15 @@
+import Admins "admins";
+import Canistergeek "mo:canistergeek/canistergeek";
 import Cycles "mo:base/ExperimentalCycles";
+import Date "mo:canistergeek/dateModule";
 import Error "mo:base/Error";
+import Ext "mo:ext/Ext";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
+import Leaderboard "leaderboard";
 import Nat64 "mo:base/Nat64";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
-import Canistergeek "mo:canistergeek/canistergeek";
-import Date "mo:canistergeek/dateModule";
-import Ext "mo:ext/Ext";
-import Admins "admins";
-import Leaderboard "leaderboard";
 import Style "style";
 
 shared ({ caller = creator }) actor class ICPSquadHub(
@@ -23,7 +23,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     ///////////
 
     public type Result<A,B> = Result.Result<A,B>;
-
+    public type TokenIdentifier = Ext.TokenIdentifier;
 
     ///////////
     // ADMIN //
@@ -104,33 +104,47 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     // STYLE ////
     ////////////
 
+    public type StyleScore = Style.StyleScore;
     stable var _StyleUD: ? Style.UpgradeData = null;
     private let _Style : Style.Factory = Style.Factory({
         cid_avatar = cid_avatar;
         _Logs = _Logs;
     });
 
+    public shared ({ caller }) func update_style() : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Style.getLatest();
+        await _Style.updateScores();
+    };
+
+    public query func get_style_scores() : async [(TokenIdentifier, StyleScore)] {
+        return _Style.getScores();
+    };
+
     ////////////////////
     // Leaderboard ////
     ///////////////////
 
-    // public type Leaderboard = Leaderboard.Leaderboard;
+    public type Leaderboard = Leaderboard.Leaderboard;
 
-    // stable var _LeaderboardUD : ?Leaderboard.UpgradeData = null;
-    // let _Leaderboard = Leaderboard.Factory({
-    //     cid_avatar = cid_avatar;
-    // });
+    stable var _LeaderboardUD : ?Leaderboard.UpgradeData = null;
+    let _Leaderboard = Leaderboard.Factory({
+        cid_avatar = cid_avatar;
+        _Logs = _Logs;
+        _Style = _Style;
+    });
 
-    // public shared ({ caller }) func update_leaderboard() : async () {
-    //     assert(_Admins.isAdmin(caller));
-    //     _Monitor.collectMetrics();
-    //     await _Leaderboard.updateLeaderboard();
-    // };
+    public shared ({ caller }) func update_leaderboard() : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Leaderboard.updateLeaderboard();
+    };
 
-    // public query ({ caller }) func get_leaderboard() : async ?Leaderboard {
-    //     assert(_Admins.isAdmin(caller));
-    //     _Leaderboard.getCurrentLeaderboard();
-    // };
+    public query ({ caller }) func get_leaderboard() : async ?Leaderboard {
+        assert(_Admins.isAdmin(caller));
+        _Leaderboard.getCurrentLeaderboard();
+    };
 
 
 

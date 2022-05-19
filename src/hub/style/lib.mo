@@ -14,10 +14,10 @@ module {
 
     public type UpgradeData = Types.UpgradeData;
     public type Dependencies = Types.Dependencies;
+    public type StyleScore = Types.StyleScore;
 
     type Date = Types.Date;
     type TokenIdentifier = Types.TokenIdentifier;
-    type StyleScore = Types.StyleScore;
 
     /////////////////
     // Utilities ///
@@ -77,7 +77,6 @@ module {
             };
         };
 
-
         /* Query the avatar canister and get the latest screenshot of the style score. Archived the scores into the daily_style_score archive. 
             @Cronic : At least once per day. 
         */
@@ -120,8 +119,12 @@ module {
             _Logs.logMessage("Monthly style score successfully calculated.");
         };
 
-        public func getStyleScores() : [(TokenIdentifier, StyleScore)] {
+        public func getScores() : [(TokenIdentifier, StyleScore)] {
             return Iter.toArray(style_score.entries());
+        };
+
+        public func getScore(tokenId : TokenIdentifier) : ?StyleScore {
+            style_score.get(tokenId);
         };
 
         /////////////////

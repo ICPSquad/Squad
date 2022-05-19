@@ -21,6 +21,7 @@ module {
     public type User = Types.User;
     public type Name = Types.Name;
     public type TokenIndex = Ext.TokenIndex;
+    public type AccountIdentifier = Ext.AccountIdentifier;
     type Result<A,B> = Result.Result<A,B>;
     type TokenIdentifier = Text;
 
@@ -172,6 +173,27 @@ module {
             return buffer.toArray();
         };
 
+        public func defaultAvatar(p : Principal) : () {
+            switch(_users.get(p)){
+                case(null) {};
+                case(? user){
+                    let new_user = {
+                        name = user.name;
+                        email = user.email;
+                        discord = user.discord;
+                        twitter = user.twitter;
+                        rank = user.rank;
+                        height = user.height;
+                        minted = user.minted;
+                        account_identifier = user.account_identifier;
+                        invoice_id = user.invoice_id;
+                        selected_avatar = _Ext.defaultToken(Option.unwrap(user.account_identifier));
+                    };
+                    _users.put(p, new_user);
+                };
+            };
+        };
+
         /////////////////
         // UTILITIES ////
         ////////////////
@@ -218,6 +240,6 @@ module {
                 };
             };
         };
-
+ 
     };
 };

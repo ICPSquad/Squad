@@ -533,6 +533,14 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Ext = _Ext;
     });
 
+    public shared ({ caller }) func init_default_avatar(m : Nat, n : Nat) : async () {
+        assert(_Admins.isAdmin(caller));
+        let users_principals = Array.map<(Principal,UserData), Principal>(_Users.getUsers(), func(x) {x.0}); 
+        for(x in Iter.range(m, n)){
+            _Users.defaultAvatar(users_principals[x]);
+        };
+    };
+
     public shared query ({ caller }) func get_user() : async ?UserData {
         _Users.getUser(caller);
     };

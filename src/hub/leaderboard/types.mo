@@ -1,4 +1,7 @@
 import Date "mo:canistergeek/dateModule";
+import Canistergeek "mo:canistergeek/canistergeek";
+
+import Style "../style";
 module {
     public type TokenIdentifier = Text;
     public type Name = Text;
@@ -25,6 +28,8 @@ module {
 
     public type Dependencies = {
         cid_avatar : Principal;
+        _Logs : Canistergeek.Logger;
+        _Style : Style.Factory;
     };
 
 };
