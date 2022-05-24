@@ -13,8 +13,7 @@ module {
     public type TotalScore = Nat;
     public type Score = Nat;
     public type Leaderboard = [(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, ?MissionScore, TotalScore)];
-
-
+    
     public type Application = Text;
     public type EngagementScoreDetails = [(Application, Score)];
 
