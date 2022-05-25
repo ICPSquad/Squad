@@ -81,6 +81,7 @@
     border-radius: 40px;
     margin-right: 20px;
     font-size: 1rem;
+    width: 300px;
   }
 
   .social-icon {

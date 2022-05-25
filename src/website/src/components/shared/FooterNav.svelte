@@ -28,9 +28,14 @@
           url: "/accessories",
         },
         {
-          label: "Roadmap",
-          url: "/about#roadmap",
+          label: "Blog",
+          url: "https://www.dfinitycommunity.com/tag/icpsquad/",
+          external: true,
         },
+        // {
+        //   label: "Roadmap",
+        //   url: "/about#roadmap",
+        // },
         // {
         //   label: "Whitepaper",
         //   url: "#",
@@ -51,11 +56,6 @@
         {
           label: "Legendary Avatars",
           url: "/legendary-avatars",
-        },
-        {
-          label: "Blog",
-          url: "https://www.dfinitycommunity.com/tag/icpsquad/",
-          external: true,
         },
       ],
     },

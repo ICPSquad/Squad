@@ -1,3 +1,7 @@
+<script>
+  import Link from "@components/shared/Link.svelte";
+</script>
+
 <section>
   <div class="container">
     <h2>ENGAGE & EARN</h2>
@@ -10,7 +14,10 @@
       src="/assets/engage-and-earn.png"
       alt="ICP Squad Avatars circling around Dfinity logo"
     />
-    <a href="/create-avatar" class="button"> Create Avatar → </a>
+
+    <Link to="/create-avatar">
+      <button> Create Avatar → </button>
+    </Link>
   </div>
 </section>
 

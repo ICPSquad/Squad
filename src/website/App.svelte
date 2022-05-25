@@ -9,6 +9,7 @@
   import About from "@src/pages/About.svelte";
   import Partners from "@src/pages/Partners.svelte";
   import Dashboard from "@src/pages/Dashboard.svelte";
+  import Contact from "@src/pages/Contact.svelte";
 </script>
 
 <Router>
@@ -19,6 +20,7 @@
   <Route path="accessories"><Accessories /></Route>
   <Route path="about-us"><About /></Route>
   <Route path="partners"><Partners /></Route>
+  <Route path="contact"><Contact /></Route>
   <Route path="dashboard"><Dashboard /></Route>
   <Route path="random"><Random /></Route>
 </Router>
