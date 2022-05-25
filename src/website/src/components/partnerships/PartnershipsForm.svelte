@@ -2,6 +2,8 @@
   import emailjs from "@emailjs/browser";
   import Checkbox from "../shared/Checkbox.svelte";
 
+  let formSubmitted = false;
+
   const handleSubmit = () => {
     console.log(templateParams);
 
@@ -14,12 +16,14 @@
     //   )
     //   .then(
     //     (response) => {
-    //       console.log("SUCCESS!", response.status, response.text);
+    //       formSubmitted = true;
     //     },
     //     (err) => {
     //       console.log("FAILED...", err);
     //     }
     //   );
+
+    formSubmitted = true;
   };
 
   type InterestOptions = {
@@ -57,59 +61,63 @@
 
 <div class="container">
   <h3>PARTNERSHIP ENQUIRIES</h3>
-  <form on:submit|preventDefault={handleSubmit}>
-    <label for="project-name">Project Name</label>
-    <input
-      bind:value={templateParams.projectName}
-      id="project-name"
-      type="text"
-      placeholder="Project Name"
-      required
-    />
-    <label for="your-name">Your Name</label>
-    <input
-      bind:value={templateParams.yourName}
-      id="your-name"
-      type="text"
-      placeholder="Your Name"
-      required
-    />
-    <label for="email">Email Address</label>
-    <input
-      bind:value={templateParams.emailAddress}
-      id="email"
-      type="email"
-      placeholder="Email address"
-      required
-    />
-    <label for="interests">Interest</label>
-    <Checkbox
-      bind:checked={templateParams.interest.integratingProject}
-      label="Integrating with our project"
-    />
-    <Checkbox
-      bind:checked={templateParams.interest.hostingMission}
-      label="Hosting a mission"
-    />
-    <Checkbox
-      bind:checked={templateParams.interest.airdroppingAssets}
-      label="Airdropping assets to our holders"
-    />
-    <Checkbox
-      bind:checked={templateParams.interest.brandedAccessories}
-      label="Branded Accessories (digital merchandise)"
-    />
+  {#if formSubmitted}
+    <p>Form submitted! We'll be in touch soon.</p>
+  {:else}
+    <form on:submit|preventDefault={handleSubmit}>
+      <label for="project-name">Project Name</label>
+      <input
+        bind:value={templateParams.projectName}
+        id="project-name"
+        type="text"
+        placeholder="Project Name"
+        required
+      />
+      <label for="your-name">Your Name</label>
+      <input
+        bind:value={templateParams.yourName}
+        id="your-name"
+        type="text"
+        placeholder="Your Name"
+        required
+      />
+      <label for="email">Email Address</label>
+      <input
+        bind:value={templateParams.emailAddress}
+        id="email"
+        type="email"
+        placeholder="Email address"
+        required
+      />
+      <label for="interests">Interest</label>
+      <Checkbox
+        bind:checked={templateParams.interest.integratingProject}
+        label="Integrating with our project"
+      />
+      <Checkbox
+        bind:checked={templateParams.interest.hostingMission}
+        label="Hosting a mission"
+      />
+      <Checkbox
+        bind:checked={templateParams.interest.airdroppingAssets}
+        label="Airdropping assets to our holders"
+      />
+      <Checkbox
+        bind:checked={templateParams.interest.brandedAccessories}
+        label="Branded Accessories (digital merchandise)"
+      />
 
-    <label for="additional">Additional Inforomation (Optional)</label>
-    <textarea
-      bind:value={templateParams.additionalInfo}
-      id="additional"
-      rows="4"
-      placeholder="Additional information"
-    />
+      <label for="additional">Additional Inforomation (Optional)</label>
+      <textarea
+        bind:value={templateParams.additionalInfo}
+        id="additional"
+        rows="4"
+        placeholder="Additional information"
+      />
 
-    <button type="submit"> SUBMIT → </button>
-  </form>
+      <button type="submit"> SUBMIT → </button>
+    </form>
+  {/if}
 </div>
 
 <style lang="scss">
