@@ -157,5 +157,7 @@
     background-color: $yellow;
     color: $black;
     margin-top: 20px;
+    width: 100%;
+    max-width: 100%;
   }
 </style>

@@ -4,6 +4,7 @@
   import Join from "@components/shared/Join.svelte";
   import Newsletter from "@components/shared/Newsletter.svelte";
   import LegendaryAvatar from "@src/components/shared/LegendaryAvatar.svelte";
+  import LinkButton from "@src/components/shared/LinkButton.svelte";
 
   const legendaries = [
     {
@@ -70,7 +71,9 @@
         Start by minting your own ICP Squad avatar NFT, then get rewarded with
         NFTs, ICP and other prizes as you explore the Internet Computer.
       </p>
-      <button class="create">Create Avatar →</button>
+      <LinkButton to="/create-avatar">
+        <button class="create">Create Avatar →</button>
+      </LinkButton>
     </div>
     <div class="box">
       <h3>FOR IC DAPPS</h3>
@@ -78,7 +81,9 @@
         We can incentivize our users to join your community, follow your social
         media accounts, and regularly engage with your platform.
       </p>
-      <button class="partnerships">More about partnerships →</button>
+      <LinkButton to="/partners">
+        <button class="partnerships">More about partnerships →</button>
+      </LinkButton>
     </div>
   </div>
   <h3>LONG TERM VISION</h3>

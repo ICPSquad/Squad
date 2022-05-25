@@ -81,7 +81,9 @@
       </p>
     </div>
   </div>
-  <button class="partner-cta">GET IN TOUCH ABOUT PARTNERING →</button>
+  <a href="#partner-form" class="button partner-cta"
+    >GET IN TOUCH ABOUT PARTNERING →</a
+  >
 </div>
 <div class="current-partners">
   <div class="container skinny">
@@ -110,6 +112,7 @@
     </div>
   </div>
 </div>
+<div id="partner-form" />
 <PartnershipsForm />
 <Footer />
 
@@ -154,8 +157,8 @@
     }
   }
 
-  button {
-    background-color: var(--page-feature-color);
+  a.button {
+    background-color: $yellow;
     color: $black;
   }
 
