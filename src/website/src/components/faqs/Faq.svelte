@@ -27,9 +27,6 @@
     margin-bottom: 0;
     font-size: min(max(1rem, 1.5vw), 1.8rem); // Min, Variable, Max
   }
-  article.p {
-    color: red;
-  }
   .faq {
     background-color: $verydarkgrey;
     padding: 20px;
