@@ -115,10 +115,8 @@
 <style lang="scss">
   @use "../styles" as *;
 
-  main,
   h1,
-  h3,
-  a {
+  h3 {
     --page-feature-color: #{$blue};
   }
 

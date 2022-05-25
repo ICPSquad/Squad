@@ -115,20 +115,6 @@
     margin-right: 20px;
   }
 
-  .menu-container {
-    width: 100%;
-    height: 100vh;
-    background-color: $black;
-    display: flex;
-    z-index: 10;
-  }
-
-  .menu-nav-container {
-    width: 1100px;
-    max-width: 100%;
-    margin: 80px auto;
-  }
-
   .menu-open-close {
     cursor: pointer;
     width: 50px;

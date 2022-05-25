@@ -48,10 +48,6 @@
 </div>
 
 <style lang="scss">
-  #avatar-components {
-    height: 0px;
-    width: 0px;
-  }
   .wall-container {
     height: 230px;
   }

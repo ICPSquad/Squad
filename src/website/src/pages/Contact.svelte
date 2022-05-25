@@ -43,7 +43,6 @@
 <style lang="scss">
   @use "../styles" as *;
 
-  main,
   h1,
   h3,
   a,
@@ -59,9 +58,6 @@
     &.skinny {
       max-width: 1000px;
       margin-bottom: 0;
-    }
-    &.team {
-      padding-top: 0;
     }
   }
 
@@ -83,56 +79,5 @@
   h3 {
     margin-top: 100px;
     text-transform: uppercase;
-  }
-
-  div.boxes {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 40px;
-    margin: 60px 0;
-
-    .box {
-      background-color: $verydarkgrey;
-      padding: 40px;
-
-      h3 {
-        text-align: center;
-      }
-    }
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: 40px;
-  }
-
-  @media (max-width: 600px) {
-    div.boxes {
-      grid-template-columns: 100%;
-    }
-
-    .grid {
-      grid-template-columns: 1fr 1fr;
-      grid-gap: 20px;
-    }
-
-    .current-partners {
-      .partner-logos {
-        width: 100%;
-        max-width: 800px;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: center;
-        padding: 40px 0;
-        .partner-logo {
-          height: 40px;
-          &.dscvr {
-            height: 55px;
-          }
-        }
-      }
-    }
   }
 </style>

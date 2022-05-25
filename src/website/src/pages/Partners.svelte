@@ -116,10 +116,8 @@
 <style lang="scss">
   @use "../styles" as *;
 
-  main,
   h1,
   h3,
-  a,
   button {
     --page-feature-color: #{$yellow};
   }
@@ -133,9 +131,6 @@
       max-width: 1000px;
       margin-bottom: 0;
       padding-bottom: 0;
-    }
-    &.team {
-      padding-top: 0;
     }
   }
 
@@ -164,13 +159,8 @@
     color: $black;
   }
 
-  h2,
   p {
     text-align: center;
-  }
-
-  h2 {
-    margin-top: 60px;
   }
 
   div.boxes {
@@ -189,20 +179,9 @@
     }
   }
 
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: 40px;
-  }
-
   @media (max-width: 600px) {
     div.boxes {
       grid-template-columns: 100%;
-    }
-
-    .grid {
-      grid-template-columns: 1fr 1fr;
-      grid-gap: 20px;
     }
 
     .current-partners {

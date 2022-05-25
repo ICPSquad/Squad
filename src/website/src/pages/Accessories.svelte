@@ -107,7 +107,6 @@
 <style lang="scss">
   @use "../styles" as *;
 
-  main,
   h1,
   h3,
   a {

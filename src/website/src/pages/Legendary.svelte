@@ -77,7 +77,6 @@
 <style lang="scss">
   @use "../styles" as *;
 
-  main,
   h1 {
     --page-feature-color: #{$yellow};
   }
