@@ -204,5 +204,23 @@
       grid-template-columns: 1fr 1fr;
       grid-gap: 20px;
     }
+
+    .current-partners {
+      .partner-logos {
+        width: 100%;
+        max-width: 800px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        padding: 40px 0;
+        .partner-logo {
+          height: 40px;
+          &.dscvr {
+            height: 55px;
+          }
+        }
+      }
+    }
   }
 </style>
