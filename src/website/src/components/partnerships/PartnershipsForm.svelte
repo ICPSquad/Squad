@@ -1,0 +1,153 @@
+<script lang="ts">
+  import emailjs from "@emailjs/browser";
+  import Checkbox from "../shared/Checkbox.svelte";
+
+  const handleSubmit = () => {
+    console.log(templateParams);
+
+    // emailjs
+    //   .send(
+    //     "<YOUR_SERVICE_ID>",
+    //     "<YOUR_TEMPLATE_ID>",
+    //     templateParams,
+    //     "<YOUR_PUBLIC_KEY>"
+    //   )
+    //   .then(
+    //     (response) => {
+    //       console.log("SUCCESS!", response.status, response.text);
+    //     },
+    //     (err) => {
+    //       console.log("FAILED...", err);
+    //     }
+    //   );
+  };
+
+  type InterestOptions = {
+    integratingProject: boolean;
+    hostingMission: boolean;
+    airdroppingAssets: boolean;
+    brandedAccessories: boolean;
+  };
+
+  type EmailTemplateProps = {
+    projectName: string;
+    yourName: string;
+    emailAddress: string;
+    interest: InterestOptions;
+    additionalInfo: string;
+  };
+
+  const templateParams: EmailTemplateProps = {
+    projectName: "",
+    yourName: "",
+    emailAddress: "",
+    interest: {
+      integratingProject: false,
+      hostingMission: false,
+      airdroppingAssets: false,
+      brandedAccessories: false,
+    },
+    additionalInfo: "",
+  };
+
+  const toggleChecked = (item: keyof InterestOptions) => {
+    templateParams.interest[item] = !templateParams.interest[item];
+  };
+</script>
+
+<div class="container">
+  <h3>PARTNERSHIP ENQUIRIES</h3>
+  <form on:submit|preventDefault={handleSubmit}>
+    <label for="project-name">Project Name</label>
+    <input
+      bind:value={templateParams.projectName}
+      id="project-name"
+      type="text"
+      placeholder="Project Name"
+      required
+    />
+    <label for="your-name">Your Name</label>
+    <input
+      bind:value={templateParams.yourName}
+      id="your-name"
+      type="text"
+      placeholder="Your Name"
+      required
+    />
+    <label for="email">Email Address</label>
+    <input
+      bind:value={templateParams.emailAddress}
+      id="email"
+      type="email"
+      placeholder="Email address"
+      required
+    />
+    <label for="interests">Interest</label>
+    <Checkbox
+      bind:checked={templateParams.interest.integratingProject}
+      label="Integrating with our project"
+    />
+    <Checkbox
+      bind:checked={templateParams.interest.hostingMission}
+      label="Hosting a mission"
+    />
+    <Checkbox
+      bind:checked={templateParams.interest.airdroppingAssets}
+      label="Airdropping assets to our holders"
+    />
+    <Checkbox
+      bind:checked={templateParams.interest.brandedAccessories}
+      label="Branded Accessories (digital merchandise)"
+    />
+
+    <label for="additional">Additional Inforomation (Optional)</label>
+    <textarea
+      bind:value={templateParams.additionalInfo}
+      id="additional"
+      rows="4"
+      placeholder="Additional information"
+    />
+
+    <button type="submit"> SUBMIT → </button>
+  </form>
+</div>
+
+<style lang="scss">
+  @use "../../styles" as *;
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 100px;
+  }
+
+  form {
+    width: 600px;
+    max-width: 100%;
+  }
+
+  label {
+    display: block;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 6px;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 10px;
+    border: 3px solid $white;
+    background-color: transparent;
+    color: $white;
+    border-radius: 10px;
+  }
+
+  button {
+    background-color: $yellow;
+    color: $black;
+    margin-top: 20px;
+  }
+</style>
