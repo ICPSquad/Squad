@@ -8,6 +8,7 @@
   import Twitter from "@icons/Twitter.svelte";
   import Cross from "@src/icons/Cross.svelte";
   import Menu from "./Menu.svelte";
+  import LinkButton from "@src/components/shared/LinkButton.svelte";
 
   let menuOpen: boolean = false;
 
@@ -40,9 +41,13 @@
         >
           <Twitter width={20} />
         </a>
-        <button on:click={plugConnection}>
-          {$user.loggedIn ? "You are connected" : "Connect your wallet"}
-        </button>
+        {#if $user.loggedIn}
+          <LinkButton to="/dashboard">
+            <button> Dashboard </button>
+          </LinkButton>
+        {:else}
+          <button on:click={plugConnection}> Connect your wallet </button>
+        {/if}
       </div>
     {/if}
     <div class="menu-open-close" on:click={() => (menuOpen = !menuOpen)}>
@@ -55,8 +60,30 @@
   </div>
 </nav>
 
+<div class="floating-discord hide-on-mobile">
+  <a class="" href="https://discord.gg/SqtQ3UJR" target="_blank">
+    <Discord width={20} />
+  </a>
+</div>
+
 <style lang="scss">
   @use "./src/website/src/styles" as *;
+
+  .floating-discord {
+    position: fixed;
+    z-index: 99;
+    right: 60px;
+    bottom: 60px;
+    width: 50px;
+    height: 50px;
+    background-color: #404eed;
+    border-radius: 50%;
+    a {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
 
   nav {
     position: relative;
@@ -81,7 +108,7 @@
     border-radius: 40px;
     margin-right: 20px;
     font-size: 1rem;
-    width: 300px;
+    width: 260px;
   }
 
   .social-icon {

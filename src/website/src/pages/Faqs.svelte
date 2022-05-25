@@ -135,6 +135,7 @@
 
 <style lang="scss">
   @use "../styles" as *;
+
   main,
   h1 {
     --page-feature-color: #{$green};
@@ -160,7 +161,18 @@
     display: grid;
     grid-template-columns: 1fr 2fr;
   }
+
+  .categories {
+    margin-bottom: 40px;
+  }
+
   .category-group {
     margin-bottom: 80px;
+  }
+
+  @media (max-width: 800px) {
+    main {
+      grid-template-columns: 100%;
+    }
   }
 </style>

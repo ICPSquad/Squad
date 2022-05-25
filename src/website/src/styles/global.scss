@@ -44,6 +44,7 @@ button,
   text-transform: uppercase;
   border-radius: 12px;
   width: 540px;
+  max-width: 100%;
   padding: 10px;
   font-weight: bold;
   color: $white;
@@ -69,5 +70,6 @@ button,
   .button {
     font-size: 0.8rem;
     width: 100%;
+    max-width: 100%;
   }
 }

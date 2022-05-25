@@ -74,6 +74,7 @@
     padding: 12px 40px;
     border-radius: 0;
     margin-bottom: 1px;
+    width: 100%;
     &.selected {
       background-color: $darkgrey;
       color: $blue;

@@ -5,7 +5,7 @@
   import Newsletter from "@components/shared/Newsletter.svelte";
   import LegendaryAvatar from "@src/components/shared/LegendaryAvatar.svelte";
   import PartnershipsForm from "@src/components/partnerships/PartnershipsForm.svelte";
-  import Link from "@components/shared/Link.svelte";
+  import Link from "@src/components/shared/LinkButton.svelte";
 </script>
 
 <Header />

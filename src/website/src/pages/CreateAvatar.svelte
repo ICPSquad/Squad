@@ -43,7 +43,7 @@
     );
     colors = generateRandomColor();
   };
-  
+
   let state: State = "creating-avatar";
   let setState = (newState: State) => {
     state = newState;

@@ -8,7 +8,7 @@
   import { createInvoice } from "@utils/invoice";
   import { payInvoice } from "@utils/payment";
   import Spinner from "./Spinner.svelte";
-  import Link from "@components/shared/Link.svelte";
+  import Link from "@src/components/shared/LinkButton.svelte";
   import type { AvatarComponents } from "@src/types/avatar.d";
   import type { AvatarColors } from "@src/types/color.d";
 
@@ -154,7 +154,6 @@
   }
 
   button {
-    max-width: 500px;
     margin-top: 20px;
   }
 

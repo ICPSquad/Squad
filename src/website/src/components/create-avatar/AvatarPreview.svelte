@@ -34,20 +34,13 @@
 <style lang="scss">
   @use "./src/website/src/styles" as *;
 
-  main {
-    --page-feature-color: #{$pink};
-  }
-  .layout-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: 40px;
-  }
   #avatar-components {
     width: 0;
     height: 0;
   }
   button.mint {
     margin-top: 20px;
+    width: 100%;
   }
   p.small {
     font-size: 0.9rem;
