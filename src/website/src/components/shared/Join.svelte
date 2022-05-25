@@ -46,7 +46,6 @@
 
   .button {
     margin-top: 20px;
-    max-width: 600px;
   }
 
   .below-grid {

@@ -43,8 +43,8 @@ button,
   background-color: $pink;
   text-transform: uppercase;
   border-radius: 12px;
-  width: 540px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 540px;
   padding: 10px;
   font-weight: bold;
   color: $white;
@@ -69,7 +69,7 @@ button,
   button,
   .button {
     font-size: 0.8rem;
-    width: 100%;
-    max-width: 100%;
+    // width: 100%;
+    // max-width: 100%;
   }
 }

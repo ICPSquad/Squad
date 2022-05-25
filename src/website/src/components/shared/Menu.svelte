@@ -4,12 +4,21 @@
   import FooterNav from "./FooterNav.svelte";
 
   export let closeMenu;
+
+  const disconnectWallet = () => {
+    console.log("Disconnect wallet");
+    // To do - disconnect wallet
+
+    closeMenu();
+  };
 </script>
 
 <div class="menu-container">
   <div class="container menu-nav-container">
     <FooterNav textAlignCenter {closeMenu} />
-    <button class="secondary"> Disconnect Wallet </button>
+    <button on:click={disconnectWallet} class="secondary">
+      Disconnect Wallet
+    </button>
     <div class="social-icons">
       <a class="discord" href="https://discord.gg/SqtQ3UJR" target="_blank">
         <Discord width={40} />

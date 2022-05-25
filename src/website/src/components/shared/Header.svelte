@@ -8,7 +8,7 @@
   import Twitter from "@icons/Twitter.svelte";
   import Cross from "@src/icons/Cross.svelte";
   import Menu from "./Menu.svelte";
-  import LinkButton from "@src/components/shared/LinkButton.svelte";
+  import LinkButton from "./LinkButton.svelte";
 
   let menuOpen: boolean = false;
 
