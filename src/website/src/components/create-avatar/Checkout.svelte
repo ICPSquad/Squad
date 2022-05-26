@@ -4,7 +4,7 @@
   import { plugConnection } from "@src/utils/connection";
   import { user } from "@src/store/user";
   import { get } from "svelte/store";
-  import { mintRequest } from "@utils/mint";
+  import { mintRequestAvatar } from "@utils/mint";
   import { createInvoice } from "@utils/invoice";
   import { payInvoice } from "@utils/payment";
   import Spinner from "./Spinner.svelte";
@@ -65,11 +65,7 @@
   };
 
   const handlePreorder = () => {
-    if (
-      confirm(
-        "If you joined the preorder list but never minted your avatar, you can skip payment. This won't work otherwise. \n\nDo you confirm being part of the preorder ?"
-      )
-    ) {
+    if (confirm("If you joined the preorder list but never minted your avatar, you can skip payment. This won't work otherwise. \n\nDo you confirm being part of the preorder ?")) {
       setState("waiting-mint");
     }
   };
@@ -79,11 +75,7 @@
   }
 
   const handleMint = async () => {
-    const result = await mintRequest(
-      components,
-      colors,
-      invoice ? Number(invoice.id) : undefined
-    );
+    const result = await mintRequestAvatar(components, colors, invoice ? Number(invoice.id) : undefined);
     if ("ok" in result) {
       token_identifier = result.ok;
       setState("avatar-minted");
@@ -94,10 +86,7 @@
   };
 
   const handleDownload = () => {
-    fetch(
-      "https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/tokenid=" +
-        token_identifier
-    )
+    fetch("https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/tokenid=" + token_identifier)
       .then((response) => response.blob())
       .then((blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -137,9 +126,7 @@
   {:else if state === "error"}
     <p>An errorr occured 😵‍💫</p>
     <p>{error_message}</p>
-    <a href="https://discord.gg/CZ9JgnaySu" target="_blank"
-      ><button> Support </button>
-    </a>
+    <a href="https://discord.gg/CZ9JgnaySu" target="_blank"><button> Support </button> </a>
     <Link to="/">
       <button>Home</button>
     </Link>

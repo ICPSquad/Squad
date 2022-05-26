@@ -7,7 +7,6 @@ import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-import _registry "mo:base/TrieSet";
 
 import AccountIdentifier "mo:principal/AccountIdentifier";
 import Ext "mo:ext/Ext";
@@ -208,12 +207,13 @@ module {
         public func mint(
             request : MintRequest
         ) : Ext.NonFungible.MintResponse {
-            let account_identifier = Ext.User.toAccountIdentifier(request.to);
+            let account_identifier = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
             let index = _nextIndex;
             switch(_registry.get(index)) {
                 case (null) {
                     _registry.put(index, account_identifier);
                     _nextIndex += 1;
+                    _Logs.logMessage("Minted token : " # Nat.toText(Nat32.toNat(index)) # " for account : " # account_identifier);
                     return #ok(index);
                 };
                 case (? _) {

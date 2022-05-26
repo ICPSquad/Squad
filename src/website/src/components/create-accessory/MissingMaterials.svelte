@@ -27,7 +27,6 @@
       {/each}
     </div>
   </div>
-  <a class="button" href="https://discord.gg/CZ9JgnaySu"> Support </a>
   <a class="button" href="https://entrepot.app/marketplace/icpsquad2" target="_blank"> Buy </a>
 </div>
 

@@ -26,11 +26,11 @@ import Root "mo:cap/Root";
 
 import Admins "admins";
 import Entrepot "entrepot";
-import Invoice "invoice";
 import ExtModule "ext";
 import Http "http";
-import StatsTypes "stats/types";
+import Invoice "invoice";
 import Items "items";
+import StatsTypes "stats/types";
 
 shared({ caller = creator }) actor class ICPSquadNFT(
     cid : Principal,
@@ -49,6 +49,8 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     // ADMIN //
     ///////////
 
+    stable var master : Principal = creator;
+
     stable var _AdminsUD : ?Admins.UpgradeData = null;
     let _Admins = Admins.Admins(creator);
 
@@ -56,10 +58,17 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Admins.isAdmin(p);
     };
 
-    public shared ({caller}) func add_admin(p : Principal) : async () {
+    public shared ({ caller }) func add_admin(p : Principal) : async () {
         _Admins.addAdmin(p, caller);
         _Monitor.collectMetrics();
         _Logs.logMessage("Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
+    };
+
+    public shared ({ caller }) func remove_admin(p : Principal) : async () {
+        assert(caller == master);
+        _Monitor.collectMetrics();
+        _Admins.removeAdmin(p, caller);
+        _Logs.logMessage("Removed admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
     };
 
     //////////////
@@ -241,7 +250,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     
     //  Periodically called through heartbeat to verify that all events have been reported 
     public shared ({caller}) func verificationEvents() : async () {
-        assert(caller == Principal.fromActor(this));
+        assert(caller == Principal.fromActor(this) or _Admins.isAdmin(caller));
         for((time,event) in _events.entries()){
             switch(await cap.insert(event)){
                 case(#err(message)){};
@@ -761,10 +770,18 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         };
         // Remove the materials from every database (they are burned).
         for(tokenIndex in materials_used.toArray().vals()){
-            ignore(_Items.burn(tokenIndex));
-            ignore(_Ext.burn(tokenIndex));
-            ignore(_tokenListing.delete(tokenIndex));
-            ignore(_tokenSettlement.delete(tokenIndex));
+           _Items.burn(tokenIndex);
+            _Ext.burn(tokenIndex);
+            _tokenListing.delete(tokenIndex);
+            _tokenSettlement.delete(tokenIndex);
+            
+            // Report burning events to CAP.
+            let event : IndefiniteEvent = {
+                operation = "burn";
+                details = [("token", #Text(Ext.TokenIdentifier.encode(cid,tokenIndex))), ("from", #Text(Principal.toText(caller)))];
+                caller = caller;
+            };
+            ignore(_registerEvent(event));
         };
         // Create the token and the associated accessory.
         let request : Ext.NonFungible.MintRequest = {
@@ -783,9 +800,16 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                           return #err("Error fatal during minting of accessory");
                       };
                       case(#ok()){
-                          let tokenIdentifier = Ext.TokenIdentifier.encode(cid, tokenIndex);
-                          _Logs.logMessage("Accessory created : " # name # " by " # Principal.toText(caller) # "with identifier " # tokenIdentifier);
-                          return #ok(tokenIdentifier);
+                        let tokenIdentifier = Ext.TokenIdentifier.encode(cid, tokenIndex);
+                        // Report minting event to CAP.
+                        let event : IndefiniteEvent = {
+                            operation = "mint";
+                            details = [("token", #Text(Ext.TokenIdentifier.encode(cid, tokenIndex))), ("to", #Text(Principal.toText(caller)))];
+                            caller = caller;
+                        };
+                        ignore(_registerEvent(event));
+                        _Logs.logMessage("Accessory created : " # name # " by " # Principal.toText(caller) # "with identifier " # tokenIdentifier);
+                        return #ok(tokenIdentifier);
                       };
                   };
               };

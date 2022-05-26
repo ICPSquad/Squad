@@ -1,7 +1,7 @@
 import Array "mo:base/Array";
+import Buffer "mo:base/Buffer";
 import Error "mo:base/Error";
 import HashMap "mo:base/HashMap";
-import TrieMap "mo:base/TrieMap";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
@@ -9,9 +9,9 @@ import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
 import Prim "mo:prim";
 import Principal "mo:base/Principal";
-import Buffer "mo:base/Buffer";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
+import TrieMap "mo:base/TrieMap";
 
 import Ext "mo:ext/Ext";
 
@@ -95,6 +95,13 @@ module {
         };
 
         public func addTemplate(name : Text, template : Template) : Result<Text,Text> {
+            switch(template){
+                case(#Accessory(template)) {
+                    _recipes.put(name, template.recipe);
+                    _Logs.logMessage("Recipe added for accessory: " # name);
+                };
+                case _ {};
+            };
            _templates.put(name, template);
            return #ok("Template added for : "  # name);
         };

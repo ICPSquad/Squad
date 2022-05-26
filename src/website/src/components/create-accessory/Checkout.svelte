@@ -4,7 +4,7 @@
   import Spinner from "../shared/Spinner.svelte";
   import type { State } from "@src/components/create-accessory/types";
   import { plugConnection } from "@src/utils/connection";
-  import { inventory } from "@src/store/inventory";
+  import { inventory, checkRecipe } from "@src/store/inventory";
   import { nameToRecipe } from "@src/utils/recipes";
   import { createInvoice } from "@utils/invoice";
   import { payInvoice } from "@utils/payment";
@@ -14,6 +14,7 @@
 
   import MissingMaterials from "./MissingMaterials.svelte";
   import ItemSelection from "../create-avatar/ItemSelection.svelte";
+  import { mintRequestAccessory, capitalizeFirstLetter } from "@src/utils/mint";
 
   export let state: State;
   export let setState: (newState: State) => void;
@@ -73,9 +74,19 @@
     }
   };
 
-  // const handleMint = async () => {
+  $: if (state === "waiting-mint") {
+    handleMint();
+  }
 
-  // }
+  const handleMint = async () => {
+    const result = await mintRequestAccessory(capitalizeFirstLetter(cardSelected), Number(invoice.id));
+    if ("ok" in result) {
+      setState("accessory-minted");
+    } else {
+      setState("error");
+      error_message = result.err;
+    }
+  };
 
   const handleVerification = async () => {
     const result = await checkRecipe(nameToRecipe(cardSelected));
@@ -105,6 +116,8 @@
     <div class="back" on:click={() => setState("creating-accessory")}>← Back</div>
   {:else if state === "waiting-inventory" || state === "waiting-invoice"}
     <Spinner message={"Please wait..."} />
+  {:else if state === "waiting-mint"}
+    <Spinner message={"Creating your accessory..."} />
   {:else if state === "missing-materials"}
     <MissingMaterials {missing_materials} />
     <div class="back" on:click={() => setState("creating-accessory")}>← Back</div>
