@@ -99,9 +99,17 @@ module {
            return #ok("Template added for : "  # name);
         };
 
+        public func getTemplates() : [(Text, Template)] {
+            return Iter.toArray(_templates.entries())
+        };
+
         public func addRecipe(name : Text, recipe : Recipe) : Result<Text,Text> {
             _recipes.put(name, recipe);
             return #ok("Recipe added for : "  # name);
+        };
+
+        public func getRecipes() : [(Text, Recipe)] {
+            return Iter.toArray(_recipes.entries())
         };
 
         public func wearAccessory(

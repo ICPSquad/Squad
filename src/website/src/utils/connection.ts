@@ -7,7 +7,7 @@ import { idlFactory as idlFactoryLedger } from "@canisters/ledger/ledger.did";
 import { actors } from "@src/store/actor";
 import { user } from "@src/store/user";
 
-export async function plugConnection (): Promise<void> {
+export async function plugConnection(): Promise<void> {
   const result = await window.ic.plug.requestConnect({
     whitelist: [avatarID, accessoriesID, invoiceID, ledgerID],
     host: HOST,
@@ -17,7 +17,6 @@ export async function plugConnection (): Promise<void> {
   }
 
   const principal = await window.ic.plug.agent.getPrincipal();
-  user.update((u) => ({ ...u, wallet: "plug", loggedIn: true, principal }));
   const avatarActor = await window.ic.plug.createActor({
     canisterId: avatarID,
     interfaceFactory: idlFactoryAvatar,
@@ -34,6 +33,7 @@ export async function plugConnection (): Promise<void> {
     canisterId: ledgerID,
     interfaceFactory: idlFactoryLedger,
   });
+  user.update((u) => ({ ...u, wallet: "plug", loggedIn: true, principal }));
   actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor }));
-  return 
-};
+  return;
+}

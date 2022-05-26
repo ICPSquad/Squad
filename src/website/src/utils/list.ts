@@ -280,13 +280,13 @@ export const components = [
     category: "avatar",
     type: "hair",
     name: "hair-2",
-    layers: [10,78],
+    layers: [10, 78],
   },
   {
     category: "avatar",
     type: "hair",
     name: "hair-2-base",
-    layers: [10,78],
+    layers: [10, 78],
   },
   {
     category: "avatar",
@@ -298,43 +298,43 @@ export const components = [
     category: "avatar",
     type: "hair",
     name: "hair-4",
-    layers: [10,78],
+    layers: [10, 78],
   },
   {
     category: "avatar",
     type: "hair",
     name: "hair-5",
-    layers: [10,78],
+    layers: [10, 78],
   },
   {
     category: "avatar",
     type: "hair",
     name: "hair-6",
-    layers: [10,78],
+    layers: [10, 78],
   },
   {
     category: "avatar",
     type: "hair",
     name: "hair-6-base",
-    layers: [10,78],
+    layers: [10, 78],
   },
   {
     category: "avatar",
     type: "hair",
     name: "hair-7",
-    layers: [10,78],
+    layers: [10, 78],
   },
   {
     category: "avatar",
     type: "hair",
     name: "hair-8",
-    layers: [10,78],
+    layers: [10, 78],
   },
   {
     category: "avatar",
     type: "hair",
     name: "hair-9",
-    layers: [10,78],
+    layers: [10, 78],
   },
   {
     category: "avatar",
@@ -399,38 +399,14 @@ export const components = [
   {
     category: "accessory",
     type: "body",
-    name: "assassin-cap",
-    layers: [21,22,23,85,86],
-  },
-  {
-    category: "accessory",
-    type: "body",
-    name: "astro-suit",
-    layers: [85],
-  },
-  {
-    category: "accessory",
-    type: "body",
-    name: "bootcamp-soldier",
-    layers: [15, 40],
-  },
-  {
-    category: "accessory",
-    type: "body",
-    name: "cronic-tshirt",
-    layers: [40],
-  },
-  {
-    category: "accessory",
-    type: "body",
-    name: "devil-jacket",
-    layers: [15, 30],
-  },
-  {
-    category: "accessory",
-    type: "body",
     name: "helicap-tshirt",
     layers: [40],
+  },
+  {
+    category: "accessory",
+    type: "body",
+    name: "assassin-cap",
+    layers: [21, 22, 23, 85, 86],
   },
   {
     category: "accessory",
@@ -441,14 +417,27 @@ export const components = [
   {
     category: "accessory",
     type: "body",
-    name: "magic-cap",
-    layers: [9,22, 85],
+    name: "shinobi-suit",
+    layers: [15, 99],
   },
   {
     category: "accessory",
     type: "body",
-    name: "shinobi-suit",
-    layers: [15, 99],
+    name: "yakuza-suit",
+    layers: [15, 30],
+  },
+  {
+    category: "accessory",
+    type: "body",
+    name: "super-suit",
+    layers: [40],
+  },
+
+  {
+    category: "accessory",
+    type: "body",
+    name: "devil-jacket",
+    layers: [15, 30],
   },
   {
     category: "accessory",
@@ -459,26 +448,26 @@ export const components = [
   {
     category: "accessory",
     type: "body",
-    name: "super-suit",
+    name: "magic-cap",
+    layers: [9, 22, 85],
+  },
+  {
+    category: "accessory",
+    type: "body",
+    name: "astro-suit",
+    layers: [85],
+  },
+  {
+    category: "accessory",
+    type: "body",
+    name: "cronic-tshirt",
     layers: [40],
   },
   {
     category: "accessory",
     type: "body",
-    name: "yakuza-suit",
-    layers: [15, 30],
-  },
-  {
-    category: "accessory",
-    type: "eyes",
-    name: "cronic-eyepatch",
-    layers: [77],
-  },
-  {
-    category: "accessory",
-    type: "eyes",
-    name: "dfinity-eyemask",
-    layers: [77],
+    name: "bootcamp-soldier",
+    layers: [15, 40],
   },
   {
     category: "accessory",
@@ -495,13 +484,25 @@ export const components = [
   {
     category: "accessory",
     type: "eyes",
+    name: "sunglasses",
+    layers: [77],
+  },
+  {
+    category: "accessory",
+    type: "eyes",
+    name: "dfinity-eyemask",
+    layers: [77],
+  },
+  {
+    category: "accessory",
+    type: "eyes",
     name: "punk-glasses",
     layers: [77],
   },
   {
     category: "accessory",
     type: "eyes",
-    name: "sunglasses",
+    name: "cronic-eyepatch",
     layers: [77],
   },
   {
@@ -513,8 +514,14 @@ export const components = [
   {
     category: "accessory",
     type: "face",
-    name: "evil-mask",
-    layers: [76,100],
+    name: "juggalo-facemask",
+    layers: [40],
+  },
+  {
+    category: "accessory",
+    type: "face",
+    name: "oni-face-mask",
+    layers: [70],
   },
   {
     category: "accessory",
@@ -531,20 +538,14 @@ export const components = [
   {
     category: "accessory",
     type: "face",
-    name: "juggalo-facemask",
-    layers: [40],
-  },
-  {
-    category: "accessory",
-    type: "face",
     name: "kitsune-mask",
     layers: [76],
   },
   {
     category: "accessory",
     type: "face",
-    name: "oni-face-mask",
-    layers: [70],
+    name: "evil-mask",
+    layers: [76, 100],
   },
   {
     category: "accessory",
@@ -555,14 +556,8 @@ export const components = [
   {
     category: "accessory",
     type: "hat",
-    name: "assassin-hood",
-    layers: [9,85],
-  },
-  {
-    category: "accessory",
-    type: "hat",
-    name: "astro-helmet",
-    layers: [9,84],
+    name: "shinobi-hat",
+    layers: [7, 100],
   },
   {
     category: "accessory",
@@ -573,19 +568,13 @@ export const components = [
   {
     category: "accessory",
     type: "hat",
+    name: "assassin-hood",
+    layers: [9, 85],
+  },
+  {
+    category: "accessory",
+    type: "hat",
     name: "marshall-hat",
-    layers: [85],
-  },
-  {
-    category: "accessory",
-    type: "hat",
-    name: "magic-hood",
-    layers: [9,85],
-  },
-  {
-    category: "accessory",
-    type: "hat",
-    name: "mortaboard-hat",
     layers: [85],
   },
   {
@@ -597,20 +586,20 @@ export const components = [
   {
     category: "accessory",
     type: "hat",
-    name: "shinobi-hat",
-    layers: [7, 100],
+    name: "magic-hood",
+    layers: [9, 85],
   },
   {
     category: "accessory",
-    type: "misc",
-    name: "cronic-hypnose",
-    layers: [6],
+    type: "hat",
+    name: "astro-helmet",
+    layers: [9, 84],
   },
   {
     category: "accessory",
-    type: "misc",
-    name: "cronic-wallpaper",
-    layers: [6],
+    type: "hat",
+    name: "mortaboard-hat",
+    layers: [85],
   },
   {
     category: "accessory",
@@ -622,6 +611,18 @@ export const components = [
     category: "accessory",
     type: "misc",
     name: "sunrise",
+    layers: [6],
+  },
+  {
+    category: "accessory",
+    type: "misc",
+    name: "cronic-hypnose",
+    layers: [6],
+  },
+  {
+    category: "accessory",
+    type: "misc",
+    name: "cronic-wallpaper",
     layers: [6],
   },
 ];
@@ -776,3 +777,12 @@ export const colorCategoryDisplayName = {
   eyeliner: "Eye shadow",
   clothes: "Clothes",
 };
+
+export function nameToSlot(name: string) {
+  const component = components.find((component) => component.name === name);
+  if (component) {
+    return component.type;
+  } else {
+    throw new Error(`Component ${name} not found`);
+  }
+}

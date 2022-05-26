@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <g id="metal">
+        <path id="right" d="M400,647.052L400,382.318L629.266,249.774L629.266,514.685L400,647.052Z" style="fill:url(#_Linear1);"/>
+        <clipPath id="_clip2">
+            <path id="right1" serif:id="right" d="M400,647.052L400,382.318L629.266,249.774L629.266,514.685L400,647.052Z"/>
+        </clipPath>
+        <g clip-path="url(#_clip2)">
+            <g>
+                <g style="filter:url(#_Effect3);">
+                    <path d="M400.329,446.06C400.329,446.06 487.675,460.378 625.723,536.1C763.772,611.821 659.142,517.979 659.142,517.979C659.142,517.979 408.936,407.03 376.508,381.318C344.081,355.607 400.329,446.06 400.329,446.06Z" style="fill:url(#_Linear4);"/>
+                </g>
+            </g>
+            <path d="M422.323,368.553L625.073,256.184L628.819,450.403L639.991,236.294L422.323,368.553Z" style="fill:rgb(254,254,255);"/>
+        </g>
+        <path id="right2" serif:id="right" d="M400,647.052L400,382.318L629.266,249.774L629.266,514.685L400,647.052Z" style="fill:none;stroke:black;stroke-width:2.5px;"/>
+        <g id="left" transform="matrix(-1,0,0,1,800.192,0)">
+            <path d="M400,647.052L400,382.318L629.266,249.774L629.266,514.685L400,647.052Z" style="fill:url(#_Linear5);"/>
+            <clipPath id="_clip6">
+                <path d="M400,647.052L400,382.318L629.266,249.774L629.266,514.685L400,647.052Z"/>
+            </clipPath>
+            <g clip-path="url(#_clip6)">
+                <g>
+                    <g transform="matrix(-1,0,0,1,800.192,0)">
+                        <g style="filter:url(#_Effect7);">
+                            <path d="M396.86,422.076C397.096,396.455 397.269,376.522 397.269,376.522L409.551,376.563L409.183,413.957C449.281,391.397 423.123,455.705 423.123,455.705L408.68,465.008L407.288,606.377C407.288,606.377 400.86,661.585 398.84,654.535C396.821,647.486 395.326,535.622 395.633,532.591C395.761,531.321 396.069,503.703 396.384,472.04C373.191,483.342 283.611,527.808 250.451,556.244C307.963,590.18 377.274,631.641 385.879,639.355C395.769,648.221 303.603,600.228 239.696,566.519C223.765,580.112 215.77,565.166 211.996,551.871C193.482,542.057 181.228,535.514 181.228,535.514L161.723,514.693L171.507,509.97C171.507,509.97 188.414,519.802 212.759,534.076C234.821,521.475 347.103,457.016 396.86,422.076Z" style="fill:rgb(250,250,251);"/>
+                        </g>
+                    </g>
+                </g>
+            </g>
+            <path d="M400,647.052L400,382.318L629.266,249.774L629.266,514.685L400,647.052Z" style="fill:none;stroke:black;stroke-width:2.5px;"/>
+        </g>
+        <path id="top" d="M170.925,249.774L400,117.517L629.266,249.774L400,382.03L170.925,249.774Z" style="fill:url(#_Linear8);"/>
+        <clipPath id="_clip9">
+            <path id="top1" serif:id="top" d="M170.925,249.774L400,117.517L629.266,249.774L400,382.03L170.925,249.774Z"/>
+        </clipPath>
+        <g clip-path="url(#_clip9)">
+            <g>
+                <g style="filter:url(#_Effect10);">
+                    <path d="M301.969,170.953C301.969,170.953 297.208,292.135 306.318,333.908C315.428,375.682 329.574,348.983 329.574,348.983C329.574,348.983 313.533,335.616 307.718,159.049C301.903,-17.518 301.969,170.953 301.969,170.953Z" style="fill:url(#_Linear11);"/>
+                </g>
+            </g>
+            <path d="M305.325,323.474C305.325,323.474 389.059,371.173 400.088,380.715C411.117,390.257 340.279,355.608 340.279,355.608L305.325,323.474ZM173.467,252.987L400.069,122.472L614.572,241.076L392.018,100.97L237.392,196.936L162.502,244.714L173.467,252.987Z" style="fill:rgb(254,254,255);"/>
+        </g>
+        <path id="top2" serif:id="top" d="M170.925,249.774L400,117.517L629.266,249.774L400,382.03L170.925,249.774Z" style="fill:none;stroke:black;stroke-width:2.5px;"/>
+    </g>
+    <defs>
+        <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(239.169,-409.542,409.542,239.169,390.881,661.255)"><stop offset="0" style="stop-color:rgb(110,108,109);stop-opacity:1"/><stop offset="0.25" style="stop-color:rgb(188,189,189);stop-opacity:1"/><stop offset="0.41" style="stop-color:rgb(209,210,210);stop-opacity:1"/><stop offset="0.58" style="stop-color:rgb(209,210,210);stop-opacity:1"/><stop offset="0.75" style="stop-color:rgb(154,156,156);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(110,108,109);stop-opacity:1"/></linearGradient>
+        <filter id="_Effect3" filterUnits="userSpaceOnUse" x="363.436" y="373.718" width="336.689" height="194.904">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.5"/>
+        </filter>
+        <linearGradient id="_Linear4" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-199.262,-87.0558,87.0558,-199.262,592.695,503.478)"><stop offset="0" style="stop-color:rgb(254,254,255);stop-opacity:1"/><stop offset="0.72" style="stop-color:rgb(254,254,255);stop-opacity:0.615686"/><stop offset="1" style="stop-color:rgb(254,254,255);stop-opacity:0"/></linearGradient>
+        <linearGradient id="_Linear5" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(222.558,-389.857,-389.857,-222.558,401.569,648.777)"><stop offset="0" style="stop-color:rgb(104,102,103);stop-opacity:1"/><stop offset="0.21" style="stop-color:rgb(190,190,190);stop-opacity:1"/><stop offset="0.32" style="stop-color:rgb(219,219,220);stop-opacity:1"/><stop offset="0.46" style="stop-color:rgb(219,219,220);stop-opacity:1"/><stop offset="0.84" style="stop-color:rgb(104,102,103);stop-opacity:1"/><stop offset="0.86" style="stop-color:rgb(225,225,226);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(137,140,140);stop-opacity:1"/></linearGradient>
+        <filter id="_Effect7" filterUnits="userSpaceOnUse" x="160.523" y="375.322" width="272.182" height="281.036">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.2"/>
+        </filter>
+        <linearGradient id="_Linear8" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(458.341,0,0,458.341,170.925,249.774)"><stop offset="0" style="stop-color:rgb(248,248,249);stop-opacity:1"/><stop offset="0.13" style="stop-color:rgb(179,178,179);stop-opacity:1"/><stop offset="0.15" style="stop-color:rgb(164,163,164);stop-opacity:1"/><stop offset="0.16" style="stop-color:rgb(117,117,117);stop-opacity:1"/><stop offset="0.19" style="stop-color:rgb(117,117,117);stop-opacity:1"/><stop offset="0.23" style="stop-color:rgb(162,161,162);stop-opacity:1"/><stop offset="0.27" style="stop-color:rgb(179,178,179);stop-opacity:1"/><stop offset="0.38" style="stop-color:rgb(181,181,182);stop-opacity:1"/><stop offset="0.56" style="stop-color:rgb(222,222,223);stop-opacity:1"/><stop offset="0.81" style="stop-color:rgb(235,235,236);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(235,235,236);stop-opacity:1"/></linearGradient>
+        <filter id="_Effect10" filterUnits="userSpaceOnUse" x="288.725" y="71.5465" width="52.8483" height="297.841">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
+        </filter>
+        <linearGradient id="_Linear11" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-15.427,-175.03,175.03,-15.427,318.34,342.105)"><stop offset="0" style="stop-color:rgb(254,254,255);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(254,254,255);stop-opacity:0.27451"/></linearGradient>
+    </defs>
+</svg>

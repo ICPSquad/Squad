@@ -650,6 +650,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     //////////
 
     public type Template = Items.Template;
+    public type Recipe = Items.Recipe;
     public type Item = Items.Item;
     public type Inventory = Items.Inventory;
     public type ItemInventory = Items.ItemInventory;
@@ -680,7 +681,14 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                 return #err((msg));
             };
         }
+    };
 
+    public query func get_templates() : async [(Text, Template)] {
+        _Items.getTemplates();
+    };
+
+    public query func get_recipes() : async [(Text, Recipe)] {
+        _Items.getRecipes();
     };
       
     public shared({caller}) func wearAccessory(
@@ -845,7 +853,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     public type Floor = StatsTypes.Floor;
     public type LastSoldPrice = StatsTypes.LastSoldPrice;
 
-    public query func get_stats_items() : async [(Text, Supply, ?Floor, ?LastSoldPrice)] {)
+    public query func get_stats_items() : async [(Text, Supply, ?Floor, ?LastSoldPrice)] {
         let items = _Items.getItems();
         let buffer = Buffer.Buffer<(Text, Supply, ?Floor, ?LastSoldPrice)>(items.size());
         for (item in items.vals()){

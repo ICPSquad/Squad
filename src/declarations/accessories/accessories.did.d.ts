@@ -101,7 +101,9 @@ export interface ICPSquadNFT {
   'getInventory' : () => Promise<Result__1_4>,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__2]>>,
   'getTokens' : () => Promise<Array<[TokenIndex, Metadata]>>,
-  'get_stats_items' : () => Promise<Array<[string, Supply, [] | [Floor]]>>,
+  'get_stats_items' : () => Promise<
+      Array<[string, Supply, [] | [Floor], [] | [LastSoldPrice]]>
+    >,
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init_cap' : () => Promise<Result>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
@@ -140,6 +142,7 @@ export interface ICPSquadNFT {
 export type Inventory = Array<ItemInventory>;
 export type ItemInventory = { 'Accessory' : AccessoryInventory } |
   { 'Material' : MaterialInventory };
+export type LastSoldPrice = bigint;
 export interface ListRequest {
   'token' : TokenIdentifier__2,
   'from_subaccount' : [] | [SubAccount__2],

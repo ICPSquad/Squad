@@ -18,6 +18,14 @@ export const categoriesIncludingAccessories = [
   "misc",
 ];
 
+export const categoriesOnlyAccessories = [
+  "hat",
+  "face",
+  "glasses",
+  "body",
+  "misc",
+];
+
 export const categoryDisplayName = {
   background: "Background",
   ears: "Ears",
@@ -28,10 +36,10 @@ export const categoryDisplayName = {
   mouth: "Mouth",
   clothes: "Clothes",
   hat: "Hat",
-  face: "Face Accessories",
-  glasses: "Glasses",
-  body: "Body Accessories",
-  misc: "Misc Accessories",
+  face: "Face ",
+  glasses: "Glasses ",
+  body: "Body",
+  misc: "Misc",
 };
 
 export const categoryToColorPickers = {

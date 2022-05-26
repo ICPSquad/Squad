@@ -171,6 +171,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const Supply = IDL.Nat;
   const Floor = IDL.Nat;
+  const LastSoldPrice = IDL.Nat;
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
   const Request = IDL.Record({
     'url' : IDL.Text,
@@ -317,7 +318,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_stats_items' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(IDL.Text, Supply, IDL.Opt(Floor)))],
+        [
+          IDL.Vec(
+            IDL.Tuple(IDL.Text, Supply, IDL.Opt(Floor), IDL.Opt(LastSoldPrice))
+          ),
+        ],
         ['query'],
       ),
     'http_request' : IDL.Func([Request], [Response], ['query']),

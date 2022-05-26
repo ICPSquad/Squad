@@ -27,20 +27,14 @@
   };
 
   // Avatar management
-  let components: AvatarComponents = generateRandomAvatar(
-    0,
-    Math.random() > 0.5 ? filterOption.Man : filterOption.Woman
-  );
+  let components: AvatarComponents = generateRandomAvatar(0, Math.random() > 0.5 ? filterOption.Man : filterOption.Woman);
   const updateAvatarComponent = (category: string, item: string) => {
     components[category] = item;
   };
 
   // Random reset function
   let randomlyResetAvatar = () => {
-    components = generateRandomAvatar(
-      0,
-      Math.random() > 0.5 ? filterOption.Man : filterOption.Woman
-    );
+    components = generateRandomAvatar(0, Math.random() > 0.5 ? filterOption.Man : filterOption.Woman);
     colors = generateRandomColor();
   };
 
@@ -49,7 +43,7 @@
     state = newState;
   };
 
-  async function handleSubmit() {
+  function handleSubmit() {
     state = "waiting-wallet-connection";
   }
 </script>
@@ -62,32 +56,16 @@
   <div class="layout-grid">
     {#if state === "creating-avatar"}
       <div class="categories">
-        <Categories
-          {includeAccessories}
-          {categoryShowing}
-          {setCategoryShowing}
-        />
+        <Categories {includeAccessories} {categoryShowing} {setCategoryShowing} />
       </div>
       <div class="item-selection">
-        <ItemSelection
-          {colors}
-          {updateAvatarColor}
-          {updateAvatarComponent}
-          {categoryShowing}
-          {components}
-        />
+        <ItemSelection {colors} {updateAvatarColor} {updateAvatarComponent} {categoryShowing} {components} />
       </div>
     {:else}
       <Checkout {colors} {components} {state} {setState} />
     {/if}
     <div class="avatar-preview">
-      <AvatarPreview
-        {components}
-        {randomlyResetAvatar}
-        {colors}
-        {handleSubmit}
-        {state}
-      />
+      <AvatarPreview {components} {randomlyResetAvatar} {colors} {handleSubmit} {state} />
     </div>
   </div>
 </main>

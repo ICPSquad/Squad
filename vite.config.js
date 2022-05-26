@@ -42,6 +42,7 @@ const DFX_PORT = dfxJson.networks.local.bind.split(":")[1];
 // See guide on how to configure Vite at:
 // https://vitejs.dev/config/
 export default defineConfig({
+  mode: "development",
   plugins: [svelte()],
   root: "./src/website/",
   resolve: {

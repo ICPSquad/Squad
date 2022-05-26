@@ -93,6 +93,7 @@
     background-color: $darkgrey;
     border-radius: 10px;
     max-height: 125px;
+    cursor: pointer;
     overflow: hidden;
     border: 3px solid transparent;
     &.selected {

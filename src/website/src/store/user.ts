@@ -1,5 +1,5 @@
 import { Principal } from "@dfinity/principal";
-import { writable } from "svelte/store";
+import { writable, get } from "svelte/store";
 import { actors } from "./actor";
 import type { userStore } from "./types/user-store";
 
@@ -29,3 +29,7 @@ export const user = writable<userStore>({
 //     }
 //   }
 // });
+
+export function isLoggedIn() : boolean {
+  return (get(user).loggedIn);
+}

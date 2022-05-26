@@ -5,3 +5,5 @@ const app = new App({
   target: document.getElementById("root"),
 });
 export default app;
+
+console.log(process.env.NODE_ENV);

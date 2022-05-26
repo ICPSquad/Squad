@@ -113,6 +113,7 @@ export interface ICPSquadNFT {
   'get_user' : () => Promise<[] | [UserData]>,
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init_cap' : () => Promise<Result>,
+  'init_default_avatar' : (arg_0: bigint, arg_1: bigint) => Promise<undefined>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
   'metadata' : (arg_0: TokenIdentifier) => Promise<Result_4>,
   'mint' : (arg_0: MintInformation, arg_1: [] | [bigint]) => Promise<
@@ -129,6 +130,7 @@ export interface ICPSquadNFT {
   'tokens' : (arg_0: AccountIdentifier__1) => Promise<Result_3>,
   'tokens_ext' : (arg_0: AccountIdentifier__1) => Promise<Result_2>,
   'tokens_id' : (arg_0: AccountIdentifier__1) => Promise<Result_1>,
+  'tokens_ids' : () => Promise<Array<TokenIdentifier>>,
   'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
   'upload' : (arg_0: Array<number>) => Promise<undefined>,
   'uploadClear' : () => Promise<undefined>,
