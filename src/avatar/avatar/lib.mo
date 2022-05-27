@@ -545,9 +545,10 @@ module {
                     style #= ".Mission-body .Shinobi-suit-99, .Mission-body .Shinobi-suit-15 {transform : scale(1.1) translate(-40px, -40px)";
                 };
             };
-            // Hide the horns when a hat is equipped
+            // Hide the horns (evil-mask) and ears (kitsune-mask) when a hat is equipped
             if(Option.isSome(avatar.slots.Hat) and potential_hat != "ninja-headband"){
-                style #= "#horns {visibility: visible;}";
+                style #= "#evil-mask-76 #horns {visibility: hidden;}";
+                style #= "#Kitsune-mask-V2 #ears {visibility: hidden;}";
             };
             // Hide the energy eyes when they are conflict with hat
             if(potential_hat == "magic-hood" or potential_hat == "style-hat"){
@@ -576,7 +577,11 @@ module {
                             assert(false);
                         };
                         case(#ok(component)) {
-                            svg #= SVG.wrap(component, layer.0, SVG.capitalize(layer.1));
+                            if(_isAccessory(layer.1)) {
+                                svg #= SVG.wrapClassAccessory(component, layer.0, layer.1);
+                            } else {
+                                svg #= SVG.wrapClassAvatar(component, layer.0, layer.1);
+                            }
                         };
                     }
                 };

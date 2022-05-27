@@ -38,51 +38,66 @@ module {
         return SVG_LEADING_PATTERN # svg # SVG_TRAILING_PATTERN;
     };
 
-    public func wrap(content : Text, layerId : Nat, name : Text ) : Text {
+    public func wrapClassAvatar(content : Text, layerId : Nat , name : Text) : Text {
         switch(layerId){
             case (5) {
-                return (_wrap(content, "Background", name));
+                return (_wrapComponent(content, "Background", _capitalizeFirstLetter(name)));
             };
             case(10) {
-                return(_wrap(content, "Hair-behind" , name ));
+                return(_wrapComponent(content, "Hair-behind" ,  _capitalizeFirstLetter(name) ));
             };
             case (20) {
-                return(_wrap(content, "Body" , name ));
+                return(_wrapComponent(content, "Body" ,  _capitalizeFirstLetter(name) ));
+            };
+            case(25) {
+                return(_wrapComponent(content, "Neck",  _capitalizeFirstLetter(name) ));
             };
             case (30) {
-                return(_wrap(content, "Ears" , name ));
+                return(_wrapComponent(content, "Ears" ,  _capitalizeFirstLetter(name) ));
             };
             case(35) {
-                return(_wrap(content, "Head", name ));
+                return(_wrapComponent(content, "Head",  _capitalizeFirstLetter(name) ));
             };
             case(45){
-                return(_wrap(content, "Mouth", name ));
+                return(_wrapComponent(content, "Mouth",  _capitalizeFirstLetter(name) ));
             };
             case(50) {
-                return(_wrap(content, "Eyes", name ));
+                return(_wrapComponent(content, "Eyes",  _capitalizeFirstLetter(name) ));
             };
             case(55) {
-                return(_wrap(content, "Nose", name ));
+                return(_wrapComponent(content, "Nose",  _capitalizeFirstLetter(name) ));
             };
             case(70) {
-                return(_wrap(content, "clothing", name ));
+                return(_wrapComponent(content, "clothing",  _capitalizeFirstLetter(name) ));
             };
             case(75) {
-                return(_wrap(content, "Hair", name));
+                return(_wrapComponent(content, "Hair",  _capitalizeFirstLetter(name)));
+            };
+            case(78) {
+                return(_wrapComponent(content, "Hair",  _capitalizeFirstLetter(name)));
             };
             case(90) {
-                return(_wrap(content, "Hair-above", name));
+                return(_wrapComponent(content, "Hair-above",  _capitalizeFirstLetter(name)));
             };
-            case(95){
-                return(_wrap(content, "Suit", name));
-            };
-            // For accessories 
             case(_) {
-                return(_wrap(content, "", name));
+                assert(false);
+                return(_wrapComponent(content, "Unreacheable",  _capitalizeFirstLetter(name)));
             };
         };
     };
 
+
+    public func wrapClassAccessory(
+        content : Text,
+        layerId : Nat,
+        name : Text
+    ) : Text {
+        let class_accessory : Text = _capitalizeFirstLetter(name) # "-" # Nat.toText(layerId);
+        return(_wrap(content, class_accessory));
+    };
+
+
+ 
     /////////////////
     // Utilities ///
     ///////////////
@@ -94,7 +109,7 @@ module {
     };
 
     // Wrap the component according to its name and its category. Needed for applying the CSS rules.
-    func _wrap(content : Text, category : Text, name : Text ) : Text {
+    func _wrapComponent(content : Text, category : Text, name : Text ) : Text {
         let names = _nameSplit(name);
         var component_wrapped =  "<g class='" # category # "";
         if(category == "clothing") {
@@ -106,6 +121,11 @@ module {
         };
         component_wrapped #= " " # name # "'>" # content # "</g>";
         return(component_wrapped);
+    };
+
+
+    func _wrap(content : Text, title : Text) : Text {
+        return("<g class='" # title # "'>" # content # "</g>");
     };
     
     // Extract a substring from the given string.
@@ -130,12 +150,23 @@ module {
         };
         return r;
     };
+
+    func _capitalizeFirstLetter(t : Text) : Text {
+        let cs = t.chars();
+        var r = "";
+        var count = 0;
+        switch(cs.next()){
+            case(? c){
+                r := Text.fromChar(Prim.charToUpper(c));
+            };
+            case(null) {
+                return("")
+            };
+        };
+        r #= Text.fromIter(cs);
+        return(r);
+    };  
     
 
-    // func _wrapClassAvatar()
-    // func _wrapClassAccessory()
-
-    let accessories : [Text] = ["assassin-cap", "astro-suit", "bootcamp-soldier"]
-
-    // List all accessories. Test if a component is an accessory, in that case `
+  
 }
