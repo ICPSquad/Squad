@@ -1,15 +1,9 @@
 <script lang="ts">
   import Carat from "@icons/Carat.svelte";
-  import {
-    categoriesExludingAccessories,
-    categoriesIncludingAccessories,
-    categoryDisplayName,
-  } from "@src/utils/categories";
+  import { categoriesExludingAccessories, categoriesIncludingAccessories, categoryDisplayName } from "@src/utils/categories";
 
   export let includeAccessories: boolean = false;
-  const categories = includeAccessories
-    ? categoriesIncludingAccessories
-    : categoriesExludingAccessories;
+  const categories = includeAccessories ? categoriesIncludingAccessories : categoriesExludingAccessories;
 
   export let categoryShowing: string;
   export let setCategoryShowing: (category: string) => void;
@@ -25,10 +19,7 @@
 <div>
   <div class="categories desktop">
     {#each categories as category}
-      <button
-        on:click={() => setCategoryShowing(category)}
-        class="category {categoryShowing == category ? 'selected' : ''}"
-      >
+      <button on:click={() => setCategoryShowing(category)} class="category {categoryShowing == category ? 'selected' : ''}">
         <div class="left">
           {categoryDisplayName[category]}
         </div>
@@ -46,10 +37,7 @@
     {#if listExpanded}
       {#each categories as category}
         {#if categoryShowing !== category}
-          <button
-            on:click={() => handleSetCategory(category)}
-            class="category {categoryShowing == category ? 'selected' : ''}"
-          >
+          <button on:click={() => handleSetCategory(category)} class="category {categoryShowing == category ? 'selected' : ''}">
             <div class="left">
               {categoryDisplayName[category]}
             </div>

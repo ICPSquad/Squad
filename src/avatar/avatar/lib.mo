@@ -9,6 +9,7 @@ import Prim "mo:prim";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import TrieMap "mo:base/TrieMap";
+import _avatars "mo:base/TrieSet";
 
 import Ext "mo:ext/Ext";
 
@@ -299,6 +300,9 @@ module {
             };
         };
 
+        public func burn(tokenId : TokenIdentifier) : () {
+            _avatars.delete(tokenId);
+        };
 
         //////////////////
         // UTILITIES ////
@@ -477,11 +481,80 @@ module {
             return(buffer.toArray());
         };
 
+        /* 
+            This function is used to dynamicall add <style> to the avatar depending on the accessory that are equipped 
+            See RenderAvatar.svelte for inspiration
+        */
         func _getStyleOptionalAccessory(avatar : Avatar) : Text {
-            switch(avatar.slots.Body){
-                case(null) return "";
-                case(?something) return "<style> .clothing {visibility : hidden;} </style>";
+            var style : Text = "<style>";
+            // List of hats that need to change the hairstyle
+            let hats_hairstyle = ["helicap", "marshall-hat", "mortaboard-hat", "shinobi-hat"];
+            let potential_hat = Option.get<Text>(avatar.slots.Hat, "null");
+            let potential_body = Option.get<Text>(avatar.slots.Body, "null");
+            let potential_face = Option.get<Text>(avatar.slots.Face, "null");
+            let potential_eyes = Option.get<Text>(avatar.slots.Eyes, "null");
+            let potential_misc = Option.get<Text>(avatar.slots.Misc, "null");
+            // When the Body slot is taken we add a rule to remove visibility of clothing
+            if(Option.isSome(avatar.slots.Body)){
+                style #= ".clothing {visibility: hidden;}";
             };
+            // When the Hat slot is taken by an accessory that needs to change hairstyle we do so.
+            if(Option.isSome(Array.find<Text>(hats_hairstyle, func(x) {x == potential_hat}))){
+                style #= "#classic-hair-back {visibility: hidden;}";
+                style #= "#classic-hair-front {visibility: hidden;}";
+                style #= ".Hair-above {visibility: hidden;}";
+                style #= "#top-hair-15 {visibility: hidden;}";
+                style #= ".Hair-behind.Hair-13 {visibility: hidden;}";
+            } else {
+                style #= "#hat-hair-back {visibility: hidden;}";
+                style #= "#hat-hair-front {visibility: hidden;}";
+            };
+            // When the hat is a hood then we hide the hair
+            if(potential_hat == "magic-hood" or potential_hat == "assassin-hood"){
+                style #= ".Hair {visibility: hidden;}";
+            };
+            // Deal with magic-cap & magic-hood
+            if(potential_hat == "magic-hood" and potential_body == "magic-cap"){
+                style #= ".Magic-hood-85,.Magic-hood-9 {visibility: hidden;}";
+                style #= ".Magic-cap-85 {visibility: visible;}";
+            };
+            if(potential_hat == "assassin-hood" and potential_body != "magic-cap"){
+                style #= ".Ears {visibility: hidden;}";
+            };
+            // Deal with assassin-cap & assassin-hood
+            if(potential_body == "assassin-cap"){
+                if(potential_hat == "assassin-hood"){
+                    style #= ".Assassin-hood-85,.Assassin-hood-9 {visibility: hidden;}";
+                } else {
+                    style #= ".Assassin-cap-9, .Assassin-cap-22, .Assassin-cap-85 {visibility: hidden;}";
+                }
+            };
+            // Add clippath for astro helmet expect with the hair-13
+            if(potential_hat == "astro-helmet" and avatar.hair != "hair-13"){
+                style #= ".Hair {clip-path: url(#astro-helmet-mask);}";
+            };
+            // Fix issues caused by the shinobi-suit
+            if(potential_body == "shinobi-suit"){
+                if(potential_hat == "magic-hood" or potential_hat == "assassin-hood"){
+                    style #= ".Business-body .Shinobi-suit-99, .Business-body .Shinobi-suit-15 {transform : scale(1.1) translate(-40px, -40px)";
+                    style #= "#business-profile-20 {visibility: hidden;}";
+                };
+                if(potential_hat == "astro-helmet"){
+                    style #= ".Business-body .Shinobi-suit-99, .Business-body .Shinobi-suit-15 {transform : scale(1.1) translate(-40px, -40px)";
+                    style #= ".Punk-body .Shinobi-suit-99, .Punk-body .Shinobi-suit-15 {transform : scale(1.1) translate(-40px, -40px)";
+                    style #= ".Mission-body .Shinobi-suit-99, .Mission-body .Shinobi-suit-15 {transform : scale(1.1) translate(-40px, -40px)";
+                };
+            };
+            // Hide the horns when a hat is equipped
+            if(Option.isSome(avatar.slots.Hat) and potential_hat != "ninja-headband"){
+                style #= "#horns {visibility: visible;}";
+            };
+            // Hide the energy eyes when they are conflict with hat
+            if(potential_hat == "magic-hood" or potential_hat == "style-hat"){
+                style #= "#energy-eyes {visibility: hidden;}";
+            };
+            style #= "</style>";
+            return(style);
         };
 
         func _createBlob(
@@ -565,6 +638,28 @@ module {
                         level = #Legendary;
                         blob = file.asset.payload;
                     })
+                };
+            };
+        };
+
+        /* Returns a boolean indicating if the component is an accessory)^m/+pm/
+        
+          */        
+        func _isAccessory(name : Text) : Bool {
+            switch(_components.get(name)){
+                case(null) {
+                    assert(false);
+                    return false;
+                };
+                case(? component) {
+                    switch(component.category){
+                        case(#Accessory) {
+                            return true;
+                        };
+                        case _ {
+                            return false;
+                        };
+                    }
                 };
             };
         };

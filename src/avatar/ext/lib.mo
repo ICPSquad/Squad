@@ -1,6 +1,4 @@
-import AccountIdentifier "mo:principal/AccountIdentifier";
 import Buffer "mo:base/Buffer";
-import Ext "mo:ext/Ext";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
@@ -8,10 +6,14 @@ import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-import TokenIdentifier "mo:encoding/Base32";
 import TrieMap "mo:base/TrieMap";
-import Types "types";
 import _registry "mo:base/ExperimentalStableMemory";
+
+import AccountIdentifier "mo:principal/AccountIdentifier";
+import Ext "mo:ext/Ext";
+import TokenIdentifier "mo:encoding/Base32";
+
+import Types "types";
 
 module {
 
@@ -293,6 +295,12 @@ module {
         public func size() : Nat {
             _registry.size();
         };
+
+        public func burn(index : TokenIndex) : () {
+            _registry.delete(index);
+        };
+
+
 
         func _getMaxTokenIndex() : Nat32 {
             var maximum : Nat32 = 0;

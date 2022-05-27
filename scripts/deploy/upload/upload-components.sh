@@ -65,7 +65,7 @@ IFS=','
         layersCandid="vec {"
         for layer in "${list[@]}"
         do
-            file="assets/components/accessories/$type/$name/$name-$layer.svg"
+            file="assets/components/accessory/$type/$name/$name-$layer.svg"
             tag_layer=$layer
             tag_component=$type
             [ ! -f $file ] && { echo "$file file not found"; exit 99; }

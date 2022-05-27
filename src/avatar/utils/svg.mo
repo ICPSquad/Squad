@@ -130,4 +130,12 @@ module {
         };
         return r;
     };
+    
+
+    // func _wrapClassAvatar()
+    // func _wrapClassAccessory()
+
+    let accessories : [Text] = ["assassin-cap", "astro-suit", "bootcamp-soldier"]
+
+    // List all accessories. Test if a component is an accessory, in that case `
 }

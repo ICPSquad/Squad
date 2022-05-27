@@ -1,5 +1,4 @@
 import { getComponentByName } from "@src/utils/list";
-import type { AvatarComponents } from "@src/types/avatar.d";
 
 /*  Generate the class to be applied to any component (accessories included).
     @param {string} name : The name of the component (as specified in the manifest)

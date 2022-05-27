@@ -1,30 +1,32 @@
-import AccountIdentifier "mo:principal/AccountIdentifier";
-import Admins "admins";
 import Array "mo:base/Array";
-import Assets "assets";
-import Avatar "avatar";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
-import Canistergeek "mo:canistergeek/canistergeek";
-import Cap "mo:cap/Cap";
 import Cycles "mo:base/ExperimentalCycles";
-import Ext "mo:ext/Ext";
-import ExtModule "ext";
 import Hash "mo:base/Hash";
-import TrieMap "mo:base/TrieMap";
-import Http "http";
 import Int "mo:base/Int";
-import Invoice "invoice";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Option "mo:base/Option";
 import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
-import Root "mo:cap/Root";
-import Scores "scores";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+import TrieMap "mo:base/TrieMap";
+
+import AccountIdentifier "mo:principal/AccountIdentifier";
+import Canistergeek "mo:canistergeek/canistergeek";
+import Cap "mo:cap/Cap";
+import Ext "mo:ext/Ext";
+import Root "mo:cap/Root";
+
+import Admins "admins";
+import Assets "assets";
+import Avatar "avatar";
+import ExtModule "ext";
+import Http "http";
+import Invoice "invoice";
+import Scores "scores";
 import Users "users";
 
 shared ({ caller = creator }) actor class ICPSquadNFT(
@@ -235,6 +237,54 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Avatar.drawAvatar(tokenId);
     };
 
+    /* 
+        Associate a legendary avatar artwork with the given tokenIdentifier. Do NOT create the token 
+        @auth : admin
+     */
+    public shared ({ caller }) func associate_legendary(
+        name : Text,
+        token : TokenIdentifier
+    ) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        switch(_Avatar.createLegendary(name, token)){
+            case(#err(_)){
+                _Logs.logMessage("Failed to associate legendary : " # name # " with token: " # token);
+                return #err("Failed to associate legendary : " # name # " with token : " # token);
+            };
+            case(#ok(_)){
+                _Logs.logMessage("Associated legendary : " # name # " with token : " # token);
+                return #ok;
+            };
+        };
+    };
+
+    public shared ({ caller }) func burn(
+        token : TokenIdentifier
+    ) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        let index = switch(Ext.TokenIdentifier.decode(token)){
+            case(#err(_)) {
+                _Logs.logMessage("Failed to decode token: " # token);
+                return #err("Failed to decode token: " # token);
+            };
+            case(#ok(p, index)) {
+                assert(p == cid);
+                _Ext.burn(index);
+                _Avatar.burn(token);
+                let event = {
+                    operation = "burn";
+                    details = [("token", #Text(token)), ("from", #Text(Principal.toText(caller)))];
+                    caller = caller;
+                };
+                ignore(_registerEvent(event));
+                _Logs.logMessage("Burned avatar: " # token # " by : " # Principal.toText(caller));
+                return #ok;
+            };
+        }
+    };
+
     public type MintResult = Result<TokenIdentifier, Text>;
     public shared ({caller}) func mint(
         info : MintInformation,
@@ -283,6 +333,32 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
+    /* Used locally to test the avatar rendering engine */
+    public shared ({caller}) func mint_test(
+        info : MintInformation,
+    ) : async MintResult {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        switch(_Ext.mint({ to = #principal(caller); metadata = null; })){
+            case(#err(#Other(e))) return #err(e);
+            case(#err(#InvalidToken(e))) return #err(e);
+            case(#ok(index)){
+                let tokenId = Ext.TokenIdentifier.encode(cid, index);
+                _Logs.logMessage("Minted token: " # tokenId);
+                switch(_Avatar.createAvatar(info, tokenId)){
+                    case(#ok) {
+                        _Logs.logMessage("Created avatar: " # tokenId # "by " # Principal.toText(caller));
+                        return #ok(tokenId);
+                    };
+                    case(#err(e)){
+                        _Logs.logMessage("Error during avatar creation for token: " # tokenId);
+                        return #err(e);
+                    };
+                };
+            };
+        };
+    };
+
     public shared ({caller}) func wearAccessory(
         tokenId : TokenIdentifier,
         name : Text,
@@ -317,6 +393,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         name : Text,
         p : Principal
     ) : async Result<(), Text> {
+        //Todo : remove limitations
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
          switch(_Ext.balance({ user = #principal(p); token = tokenId})){
@@ -533,35 +610,30 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Ext = _Ext;
     });
 
-    public shared ({ caller }) func init_default_avatar(m : Nat, n : Nat) : async () {
-        assert(_Admins.isAdmin(caller));
-        let users_principals = Array.map<(Principal,UserData), Principal>(_Users.getUsers(), func(x) {x.0}); 
-        for(x in Iter.range(m, n)){
-            _Users.defaultAvatar(users_principals[x]);
-        };
-    };
-
+    /* Get the user profile of the caller */
     public shared query ({ caller }) func get_user() : async ?UserData {
         _Users.getUser(caller);
     };
-
+    /* Replace the user profile of the caller with the new profile */
     public shared ({ caller }) func modify_user(user : UserData) : async Result<(), Text> {
         _Monitor.collectMetrics();
         _Users.modifyUser(caller, user);
     };
 
+    /* 
+        Get all user profiles 
+        @auth : admin
+    */
     public shared ({ caller }) func get_all_users() : async [(Principal,UserData)] {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         _Users.getUsers();
     };
 
-    public shared ({ caller }) func calculate_accounts() : async () {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Users.calculateAccounts();
-    };
-
+    /* 
+            Called regularly by the hub canister to get informations on the leaderboard (Associate principal with name and default TokenIdentifier for the avatar )
+            @auth : admin or hub canister
+     */
     public shared query ({ caller }) func get_infos_leaderboard() : async [(Principal, ?Name, ?TokenIdentifier)] {
         assert(_Admins.isAdmin(caller) or caller == hub_cid);
         _Monitor.collectMetrics();
@@ -584,6 +656,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Ext = _Ext;
     });
 
+    /* 
+        Upload stats of accessories (star)
+        @auth : admin
+    */
     public shared ({ caller }) func uploadStats(
         stats : Stats
     ) : () {
@@ -592,12 +668,21 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Scores.uploadStats(stats);
     };
 
+    /* 
+        Update the current score (non cumulative) of each Token based on what they wear.
+        @auth : admin
+    */
     public shared ({ caller }) func calculate_style_score() : () {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         _Scores.calculateStyleScores();
     };
 
+
+    /* 
+        Get the current score (cumulative) of each Token based on the previous score of the ongoing month.
+        @auth : admin
+    */
     public shared query ({ caller }) func get_style_score() : async [(TokenIdentifier, StyleScore)] {
         assert(_Admins.isAdmin(caller) or caller == hub_cid) ;
         _Scores.getStyleScores();

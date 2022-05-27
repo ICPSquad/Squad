@@ -48,7 +48,7 @@ function createColors(color: AvatarColors): Colors {
   return result;
 }
 
-/* This function is needed due to the discrepancy between the names in the frontend and as upload in the canister (accessory and avatar)  */
+/* This function is needed due to the discrepancy between items/components names in the frontend and as upload in the canister (accessory and avatar)  */
 export function capitalizeFirstLetter(word: string) {
   return word.charAt(0).toUpperCase() + word.slice(1);
 }

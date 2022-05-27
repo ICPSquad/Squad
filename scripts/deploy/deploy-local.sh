@@ -5,6 +5,7 @@ AVATAR_CANISTER_ID="rrkah-fqaaa-aaaaa-aaaaq-cai"
 ACCESSORIES_CANISTER_ID="ryjl3-tyaaa-aaaaa-aaaba-cai"
 INVOICE_CANISTER_ID="r7inp-6aaaa-aaaaa-aaabq-cai"
 LEDGER_CANISTER_ID="rkp4c-7iaaa-aaaaa-aaaca-cai"
+HUB_CANISTER_ID="rno2w-sqaaa-aaaaa-aaacq-cai"
 
 echo "Using your default identity 👦"
 dfx identity use default
@@ -14,6 +15,7 @@ dfx canister create avatar
 dfx canister create accessories 
 dfx canister create invoice 
 dfx canister create ledger
+dfx canister create hub
 
 echo "Verifying the ids assigned to canisters 🔍"
 DEPLOYED_AVATAR_CANISTER_ID=$(dfx canister id avatar)
@@ -36,18 +38,25 @@ if [ "$DEPLOYED_LEDGER_CANISTER_ID" != "$LEDGER_CANISTER_ID" ]; then
     echo "Deployed ledger canister id is not the same as the expected one."
     exit 1
 fi
+DEPLOYED_HUB_CANISTER_ID=$(dfx canister id hub)
+if [ "$DEPLOYED_HUB_CANISTER_ID" != "$HUB_CANISTER_ID" ]; then
+    echo "Deployed hub canister id is not the same as the expected one."
+    exit 1
+fi
 
 echo "Building the WebAssembly modules 👷"
 dfx build avatar& > /dev/null 2>&1
 dfx build accessories& > /dev/null 2>&1
 dfx build invoice& > /dev/null 2>&1
+dfx build hub& > /dev/null 2>&1
 wait 
 
 
 echo "Deploying the modules into canisters 🚀"
-dfx canister install avatar --mode install --argument "(principal \"${AVATAR_CANISTER_ID}\", principal  \"${INVOICE_CANISTER_ID}\" )" >> /dev/null 2>&1
-dfx canister install accessories --mode install --argument "(principal \"${ACCESSORIES_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\")"& >> /dev/null 2>&1
-dfx canister install invoice --mode install --argument "(principal \"${LEDGER_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\", principal \"${ACCESSORIES_CANISTER_ID}\" )" & >> /dev/null 2>&1
+dfx canister install avatar --mode install --argument "(principal \"${AVATAR_CANISTER_ID}\", principal \"${ACCESSORIES_CANISTER_ID}\", principal \"${INVOICE_CANISTER_ID}\", principal \"${HUB_CANISTER_ID}\")"
+dfx canister install accessories --mode install --argument "(principal \"${ACCESSORIES_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\", principal \"${INVOICE_CANISTER_ID}\")"
+dfx canister install invoice --mode install --argument "(principal \"${LEDGER_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\", principal \"${ACCESSORIES_CANISTER_ID}\", null, null)" 
+dfx canister install hub --mode install --argument "(principal \"${HUB_CANISTER_ID}\", principal \"${INVOICE_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\")"
 wait
 
 echo "Deploying the ledger 💰"

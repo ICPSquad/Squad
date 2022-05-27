@@ -12,7 +12,7 @@
   import type { State } from "@src/components/create-avatar/types";
 
   // Include accessories : (default is false, only include for testing purposes)
-  let includeAccessories = false;
+  let includeAccessories = true;
 
   // Category showing
   let categoryShowing = "profile";

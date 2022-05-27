@@ -17,12 +17,14 @@ import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+import _Ext "mo:base/Int16";
 
 import AccountIdentifier "mo:principal/AccountIdentifier";
 import Canistergeek "mo:canistergeek/canistergeek";
 import Cap "mo:cap/Cap";
 import Ext "mo:ext/Ext";
 import Root "mo:cap/Root";
+import _Monitor "mo:canistergeek/typesModule";
 
 import Admins "admins";
 import Entrepot "entrepot";
@@ -770,7 +772,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         };
         // Remove the materials from every database (they are burned).
         for(tokenIndex in materials_used.toArray().vals()){
-           _Items.burn(tokenIndex);
+            _Items.burn(tokenIndex);
             _Ext.burn(tokenIndex);
             _tokenListing.delete(tokenIndex);
             _tokenSettlement.delete(tokenIndex);
@@ -814,6 +816,36 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                   };
               };
         };
+    };
+
+    public shared ({ caller }) func burn(
+        token : TokenIdentifier
+    ) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        let tindex = switch(Ext.TokenIdentifier.decode(token)){
+            case(#err(_)) {
+                return #err("Invalid token identifier");
+            };
+            case(#ok(cid, index)){ index };
+        };
+        if(_Items.isEquipped(tindex)){
+            return #err("Cannot burn equipped item. Please desequip first.");
+        };
+        // Todo add Entrepot verification
+        _Ext.burn(tindex);
+        _Items.burn(tindex);
+        _tokenListing.delete(tindex);
+        _tokenSettlement.delete(tindex);
+        // Report burning to CAP.
+        let event : IndefiniteEvent = {
+                operation = "burn";
+                details = [("token", #Text(Ext.TokenIdentifier.encode(cid,tindex))), ("from", #Text(Principal.toText(caller)))];
+                caller = caller;
+        };
+        ignore(_registerEvent(event));
+        _Logs.logMessage("Accessory burned : " # token # " by " # Principal.toText(caller));
+        return #ok;
     };
 
     // public shared ({caller}) func updateAccessories(

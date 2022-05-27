@@ -13,7 +13,6 @@
   import { nameToSlot } from "@src/utils/list";
 
   import MissingMaterials from "./MissingMaterials.svelte";
-  import ItemSelection from "../create-avatar/ItemSelection.svelte";
   import { mintRequestAccessory, capitalizeFirstLetter } from "@src/utils/mint";
 
   export let state: State;
@@ -110,7 +109,6 @@
   <h3>Mint an accessory</h3>
   {#if state === "waiting-wallet-connection"}
     <p>Please connect a wallet to continue</p>
-    <!-- <img src="/assets/accessories/{nameToSlot(cardSelected)}/{cardSelected}/{cardSelected}-minified.svg" alt="Card" /> -->
     <button on:click={() => handleConnectPlug()}>Plug wallet</button>
     <!-- <button on:click={() => handleConnectStoic()}>Stoic wallet</button> -->
     <div class="back" on:click={() => setState("creating-accessory")}>← Back</div>
@@ -125,6 +123,12 @@
     <p>An errorr occured 😵‍💫</p>
     <p>{error_message}</p>
     <button> <a href="https://discord.gg/CZ9JgnaySu" target="_blank"> Support </a> </button>
+    <Link to="/">
+      <button>Home</button>
+    </Link>
+  {:else if state === "accessory-minted"}
+    <p>Congratulation : your accessory has been successfully minted !</p>
+    <p>You will receive it in your wallet in a few seconds 🎁</p>
     <Link to="/">
       <button>Home</button>
     </Link>
