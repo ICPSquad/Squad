@@ -158,8 +158,8 @@ module {
         ) : Types.Response {
             switch(tokenId){
                 case(?tokenId){
-                    switch(state._Avatar.getAvatar(tokenId)){
-                        case(?avatar) _renderBlob(avatar.blob, "image/svg+xml");
+                    switch(state._Avatar.getBlob(tokenId)){
+                        case(? blob) _renderBlob(blob, "image/svg+xml");
                         case _ _http404(?"Asset not found.");
                     };
                 };

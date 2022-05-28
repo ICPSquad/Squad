@@ -82,9 +82,6 @@ module {
         removeAccessory(accessory : TokenIdentifier, avatar : TokenIdentifier, caller: Principal) : async Result<(),Text>;
 
         //
-        updateAccessory(accessory : TokenIdentifier) : Result<AccessoryUpdate, Text>;
-
-        //
         mint(name : Text, index : TokenIndex) : Result<(), Text>;
 
         //

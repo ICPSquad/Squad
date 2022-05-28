@@ -26,6 +26,7 @@ import Avatar "avatar";
 import ExtModule "ext";
 import Http "http";
 import Invoice "invoice";
+import SVG "utils/svg";
 import Scores "scores";
 import Users "users";
 
@@ -285,6 +286,12 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         }
     };
 
+    public shared ({ caller }) func clean_blob() : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Avatar.cleanBlob();
+    };
+
     public type MintResult = Result<TokenIdentifier, Text>;
     public shared ({caller}) func mint(
         info : MintInformation,
@@ -417,7 +424,33 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
             };
         };
     };
-  
+
+    let ACCESSORY_ACTOR = actor(Principal.toText(accessory_cid)) : actor {
+        confirmed_burned_accessory: shared (index : TokenIndex) -> async ();
+    };
+
+    public shared ({caller}) func report_burned_accessory(
+        name : Text,
+        avatar : TokenIdentifier,
+        accessory : TokenIndex
+    ) : async () {
+        assert(caller == accessory_cid);
+        _Monitor.collectMetrics();
+        let index = accessory; 
+        // ⚠️ Name of accessory in the accessory canister are not capitalized whereas in the avatar caniste they are...
+        switch(_Avatar.removeAccessory(SVG.capitalize(name), avatar)){
+            case(#err(_)){
+                _Logs.logMessage("CRITICAL ERROR : " # "Accessory " # name # " not removed from avatar " # avatar);
+            };
+            case(#ok){
+                _Logs.logMessage("Accessory " # name # " removed from avatar " # avatar);
+            };
+        };
+        // Send a notification to the accessory canister
+        ignore(ACCESSORY_ACTOR.confirmed_burned_accessory(index));
+        return;
+    };
+
     ///////////////////
     // EXT - ERC721 //
     /////////////////
@@ -564,7 +597,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
-    // It should  always be 0
+    // It should always be 0
     public shared query ({caller}) func eventsSize() : async Nat {
         assert(_Admins.isAdmin(caller));
         _events.size();
@@ -630,6 +663,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Users.getUsers();
     };
 
+    /* 
+        Get number of users
+     */
     public query func get_number_users() : async Nat {
         _Users.getNumberUsers();
     };
@@ -684,8 +720,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
 
 
     /* 
-        Get the current score (cumulative) of each Token based on the previous score of the ongoing month.
-        @auth : admin
+        Get the current score of each Token
+        @Cronic : Called daily by the hub canister to take a screenshot of the current score of each Token
+        @auth : admin or hub canister
     */
     public shared query ({ caller }) func get_style_score() : async [(TokenIdentifier, StyleScore)] {
         assert(_Admins.isAdmin(caller) or caller == hub_cid) ;

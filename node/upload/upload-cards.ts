@@ -60,7 +60,7 @@ async function upload() {
     let element = results[i];
     if (element.category === "Material") {
       let template = createMaterial(element.name);
-      let result = await actor.addTemplate(element.name, template);
+      let result = await actor.add_template(element.name, template);
       if (result.hasOwnProperty("ok")) {
         console.log("Uploaded card for : " + element.name + ".");
       } else {
@@ -68,7 +68,7 @@ async function upload() {
       }
     } else if (element.category === "Accessory") {
       let template = createAccessory(element.name, element.slot, element.recipe);
-      let result = await actor.addTemplate(element.name, template);
+      let result = await actor.add_template(element.name, template);
       if (result.hasOwnProperty("ok")) {
         console.log("Uploaded card for : " + element.name + ".");
       } else {

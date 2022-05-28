@@ -250,12 +250,6 @@ module {
             };
         };
 
-        public func removeAllAccessories(
-            tokenId : TokenIdentifier,
-        ) : Result<(), Text> {
-            #ok;
-        };
-
         public func drawAvatar(
             tokenId : TokenIdentifier,
         ) : Result<(), Text> {
@@ -282,6 +276,29 @@ module {
             };
         };
 
+        /* 
+            This function returns the optional blob associated with a tokenIdentifier.
+            Normal avatar : Generated blob 'on-the-fly' with the _createBlob method.
+            Legendaries : Blob stored as a field in the avatar directly.
+        */
+        public func getBlob(
+            tokenId : TokenIdentifier,
+        ) : ?Blob {
+            switch(_avatars.get(tokenId)){
+                case(? avatar) {
+                    switch(avatar.level){
+                        case(#Legendary) {
+                            return ?avatar.blob;
+                        };
+                        case(_){
+                            return ?_createBlob(avatar);
+                        }
+                    }
+                };
+                case(null) return null;
+            };
+        };
+
         public func getAvatar(tokenId : TokenIdentifier) : ?Avatar {
             return _avatars.get(tokenId);
         };
@@ -302,6 +319,31 @@ module {
 
         public func burn(tokenId : TokenIdentifier) : () {
             _avatars.delete(tokenId);
+        };
+
+        /* Used once as a cleanup to save memory. We don't need to store the blob as we can create it on the fly (expect for legendaries) */
+        public func cleanBlob() : () {
+            for((tokenId, avatar) in _avatars.entries()){
+                switch(avatar.level){
+                    case(#Legendary){};
+                    case _ {
+                        _avatars.put(tokenId, {
+                            background = avatar.background;
+                            profile = avatar.profile;
+                            ears = avatar.ears;
+                            mouth = avatar.mouth;
+                            eyes = avatar.eyes;
+                            nose = avatar.nose;
+                            hair = avatar.hair;
+                            cloth = avatar.cloth;
+                            style = avatar.style;
+                            slots = avatar.slots;
+                            level = avatar.level;
+                            blob = Blob.fromArray([0]);
+                        });
+                    }
+                }
+            };
         };
 
         //////////////////
@@ -595,7 +637,7 @@ module {
             let new_level = _getLevel();
             let new_slot = _createNewSlot();
 
-            let avatar = {
+            return({
                 background = info.background;
                 profile = info.profile;
                 ears = info.ears;
@@ -609,11 +651,7 @@ module {
                 level = new_level;
                 blob = Blob.fromArray([0]);
                 
-            };
-            return(_modifyAvatarBlob(
-                avatar,
-                _createBlob(avatar)
-            ))
+            });
         };
 
         func _createLegendary(

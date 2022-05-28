@@ -1,11 +1,13 @@
-import DateModule "mo:canistergeek/dateModule";
-import TrieMap "mo:base/TrieMap";
-import Text "mo:base/Text";
-import Hash "mo:base/Hash";
-import Principal "mo:base/Principal";
-import Iter "mo:base/Iter";
-import Int "mo:base/Int";
 import Buffer "mo:base/Buffer";
+import Hash "mo:base/Hash";
+import Int "mo:base/Int";
+import Iter "mo:base/Iter";
+import Principal "mo:base/Principal";
+import Text "mo:base/Text";
+import TrieMap "mo:base/TrieMap";
+
+import DateModule "mo:canistergeek/dateModule";
+
 import Types "types";
 module {
     /////////////
@@ -79,6 +81,7 @@ module {
 
         /* Query the avatar canister and get the latest screenshot of the style score. Archived the scores into the daily_style_score archive. 
             @Cronic : At least once per day. 
+            @Verif : If the screenshot has already been taken for the current day; will log a message and doesn't update the database.
         */
         public func getLatest() : async () {
             let latest_style_score = await AVATAR_ACTOR.get_style_score();
@@ -86,11 +89,20 @@ module {
                 case(null) assert(false);
                 case(? date){
                     for((token, score) in latest_style_score.vals()){
-                        style_score_daily.put((date, token), score);
+                        switch(style_score_daily(date)){
+                            case(? score){
+                                _Logs.logMessage("Style score screenshoot has already been taken for today.");
+                                return;
+                            };
+                            case(null){
+                                _Logs.logMessage("Style score screenshoot successfully taken for today.");
+                                style_score_daily.put((date, token), score);
+                                return;
+                            };
+                        };
                     };
                 };
             };
-            _Logs.logMessage("Daily style score successfully updated.");
         };
 
         /* Calculate and update the current style score for the ongoing month based on the scores available in the daily_style_score archive  */

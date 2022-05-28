@@ -1,17 +1,19 @@
-import Admins "admins";
-import Canistergeek "mo:canistergeek/canistergeek";
 import Cycles "mo:base/ExperimentalCycles";
-import Date "mo:canistergeek/dateModule";
 import Error "mo:base/Error";
-import Ext "mo:ext/Ext";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
-import Leaderboard "leaderboard";
 import Nat64 "mo:base/Nat64";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
-import Style "style";
+
+import Canistergeek "mo:canistergeek/canistergeek";
+import Date "mo:canistergeek/dateModule";
+import Ext "mo:ext/Ext";
+
+import Admins "admins";
 import Distribution "distribution";
+import Leaderboard "leaderboard";
+import Style "style";
 
 shared ({ caller = creator }) actor class ICPSquadHub(
     cid : Principal,
@@ -187,9 +189,9 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Distribution.rankToNumberOfTicket(rank, total);
     };
 
-    public query func test_random() : async [(Principal,Reward)] {
-        _Distribution.generateICPSquadRewards();
-    };
+    // public query func test_random() : async [(Principal,Reward)] {
+    //     _Distribution.generateICPSquadRewards();
+    // };
 
     //////////////
     // UPGRADE //

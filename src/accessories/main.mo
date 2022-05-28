@@ -24,6 +24,7 @@ import Canistergeek "mo:canistergeek/canistergeek";
 import Cap "mo:cap/Cap";
 import Ext "mo:ext/Ext";
 import Root "mo:cap/Root";
+import TokenIdentifier "mo:encoding/Base32";
 import _Monitor "mo:canistergeek/typesModule";
 
 import Admins "admins";
@@ -286,17 +287,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     /////////////
 
     type ListRequest = Entrepot.ListRequest;
-    type Metadata = {
-        #fungible : {
-        name : Text;
-        symbol : Text;
-        decimals : Nat8;
-        metadata : ?Blob;
-        };
-        #nonfungible : {
-        metadata : ?Blob;
-        };
-    };
+    type Metadata = Entrepot.Metadata;
     type Listing = Entrepot.Listing;
     type Settlement = Entrepot.Settlement;
     type Transaction = Entrepot.Transaction;
@@ -319,7 +310,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     private var _payments : HashMap.HashMap<Principal, [SubAccount]> = HashMap.fromIter(_paymentsState.vals(), 0, Principal.equal, Principal.hash);
     private var _refunds : HashMap.HashMap<Principal, [SubAccount]> = HashMap.fromIter(_refundsState.vals(), 0, Principal.equal, Principal.hash);
 
-    //Helpers
     private func _isLocked (token : TokenIndex) : Bool {
         switch(_tokenListing.get(token)){
             case(?listing){
@@ -676,7 +666,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         cid = cid;
     });
 
-    public shared ({ caller }) func addTemplate(
+    public shared ({ caller }) func add_template(
         name : Text,
         template : Template
     ) : async Result<Text,Text>{
@@ -837,7 +827,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                         // Report minting event to CAP.
                         let event : IndefiniteEvent = {
                             operation = "mint";
-                            details = [("token", #Text(Ext.TokenIdentifier.encode(cid, tokenIndex))), ("to", #Text(Principal.toText(caller)))];
+                            details = [("token", #Text(tokenIdentifier)), ("to", #Text(Principal.toText(caller)))];
                             caller = caller;
                         };
                         ignore(_registerEvent(event));
@@ -879,12 +869,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         return #ok;
     };
 
-    // public shared ({caller}) func updateAccessories(
-
-    // ) : () {
-    //     //TODO
-    // };
-
     public shared ({ caller }) func mint(
         name : Text,
         receiver : Principal,
@@ -910,10 +894,49 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
+
+    public shared ({ caller }) func confirmed_burned_accessory(
+        index : TokenIndex
+    ) : async () {
+        assert(_Admins.isAdmin(caller) or caller == cid_avatar);
+        _Monitor.collectMetrics();
+        _Items.confirmBurnedAccessory(index);
+    };
+
+    public shared ({ caller }) func update_accessories() : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        let (burned, decreased, not_found ) = _Items.updateAll();
+        // Report all burned accessories to CAP
+        for(index in burned.vals()){
+            let event : IndefiniteEvent = {
+                operation = "burn";
+                details = [("token", #Text(Ext.TokenIdentifier.encode(cid, index)))];
+                caller = caller;
+            };
+            ignore(_registerEvent(event));
+        };
+        _Logs.logMessage("Daily update of accessories : " # Nat.toText(burned.size()) # Nat.toText(decreased.size()) #  Nat.toText(not_found.size()));
+        return;
+    };
+
+    /* Called every 2 minutes by heartbeat to verify that recently burned accessories have been reported to the avatar canister */
+    public shared ({ caller }) func verification_burned() : async () {
+        assert(caller == cid);
+        _Monitor.collectMetrics();
+        await _Items.verificationBurned();
+    };
+
+    public shared ({ caller }) func update_accessory(index : TokenIndex) : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        ignore(_Items.updateAccessory(index));
+        return;
+    };
+
     public query ({ caller }) func getInventory() : async Result<Inventory, Text> {
         _Items.getInventory(caller);
     };
-
 
     //////////
     // HTTP //
@@ -963,6 +986,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         //  Every 2 minutes 
         if (count % 120 == 0) {
             await verificationEvents();
+            await verification_burned();
         };
         //  Every 5 minutes 
         if( count % 300 == 0){
@@ -970,49 +994,20 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
-    //////////
-    // OLD //
-    ////////
-
-    //  Contains informations needed to create items. 
-    //  Material and legendary are stored as Blob (less memory consumption)
-    //  Template for accessories are stored as Text to modify the wear value programatically, they also integrate a recipe.
-    private stable var _templateEntries : [(Text, Template)] = [];
-    private var _templates : HashMap.HashMap<Text, Template> = HashMap.fromIter(_templateEntries.vals(),_templateEntries.size(), Text.equal, Text.hash);
-
-
-    //  Make the link between TokenIndex and the actual Item it represents.
-    private stable var _itemsEntries : [(TokenIndex, Item)] = [];
-    private var _items : HashMap.HashMap<TokenIndex, Item> = HashMap.fromIter(_itemsEntries.vals(), _itemsEntries.size(), Ext.TokenIndex.equal, Ext.TokenIndex.hash);
-
-
-    //Accessories stored as Blob after being drawn.
-    private stable var _blobsEntries : [(TokenIndex,Blob) ]= [];
-    private var _blobs : HashMap.HashMap<TokenIndex,Blob> = HashMap.fromIter(_blobsEntries.vals(), _blobsEntries.size(), Ext.TokenIndex.equal, Ext.TokenIndex.hash);
-
-
-    ///TOKEN
-    private stable var _nextTokenId : TokenIndex  = 0;
-    private stable var _registryEntries : [(TokenIndex, AccountIdentifier)] = [];
-    private var _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.fromIter(_registryEntries.vals(), 0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
-
-
     //////////////
     // UPGRADE //
     /////////////
 
     system func preupgrade() {
-        _Logs.logMessage("Preupgrade");
-        _registryEntries := Iter.toArray(_registry.entries());
-        _itemsEntries := Iter.toArray(_items.entries());
-        _templateEntries := Iter.toArray(_templates.entries());
-        _blobsEntries := Iter.toArray(_blobs.entries());
+        _Logs.logMessage("Preupgrade (accessory)");
+        // CAP events
         _eventsEntries := Iter.toArray(_events.entries());
+        // Entrepot
         _tokenListingState := Iter.toArray(_tokenListing.entries());
         _tokenSettlementState := Iter.toArray(_tokenSettlement.entries());
         _paymentsState := Iter.toArray(_payments.entries());
         _refundsState := Iter.toArray(_refunds.entries());
-        //New 
+        // Modules
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
@@ -1021,15 +1016,14 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     };
 
     system func postupgrade() {
-        _registryEntries := [];
-        _templateEntries := [];
-        _itemsEntries := [];
-        _blobsEntries := [];
+        // CAP events
+        _eventsEntries := [];
+        // Entrepot
         _tokenListingState := [];
         _tokenSettlementState := [];
         _paymentsState := [];
         _refundsState := [];
-        //New
+        // Modules
         _Monitor.postupgrade(_MonitorUD);
         _MonitorUD := null;
         _Logs.postupgrade(_LogsUD);
@@ -1040,6 +1034,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _ItemsUD := null;
         _Ext.postupgrade(_ExtUD);
         _ExtUD := null;
-        _Logs.logMessage("Postupgrade");
+        _Logs.logMessage("Postupgrade (accessory)");
     };
 };

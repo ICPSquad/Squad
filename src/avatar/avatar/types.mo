@@ -122,14 +122,14 @@ module {
         // Desequip the accessory corresponding to the name for the avatar associated with the TokenIdentifier.
         removeAccessory : (TokenIdentifier, Text) -> Result<(), Text>;
 
-        // Desequip all accessories from the avatar associated with the TokenIdentifier.
-        removeAllAccessories : TokenIdentifier -> Result<(), Text>;
-
         // Draw the avatar associated with the TokenIdentifier.
         drawAvatar : TokenIdentifier -> Result<(), Text>;
 
         // Get the optional avatar associated with the TokenIdentifier.
         getAvatar : TokenIdentifier -> ?Avatar;
+
+        // Get the optional blob associated with the TokenIdentifier.
+        getBlob : TokenIdentifier -> ?Blob;
 
         // Get the optional slot associated with the TokenIdentifier.
         getSlot : (TokenIdentifier) -> ?Slots;
