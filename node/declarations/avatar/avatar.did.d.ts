@@ -84,10 +84,13 @@ export interface HourlyMetricsData {
 export interface ICPSquadNFT {
   'acceptCycles' : () => Promise<undefined>,
   'add_admin' : (arg_0: Principal) => Promise<undefined>,
+  'associate_legendary' : (arg_0: string, arg_1: TokenIdentifier) => Promise<
+      Result
+    >,
   'availableCycles' : () => Promise<bigint>,
   'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
   'bearer' : (arg_0: TokenIdentifier) => Promise<Result_6>,
-  'calculate_accounts' : () => Promise<undefined>,
+  'burn' : (arg_0: TokenIdentifier) => Promise<Result>,
   'calculate_style_score' : () => Promise<undefined>,
   'changeStyle' : (arg_0: string) => Promise<undefined>,
   'collectCanisterMetrics' : () => Promise<undefined>,
@@ -109,16 +112,17 @@ export interface ICPSquadNFT {
   'get_infos_leaderboard' : () => Promise<
       Array<[Principal, [] | [Name__2], [] | [TokenIdentifier]]>
     >,
+  'get_number_users' : () => Promise<bigint>,
   'get_style_score' : () => Promise<Array<[TokenIdentifier, StyleScore]>>,
   'get_user' : () => Promise<[] | [UserData]>,
   'http_request' : (arg_0: Request) => Promise<Response>,
   'init_cap' : () => Promise<Result>,
-  'init_default_avatar' : (arg_0: bigint, arg_1: bigint) => Promise<undefined>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
   'metadata' : (arg_0: TokenIdentifier) => Promise<Result_4>,
   'mint' : (arg_0: MintInformation, arg_1: [] | [bigint]) => Promise<
       MintResult
     >,
+  'mint_test' : (arg_0: MintInformation) => Promise<MintResult>,
   'modify_user' : (arg_0: UserData) => Promise<Result>,
   'registerComponent' : (arg_0: string, arg_1: Component) => Promise<Result>,
   'removeAccessory' : (

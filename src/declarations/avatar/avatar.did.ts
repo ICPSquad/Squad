@@ -1,4 +1,6 @@
 export const idlFactory = ({ IDL }) => {
+  const TokenIdentifier = IDL.Text;
+  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const TokenIdentifier__1 = IDL.Text;
   const AccountIdentifier = IDL.Text;
   const User = IDL.Variant({
@@ -18,7 +20,6 @@ export const idlFactory = ({ IDL }) => {
     'ok' : Balance,
     'err' : CommonError__1,
   });
-  const TokenIdentifier = IDL.Text;
   const AccountIdentifier__1 = IDL.Text;
   const CommonError = IDL.Variant({
     'InvalidToken' : TokenIdentifier__1,
@@ -28,7 +29,6 @@ export const idlFactory = ({ IDL }) => {
     'ok' : AccountIdentifier__1,
     'err' : CommonError,
   });
-  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const SubAccount = IDL.Vec(IDL.Nat8);
   const Time = IDL.Int;
   const Listing = IDL.Record({
@@ -261,10 +261,11 @@ export const idlFactory = ({ IDL }) => {
   const ICPSquadNFT = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
     'add_admin' : IDL.Func([IDL.Principal], [], []),
+    'associate_legendary' : IDL.Func([IDL.Text, TokenIdentifier], [Result], []),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
     'bearer' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
-    'calculate_accounts' : IDL.Func([], [], []),
+    'burn' : IDL.Func([TokenIdentifier], [Result], []),
     'calculate_style_score' : IDL.Func([], [], ['oneway']),
     'changeStyle' : IDL.Func([IDL.Text], [], []),
     'collectCanisterMetrics' : IDL.Func([], [], []),
@@ -308,6 +309,7 @@ export const idlFactory = ({ IDL }) => {
         ],
         ['query'],
       ),
+    'get_number_users' : IDL.Func([], [IDL.Nat], ['query']),
     'get_style_score' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(TokenIdentifier, StyleScore))],
@@ -316,10 +318,10 @@ export const idlFactory = ({ IDL }) => {
     'get_user' : IDL.Func([], [IDL.Opt(UserData)], ['query']),
     'http_request' : IDL.Func([Request], [Response], ['query']),
     'init_cap' : IDL.Func([], [Result], []),
-    'init_default_avatar' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'metadata' : IDL.Func([TokenIdentifier], [Result_4], ['query']),
     'mint' : IDL.Func([MintInformation, IDL.Opt(IDL.Nat)], [MintResult], []),
+    'mint_test' : IDL.Func([MintInformation], [MintResult], []),
     'modify_user' : IDL.Func([UserData], [Result], []),
     'registerComponent' : IDL.Func([IDL.Text, Component], [Result], []),
     'removeAccessory' : IDL.Func(

@@ -630,6 +630,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Users.getUsers();
     };
 
+    public query func get_number_users() : async Nat {
+        _Users.getNumberUsers();
+    };
+
     /* 
             Called regularly by the hub canister to get informations on the leaderboard (Associate principal with name and default TokenIdentifier for the avatar )
             @auth : admin or hub canister

@@ -1,12 +1,13 @@
-import TrieMap "mo:base/TrieMap";
+import Buffer "mo:base/Buffer";
 import Iter "mo:base/Iter";
+import Nat64 "mo:base/Nat64";
+import Option "mo:base/Option";
+import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
-import Option "mo:base/Option";
-import Nat64 "mo:base/Nat64";
-import Prim "mo:prim";
 import Text "mo:base/Text";
-import Buffer "mo:base/Buffer";
+import TrieMap "mo:base/TrieMap";
+
 import Ext "mo:ext/Ext";
 
 import Types "types";
@@ -162,6 +163,10 @@ module {
 
         public func getUsers() : [(Principal, User)] {
             return Iter.toArray(_users.entries());
+        };
+
+        public func getNumberUsers() : Nat {
+            _users.size();
         };
 
         public func getInfosLeaderboard() : [(Principal, ?Name, ?TokenIdentifier)] {

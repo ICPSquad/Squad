@@ -2,6 +2,15 @@
   import Discord from "@icons/Discord.svelte";
   import Twitter from "@icons/Twitter.svelte";
   import AvatarGrid from "@components/shared/AvatarGrid.svelte";
+  import { avatarActor } from "@src/api/actor";
+
+  let number;
+
+  let updateNumber = async () => {
+    const data = await avatarActor().get_number_users();
+    number = Number(data);
+  };
+  updateNumber();
 </script>
 
 <section>
@@ -9,17 +18,14 @@
     <h2>JOIN ICP SQUAD</h2>
     <p>
       <!-- To do: replace number with actual -->
-      Join 5,296 community members today.
+      Join {number ? number : "∞"} community members today.
     </p>
   </div>
 
   <AvatarGrid />
 
   <div class="container below-grid">
-    <p>
-      Start by minting your avatar, then get rewarded as you explore the
-      Internet Computer.
-    </p>
+    <p>Start by minting your avatar, then get rewarded as you explore the Internet Computer.</p>
 
     <a href="/create-avatar" class="button"> Create Avatar → </a>
   </div>

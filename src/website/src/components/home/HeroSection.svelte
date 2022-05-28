@@ -1,7 +1,15 @@
 <script lang="ts">
   import AvatarWall from "@components/home/AvatarWall.svelte";
   import LinkButton from "@components/shared/LinkButton.svelte";
-  import { Link } from "svelte-routing";
+  import { avatarActor } from "@src/api/actor";
+
+  let number;
+
+  let updateNumber = async () => {
+    const data = await avatarActor().get_number_users();
+    number = Number(data);
+  };
+  updateNumber();
 </script>
 
 <div class="container">
@@ -9,7 +17,7 @@
     <AvatarWall />
     <div class="content">
       <div class="squad-number">
-        <div><strong>5,238</strong> SQUAD MEMBERS</div>
+        <div><strong>{number ? number : "5288"}</strong> SQUAD MEMBERS</div>
         <img id="avatar-collage" src="/assets/avatar-collage.png" alt="Collage of ICP Squad Avatars" />
       </div>
       <h2>Join the revolution</h2>

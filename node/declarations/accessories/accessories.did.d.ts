@@ -77,19 +77,20 @@ export interface HourlyMetricsData {
 }
 export interface ICPSquadNFT {
   'acceptCycles' : () => Promise<undefined>,
-  'addTemplate' : (arg_0: string, arg_1: Template) => Promise<Result__1_7>,
+  'addTemplate' : (arg_0: string, arg_1: Template) => Promise<Result_7>,
   'add_admin' : (arg_0: Principal) => Promise<undefined>,
   'allPayments' : () => Promise<Array<[Principal, Array<SubAccount__1>]>>,
   'allSettlements' : () => Promise<Array<[TokenIndex, Settlement]>>,
   'availableCycles' : () => Promise<bigint>,
   'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
-  'bearer' : (arg_0: TokenIdentifier) => Promise<Result__1_6>,
+  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_6>,
+  'burn' : (arg_0: TokenIdentifier) => Promise<Result>,
   'clearPayments' : (arg_0: Principal, arg_1: Array<SubAccount__1>) => Promise<
       undefined
     >,
   'collectCanisterMetrics' : () => Promise<undefined>,
-  'create_accessory' : (arg_0: string, arg_1: bigint) => Promise<Result_3>,
-  'details' : (arg_0: TokenIdentifier) => Promise<Result__1_5>,
+  'create_accessory' : (arg_0: string, arg_1: bigint) => Promise<Result__1_3>,
+  'details' : (arg_0: TokenIdentifier) => Promise<Result_5>,
   'eventsSize' : () => Promise<bigint>,
   'extensions' : () => Promise<Array<Extension>>,
   'getCanisterLog' : (arg_0: [] | [CanisterLogRequest]) => Promise<
@@ -98,31 +99,34 @@ export interface ICPSquadNFT {
   'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
       [] | [CanisterMetrics]
     >,
-  'getInventory' : () => Promise<Result__1_4>,
+  'getInventory' : () => Promise<Result_4>,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__2]>>,
   'getTokens' : () => Promise<Array<[TokenIndex, Metadata]>>,
+  'get_recipes' : () => Promise<Array<[string, Recipe__1]>>,
   'get_stats_items' : () => Promise<
       Array<[string, Supply, [] | [Floor], [] | [LastSoldPrice]]>
     >,
+  'get_templates' : () => Promise<Array<[string, Template]>>,
   'http_request' : (arg_0: Request) => Promise<Response>,
-  'init_cap' : () => Promise<Result>,
+  'init_cap' : () => Promise<Result__1_1>,
   'is_admin' : (arg_0: Principal) => Promise<boolean>,
-  'list' : (arg_0: ListRequest) => Promise<Result_1>,
+  'list' : (arg_0: ListRequest) => Promise<Result__1>,
   'listings' : () => Promise<Array<[TokenIndex, Listing__1, Metadata__1]>>,
   'lock' : (
       arg_0: string,
       arg_1: bigint,
       arg_2: AccountIdentifier__2,
       arg_3: SubAccount__1,
-    ) => Promise<Result_2>,
-  'metadata' : (arg_0: TokenIdentifier) => Promise<Result__1_3>,
-  'mint' : (arg_0: string, arg_1: Principal) => Promise<Result__1_2>,
+    ) => Promise<Result__1_2>,
+  'metadata' : (arg_0: TokenIdentifier) => Promise<Result_3>,
+  'mint' : (arg_0: string, arg_1: Principal) => Promise<Result>,
   'payments' : () => Promise<[] | [Array<SubAccount__1>]>,
-  'removeAccessory' : (
+  'remove_accessory' : (
       arg_0: TokenIdentifier,
       arg_1: TokenIdentifier,
-    ) => Promise<Result>,
-  'settle' : (arg_0: string) => Promise<Result_1>,
+    ) => Promise<Result__1_1>,
+  'remove_admin' : (arg_0: Principal) => Promise<undefined>,
+  'settle' : (arg_0: string) => Promise<Result__1>,
   'settlements' : () => Promise<
       Array<[TokenIndex, AccountIdentifier__2, bigint]>
     >,
@@ -130,14 +134,15 @@ export interface ICPSquadNFT {
       [bigint, bigint, bigint, bigint, bigint, bigint, bigint]
     >,
   'tokenId' : (arg_0: TokenIndex) => Promise<string>,
-  'tokens' : (arg_0: AccountIdentifier__2) => Promise<Result__1_1>,
-  'tokens_ext' : (arg_0: AccountIdentifier__2) => Promise<Result__1>,
+  'tokens' : (arg_0: AccountIdentifier__2) => Promise<Result_2>,
+  'tokens_ext' : (arg_0: AccountIdentifier__2) => Promise<Result_1>,
   'transactions' : () => Promise<Array<Transaction>>,
   'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
   'verificationEvents' : () => Promise<undefined>,
-  'wearAccessory' : (arg_0: TokenIdentifier, arg_1: TokenIdentifier) => Promise<
-      Result
-    >,
+  'wear_accessory' : (
+      arg_0: TokenIdentifier,
+      arg_1: TokenIdentifier,
+    ) => Promise<Result>,
 }
 export type Inventory = Array<ItemInventory>;
 export type ItemInventory = { 'Accessory' : AccessoryInventory } |
@@ -194,6 +199,7 @@ export interface NumericEntity {
   'last' : bigint,
 }
 export type Recipe = Array<string>;
+export type Recipe__1 = Array<string>;
 export interface Request {
   'url' : string,
   'method' : string,
@@ -208,29 +214,29 @@ export interface Response {
 }
 export type Result = { 'ok' : null } |
   { 'err' : string };
-export type Result_1 = { 'ok' : null } |
-  { 'err' : CommonError };
-export type Result_2 = { 'ok' : AccountIdentifier__2 } |
-  { 'err' : CommonError };
-export type Result_3 = { 'ok' : TokenIdentifier } |
-  { 'err' : string };
-export type Result__1 = {
+export type Result_1 = {
     'ok' : Array<[TokenIndex, [] | [Listing], [] | [Array<number>]]>
   } |
   { 'err' : CommonError };
-export type Result__1_1 = { 'ok' : Array<TokenIndex> } |
+export type Result_2 = { 'ok' : Array<TokenIndex> } |
   { 'err' : CommonError };
-export type Result__1_2 = { 'ok' : null } |
-  { 'err' : string };
-export type Result__1_3 = { 'ok' : Metadata } |
+export type Result_3 = { 'ok' : Metadata } |
   { 'err' : CommonError__1 };
-export type Result__1_4 = { 'ok' : Inventory } |
+export type Result_4 = { 'ok' : Inventory } |
   { 'err' : string };
-export type Result__1_5 = { 'ok' : [AccountIdentifier__2, [] | [Listing]] } |
+export type Result_5 = { 'ok' : [AccountIdentifier__2, [] | [Listing]] } |
   { 'err' : CommonError };
-export type Result__1_6 = { 'ok' : AccountIdentifier__2 } |
+export type Result_6 = { 'ok' : AccountIdentifier__2 } |
   { 'err' : CommonError };
-export type Result__1_7 = { 'ok' : string } |
+export type Result_7 = { 'ok' : string } |
+  { 'err' : string };
+export type Result__1 = { 'ok' : null } |
+  { 'err' : CommonError };
+export type Result__1_1 = { 'ok' : null } |
+  { 'err' : string };
+export type Result__1_2 = { 'ok' : AccountIdentifier__2 } |
+  { 'err' : CommonError };
+export type Result__1_3 = { 'ok' : TokenIdentifier } |
   { 'err' : string };
 export interface Settlement {
   'subaccount' : SubAccount__2,
