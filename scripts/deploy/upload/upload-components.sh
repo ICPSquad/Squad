@@ -2,12 +2,16 @@
 canister=${1:charlie}
 network=${2:local}
 
+# Get canister ID
+export ID=$(dfx canister id $canister)
+
 #Confirm before deploying to mainnet
 if [[ $network != "local" ]]
 then
     read -r -p "Do you confirm uploading to mainnet? [Y/n] " input
         case $input in 
             [yY][eE][sS]|[yY])
+                ID=$(dfx canister --network ic id $canister)
                 echo "Deploying to mainnet"
                 ;;
             [nN][oO]|[nN])
@@ -24,7 +28,6 @@ fi
 manifest="./assets/components/manifest-components.csv"
 [ ! -f $manifest ] && { echo "$manifest file not found"; exit 99; }
 
-export ID=$(dfx canister id $canister)
 echo "Uploading all components into the $canister canister : $ID on network : $network"
 
 OLDIFS=$IFS

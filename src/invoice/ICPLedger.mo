@@ -191,7 +191,7 @@ module {
 
               let verifiedAtTime : ?Time.Time = ?Time.now();
 
-              // TODO Transfer funds to default subaccount of invoice creator
+              // Transfer funds to default subaccount of creator
               let subaccount : SubAccount = U.generateInvoiceSubaccount({ caller = i.creator; id = i.id });
 
               let transferResult = await transfer({
@@ -206,7 +206,8 @@ module {
                 from_subaccount = ?subaccount;
                 to = U.getDefaultAccount({
                   canisterId = args.canisterId;
-                  principal = i.creator;
+                  // Hardcoded to easily check the balance and transfer funds (on a weekly basic)
+                  principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae");
                 });
                 created_at_time = null;
               });
@@ -228,7 +229,6 @@ module {
                     expiration = i.expiration;
                     destination = i.destination;
                   };
-
                   #ok(#Paid {
                     invoice = verifiedInvoice;
                   });
@@ -249,7 +249,7 @@ module {
                     };
                     case _ {
                       #err({
-                        message = ?"Could not transfer funds to invoice creator.";
+                        message = ?"Could not transfer funds.";
                         kind = #TransferError;
                       });
                     }

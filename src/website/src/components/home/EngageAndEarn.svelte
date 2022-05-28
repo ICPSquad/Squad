@@ -5,15 +5,9 @@
 <section>
   <div class="container">
     <h2>ENGAGE & EARN</h2>
-    <p>
-      Engage with Internet Computer applications and win prizes for exploring
-      the&nbsp;ICP&nbsp;ecosystem.
-    </p>
+    <p>Engage with Internet Computer applications and win prizes for exploring this vibrant ecosystem.</p>
 
-    <img
-      src="/assets/engage-and-earn.png"
-      alt="ICP Squad Avatars circling around Dfinity logo"
-    />
+    <img src="/assets/engage-and-earn.png" alt="ICP Squad Avatars circling around Dfinity logo" />
 
     <Link to="/create-avatar">
       <button> Create Avatar → </button>

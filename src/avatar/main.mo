@@ -364,7 +364,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         name : Text,
         p : Principal
     ) : async Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller) or caller == accessory_cid);
         _Monitor.collectMetrics();
         switch(_Ext.balance({ user = #principal(p); token = tokenId})){
             case(#err(_)){

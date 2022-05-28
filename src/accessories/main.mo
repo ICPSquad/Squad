@@ -702,38 +702,69 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Items.getRecipes();
     };
       
-    public shared({caller}) func wearAccessory(
+    public shared({caller}) func wear_accessory(
         accessory : TokenIdentifier, 
         avatar : TokenIdentifier
-        ) : async Result.Result<(), Text> {
-        assert(false);
+        ) : async Result<(), Text> {
         _Monitor.collectMetrics();
-        // TODO : verify that the accessory is not listed!
         switch(_Ext.isOwner(caller, accessory)){
-            case(#err(e)) return #err(e);
+            case(#err(e)) {
+                _Logs.logMessage("Caller : " # Principal.toText(caller) # "trying to wear accessory : " # accessory # " but is not owner");
+                return #err(e);
+            };
             case(#ok()){};
         };
-        switch(await _Items.wearAccessory(accessory, avatar, caller)){
-            case(#ok()) return #ok;
-            case(#err(e)) return #err(e);
+        let index = switch(Ext.TokenIdentifier.decode(accessory)){
+            case(#err(e)){ 
+                _Logs.logMessage("Error during decode of tokenIdentifier : " # accessory # ". Detail : " # e);
+                return #err(e);
+            };
+            case(#ok(p, index)){
+                if(p != cid){
+                    _Logs.logMessage("Error when decoding the tokenIdentifier : " # accessory # "the canister id is " # Principal.toText(p));
+                    return #err("Error when decoding the tokenIdentifier : " # accessory);
+                };
+                index;
+            };
         };
+        if(_isLocked(index)){
+            _Logs.logMessage("Trying to equip this accessory when locked (Entrepot) : " # accessory);
+            return #err("Trying to equip this accessory when locked (Entrepot) : " # accessory);
+        };
+        await _Items.wearAccessory(accessory, avatar, caller);
     };
 
-    public shared ({caller}) func removeAccessory(
+    public shared ({caller}) func remove_accessory(
         accessory : TokenIdentifier,
         avatar : TokenIdentifier 
         ) : async Result.Result<(), Text> {
         assert(false);
         _Monitor.collectMetrics();
-        // TODO : verification here ?
         switch(_Ext.isOwner(caller, accessory)){
-            case(#err(e)) return #err(e);
+            case(#err(e)) {
+                _Logs.logMessage("Caller : " # Principal.toText(caller) # "trying to remove accessory : " # accessory # " but is not owner");
+                return #err(e);
+            };
             case(#ok()){};
         };
-        switch(await _Items.removeAccessory(accessory, avatar, caller)){
-            case(#ok()) return #ok;
-            case(#err(e)) return #err(e);
+        let index = switch(Ext.TokenIdentifier.decode(accessory)){
+            case(#err(e)){
+                _Logs.logMessage("Error during decode of tokenIdentifier : " # accessory # ". Detail : " # e);
+                return #err(e);
+            };
+            case(#ok(p, index)){
+                if(p != cid){
+                    _Logs.logMessage("Error when decoding the tokenIdentifier : " # accessory # "the canister id is " # Principal.toText(p));
+                    return #err("Error when decoding the tokenIdentifier : " # accessory);
+                };
+                index;
+            };
         };
+        if(_isLocked(index)){
+            _Logs.logMessage("(IMPOSSIBLE) Trying to dequip this accessory when locked (Entrepot) : " # accessory);
+            return #err("Trying to equip this accessory when locked (Entrepot) : " # accessory);
+        };
+        await _Items.removeAccessory(accessory, avatar, caller)
     };
 
     public shared ({caller}) func create_accessory(

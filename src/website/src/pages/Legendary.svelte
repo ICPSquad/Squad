@@ -5,11 +5,14 @@
   import Newsletter from "@components/shared/Newsletter.svelte";
   import LegendaryAvatar from "@src/components/shared/LegendaryAvatar.svelte";
 
+  const categories = ["Core team", "Dfinity community", "Motoko Bootcamp 2022", "Community", "Dfinity foundation", "Gigaverse labs"];
+
   const legendaries = [
     {
       svg: "Dukakis.svg",
       name: "Dukakis Tejada",
-      role: "Role Name",
+      role: "Founder",
+      categorie: "Core team",
       links: [
         {
           label: "Twitter",
@@ -24,7 +27,8 @@
     {
       svg: "Isaac.svg",
       name: "Isaac Valadez",
-      role: "Role name",
+      categorie: "Core team",
+      role: "Cofounder & CEO",
       links: [
         {
           label: "Twitter",
@@ -43,7 +47,8 @@
     {
       svg: "Seb.svg",
       name: "Seb Thuillier",
-      role: "Lead developer",
+      categorie: "Core team",
+      role: "Cofounder & CTO",
       links: [
         {
           label: "Twitter",
@@ -51,7 +56,275 @@
         },
       ],
     },
+    {
+      svg: "Arun.svg",
+      name: "Arun Nair",
+      role: "Chief artist",
+      categorie: "Core team",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/_arunarts",
+        },
+      ],
+    },
+    {
+      svg: "Dan.svg",
+      name: "Daniel James",
+      role: "Editor in chief",
+      categorie: "Dfinity community",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/ICPfan8",
+        },
+      ],
+    },
+    {
+      svg: "Geoff.svg",
+      name: "Geoffrey Miller",
+      role: "Outreach lead",
+      categorie: "Dfinity community",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/ICPfan10",
+        },
+      ],
+    },
+    {
+      svg: "Moses.svg",
+      name: "Moses",
+      role: "Community manager",
+      categorie: "Dfinity community",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/kylpeacock",
+        },
+      ],
+    },
+    {
+      svg: "Sunny.svg",
+      name: "Sunny",
+      role: "Managing editor",
+      categorie: "Dfinity community",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/ICPfan9",
+        },
+        {
+          label: "Distrikt",
+          url: "https://az5sd-cqaaa-aaaae-aaarq-cai.ic0.app/u/sunny",
+        },
+      ],
+    },
+    {
+      svg: "Alexa.svg",
+      name: "Alexa smith",
+      role: "Beacon fund manager",
+      categorie: "Community",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/beavskis",
+        },
+      ],
+    },
+    {
+      svg: "Andrew.svg",
+      name: "Andrew Sellen",
+      role: "1st place (intermediate)",
+      categorie: "Motoko Bootcamp 2022",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/AndrewSel",
+        },
+      ],
+    },
+    {
+      svg: "Peter.svg",
+      name: "Peter Kneiszl",
+      role: "1st place (beginner)",
+      categorie: "Motoko Bootcamp 2022",
+      links: [],
+    },
+    {
+      svg: "Kyle.svg",
+      name: "Kyle Peacock",
+      role: "Software engineer",
+      categorie: "Dfinity foundation",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/kylpeacock",
+        },
+      ],
+    },
+    {
+      svg: "Paul.svg",
+      name: "Paul Liu",
+      role: "Technical lead",
+      categorie: "Dfinity foundation",
+      links: [],
+    },
+
+    {
+      svg: "Igor.svg",
+      name: "Igor Lilic",
+      role: "Developer partner",
+      categorie: "Dfinity foundation",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/ililic",
+        },
+      ],
+    },
+    {
+      svg: "Anna.svg",
+      name: "Anna Escher",
+      role: "Communication team",
+      categorie: "Dfinity foundation",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/annescher",
+        },
+      ],
+    },
+    {
+      svg: "Matthias.svg",
+      name: "Matthias Broner",
+      role: "Product market manager",
+      categorie: "Dfinity foundation",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/BronerMatthias",
+        },
+      ],
+    },
+    {
+      svg: "Liz.svg",
+      name: "Liz",
+      role: "(Former) Growth team",
+      categorie: "Dfinity foundation",
+      links: [],
+    },
+    {
+      svg: "Mike.svg",
+      name: "Mike",
+      role: "(Former) Community manager",
+      categorie: "Dfinity foundation",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/TheMikeHunte",
+        },
+      ],
+    },
+
+    {
+      svg: "Quint.svg",
+      name: "Quint",
+      role: "Aviate labs",
+      categorie: "Community",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/q_uint8",
+        },
+        {
+          label: "Github",
+          url: "https://github.com/di-wu",
+        },
+      ],
+    },
+    {
+      svg: "Stopakor.svg",
+      name: "Stopakor",
+      role: "Gigaverse",
+      categorie: "Gigaverse labs",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/kylpeacock",
+        },
+      ],
+    },
+    {
+      svg: "TPunk.svg",
+      name: "T-Punk",
+      role: "Cofounder",
+      categorie: "Gigaverse labs",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/TPunk_NFT",
+        },
+      ],
+    },
+    {
+      svg: "Grich.svg",
+      name: "Grich",
+      role: "Community engagement",
+      categorie: "Gigaverse labs",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/gigav_",
+        },
+      ],
+    },
+
+    {
+      svg: "AIA.svg",
+      name: "AIA",
+      role: "",
+      categorie: "Gigaverse labs",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/TPunk_NFT",
+        },
+      ],
+    },
+    {
+      svg: "Victor.svg",
+      name: "Victor",
+      role: "Social media manager",
+      categorie: "Dfinity community",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/VictorICPSquad",
+        },
+      ],
+    },
+    {
+      svg: "Weed.svg",
+      name: "Andrew weed",
+      role: "?",
+      categorie: "Community",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/weedpatchtwo",
+        },
+      ],
+    },
   ];
+
+  function filterByCategory(category, legendaries) {
+    return legendaries.filter((legendary) => {
+      return legendary.categorie === category;
+    });
+  }
+
+  console.log(filterByCategory("Team", legendaries));
 </script>
 
 <Header />
@@ -59,16 +332,16 @@
   <h1>Legendary Avatars</h1>
 </div>
 <div class="container">
-  <p>Those avatars are unique, made for you and cannot be minted again.</p>
-  <p>
-    Get you hands on those through meaningful contributions or special events.
-  </p>
-  <h2>LEGENDARY AVATAR WALL</h2>
-  <div class="grid">
-    {#each legendaries as legendary}
-      <LegendaryAvatar {legendary} />
-    {/each}
-  </div>
+  <p>Those avatars are unique and crafted manually to reward special contributors.</p>
+  <p>Get you hands on those through participation in special events.</p>
+  {#each categories as category}
+    <h2>{category}</h2>
+    <div class="grid">
+      {#each filterByCategory(category, legendaries) as legendary}
+        <LegendaryAvatar {legendary} />
+      {/each}
+    </div>
+  {/each}
 </div>
 <Join />
 <Newsletter />

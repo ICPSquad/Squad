@@ -203,13 +203,11 @@ shared ({ caller = creator }) actor class Invoice(
               // 1 week in nanoseconds
               expiration = Time.now() + (1000 * 60 * 60 * 24 * 7 * 1_000_000);
               destination = destination;
-            }
+            }    
           };
         };
-
+         _Logs.logMessage("Created invoice : " # Nat.toText(id) # " by " # Principal.toText(caller) # " for amount : " # Nat.toText(invoice.amount));
         invoices.put(id, invoice);
-        _Logs.logMessage("Created invoice : " # Nat.toText(id) # " by " # Principal.toText(caller));
-
         return (#ok({invoice}));
       };
     };
@@ -399,6 +397,8 @@ public shared ({ caller }) func verify_invoice_avatar(args : T.VerifyInvoiceArgs
                 case(#AlreadyVerified(_)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
                 case(#Paid paidResult) {
                   let replaced = invoices.replace(invoice.id, paidResult.invoice);
+                  _Logs.logMessage("Invoice verified for id " # Nat.toText(invoice.id));
+                  _Logs.logMessage("Funds transfered  : " # Nat.toText(invoice.amount));
                   return #ok(#Paid { invoice = paidResult.invoice });
                 };
               };
@@ -435,6 +435,8 @@ public shared ({ caller }) func verify_invoice_accessory(args : T.VerifyInvoiceA
                 case(#AlreadyVerified(_)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
                 case(#Paid paidResult) {
                   let replaced = invoices.replace(invoice.id, paidResult.invoice);
+                  _Logs.logMessage("Invoice verified for id " # Nat.toText(invoice.id));
+                  _Logs.logMessage("Funds transfered  : " # Nat.toText(invoice.amount));
                   return #ok(#Paid { invoice = paidResult.invoice });
                 };
               };

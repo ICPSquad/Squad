@@ -11,7 +11,7 @@
             Supply 
         </div>
         <div class="value">
-            {supply ? supply : '-'}
+            {supply ? supply : '0'}
         </div>
     </div>
     <div class="floorPrice">

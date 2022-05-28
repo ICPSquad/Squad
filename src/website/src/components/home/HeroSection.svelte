@@ -10,16 +10,11 @@
     <div class="content">
       <div class="squad-number">
         <div><strong>5,238</strong> SQUAD MEMBERS</div>
-        <img
-          id="avatar-collage"
-          src="/assets/avatar-collage.png"
-          alt="Collage of ICP Squad Avatars"
-        />
+        <img id="avatar-collage" src="/assets/avatar-collage.png" alt="Collage of ICP Squad Avatars" />
       </div>
-      <h1>Join the squad</h1>
+      <h2>Join the revolution</h2>
       <p class="large">
-        Start by minting your own ICP Squad avatar NFT, then get rewarded with
-        NFTs, ICP and other prizes as you explore the Internet Computer.
+        A new chapter of the Internet is opening. Start by minting your avatar, then take part in the adventure and get rewarded as your explore a new wave of decentralized applications.
       </p>
       <div class="buttons">
         <LinkButton to="/create-avatar">
@@ -56,9 +51,10 @@
       margin-left: 20px;
     }
   }
-  h1 {
+  h2 {
     text-align: left;
     margin-top: 40px;
+    text-transform: uppercase;
   }
   p.large {
     font-size: 1.4rem;

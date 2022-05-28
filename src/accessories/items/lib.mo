@@ -124,12 +124,11 @@ module {
             avatar : TokenIdentifier,
             caller : Principal
         ) : async Result<(), Text> {
-            let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
             let index = switch(Ext.TokenIdentifier.decode(accessory)){
                 case(#ok(p, i)) {
                     if(p != dependencies.cid){
-                    _Logs.logMessage("Error when decoding the tokenIdentifier : " # accessory # "the canister id is " # Principal.toText(p));
-                    return #err("Error when decoding the tokenIdentifier : " # accessory);
+                        _Logs.logMessage("Error when decoding the tokenIdentifier : " # accessory # "the canister id is " # Principal.toText(p));
+                        return #err("Error when decoding the tokenIdentifier : " # accessory);
                     };
                     i;
                 };
@@ -144,7 +143,7 @@ module {
                         case(? avatar){
                             if(avatar == "InProgress"){
                                 _Logs.logMessage("Reentrancy attack detected from " # Principal.toText(caller));
-                                return #err("Accessory" # accessory # " is already equipped");
+                                return #err("Accessory" # accessory # " is being equipped");
                             };
                             _Logs.logMessage("Accessory " # accessory # " is already equipped on " # avatar);
                             return #err("Accessory" # accessory # " is already equipped on " # avatar);
@@ -155,6 +154,7 @@ module {
                                 // 🎯 Commit point for the state of the canister.
                                 switch(await AVATAR_ACTOR.wearAccessory(avatar, Text.map(item.name, Prim.charToLower), caller)){
                                     case(#ok(())) {
+                                        _Logs.logMessage("Accessory " # accessory # " equipped on " # avatar);
                                         _items.put(index, _createAccessoryEquippedOn(item, ?avatar));
                                         return #ok;
                                     };
@@ -184,7 +184,6 @@ module {
             avatar : TokenIdentifier,
             caller : Principal
         ) : async Result<(), Text> {
-            let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
             let index = switch(Ext.TokenIdentifier.decode(accessory)){
                 case(#ok(p, i)) {
                     if(p != dependencies.cid){

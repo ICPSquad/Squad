@@ -1,10 +1,6 @@
 <section class="container" id="create">
   <h2>CREATE</h2>
-  <p>
-    Create your one-of-a-kind avatar NFT, which you can take into missions to
-    earn NFTs and tokens. You’ll be able to customize basically all physical
-    attributes of&nbsp;your&nbsp;avatar.
-  </p>
+  <p>Design your own avatar, which you can take into missions to earn NFTs and tokens. You will be able to customize all physical attributes of&nbsp;your&nbsp;avatar.</p>
 
   <div class="video">
     <!-- svelte-ignore a11y-media-has-caption -->
