@@ -93,6 +93,7 @@ export interface ICPSquadNFT {
   'burn' : (arg_0: TokenIdentifier) => Promise<Result>,
   'calculate_style_score' : () => Promise<undefined>,
   'changeStyle' : (arg_0: string) => Promise<undefined>,
+  'clean_blob' : () => Promise<undefined>,
   'collectCanisterMetrics' : () => Promise<undefined>,
   'delete' : (arg_0: string) => Promise<Result>,
   'delete_admin' : (arg_0: Principal) => Promise<undefined>,
@@ -130,6 +131,11 @@ export interface ICPSquadNFT {
       arg_1: string,
       arg_2: Principal,
     ) => Promise<Result>,
+  'report_burned_accessory' : (
+      arg_0: string,
+      arg_1: TokenIdentifier,
+      arg_2: TokenIndex,
+    ) => Promise<undefined>,
   'supply' : () => Promise<bigint>,
   'tokens' : (arg_0: AccountIdentifier__1) => Promise<Result_3>,
   'tokens_ext' : (arg_0: AccountIdentifier__1) => Promise<Result_2>,
@@ -141,7 +147,7 @@ export interface ICPSquadNFT {
   'uploadFinalize' : (arg_0: string, arg_1: Meta, arg_2: string) => Promise<
       Result
     >,
-  'uploadStats' : (arg_0: Stats) => Promise<undefined>,
+  'upload_stats' : (arg_0: Stats) => Promise<undefined>,
   'verificationEvents' : () => Promise<undefined>,
   'wearAccessory' : (
       arg_0: TokenIdentifier,

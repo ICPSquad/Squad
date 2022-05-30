@@ -3,6 +3,7 @@ import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
+import Option "mo:base/Option";
 import Prim "mo:prim";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
@@ -331,6 +332,27 @@ module {
                     };
                 };
             };
+        };
+
+        public func isOwnerAccount(
+            account : AccountIdentifier,
+            index : TokenIndex
+        ) : Bool {
+            let owner = Option.get<AccountIdentifier>(_registry.get(index), "");
+            if (Text.equal(account, owner)) {
+                return true;
+            } else {
+                return false;
+            };
+        };
+
+        public func transferSale(
+            index : TokenIndex,
+            from : AccountIdentifier,
+            to : AccountIdentifier
+        ) : () {
+            assert(isOwnerAccount(from, index));
+            _registry.put(index, to);
         };
 
        public func burn(

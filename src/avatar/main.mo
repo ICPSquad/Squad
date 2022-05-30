@@ -400,8 +400,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         name : Text,
         p : Principal
     ) : async Result<(), Text> {
-        //Todo : remove limitations
-        assert(_Admins.isAdmin(caller));
+        assert(caller == accessory_cid);
         _Monitor.collectMetrics();
          switch(_Ext.balance({ user = #principal(p); token = tokenId})){
             case(#err(_)){
@@ -437,8 +436,8 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         assert(caller == accessory_cid);
         _Monitor.collectMetrics();
         let index = accessory; 
-        // ⚠️ Name of accessory in the accessory canister are not capitalized whereas in the avatar caniste they are...
-        switch(_Avatar.removeAccessory(SVG.capitalize(name), avatar)){
+        // WARNING : Need to reduce the capitalilisation of the name
+        switch(_Avatar.removeAccessory(avatar, Text.map(name, Prim.charToLower))){
             case(#err(_)){
                 _Logs.logMessage("CRITICAL ERROR : " # "Accessory " # name # " not removed from avatar " # avatar);
             };
@@ -700,7 +699,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         Upload stats of accessories (star)
         @auth : admin
     */
-    public shared ({ caller }) func uploadStats(
+    public shared ({ caller }) func upload_stats(
         stats : Stats
     ) : () {
         assert(_Admins.isAdmin(caller));
@@ -734,7 +733,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     /////////////
 
     system func preupgrade() {
-        _Logs.logMessage("Preupgrade");
+        _Logs.logMessage("Preupgrade avatar");
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
@@ -764,9 +763,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Users.postupgrade(_UsersUD);
         _UsersUD := null;
         _eventsEntries := [];
-
-        // Override default number of stored log messages to save memory
-       _Logs.setMaxMessagesCount(1000);
+        _Logs.logMessage("Postupgrade avatar");
     };
 
 };

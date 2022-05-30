@@ -34,7 +34,9 @@ module {
     public type MaterialInventory = Types.MaterialInventory;
     public type AccessoryInventory = Types.AccessoryInventory;
     public type AccessoryUpdate = Types.AccessoryUpdate;
+    public type OldUpgradeData = Types.OldUpgradeData;
     public type UpgradeData = Types.UpgradeData;
+    public type BurnedInformation = Types.BurnedInformation;
     type TokenIndex = Ext.TokenIndex;
     type TokenIdentifier = Ext.TokenIdentifier;
     type Result<A,B> = Result.Result<A,B>;
@@ -45,12 +47,6 @@ module {
         ////////////
         // State //
         ///////////
-        
-        let _items : HashMap.HashMap<TokenIndex,Item> = HashMap.HashMap(0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
-        let _blobs : HashMap.HashMap<TokenIndex,Blob> = HashMap.HashMap(0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
-        let _templates : HashMap.HashMap<Text,Template> = HashMap.HashMap(0, Text.equal, Text.hash);
-        let _recipes : TrieMap.TrieMap<Text, Recipe> = TrieMap.TrieMap(Text.equal, Text.hash);
-
         /* 
             * The following rules are used to track the state of accessory and their burning mechanism.
 
@@ -69,14 +65,9 @@ module {
             8- A log message record the event.
          */
 
-        // Used as a queue to store the accessory that have been burned and make sure that we send a request to the avatar canister to remove it from the avatar's inventory
-        type BurnedInformation = {
-            time_card_burned : Time; // The moment the accessory (card) was burned
-            time_avatar_burned : ?Time; // The (optional) moment the avatar canister reported it removed the accessory from the avatar. 
-            name : Text; // The name of the accessory
-            tokenIdentifier : TokenIdentifier; // The avatar this accessory was equipped on
-        };
-
+        let _items : HashMap.HashMap<TokenIndex,Item> = HashMap.HashMap(0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+        let _templates : HashMap.HashMap<Text,Template> = HashMap.HashMap(0, Text.equal, Text.hash);
+        let _recipes : TrieMap.TrieMap<Text, Recipe> = TrieMap.TrieMap(Text.equal, Text.hash);
         let _burned : TrieMap.TrieMap<TokenIndex,BurnedInformation> = TrieMap.TrieMap<TokenIndex, BurnedInformation>(Ext.TokenIndex.equal, Ext.TokenIndex.hash);
 
         let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
@@ -92,12 +83,13 @@ module {
             return({
                 items = Iter.toArray(_items.entries());
                 templates = Iter.toArray(_templates.entries());
-                blobs = Iter.toArray(_blobs.entries());
                 recipes = Iter.toArray(_recipes.entries());
+                burned = Iter.toArray(_burned.entries());
             })
         };
 
-        public func postupgrade(ud : ?UpgradeData) : () {
+
+          public func postupgrade(ud : ?UpgradeData) : () {
             switch(ud){
                 case(? ud){
                     for((index, item) in ud.items.vals()){
@@ -106,8 +98,8 @@ module {
                     for((name, template) in ud.templates.vals()){
                         _templates.put(name, template);
                     };
-                    for((index, blob) in ud.blobs.vals()){
-                        _blobs.put(index, blob);
+                    for((index, info) in ud.burned.vals()){
+                        _burned.put(index, info);
                     };
                     for((name, recipe) in ud.recipes.vals()){
                         _recipes.put(name, recipe);
@@ -296,7 +288,6 @@ module {
                 };
                 case(?#Accessory(item)){
                     _items.put(index, #Accessory({ name = name; wear = 100; equipped = null}));
-                    _drawAccessory(index);
                     return #ok;
                 };
                 case(_) return #err("No template found");
@@ -346,7 +337,7 @@ module {
                     };
                 };
                 case(?#Accessory(item)){
-                    return _blobs.get(index);
+                    return _getBlobAccessory(index);
                 };
                 case(_) return null;
             };
@@ -379,6 +370,20 @@ module {
                 };
                 case(?#Accessory(item)){
                     return ? Text.encodeUtf8(item.before_wear # item.after_wear);
+                };
+                case(_) return null;
+            };
+        };
+
+        public func getName(
+            index : TokenIndex
+        ) : ?Text {
+            switch(_items.get(index)){
+                case(?#Material(name)){
+                    return ?name;
+                };
+                case(?#Accessory(item)){
+                    return ?item.name;
                 };
                 case(_) return null;
             };
@@ -431,11 +436,11 @@ module {
             return buffer.toArray();
         };
 
+        /* Todo : why is it this here ? */   
         public func burn(
             index : TokenIndex
         ) : () {
             _items.delete(index);
-            _blobs.delete(index);
         };
 
         /* 
@@ -481,7 +486,6 @@ module {
                     if(item.wear <= 1){
                         _Ext.burn(index);
                         _items.delete(index);
-                        _blobs.delete(index);
                         _burned.put(index, {
                             time_card_burned = Time.now();
                             time_avatar_burned = null;
@@ -510,10 +514,18 @@ module {
           return;
         };
 
+        public func saveMyAss() : async () {
+            ignore(AVATAR_ACTOR.report_burned_accessory("Boring-mask", "hddin-iykor-uwiaa-aaaaa-cmaca-uaqca-aab6q-a", 7180));
+        };
+
         ////////////////
         // HELPERS /////
         ////////////////
 
+        /* 
+            Associate an item with a name. 
+            Returns an empty string if the item is not a material nor an accessory.
+        */
         func _itemToName(item : Item) : Text {
             switch(item){
                 case(#Material(name)){
@@ -529,19 +541,22 @@ module {
             }
         };
 
-        func _drawAccessory (token_index : TokenIndex) : () {
-            switch(_items.get(token_index)){
+        /* 
+            Return the optional UTF-8 encoded blob corresponding to the given TokenIndex 
+            Dynamically generated with the current wear value of the accessory
+        */
+        func _getBlobAccessory(index : TokenIndex) : ?Blob {
+            switch(_items.get(index)){
                 case(?#Accessory(item)){
                     switch(_templates.get(item.name)){
                             case(?#Accessory(template)){
                                 let concatenated_svg = template.before_wear # "<text x=\"190.763px\" y=\"439.84px\" style=\"font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white\">" # Nat.toText(Nat8.toNat(item.wear)) # "</text>" # template.after_wear;
-                                let blob = Text.encodeUtf8(concatenated_svg);
-                                _blobs.put(token_index, blob);
+                                return (?Text.encodeUtf8(concatenated_svg))
                             };
-                            case(_) assert(false);
+                            case(_) {return null};
                         };
                 };
-                case(_){assert(false)};
+                case(_){ return null};
             };
         };
 
@@ -619,7 +634,6 @@ module {
                     if(item.wear <= 1){
                         _Ext.burn(index);
                         _items.delete(index);
-                        _blobs.delete(index);
                         _burned.put(index, {
                             time_card_burned = Time.now();
                             time_avatar_burned = null;

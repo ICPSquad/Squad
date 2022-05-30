@@ -1,4 +1,5 @@
 import Result "mo:base/Result";
+import Time "mo:base/Time";
 
 import Canistergeek "mo:canistergeek/canistergeek";
 
@@ -7,6 +8,7 @@ import Ext "../ext";
 module {
     type TokenIndex = Ext.TokenIndex;
     type TokenIdentifier = Ext.TokenIdentifier;
+    type Time = Time.Time;
     type Result<A,B> = Result.Result<A,B>;
 
     public type Template = {
@@ -56,11 +58,25 @@ module {
 
     public type Recipe = [Text];
 
-    public type UpgradeData = {
+    public type BurnedInformation = {
+        time_card_burned : Time; // The moment the accessory (card) was burned
+        time_avatar_burned : ?Time; // The (optional) moment the avatar canister reported it removed the accessory from the avatar. 
+        name : Text; // The name of the accessory
+        tokenIdentifier : TokenIdentifier; // The avatar this accessory was equipped on
+    };
+
+    public type OldUpgradeData = {
         items : [(TokenIndex, Item)];
         templates : [(Text, Template)];
         blobs : [(TokenIndex, Blob)];
         recipes : [(Text, Recipe)];
+    };
+
+    public type UpgradeData = {
+        items : [(TokenIndex, Item)];
+        templates : [(Text, Template)];
+        recipes : [(Text, Recipe)];
+        burned : [(TokenIndex, BurnedInformation)];
     };
 
     public type Dependencies = {
@@ -72,24 +88,18 @@ module {
 
     public type Interface = {
 
-        // Add a template for an item (material or accessory with recipe)
         addTemplate(name : Text, template : Template) : Result<Text,Text>;
 
-        //
         wearAccessory(accessory : TokenIdentifier, avatar : TokenIdentifier, caller : Principal) : async Result<(),Text>;
 
-        //
         removeAccessory(accessory : TokenIdentifier, avatar : TokenIdentifier, caller: Principal) : async Result<(),Text>;
 
-        //
         mint(name : Text, index : TokenIndex) : Result<(), Text>;
 
-        //
         getBlob(index : TokenIndex) : ?Blob;
 
         getTemplate(name : Text) : ?Blob;
 
-        //
         isEquipped : (index : TokenIndex) -> Bool;
  
     };

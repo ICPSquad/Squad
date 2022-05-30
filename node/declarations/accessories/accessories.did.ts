@@ -275,8 +275,8 @@ export const idlFactory = ({ IDL }) => {
   });
   const ICPSquadNFT = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
-    'addTemplate' : IDL.Func([IDL.Text, Template], [Result_7], []),
     'add_admin' : IDL.Func([IDL.Principal], [], []),
+    'add_template' : IDL.Func([IDL.Text, Template], [Result_7], []),
     'allPayments' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Vec(SubAccount__1)))],
@@ -293,6 +293,7 @@ export const idlFactory = ({ IDL }) => {
     'burn' : IDL.Func([TokenIdentifier], [Result], []),
     'clearPayments' : IDL.Func([IDL.Principal, IDL.Vec(SubAccount__1)], [], []),
     'collectCanisterMetrics' : IDL.Func([], [], []),
+    'confirmed_burned_accessory' : IDL.Func([TokenIndex], [], []),
     'create_accessory' : IDL.Func([IDL.Text, IDL.Nat], [Result__1_3], []),
     'details' : IDL.Func([TokenIdentifier], [Result_5], ['query']),
     'eventsSize' : IDL.Func([], [IDL.Nat], ['query']),
@@ -318,6 +319,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(TokenIndex, Metadata))],
         ['query'],
       ),
+    'get_name' : IDL.Func([TokenIndex], [IDL.Opt(IDL.Text)], ['query']),
     'get_recipes' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Text, Recipe__1))],
@@ -376,7 +378,10 @@ export const idlFactory = ({ IDL }) => {
     'tokens_ext' : IDL.Func([AccountIdentifier__2], [Result_1], ['query']),
     'transactions' : IDL.Func([], [IDL.Vec(Transaction)], ['query']),
     'transfer' : IDL.Func([TransferRequest], [TransferResponse], []),
+    'update_accessories' : IDL.Func([], [], []),
+    'update_accessory' : IDL.Func([TokenIndex], [], []),
     'verificationEvents' : IDL.Func([], [], []),
+    'verification_burned' : IDL.Func([], [], []),
     'wear_accessory' : IDL.Func(
         [TokenIdentifier, TokenIdentifier],
         [Result],

@@ -3,7 +3,7 @@ let Package = { name : Text, version : Text, repo : Text, dependencies : List Te
 let additions = [
     { name = "cap"
       , repo = "https://github.com/Psychedelic/cap-motoko-library"
-      , version = "v1.0.3"
+      , version = "v1.0.4"
       , dependencies = [] : List Text
     },
     { name = "array"

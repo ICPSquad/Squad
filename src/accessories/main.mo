@@ -17,17 +17,14 @@ import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
-import _Ext "mo:base/Int16";
 
 import AccountIdentifier "mo:principal/AccountIdentifier";
 import Canistergeek "mo:canistergeek/canistergeek";
-import Cap "mo:cap/Cap";
 import Ext "mo:ext/Ext";
 import Root "mo:cap/Root";
-import TokenIdentifier "mo:encoding/Base32";
-import _Monitor "mo:canistergeek/typesModule";
 
 import Admins "admins";
+import Cap "cap";
 import Entrepot "entrepot";
 import ExtModule "ext";
 import Http "http";
@@ -38,7 +35,9 @@ import StatsTypes "stats/types";
 shared({ caller = creator }) actor class ICPSquadNFT(
     cid : Principal,
     cid_avatar : Principal,
-    cid_invoice : Principal
+    cid_invoice : Principal,
+    cid_ledger : Principal,
+    cid_hub : Principal
 ) = this {
 
     ///////////
@@ -46,7 +45,8 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     ///////////
 
     public type Time = Time.Time;
-    public type Result<A,B> = Result.Result<A,B>;   
+    public type Result<A,B> = Result.Result<A,B>;
+    public type IndefiniteEvent = Cap.IndefiniteEvent; 
 
     ///////////
     // ADMIN //
@@ -163,7 +163,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
             case(#ok(index)) {
                 let from = Text.map(Ext.User.toAccountIdentifier(request.from), Prim.charToLower);
                 let to = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
-                ignore(_registerEvent({
+                ignore(_Cap.registerEvent({
                     operation = "transfer";
                     details = [("token", #Text(request.token)), ("from", #Text(from)), ("to", #Text(to))];
                     caller = caller;
@@ -174,7 +174,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         }
     };
 
-    public func tokenId(index : TokenIndex ) : async Text {
+    public func tokenId(index : TokenIndex) : async Text {
         _Monitor.collectMetrics();
         Ext.TokenIdentifier.encode(Principal.fromActor(this), index)
     };
@@ -219,68 +219,20 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     // CAP //
     /////////
 
-    //Details : https://github.com/Psychedelic/cap-motoko-library
-
-    type DetailValue = Root.DetailValue;
-    type Event = Root.Event;
-    type IndefiniteEvent = Root.IndefiniteEvent;
-    
-    //null is passed as argument to not override the router canister id on mainnet : lj532-6iaaa-aaaah-qcc7a-cai
-    let cap = Cap.Cap(null); 
-
-    // The number of cycles to use when initialising the handshake process which creates a new canister and install the bucket code into cap service
-    let creationCycles : Nat = 1_000_000_000_000;
-
-    // Call the handshake function on CAP which will ask the Router canister to create a new Root canister specifically for this token smart contract.
-    // @auth : owner
-    public shared ({caller}) func init_cap() : async Result.Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        let tokenContractId = Principal.toText(Principal.fromActor(this));
-        try {
-            let handshake = await cap.handshake(
-                tokenContractId,
-                creationCycles
-            );
-            return #ok();
-        } catch e {
-            throw e;
-        };
+    stable var _CapUD : ?Cap.UpgradeData = null;
+    let _Cap = Cap.Factory({
+        _Logs = _Logs;
+        _Admins = _Admins;
+        cid = cid;
+        overrideRouterId = null;
+        provideRootBucketId = ?"qfevy-hqaaa-aaaaj-qanda-cai";
+    });
+    /* Regularly called by the hub canister in case some events haven't been processed to the CAP bucket */
+    public shared ({caller}) func cron_events() : async () {
+        assert(caller == cid_hub);
+        _Monitor.collectMetrics();
+        await _Cap.cronEvents();
     };
-
-    //  This hashmap is used to store events & register them later to avoid any lost event in case of CAP error or message lost.
-    private stable var _eventsEntries : [(Time, IndefiniteEvent)] = [];
-    let _events : HashMap.HashMap<Time, IndefiniteEvent> = HashMap.fromIter(_eventsEntries.vals(), _eventsEntries.size(), Int.equal, Int.hash);
-    
-    //  Periodically called through heartbeat to verify that all events have been reported 
-    public shared ({caller}) func verificationEvents() : async () {
-        assert(caller == Principal.fromActor(this) or _Admins.isAdmin(caller));
-        for((time,event) in _events.entries()){
-            switch(await cap.insert(event)){
-                case(#err(message)){};
-                case(#ok(id)){
-                    _events.delete(time);
-                };
-            };
-        };
-    };
-
-    // It should almost always be 0
-    public shared query ({caller}) func eventsSize() : async Nat {
-        assert(_Admins.isAdmin(caller));
-        _events.size();
-    };
-
-    //  Register an event to CAP, store it in _events if registration wasn't successful to process later.
-    private func _registerEvent(event : IndefiniteEvent) : async () {
-        let time = Time.now();
-        _events.put(time, event);
-        switch(await cap.insert(event)){
-            case(#ok(id)){
-                _events.delete(time);
-            };
-            case(#err(message)){};
-        };
-    }; 
 
     ///////////////
     // ENTREPOT //
@@ -543,7 +495,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                                 details = [("from", #Text(owner)),("to", #Text(settlement.buyer)), ("token", #Text(token_identifier)), ("price_decimals", #U64(8)),("price_currency", #Text("ICP")), ("price", #U64(settlement.price))]; 
                                 caller = msg.caller;
                             };
-                            ignore(_registerEvent(event));
+                            ignore(_Cap.registerEvent(event));
                             return #ok;
                         } else {
                             return #err(#Other("Insufficient funds sent"));
@@ -728,7 +680,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         accessory : TokenIdentifier,
         avatar : TokenIdentifier 
         ) : async Result.Result<(), Text> {
-        assert(false);
+        // assert(false);
         _Monitor.collectMetrics();
         switch(_Ext.isOwner(caller, accessory)){
             case(#err(e)) {
@@ -804,7 +756,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                 details = [("token", #Text(Ext.TokenIdentifier.encode(cid,tokenIndex))), ("from", #Text(Principal.toText(caller)))];
                 caller = caller;
             };
-            ignore(_registerEvent(event));
+            ignore(_Cap.registerEvent(event));
         };
         // Create the token and the associated accessory.
         let request : Ext.NonFungible.MintRequest = {
@@ -830,7 +782,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                             details = [("token", #Text(tokenIdentifier)), ("to", #Text(Principal.toText(caller)))];
                             caller = caller;
                         };
-                        ignore(_registerEvent(event));
+                        ignore(_Cap.registerEvent(event));
                         _Logs.logMessage("Accessory created : " # name # " by " # Principal.toText(caller) # "with identifier " # tokenIdentifier);
                         return #ok(tokenIdentifier);
                       };
@@ -864,7 +816,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                 details = [("token", #Text(Ext.TokenIdentifier.encode(cid,tindex))), ("from", #Text(Principal.toText(caller)))];
                 caller = caller;
         };
-        ignore(_registerEvent(event));
+        ignore(_Cap.registerEvent(event));
         _Logs.logMessage("Accessory burned : " # token # " by " # Principal.toText(caller));
         return #ok;
     };
@@ -894,6 +846,10 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
+    public query func get_name(index : TokenIndex) : async ?Text {
+        _Items.getName(index);
+    };
+
 
     public shared ({ caller }) func confirmed_burned_accessory(
         index : TokenIndex
@@ -914,7 +870,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                 details = [("token", #Text(Ext.TokenIdentifier.encode(cid, index)))];
                 caller = caller;
             };
-            ignore(_registerEvent(event));
+            ignore(_Cap.registerEvent(event));
         };
         _Logs.logMessage("Daily update of accessories : " # Nat.toText(burned.size()) # Nat.toText(decreased.size()) #  Nat.toText(not_found.size()));
         return;
@@ -933,6 +889,8 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         ignore(_Items.updateAccessory(index));
         return;
     };
+
+
 
     public query ({ caller }) func getInventory() : async Result<Inventory, Text> {
         _Items.getInventory(caller);
@@ -985,7 +943,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         count += 1;
         //  Every 2 minutes 
         if (count % 120 == 0) {
-            await verificationEvents();
             await verification_burned();
         };
         //  Every 5 minutes 
@@ -1000,8 +957,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
 
     system func preupgrade() {
         _Logs.logMessage("Preupgrade (accessory)");
-        // CAP events
-        _eventsEntries := Iter.toArray(_events.entries());
         // Entrepot
         _tokenListingState := Iter.toArray(_tokenListing.entries());
         _tokenSettlementState := Iter.toArray(_tokenSettlement.entries());
@@ -1010,14 +965,13 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         // Modules
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
-        _AdminsUD := ? _Admins.preupgrade();
         _ItemsUD := ? _Items.preupgrade();
+        _AdminsUD := ? _Admins.preupgrade();
         _ExtUD := ? _Ext.preupgrade();
+        _CapUD := ? _Cap.preupgrade();
     };
 
     system func postupgrade() {
-        // CAP events
-        _eventsEntries := [];
         // Entrepot
         _tokenListingState := [];
         _tokenSettlementState := [];
@@ -1034,6 +988,8 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _ItemsUD := null;
         _Ext.postupgrade(_ExtUD);
         _ExtUD := null;
+        _Cap.postupgrade(_CapUD);
+        _CapUD = null;
         _Logs.logMessage("Postupgrade (accessory)");
     };
 };

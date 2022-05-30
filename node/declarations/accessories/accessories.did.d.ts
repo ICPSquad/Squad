@@ -77,8 +77,8 @@ export interface HourlyMetricsData {
 }
 export interface ICPSquadNFT {
   'acceptCycles' : () => Promise<undefined>,
-  'addTemplate' : (arg_0: string, arg_1: Template) => Promise<Result_7>,
   'add_admin' : (arg_0: Principal) => Promise<undefined>,
+  'add_template' : (arg_0: string, arg_1: Template) => Promise<Result_7>,
   'allPayments' : () => Promise<Array<[Principal, Array<SubAccount__1>]>>,
   'allSettlements' : () => Promise<Array<[TokenIndex, Settlement]>>,
   'availableCycles' : () => Promise<bigint>,
@@ -89,6 +89,7 @@ export interface ICPSquadNFT {
       undefined
     >,
   'collectCanisterMetrics' : () => Promise<undefined>,
+  'confirmed_burned_accessory' : (arg_0: TokenIndex) => Promise<undefined>,
   'create_accessory' : (arg_0: string, arg_1: bigint) => Promise<Result__1_3>,
   'details' : (arg_0: TokenIdentifier) => Promise<Result_5>,
   'eventsSize' : () => Promise<bigint>,
@@ -102,6 +103,7 @@ export interface ICPSquadNFT {
   'getInventory' : () => Promise<Result_4>,
   'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__2]>>,
   'getTokens' : () => Promise<Array<[TokenIndex, Metadata]>>,
+  'get_name' : (arg_0: TokenIndex) => Promise<[] | [string]>,
   'get_recipes' : () => Promise<Array<[string, Recipe__1]>>,
   'get_stats_items' : () => Promise<
       Array<[string, Supply, [] | [Floor], [] | [LastSoldPrice]]>
@@ -138,7 +140,10 @@ export interface ICPSquadNFT {
   'tokens_ext' : (arg_0: AccountIdentifier__2) => Promise<Result_1>,
   'transactions' : () => Promise<Array<Transaction>>,
   'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
+  'update_accessories' : () => Promise<undefined>,
+  'update_accessory' : (arg_0: TokenIndex) => Promise<undefined>,
   'verificationEvents' : () => Promise<undefined>,
+  'verification_burned' : () => Promise<undefined>,
   'wear_accessory' : (
       arg_0: TokenIdentifier,
       arg_1: TokenIdentifier,

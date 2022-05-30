@@ -268,6 +268,7 @@ export const idlFactory = ({ IDL }) => {
     'burn' : IDL.Func([TokenIdentifier], [Result], []),
     'calculate_style_score' : IDL.Func([], [], ['oneway']),
     'changeStyle' : IDL.Func([IDL.Text], [], []),
+    'clean_blob' : IDL.Func([], [], []),
     'collectCanisterMetrics' : IDL.Func([], [], []),
     'delete' : IDL.Func([IDL.Text], [Result], []),
     'delete_admin' : IDL.Func([IDL.Principal], [], []),
@@ -329,6 +330,11 @@ export const idlFactory = ({ IDL }) => {
         [Result],
         [],
       ),
+    'report_burned_accessory' : IDL.Func(
+        [IDL.Text, TokenIdentifier, TokenIndex],
+        [],
+        [],
+      ),
     'supply' : IDL.Func([], [IDL.Nat], ['query']),
     'tokens' : IDL.Func([AccountIdentifier__1], [Result_3], ['query']),
     'tokens_ext' : IDL.Func([AccountIdentifier__1], [Result_2], ['query']),
@@ -338,7 +344,7 @@ export const idlFactory = ({ IDL }) => {
     'upload' : IDL.Func([IDL.Vec(IDL.Nat8)], [], []),
     'uploadClear' : IDL.Func([], [], []),
     'uploadFinalize' : IDL.Func([IDL.Text, Meta, IDL.Text], [Result], []),
-    'uploadStats' : IDL.Func([Stats], [], ['oneway']),
+    'upload_stats' : IDL.Func([Stats], [], ['oneway']),
     'verificationEvents' : IDL.Func([], [], []),
     'wearAccessory' : IDL.Func(
         [TokenIdentifier, IDL.Text, IDL.Principal],

@@ -198,7 +198,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     ////////////
 
     system func preupgrade() {
-        _Logs.logMessage("Preupgrade");
+        _Logs.logMessage("Preupgrade hub");
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
@@ -214,5 +214,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _AdminsUD := null;
         _Style.postupgrade(_StyleUD);
         _StyleUD := null;
+        _Logs.logMessage("Postupgrade hub");
     };
 };
