@@ -26,12 +26,11 @@ import Root "mo:cap/Root";
 import Admins "admins";
 import Cap "cap";
 import Entrepot "entrepot";
+import Entrepot "entrepot";
 import ExtModule "ext";
 import Http "http";
 import Invoice "invoice";
 import Items "items";
-import StatsTypes "stats/types";
-
 shared({ caller = creator }) actor class ICPSquadNFT(
     cid : Principal,
     cid_avatar : Principal,
@@ -238,13 +237,51 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     // ENTREPOT //
     /////////////
 
-    type ListRequest = Entrepot.ListRequest;
-    type Metadata = Entrepot.Metadata;
-    type Listing = Entrepot.Listing;
-    type Settlement = Entrepot.Settlement;
-    type Transaction = Entrepot.Transaction;
-    type AccountBalanceArgs = Entrepot.AccountBalanceArgs;
-    type ICPTs = Entrepot.ICPTs;
+    public type TokenIdentifier = Text;
+    public type SubAccount = [Nat8];
+    public type AccountIdentifier = Text;
+    public type AccountBalanceArgs = { account : AccountIdentifier };
+    public type ICPTs = { e8s : Nat64 };
+    public type Time = Int;
+
+    public type Transaction = {
+        token : TokenIdentifier;
+        seller : Principal;
+        price : Nat64;
+        buyer : AccountIdentifier;
+        time : Time;
+    };
+
+    public type Settlement = {
+        seller : Principal;
+        price : Nat64;
+        subaccount : SubAccount;
+        buyer : AccountIdentifier;
+    };
+
+    public type Listing = {
+        seller : Principal;
+        price : Nat64;
+        locked : ?Time;
+    };
+
+    public type ListRequest = {
+        token : TokenIdentifier;
+        from_subaccount : ?SubAccount;
+        price : ?Nat64;
+    };
+
+    public type Metadata = {
+        #fungible : {
+        name : Text;
+        symbol : Text;
+        decimals : Nat8;
+        metadata : ?Blob;
+        };
+        #nonfungible : {
+        metadata : ?Blob;
+        };
+    };
 
     private var ESCROWDELAY : Time = 10 * 60 * 1_000_000_000;
     let LEDGER_CANISTER = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor { account_balance_dfx : shared query AccountBalanceArgs -> async ICPTs };
@@ -916,10 +953,10 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     // STATS //
     //////////
 
-    public type Name = StatsTypes.Name;
-    public type Supply = StatsTypes.Supply;
-    public type Floor = StatsTypes.Floor;
-    public type LastSoldPrice = StatsTypes.LastSoldPrice;
+    public type Name = Text;
+    public type Supply = Nat;
+    public type Floor = Nat;
+    public type LastSoldPrice = Nat;
 
     public query func get_stats_items() : async [(Text, Supply, ?Floor, ?LastSoldPrice)] {
         let items = _Items.getItems();
