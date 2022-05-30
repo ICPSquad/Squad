@@ -1,11 +1,17 @@
+import Blob "mo:base/Blob";
+
 import Hex "mo:encoding/Hex";
+
+import Types "types";
 module {
+
+    public type NNS = Types.NNS;
 
     public class Factory(dependencies : Types.Dependencies) {
         
         let nns : Types.NNS = actor("ryjl3-tyaaa-aaaaa-aaaba-cai");
-        let _Admins = dependencies._Admins
-        let _Logs = dependencies._Logs
+        let _Admins = dependencies._Admins;
+        let _Logs = dependencies._Logs;
 
         //////////
         // API //
@@ -37,8 +43,9 @@ module {
                         to = Blob.fromArray(aid);
                     })
                 };
-                case (#err(#msg(e))) {
-                    #Err(#TxCreatedInFuture(null));
+                case (#err(_)){
+                    assert(false);
+                    return #Err(#TxCreatedInFuture(null));
                 };
             };
         };

@@ -2,7 +2,6 @@ import Result "mo:base/Result";
 import Time "mo:base/Time";
 
 import Canistergeek "mo:canistergeek/canistergeek";
-import Cap "mo:cap/Cap";
 import Ext "mo:ext/Ext";
 module {
 

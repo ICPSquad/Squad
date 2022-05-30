@@ -16,13 +16,13 @@ import TrieMap "mo:base/TrieMap";
 
 import AccountIdentifier "mo:principal/AccountIdentifier";
 import Canistergeek "mo:canistergeek/canistergeek";
-import Cap "mo:cap/Cap";
 import Ext "mo:ext/Ext";
 import Root "mo:cap/Root";
 
 import Admins "admins";
 import Assets "assets";
 import Avatar "avatar";
+import Cap "cap";
 import ExtModule "ext";
 import Http "http";
 import Invoice "invoice";
@@ -279,7 +279,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
                     details = [("token", #Text(token)), ("from", #Text(Principal.toText(caller)))];
                     caller = caller;
                 };
-                ignore(_registerEvent(event));
+                ignore(_Cap.registerEvent(event));
                 _Logs.logMessage("Burned avatar: " # token # " by : " # Principal.toText(caller));
                 return #ok;
             };
@@ -328,6 +328,12 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
                 switch(_Avatar.createAvatar(info, tokenId)){
                     case(#ok) {
                         _Logs.logMessage("Created avatar: " # tokenId # "by " # Principal.toText(caller));
+                        let receiver = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+                        ignore(_Cap.registerEvent({
+                            operation = "mint";
+                            details = [("token", #Text(tokenId)), ("to", #Text(receiver))];
+                            caller = caller;
+                        }));
                         _Users.welcome(caller, invoice_id, tokenId);
                         return #ok(tokenId);
                     };
@@ -340,31 +346,31 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
-    /* Used locally to test the avatar rendering engine */
-    public shared ({caller}) func mint_test(
-        info : MintInformation,
-    ) : async MintResult {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        switch(_Ext.mint({ to = #principal(caller); metadata = null; })){
-            case(#err(#Other(e))) return #err(e);
-            case(#err(#InvalidToken(e))) return #err(e);
-            case(#ok(index)){
-                let tokenId = Ext.TokenIdentifier.encode(cid, index);
-                _Logs.logMessage("Minted token: " # tokenId);
-                switch(_Avatar.createAvatar(info, tokenId)){
-                    case(#ok) {
-                        _Logs.logMessage("Created avatar: " # tokenId # "by " # Principal.toText(caller));
-                        return #ok(tokenId);
-                    };
-                    case(#err(e)){
-                        _Logs.logMessage("Error during avatar creation for token: " # tokenId);
-                        return #err(e);
-                    };
-                };
-            };
-        };
-    };
+    // /* Used locally to test the avatar rendering engine */
+    // public shared ({caller}) func mint_test(
+    //     info : MintInformation,
+    // ) : async MintResult {
+    //     assert(_Admins.isAdmin(caller));
+    //     _Monitor.collectMetrics();
+    //     switch(_Ext.mint({ to = #principal(caller); metadata = null; })){
+    //         case(#err(#Other(e))) return #err(e);
+    //         case(#err(#InvalidToken(e))) return #err(e);
+    //         case(#ok(index)){
+    //             let tokenId = Ext.TokenIdentifier.encode(cid, index);
+    //             _Logs.logMessage("Minted token: " # tokenId);
+    //             switch(_Avatar.createAvatar(info, tokenId)){
+    //                 case(#ok) {
+    //                     _Logs.logMessage("Created avatar: " # tokenId # "by " # Principal.toText(caller));
+    //                     return #ok(tokenId);
+    //                 };
+    //                 case(#err(e)){
+    //                     _Logs.logMessage("Error during avatar creation for token: " # tokenId);
+    //                     return #err(e);
+    //                 };
+    //             };
+    //         };
+    //     };
+    // };
 
     public shared ({caller}) func wearAccessory(
         tokenId : TokenIdentifier,
@@ -482,7 +488,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
             case(#ok(index)) {
                 let from = Text.map(Ext.User.toAccountIdentifier(request.from), Prim.charToLower);
                 let to = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
-                ignore(_registerEvent({
+                ignore(_Cap.registerEvent({
                     operation = "transfer";
                     details = [("token", #Text(request.token)), ("from", #Text(from)), ("to", #Text(to))];
                     caller = caller;
@@ -551,69 +557,22 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     // CAP //
     /////////
 
-    //Details : https://github.com/Psychedelic/cap-motoko-library
+    stable var _CapUD : ?Cap.UpgradeData = null;
+    let _Cap = Cap.Factory({
+        _Logs = _Logs;
+        _Admins = _Admins;
+        cid = cid;
+        overrideRouterId = null;
+        provideRootBucketId = ?"ffu6n-ciaaa-aaaaj-qaotq-cai";
+    });
 
-    type DetailValue = Root.DetailValue;
-    type Event = Root.Event;
-    type IndefiniteEvent = Root.IndefiniteEvent;
-    
-    //null is passed as argument to not override the router canister id on mainnet : lj532-6iaaa-aaaah-qcc7a-cai
-    let cap = Cap.Cap(null); 
-
-    // The number of cycles to use when initialising the handshake process which creates a new canister and install the bucket code into cap service
-    let creationCycles : Nat = 1_000_000_000_000;
-
-    // Call the handshake function on CAP which will ask the Router canister to create a new Root canister specifically for this token smart contract.
-    // @auth : owner
-    public shared ({caller}) func init_cap() : async Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        let tokenContractId = Principal.toText(cid);
-        try {
-            let handshake = await cap.handshake(
-                tokenContractId,
-                creationCycles
-            );
-            return #ok();
-        } catch e {
-            throw e;
-        };
+    /* Regularly called by the hub canister in case some events haven't been processed to the CAP bucket */
+    public shared ({caller}) func cron_events() : async () {
+        assert(caller == hub_cid);
+        _Monitor.collectMetrics();
+        await _Cap.cronEvents();
     };
 
-    //  This hashmap is used to store events & register them later to avoid any lost event in case of CAP error or message lost.
-    private stable var _eventsEntries : [(Time, IndefiniteEvent)] = [];
-    let _events : TrieMap.TrieMap<Time, IndefiniteEvent> = TrieMap.fromEntries<Time,IndefiniteEvent>(_eventsEntries.vals(), Int.equal, Int.hash);
-    
-    //  Periodically called through heartbeat to verify that all events have been reported 
-    public shared ({caller}) func verificationEvents() : async () {
-        assert(caller == cid or _Admins.isAdmin(caller));
-        for((time,event) in _events.entries()){
-            switch(await cap.insert(event)){
-                case(#err(message)){};
-                case(#ok(id)){
-                    _events.delete(time);
-                };
-            };
-        };
-    };
-
-    // It should always be 0
-    public shared query ({caller}) func eventsSize() : async Nat {
-        assert(_Admins.isAdmin(caller));
-        _events.size();
-    };
-
-    //  Register an event to CAP, store it in _events if registration wasn't successful to process later.
-    private func _registerEvent(event : IndefiniteEvent) : async () {
-        let time = Time.now();
-        _events.put(time, event);
-        switch(await cap.insert(event)){
-            case(#ok(id)){
-                _events.delete(time);
-            };
-            case(#err(message)){};
-        };
-    };
- 
     ///////////
     // HTTP //
     //////////
@@ -742,7 +701,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _ExtUD := ? _Ext.preupgrade();
         _ScoresUD := ? _Scores.preupgrade();
         _UsersUD := ? _Users.preupgrade();
-        _eventsEntries := Iter.toArray(_events.entries());
+        _CapUD := ? _Cap.preupgrade();
     };
 
     system func postupgrade() {
@@ -762,7 +721,8 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _ScoresUD := null;
         _Users.postupgrade(_UsersUD);
         _UsersUD := null;
-        _eventsEntries := [];
+        _Cap.postupgrade(_CapUD);
+        _CapUD := null;
         _Logs.logMessage("Postupgrade avatar");
     };
 

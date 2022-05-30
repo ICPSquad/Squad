@@ -6,7 +6,7 @@ module {
 
     public type Dependencies = {
         _Admins : Admins.Admins;
-        _Logs : CanisterGeek.Logger;
+        _Logs : Canistergeek.Logger;
         cid_ledger : Principal;
     };
 

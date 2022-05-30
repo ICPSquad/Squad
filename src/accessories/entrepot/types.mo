@@ -3,31 +3,33 @@ import Result "mo:base/Result";
 import Time "mo:base/Time";
 
 import Canistergeek "mo:canistergeek/canistergeek";
-import Cap "mo:cap/Cap";
-import Ext "mo:ext/Ext";
 
 import Admins "../Admins";
+import Cap "../Cap";
 import Ext "../Ext";
+import NNS "../NNS";
+
 module {
     public type Dependencies = {
         _Ext : Ext.Factory;
         _Admins : Admins.Admins;
-        _Cap : Cap.Cap;
-        _Logs : CanisterGeek.Logger;
-        _NNS : NNS.Factory; //TODO
+        _Cap : Cap.Factory;
+        _Logs : Canistergeek.Logger;
         cid : Principal;
+        cid_ledger : Principal;
     };
+
     public type UpgradeData = {
-        listings : ?[(Ext.TokenIndex, Listing)];
-        transactions : ?[(Nat, Transaction)];
-        pendingTransactions : ?[Ext.TokenIndex, Transaction];
-        _usedPaymentAddresses : ?[Ext.AccountIdentifier, Principal, Ext.SubAccount];
-        totalVolume : ?Nat64;
-        lowestPriceSales : ?Nat64;
-        highestPriceSales : ?Nat64;
-        nextSubAccount : ?Nat;
-        pendingDisbursements : ?[(Ext.TokenIndex, Ext.AccountIdentifier, Ext.SubAccount, Nat64)];
+        listings : [(Ext.TokenIndex, Listing)];
+        transactions : [(Nat, Transaction)];
+        pendingTransactions : [(Ext.TokenIndex, Transaction)];
+        totalVolume : Nat64;
+        lowestPriceSales : Nat64;
+        highestPriceSales : Nat64;
+        nextSubAccount : Nat;
+        pendingDisbursements : [(Ext.TokenIndex, Ext.AccountIdentifier, SubAccount, Nat64)];
     };
+
 
     public type SubAccount = [Nat8];
 
@@ -44,6 +46,12 @@ module {
         seller : Principal;
     };
 
+    public type ListingsResponse = [(
+        Ext.TokenIndex,
+        ExtListing,
+        Metadata,
+    )];
+
     public type Transaction = {
         id : Nat;
         token : Ext.TokenIdentifier;
@@ -55,6 +63,14 @@ module {
         initiated : Time.Time; //When it was locked for
         closed : ?Time.Time; // When it was settled
         bytes : [Nat8];
+    };
+
+    public type EntrepotTransaction = {
+        token   : Ext.TokenIdentifier;
+        seller  : Principal;
+        price   : Nat64;
+        buyer   : Ext.AccountIdentifier;
+        time    : Time.Time;
     };
 
     public type Metadata = {
@@ -72,11 +88,9 @@ module {
     ////////////
     // API ////
     //////////
-
-    public type ListingsResponse = [(Ext.TokenIndex, ExtListing, Metadata)];
     
     public type ListRequest = {
-        from_subaccount : ?SubAccount;
+        from_subaccount : SubAccount;
         price : ?Nat64;
         token : Ext.TokenIdentifier;
     };
@@ -94,15 +108,15 @@ module {
     // First tuple value is seller's account identifier
     public type DetailsResponse = Result.Result<(Ext.AccountIdentifier, ?Listing), Ext.CommonError>;
 
-    public type StatsResponse = {
-        Nat64,  // Total volume
+    public type StatsResponse = (
+        Nat64, // Total volume
         Nat64,  // Highest price sale
         Nat64,  // Lowest price sale
         Nat64,  // Current floor price
         Nat,    // # Listings
         Nat,    // # Supply
         Nat,    // # Sales
-    }; 
+    ); 
 
-    public type Disbursement = (Ext.TokenIndex, Ext.AccountIdentifier, Ext.SubAccount, Nat64);
+    public type Disbursement = (Ext.TokenIndex, Ext.AccountIdentifier, SubAccount, Nat64);
 };

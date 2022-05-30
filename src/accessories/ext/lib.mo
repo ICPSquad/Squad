@@ -24,6 +24,9 @@ module {
     public type Listing = Types.Listing;
     public type TokenIndex = Types.TokenIndex;
     public type TokenIdentifier = Types.TokenIdentifier;
+    public type AccountIdentifier = Types.AccountIdentifier;
+    public type CommonError = Types.CommonError;
+    // public type SubAccount = Types.SubAccount;
 
     public class Factory(dependencies : Types.Dependencies) {
 
@@ -32,12 +35,9 @@ module {
         ///////////
 
         type Result<A,B> = Result.Result<A,B>;
-        type TokenIndex = Types.TokenIndex;
         type TokenIdentifier = Types.TokenIdentifier;
-        type AccountIdentifier = Types.AccountIdentifier;
         type Extension = Types.Extension;
         type Balance = Types.Balance;
-        type CommonError = Types.CommonError;
         type BalanceRequest = Types.BalanceRequest;
         type BalanceResponse = Types.BalanceResponse;
         type TransferRequest = Types.TransferRequest;

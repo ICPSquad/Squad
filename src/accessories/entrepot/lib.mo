@@ -2,7 +2,6 @@ import Array "mo:base/Array";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
 import Error "mo:base/Error";
-import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import List "mo:base/List";
 import Nat "mo:base/Nat";
@@ -12,9 +11,11 @@ import Nat64 "mo:base/Nat64";
 import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
 import Prim "mo:prim";
+import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+import TrieMap "mo:base/TrieMap";
 
 import AccountBlob "mo:principal/blob/AccountIdentifier";
 import Ext "mo:ext/Ext";
@@ -23,7 +24,23 @@ import Hex "mo:encoding/Hex";
 import NNS "../nns";
 import Types "types";
 module {
-    
+
+    ////////////
+    // Types //
+    //////////
+
+    public type UpgradeData = Types.UpgradeData;
+    public type Listing = Types.Listing;
+    public type Transaction = Types.Transaction;
+    public type Disbursement = Types.Disbursement;
+    public type ListRequest = Types.ListRequest;
+    public type ListResponse = Types.ListResponse;
+    public type LockResponse = Types.LockResponse;
+    public type DetailsResponse = Types.DetailsResponse;
+    public type ListingResponse = Types.ListingsResponse;
+    public type ExtListing = Types.ExtListing;
+    public type Metadata = Types.Metadata;
+
     // Time for a transaction to complete (2 mins in nanoseconds)
     private let transactionTtl = 120_000_000_000;
 
@@ -32,8 +49,6 @@ module {
         ("e52dd08a3a35cad591e55d0174be0b85ad1bd8395b9ace29bc1c232c06f1e656", 5000), // 5% Royalty fee
         ("c7e461041c0c5800a56b64bb7cefc247abc0bbbb99bd46ff71c64e92d9f5c2f9", 1000), // 1% Entrepot marketplace fee
     ];
-
-    //TODO : Declare the ledger actor
 
     public class Factory (dependencies : Types.Dependencies) {
 
@@ -45,14 +60,12 @@ module {
         let _Ext = dependencies._Ext;
         let _Logs = dependencies._Logs;
         let _Cap = dependencies._Cap;
-        let _NNS = dependencies._NNS;
+
+        let _nnsActor : NNS.NNS = actor(Principal.toText(dependencies.cid_ledger));
                 
         ////////////
         // State //
         //////////
-
-        //Incrementing transaction id.
-        private var nextTxId = 0;
 
         //NFTs listed for sale
         private var listings = TrieMap.TrieMap<Ext.TokenIndex, Types.Listing>(
@@ -72,30 +85,52 @@ module {
             Nat32.fromNat,
         );
         
-        // Used payment addresses.
-        // DEPRECATED
-        // NOTE: Payment addresses are generated at transaction time by combining random subaccount bytes (determined in secret by the buyer,) with the seller's address. The transaction protocol relies on a unique address for each transaction, so these payment addresses can never be used again.
-        private var _usedPaymentAddresses : Buffer.Buffer<(
-            Ext.AccountIdentifier, Principal, Ext.SubAccount
-        )> = Buffer.Buffer(0);
-
-        //Incrementing subbaccount for handling marketplace payments.
-        private nextSubAccount : Nat = dependencies.nextSubAccount;
-
         // Marketplace stats
         var totalVolume : Nat64 = 0;
         var lowestPriceSales : Nat64 = 0;
         var highestPriceSales : Nat64 = 0;
 
+        //Incrementing subbaccount for handling marketplace payments.
+        private var nextSubAccount : Nat = 0;
+        //Incrementing transaction id.
+        private var nextTxId = 0;
+
         //Pending ICP disbursements from this canister.
-        var pendingDisbursements = List.List<Types.Disbursement> = null; 
+        var pendingDisbursements : List.List<Types.Disbursement> = null; 
 
         public func preupgrade() : UpgradeData {
-            //TODO
+            return ({
+                listings = Iter.toArray(listings.entries());
+                pendingTransactions = Iter.toArray(pendingTransactions.entries());
+                transactions = Iter.toArray(transactions.entries());
+                totalVolume;
+                lowestPriceSales;
+                highestPriceSales;
+                nextSubAccount;
+                pendingDisbursements = List.toArray(pendingDisbursements);
+            })
         };
 
         public func postupgrade(ud : ?UpgradeData) : () {
-            //TODO
+            switch(ud){
+                case(null){};
+                case(? ud){
+                    for((tokenIndex, listing) in ud.listings.vals()){
+                        listings.put(tokenIndex, listing);
+                    };
+                    for((txId, tx) in ud.transactions.vals()){
+                        transactions.put(txId, tx);
+                    };
+                    for((tokenIndex, tx) in ud.pendingTransactions.vals()){
+                        pendingTransactions.put(tokenIndex, tx);
+                    };
+                    totalVolume := ud.totalVolume;
+                    lowestPriceSales := ud.lowestPriceSales;
+                    highestPriceSales := ud.highestPriceSales;
+                    nextSubAccount := ud.nextSubAccount;
+                    // pendingDisbursements := ud.pendingDisbursements;
+                };
+            };
         };
 
         ///////////////////////
@@ -109,7 +144,7 @@ module {
             switch (Ext.TokenIdentifier.decode(token)) {
                 case (#ok(principal, tokenIndex)) {
                     // Validate token identifier's canister.
-                    if (principal != state.cid) {
+                    if (principal != dependencies.cid) {
                         #err(#InvalidToken(token));
                     } else {
                         #ok(tokenIndex);
@@ -211,9 +246,9 @@ module {
         ///////////////
 
         // List all current NFT's for sale.
-        public func getListings() : Types.ListingResponse {
+        public func getListings() : Types.ListingsResponse {
             let r = Buffer.Buffer<(Ext.TokenIndex, ExtListing, Metadata)>(0);
-            for((index,listing) in listing.entries()){
+            for((index,listing) in listings.entries()){
                 r.add((index, _listingToExtListing(listing), _nftMetadata()));
             };
             return r.toArray();
@@ -233,7 +268,7 @@ module {
             };
 
             // Verify that the caller owns the token.
-            let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, request.from_subaccount),Prim.charToLower); 
+            let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, ?request.from_subaccount),Prim.charToLower); 
             if(not _Ext.isOwnerAccount(account, index)){
                 return #err(#Other("Unauthorized"));
             };
@@ -283,21 +318,21 @@ module {
             let index : Ext.TokenIndex = switch (_unpackTokenIdentifier(token)) {
                 case (#ok(i)) i;
                 case (#err(e)) {
-                    _Log.logMessage(Principal.toText(caller) # " :: lock ", token # " :: ERR :: Invalid token");
+                   _Logs.logMessage(Principal.toText(caller) # " :: lock " # token # " :: ERR :: Invalid token");
                     return #err(e);
                 };
             };
 
             // Ensure token is not already locked.
             if (_isLocked(index)) {
-                 _Log.logMessage(Principal.toText(caller) # " :: lock ", token # " :: ERR :: Already locked");
+                _Logs.logMessage(Principal.toText(caller) # " :: lock " # token # " :: ERR :: Already locked");
                 return #err(#Other("Already locked."));
             };
 
             // Retrieve the token's listing.
             switch (listings.get(index)) {
                 case (null) {
-                     _Log.logMessage(Principal.toText(caller) # " :: lock ", token # " :: ERR :: No such listing");
+                    _Logs.logMessage(Principal.toText(caller) # " :: lock " # token # " :: ERR :: No such listing");
                     #err(#Other("No such listing."));
                 };
 
@@ -305,12 +340,12 @@ module {
 
                     // Double check listing price
                     if (price != listing.price) {
-                        _Log.logMessage(Principal.toText(caller) # " :: lock ", token # " :: ERR :: Wrong price");
+                       _Logs.logMessage(Principal.toText(caller) # " :: lock " # token # " :: ERR :: Wrong price");
                         return #err(#Other("Incorrect listing price."));
                     };
 
                     let subaccount = _getNextSubAccount();
-                    let paymentAddress : Ext.AccountIdentifier = Text.map(Ext.AccountIdentifier.fromPrincipal(state.cid, ?subaccount), Prim.charToLower);
+                    let paymentAddress : Ext.AccountIdentifier = Text.map(Ext.AccountIdentifier.fromPrincipal(dependencies.cid, ?subaccount), Prim.charToLower);
 
                     // Lock the listing
                     listings.put(index, {
@@ -321,9 +356,9 @@ module {
                     });
 
                     // Ensure there isn't a pending transaction which can be settled.
-                    switch (await _canSettle(caller, token)) {
+                    switch (await _canSettle(caller,token)) {
                         case (#err(e)) {
-                        _Log.logMessage(Principal.toText(caller) # " :: lock ", token # " :: ERR :: Pending settlement completed");
+                       _Logs.logMessage(Principal.toText(caller) # " :: lock " # token # " :: ERR :: Pending settlement completed");
                             return #err(e);
                         };
                         case _ ();
@@ -336,7 +371,7 @@ module {
                         token       = token;
                         memo        = null;
                         seller      = listing.seller;
-                        from        = AccountBlob.toText(AccountBlob.fromPrincipal(listing.seller, listing.subaccount));
+                        from        = AccountBlob.toText(AccountBlob.fromPrincipal(listing.seller, ?listing.subaccount));
                         to          = buyer;
                         price       = listing.price;
                         initiated   = Time.now();
@@ -359,7 +394,7 @@ module {
             let index : Ext.TokenIndex = switch (_unpackTokenIdentifier(token)) {
                 case (#ok(i)) i;
                 case (#err(e)) {
-                    _Log.logMessage(Principal.toText(caller) # " :: lock ", token # " :: ERR :: Invalid token");
+                   _Logs.logMessage(Principal.toText(caller) # " :: lock " # token # " :: ERR :: Invalid token");
                     return #err(e);
                 };
             };
@@ -368,14 +403,14 @@ module {
             let transaction = switch (pendingTransactions.get(index)) {
                 case (?t) t;
                 case _ {
-                    _Log.logMessage(Principal.toText(caller) # " :: lock ", token # " :: ERR :: No such transaction");
+                   _Logs.logMessage(Principal.toText(caller) # " :: lock " # token # " :: ERR :: No such transaction");
                     return #err(#Other("No such pending transaction."));
                 }
             };
 
             // Check the transaction account on the ledger.
             let account_as_blob = AccountBlob.fromPrincipal(dependencies.cid, ?transaction.bytes);
-            let balance = await _NNS.balance(account_as_blob);
+            let balance = await _nnsActor.account_balance({account = account_as_blob});
 
             // Confirm enough funds have been sent.
             if (balance.e8s < transaction.price) {
@@ -383,7 +418,7 @@ module {
                     // This pending transaction is past its lock, so we delete it to save compute in our cron that iterates pending transactions.
                     pendingTransactions.delete(index);
                 };
-                _Log.logMessage(Principal.toText(caller) # " :: lock ", token # " :: ERR :: Insufficient funds");
+                _Logs.logMessage(Principal.toText(caller) # " :: lock " # token # " :: ERR :: Insufficient funds");
                 return #err(#Other("Insufficient funds sent."));
             };
 
@@ -417,13 +452,13 @@ module {
 
             // Update stats.
             totalVolume += transaction.price;
-            lowestPriceSale := switch (transaction.price < lowestPriceSale) {
+            lowestPriceSales := switch (transaction.price < lowestPriceSales) {
                 case (true) transaction.price;
-                case (false) lowestPriceSale;
+                case (false) lowestPriceSales;
             };
-            highestPriceSale := switch (transaction.price > highestPriceSale) {
+            highestPriceSales := switch (transaction.price > highestPriceSales) {
                 case (true) transaction.price;
-                case (false) highestPriceSale;
+                case (false) highestPriceSales;
             };
 
             //Transfer the NFT from seller to the buyer
@@ -444,7 +479,7 @@ module {
                 case (#ok(_, tokenIndex)) { tokenIndex; };
             };
             switch (listings.get(index)) {
-                case (?listing) #ok(Text.map(Ext.AccountIdentifier.fromPrincipal(caller, request.from_subaccount),Prim.charToLower), ?listing);
+                case (?listing) #ok(Text.map(Ext.AccountIdentifier.fromPrincipal(listing.seller, ?listing.subaccount),Prim.charToLower), ?listing);
                 case _ #err(#Other("No such listing."));
             };
         };
@@ -457,11 +492,11 @@ module {
             };
             (
                 totalVolume,
-                highestPriceSale,
-                lowestPriceSale,
+                highestPriceSales,
+                lowestPriceSales,
                 floor,
                 listings.size(),
-                Nat16.toNat(state.supply),
+                _Ext.size(),
                 transactions.size(),
             );
         };
@@ -478,32 +513,6 @@ module {
             });
         };
 
-        // Used by stoic wallet
-        public func tokens_ext(
-            caller  : Principal,
-            accountId : Ext.AccountIdentifier,
-        ) : Result.Result<[(Ext.TokenIndex, ?Types.Listing, ?[Nat8])], Ext.CommonError> {
-            let tokens = Buffer.Buffer<(Ext.TokenIndex, ?Types.Listing, ?[Nat8])>(0);
-            var i : Nat32 = 0;
-            for (token in Iter.fromArray(state._Tokens.read(null))) {
-                switch (token) {
-                    case (?t) {
-                        if (Ext.AccountIdentifier.equal(accountId, t.owner)) {
-                            tokens.add((
-                                i,
-                                listings.get(i),
-                                null,
-                            ));
-                        };
-                    };
-                    case _ ();
-                };
-                i += 1;
-            };
-            #ok(tokens.toArray());
-        };
-
-
         // Return completed transactions.
         public func readTransactions () : [Types.EntrepotTransaction] {
             Array.map<(Nat, Types.Transaction), Types.EntrepotTransaction>(Iter.toArray(transactions.entries()), func ((k, v)) {
@@ -519,6 +528,133 @@ module {
                 }
             });
         };
+
+        ////////////////////
+        // Disbursements //
+        //////////////////
+
+        // Process the queue of disbursements.
+        var lastDisburseCron : Int = 0;
+        var disburseInterval : Int = 5_000_000_000;
+        var pendingCount : Nat = 0;
+        public func cronDisbursements () : async () {
+
+            // Let's try to save as many cycles on heartbeat as possible.
+            if (List.size(pendingDisbursements) == 0) return;
+
+            let now = Time.now();
+            if (now - lastDisburseCron < disburseInterval) return;
+            lastDisburseCron := now;
+
+            // Keep track of completed and failed jobs.
+            var completed   : List.List<Types.Disbursement> = null;
+            var failed      : List.List<Types.Disbursement> = null;
+
+            let (disbursement, remaining) = List.pop(pendingDisbursements);
+            var job = disbursement;
+            pendingDisbursements := remaining;
+
+            label queue while (Option.isSome(job)) ignore do ? {
+                pendingCount += 1;
+                try {
+                    switch (
+                        await _nnsActor.transfer({
+                            fee = { e8s = 10_000; };
+                            amount = { e8s = job!.3 };
+                            memo = Nat64.fromNat(Nat32.toNat(job!.0));
+                            from_subaccount = ?Blob.fromArray(job!.2);
+                            created_at_time = null;
+                            to = switch (Hex.decode(job!.1)) {
+                                case(#ok(b)) Blob.fromArray(b);
+                                case(#err(e)) {
+                                    _Logs.logMessage("cronDisbursements " # " ERR :: Hex decode failure: " # e);
+                                    failed := List.push(job!, failed);
+                                    let (disbursement, remaining) = List.pop(pendingDisbursements);
+                                    job := disbursement;
+                                    pendingDisbursements := remaining;
+                                    pendingCount -= 1;
+                                    continue queue;
+                                };
+                            };
+                        })
+                    ) {
+                        case(#Ok(r)) {
+                            completed := List.push(job!, completed);
+                            pendingCount -= 1;
+                        };
+                        case(#Err(e)) switch (e) {
+                            case (#InsufficientFunds(m)){
+                                _Logs.logMessage("cronDisbursements " # " ERR :: NNS Failure: " # "Insufficient funds " # Nat64.toText(job!.3) # " " # Nat64.toText(m.balance.e8s) # ". Dropping task.");
+                                pendingCount -= 1;
+                            };
+                            case (#TxDuplicate(m)){
+                                _Logs.logMessage("cronDisbursements " # " ERR :: NNS Failure: " # " Tx duplicate " # Nat64.toText(job!.3) # ". Dropping task.");
+                                pendingCount -= 1;
+                            };
+                            case (#TxTooOld(m)){
+                                _Logs.logMessage("cronDisbursements " # " ERR :: NNS Failure: " # " Tx too old " # Nat64.toText(job!.3) # ". Dropping task.");
+                                pendingCount -= 1;
+                            };
+                            case (#BadFee(m)){
+                                failed := List.push(job!, failed);
+                                pendingCount -= 1;
+                            };
+                            case (#TxCreatedInFuture(m)){
+                                failed := List.push(job!, failed);
+                                pendingCount -= 1;
+                            };
+                        };
+                    };
+                } catch (e) {
+                    _Logs.logMessage("cronDisbursements " # " ERR :: Unexpected NNS Failure: " # Error.message(e));
+                    failed := List.push(job!, failed);
+                    pendingCount -= 1;
+                };
+                
+                let (disbursement, remaining) = List.pop(pendingDisbursements);
+                job := disbursement;
+                pendingDisbursements := remaining;
+            };
+
+            // Put failed mints back in the queue.
+            pendingDisbursements := List.append(failed, pendingDisbursements);
+        };
+
+        public func deleteDisbursementJob (
+            token : Ext.TokenIndex,
+            address: Ext.AccountIdentifier,
+            amount: Nat64,
+        ) : () {
+            pendingDisbursements := List.filter<Types.Disbursement>(pendingDisbursements, func ((t, u, _, v)) {
+                token != t or address != u or amount != v
+            });
+        };
+
+        public func disbursements () : [Types.Disbursement] {
+            List.toArray(pendingDisbursements);
+        };
+
+        public func disbursementQueueSize () : Nat {
+            List.size(pendingDisbursements);
+        };
+
+        public func disbursementPendingCount () : Nat {
+            pendingCount;
+        };
+
+        // Trawl for pending transactions that we can settle.
+        var lastSettleCron : Int = 0;
+        var settleInterval : Int = 15_000_000_000;
+        public func cronSettlements () : async () {
+            let now = Time.now();
+            if (now - lastSettleCron < settleInterval) return;
+            lastSettleCron := now;
+            label queue for ((index, tx) in pendingTransactions.entries()) {
+                ignore settle(dependencies.cid, tx.token);
+            };
+        };
+
+
 
     };
 };

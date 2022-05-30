@@ -26,11 +26,11 @@ import Root "mo:cap/Root";
 import Admins "admins";
 import Cap "cap";
 import Entrepot "entrepot";
-import Entrepot "entrepot";
 import ExtModule "ext";
 import Http "http";
 import Invoice "invoice";
 import Items "items";
+import NNS "nns";
 shared({ caller = creator }) actor class ICPSquadNFT(
     cid : Principal,
     cid_avatar : Principal,
@@ -131,6 +131,16 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Logs.getLog(request);
     };
 
+    ////////////
+    // NNS ////
+    //////////
+
+    let _NNS = NNS.Factory({
+        _Admins;
+        _Logs;
+        cid_ledger
+    });
+
     //////////////////
     // EXT - ERC721 //
     /////////////////
@@ -226,6 +236,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         overrideRouterId = null;
         provideRootBucketId = ?"qfevy-hqaaa-aaaaj-qanda-cai";
     });
+    
     /* Regularly called by the hub canister in case some events haven't been processed to the CAP bucket */
     public shared ({caller}) func cron_events() : async () {
         assert(caller == cid_hub);
@@ -237,12 +248,8 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     // ENTREPOT //
     /////////////
 
-    public type TokenIdentifier = Text;
-    public type SubAccount = [Nat8];
-    public type AccountIdentifier = Text;
     public type AccountBalanceArgs = { account : AccountIdentifier };
     public type ICPTs = { e8s : Nat64 };
-    public type Time = Int;
 
     public type Transaction = {
         token : TokenIdentifier;
@@ -968,24 +975,90 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         return buffer.toArray();
     };
 
-
     ///////////////
-    // HEARTBEAT //
-    ///////////////
+    // Entrepot //
+    //////////////
 
-    // A count represents approximately one second (one block in reality but we don't need that precision)
-    stable var count = 0;
+    stable var _EntrepotUD : ?Entrepot.UpgradeData = null;
+    let _Entrepot = Entrepot.Factory({
+        _Ext;
+        _Admins;
+        _Cap;
+        _Logs;
+        _NNS;
+        cid;
+        cid_ledger;
+    });
 
-    system func heartbeat () : async () {
-        count += 1;
-        //  Every 2 minutes 
-        if (count % 120 == 0) {
-            await verification_burned();
-        };
-        //  Every 5 minutes 
-        if( count % 300 == 0){
-            await collectCanisterMetrics();
-        };
+    // public shared ({ caller }) func list(
+    //     request : Entrepot.ListRequest
+    // ) : async Entrepot.ListResponse {
+    //     _Monitor.collectMetrics();
+    //     return _Entrepot.list(caller, request);
+    // };
+
+    // public shared ({ caller }) func lock(
+    //     token : TokenIdentifier,
+    //     price : Nat64,
+    //     buyer : AccountIdentifier,
+    //     bytes : [Nat8]
+    // ) : async Entrepot.LockResponse {
+    //     _Monitor.collectMetrics();
+    //     return _Entrepot.lock(caller, token, price, buyer, bytes);
+    // };
+
+    // public shared ({ caller }) func settle (
+    //     token : EXT.TokenIdentifier,
+    // ) : async Result<(), EXT.CommonError> {
+    //     _Monitor.collectMetrics();
+    //     await _Entrepot.settle(caller, token);
+    // };
+
+    // public query func stats() : async (
+    //     Nat64,  // Total volumes
+    //     Nat64,  // Highest price sale
+    //     Nat64,  // Lowest price sale
+    //     Nat64,  // Current Floor price
+    //     Nat,    // # Listings
+    //     Nat,    // # Supply
+    //     Nat,    // # Sales
+    // ) {
+    //     _Entrepot.stats();
+    // };
+
+    // public query func details(token : TokenIdentifier) : async Entrepot.DetailsResponse {
+    //     _Entrepot.details(token);
+    // };
+
+    // public query func listings () : async Entrepot.ListingsResponse {
+    //     _Entrepot.getListings();
+    // };
+
+    public type Disbursement = Entrepot.Disbursement;
+
+    public query ({caller}) func read_disbursements() : async [Disbursement] {
+        assert(_Admins.isAdmin(caller));
+        _Entrepot.disbursements();
+    };
+
+    public query ({ caller }) func disbursement_queue_size() : async Nat {
+        assert(_Admins.isAdmin(caller));
+        _Entrepot.disbursementQueueSize();
+    };
+
+    public query ({ caller }) func disbursementPendingCount () : async Nat {
+        assert(_Admins.isAdmin(caller));
+        _Entrepot.disbursementPendingCount();
+    };
+
+    public shared ({ caller }) func deleteDisbursementJob (
+        token : TokenIndex,
+        address: AccountIdentifier,
+        amount: Nat64,
+    ) : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Entrepot.deleteDisbursementJob(token, address, amount);
     };
 
     //////////////
@@ -1005,6 +1078,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _ItemsUD := ? _Items.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
         _ExtUD := ? _Ext.preupgrade();
+        _EntrepotUD := ? _Entrepot.preupgrade();
         _CapUD := ? _Cap.preupgrade();
     };
 
@@ -1026,7 +1100,9 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Ext.postupgrade(_ExtUD);
         _ExtUD := null;
         _Cap.postupgrade(_CapUD);
-        _CapUD = null;
+        _CapUD := null;
+        _Entrepot.postupgrade(_EntrepotUD);
+        _EntrepotUD := null;
         _Logs.logMessage("Postupgrade (accessory)");
     };
 };
