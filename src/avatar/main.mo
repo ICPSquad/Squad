@@ -34,7 +34,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     cid : Principal,
     accessory_cid : Principal,
     invoice_cid : Principal,
-    hub_cid : Principal
+    cid_hub : Principal
 ) = this {
 
     ///////////
@@ -566,13 +566,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         provideRootBucketId = ?"ffu6n-ciaaa-aaaaj-qaotq-cai";
     });
 
-    /* Regularly called by the hub canister in case some events haven't been processed to the CAP bucket */
-    public shared ({caller}) func cron_events() : async () {
-        assert(caller == hub_cid);
-        _Monitor.collectMetrics();
-        await _Cap.cronEvents();
-    };
-
     ///////////
     // HTTP //
     //////////
@@ -633,7 +626,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
             @auth : admin or hub canister
      */
     public shared query ({ caller }) func get_infos_leaderboard() : async [(Principal, ?Name, ?TokenIdentifier)] {
-        assert(_Admins.isAdmin(caller) or caller == hub_cid);
+        assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
         _Users.getInfosLeaderboard();
     };
@@ -683,7 +676,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         @auth : admin or hub canister
     */
     public shared query ({ caller }) func get_style_score() : async [(TokenIdentifier, StyleScore)] {
-        assert(_Admins.isAdmin(caller) or caller == hub_cid) ;
+        assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Scores.getStyleScores();
     };
 
@@ -691,18 +684,24 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     // Cronic ///
     /////////////
 
-    /* Verify that all events have been reported to the CAP bucket*/
-    public shared ({ caller }) func cron_events() : async () {
+    /* 
+        Verify that all events have been reported to the CAP bucket
+        @cronic : 1 minutes
+    */
+    public shared ({ caller }) func cron_events() : async () {
         assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
         await _Cap.cronEvents();
     };
 
-    /* Verify that all events have been reported to the CAP bucket*/
-    public shared ({ caller }) func cron_events() : async () {
+    /* 
+        Update the style scores 
+        @cronic : 1 hour
+    */
+    public shared ({ caller }) func cron_scores() : async (){
         assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
-        await _Cap.cronEvents();
+        _Scores.calculateStyleScores();
     };
 
     /////////////

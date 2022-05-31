@@ -30,6 +30,7 @@ module {
         highestPriceSales : Nat64;
         nextSubAccount : Nat;
         pendingDisbursements : [(Ext.TokenIndex, Ext.AccountIdentifier, SubAccount, Nat64)];
+        oldTransactions : [EntrepotTransaction];
     };
 
 

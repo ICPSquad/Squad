@@ -20,6 +20,7 @@ import TrieMap "mo:base/TrieMap";
 import AccountBlob "mo:principal/blob/AccountIdentifier";
 import Ext "mo:ext/Ext";
 import Hex "mo:encoding/Hex";
+import TokenIdentifier "mo:encoding/Base32";
 
 import NNS "../nns";
 import Types "types";
@@ -32,6 +33,7 @@ module {
     public type UpgradeData = Types.UpgradeData;
     public type Listing = Types.Listing;
     public type Transaction = Types.Transaction;
+    public type EntrepotTransaction = Types.EntrepotTransaction;
     public type Disbursement = Types.Disbursement;
     public type ListRequest = Types.ListRequest;
     public type ListResponse = Types.ListResponse;
@@ -41,7 +43,7 @@ module {
     public type ExtListing = Types.ExtListing;
     public type Metadata = Types.Metadata;
 
-    // Time for a transaction to complete (2 mins in nanoseconds)
+    // Time for a transaction to complete (2 mins)
     private let transactionTtl = 120_000_000_000;
 
     // Fees to be deducted from all marketplace sales
@@ -67,6 +69,9 @@ module {
         ////////////
         // State //
         //////////
+
+        // DO NOT DELETE (DEPRECATED : Only kept for the records)
+        private var oldTransactions : [EntrepotTransaction] = [];
 
         //NFTs listed for sale
         private var listings = TrieMap.TrieMap<Ext.TokenIndex, Types.Listing>(
@@ -109,6 +114,7 @@ module {
                 highestPriceSales;
                 nextSubAccount;
                 pendingDisbursements = List.toArray(pendingDisbursements);
+                oldTransactions;
             })
         };
 
@@ -130,6 +136,7 @@ module {
                     highestPriceSales := ud.highestPriceSales;
                     nextSubAccount := ud.nextSubAccount;
                     pendingDisbursements := List.fromArray(ud.pendingDisbursements);
+                    oldTransactions := ud.oldTransactions;
                 };
             };
         };
@@ -251,10 +258,12 @@ module {
             volume : Nat64,
             highest : Nat64,
             lowest : Nat64,
+            transaction: [EntrepotTransaction]
         ) : () {
             totalVolume := volume;
             highestPriceSales := highest;
             lowestPriceSales := lowest;
+            oldTransactions := transaction;
         };
 
         // List all current NFT's for sale.
@@ -388,8 +397,8 @@ module {
                         token       = token;
                         memo        = null;
                         seller      = listing.seller;
-                        from        = AccountBlob.toText(AccountBlob.fromPrincipal(listing.seller, listing.subaccount));
-                        to          = buyer;
+                        from        = Text.map(AccountBlob.toText(AccountBlob.fromPrincipal(listing.seller, listing.subaccount)), Prim.charToLower);
+                        to          = Text.map(buyer, Prim.charToLower);
                         price       = listing.price;
                         initiated   = Time.now();
                         closed      = null;
@@ -485,7 +494,18 @@ module {
             listings.delete(index);
 
             // Insert transaction into CAP history.
-            //TODO
+            ignore(_Cap.registerEvent({
+                caller = dependencies.cid;
+                operation = "Sale";
+                details = [
+                    ("to", #Text(transaction.to)),
+                    ("from", #Text(transaction.from)),
+                    ("price", #U64(transaction.price)),
+                    ("price_decimals", #U64(8)),
+                    ("price_currency", #Text("ICP")),
+                    ("token", #Text(Ext.TokenIdentifier.encode(dependencies.cid, index))),
+                ]
+            }));
             #ok();
         };
 
@@ -514,7 +534,7 @@ module {
                 floor,
                 listings.size(),
                 _Ext.size(),
-                transactions.size(),
+                transactions.size() + oldTransactions.size(), // Need to take into account the old transactions otherwise the average price is screwed up.
             );
         };
 
@@ -532,7 +552,8 @@ module {
 
         // Return completed transactions.
         public func readTransactions () : [Types.EntrepotTransaction] {
-            Array.map<(Nat, Types.Transaction), Types.EntrepotTransaction>(Iter.toArray(transactions.entries()), func ((k, v)) {
+            // Convert new types to old types.
+            let new = Array.map<(Nat, Types.Transaction), Types.EntrepotTransaction>(Iter.toArray(transactions.entries()), func ((k, v)) {
                 {
                     buyer   = v.to;
                     price   = v.price;
@@ -544,6 +565,50 @@ module {
                     token   = v.token;
                 }
             });
+            // Add the old transactions.
+            Array.append<EntrepotTransaction>(new, oldTransactions);
+        };
+
+        public func readTransactionsNew () : [(Nat,Transaction)] {
+            Iter.toArray(transactions.entries());
+        };
+
+        /* 
+            Indicates if a token is locked and not subject to concurrency issues 
+            (i.e. it is in the process of being sold).
+        */
+
+        public func isLocked(index : Ext.TokenIndex) : Bool {
+            Option.isSome(pendingTransactions.get(index));
+        };
+        
+        /* 
+            Get the latest price for a transaction involving one of those tokens  
+        */
+        public func getLastPrice(indexs : [Ext.TokenIndex]) : ?Nat64 {
+            let price = _getLatestPrice(_getTransactions(indexs));
+            if(price == 0) {
+                return null
+            } else {
+                return ?price
+            }
+        };
+
+        /* 
+            Get the minimum price for a transaction involving one of those tokens 
+        */
+        public func getFloorPrice(indexs : [Ext.TokenIndex]) : ?Nat64 {
+            let price = _getFloorPrice(_getTransactions(indexs));
+            if(price == 0) {
+                return null
+            } else {
+                return ?price
+            }
+        };
+
+        public func burn(index : Ext.TokenIndex) : () {
+            listings.delete(index);
+            pendingTransactions.delete(index);
         };
 
         ////////////////////
@@ -669,6 +734,67 @@ module {
             };
         };
 
+        //////////////////////
+        // Utility/Helpers //
+        ////////////////////
+
+        /* 
+            Takes a transaction and a token and returns a boolean indicating if the transaction involved the token.
+        */
+        func _isYourTransaction(
+            index : Ext.TokenIndex,
+            transaction : Transaction
+        ) : Bool {
+            let token = Ext.TokenIdentifier.encode(dependencies.cid, index);
+            if(transaction.token == token) {
+                return true;
+            };
+            return false;
+        };
+
+        func _getTransactions(indexs : [Ext.TokenIndex]) : [Transaction] {
+            let r = Buffer.Buffer<Transaction>(0);
+            for(transaction in transactions.vals()){
+                for(index in indexs.vals()){
+                    if(_isYourTransaction(index, transaction)){
+                        r.add(transaction);
+                    };
+                };
+            };
+            return r.toArray();
+        };
+
+        /* 
+            Returns the price of the most recent transaction.
+        */
+        func _getLatestPrice(transactions : [Transaction]) : Nat64 {
+            if(transactions.size() == 0) {
+                return 0;
+            };
+            var latest_transaction = transactions[0];
+            for(transaction in transactions.vals()) {
+                if(transaction.initiated > latest_transaction.initiated) {
+                    latest_transaction := transaction;
+                };
+            };
+            return latest_transaction.price;
+        };
+
+        /* 
+            Returns the minimum price among the transactions.
+        */
+        func _getFloorPrice(transactions : [Transaction]) : Nat64 {
+            if(transactions.size() == 0) {
+                return 0;
+            };
+            var minimum = transactions[0].price;
+            for(transaction in transactions.vals()) {
+                if(transaction.price < minimum) {
+                    minimum := transaction.price;
+                };
+            };
+            return minimum;
+        };
 
 
     };

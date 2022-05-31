@@ -4,7 +4,7 @@ import Error "mo:base/Error";
 import HashMap "mo:base/HashMap";
 import Int "mo:base/Int";
 import Iter "mo:base/Iter";
-import Nat "mo:base/Bool";
+import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
 import Nat8 "mo:base/Nat8";
 import Principal "mo:base/Principal";
@@ -243,6 +243,15 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Monitor.collectMetrics();
         _Logs.logMessage("Added job for canister " # Principal.toText(canister) # " with method " # method # " and interval " # Int.toText(interval));
         _Jobs.addJob(canister, method, interval);
+    };
+
+    public shared ({ caller }) func delete_job(
+        id : Nat
+    ) : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Logs.logMessage("Deleted job " # Nat.toText(id));
+        _Jobs.deleteJob(id);
     };
 
     public query ({ caller }) func get_jobs() : async [(Nat, Job)] {
