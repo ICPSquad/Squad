@@ -442,7 +442,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         assert(caller == accessory_cid);
         _Monitor.collectMetrics();
         let index = accessory; 
-        // WARNING : Need to reduce the capitalilisation of the name
+        // Reduce capitalilisation of name
         switch(_Avatar.removeAccessory(avatar, Text.map(name, Prim.charToLower))){
             case(#err(_)){
                 _Logs.logMessage("CRITICAL ERROR : " # "Accessory " # name # " not removed from avatar " # avatar);
@@ -685,6 +685,24 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     public shared query ({ caller }) func get_style_score() : async [(TokenIdentifier, StyleScore)] {
         assert(_Admins.isAdmin(caller) or caller == hub_cid) ;
         _Scores.getStyleScores();
+    };
+
+    //////////////
+    // Cronic ///
+    /////////////
+
+    /* Verify that all events have been reported to the CAP bucket*/
+    public shared ({ caller }) func cron_events() : async () {
+        assert(_Admins.isAdmin(caller) or caller == cid_hub);
+        _Monitor.collectMetrics();
+        await _Cap.cronEvents();
+    };
+
+    /* Verify that all events have been reported to the CAP bucket*/
+    public shared ({ caller }) func cron_events() : async () {
+        assert(_Admins.isAdmin(caller) or caller == cid_hub);
+        _Monitor.collectMetrics();
+        await _Cap.cronEvents();
     };
 
     /////////////

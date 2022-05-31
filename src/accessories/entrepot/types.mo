@@ -7,6 +7,7 @@ import Canistergeek "mo:canistergeek/canistergeek";
 import Admins "../Admins";
 import Cap "../Cap";
 import Ext "../Ext";
+import Items "../Items";
 import NNS "../NNS";
 
 module {
@@ -15,6 +16,7 @@ module {
         _Admins : Admins.Admins;
         _Cap : Cap.Factory;
         _Logs : Canistergeek.Logger;
+        _Items : Items.Factory;
         cid : Principal;
         cid_ledger : Principal;
     };
@@ -37,7 +39,7 @@ module {
         locked : ?Time.Time;
         price : Nat64; //e8s
         seller : Principal;
-        subaccount : SubAccount;
+        subaccount : ?SubAccount;
     };
 
     public type ExtListing = {
@@ -90,7 +92,7 @@ module {
     //////////
     
     public type ListRequest = {
-        from_subaccount : SubAccount;
+        from_subaccount : ?SubAccount;
         price : ?Nat64;
         token : Ext.TokenIdentifier;
     };
@@ -109,7 +111,7 @@ module {
     public type DetailsResponse = Result.Result<(Ext.AccountIdentifier, ?Listing), Ext.CommonError>;
 
     public type StatsResponse = (
-        Nat64, // Total volume
+        Nat64,  // Total volume
         Nat64,  // Highest price sale
         Nat64,  // Lowest price sale
         Nat64,  // Current floor price

@@ -13,6 +13,7 @@ import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import TrieMap "mo:base/TrieMap";
+import _burned "mo:base/TrieSet";
 
 import Ext "mo:ext/Ext";
 
@@ -61,14 +62,18 @@ module {
             4- We periodically check if among all the burned accessories, some doesn't have the moment it was removed from the avatar.
             5- We send an (one-shot) intercanister call to the avatar canister method report_burned_accessory(name : Text, avatar : TokenIdentifer, accessory : TokenIndex)
             6- (Passive) When the avatar canister receives the call it will remove the accessory from the avatar and send a (one-shot) message to the confirmed_burned_accessory(name : Text, avatar : TokenIdentifer, accessory : TokenIndex)!
-            7- (Passive) Update the field and record the time when the accessory was removed from the avatar.
+            7- (Passive) Moved the burned event from burned to reported and record the time when the accessory was removed from the avatar.
             8- A log message record the event.
          */
 
         let _items : HashMap.HashMap<TokenIndex,Item> = HashMap.HashMap(0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
         let _templates : HashMap.HashMap<Text,Template> = HashMap.HashMap(0, Text.equal, Text.hash);
         let _recipes : TrieMap.TrieMap<Text, Recipe> = TrieMap.TrieMap(Text.equal, Text.hash);
+
+
         let _burned : TrieMap.TrieMap<TokenIndex,BurnedInformation> = TrieMap.TrieMap<TokenIndex, BurnedInformation>(Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+        let _reported : TrieMap.TrieMap<TokenIndex, BurnedInformation> = TrieMap.TrieMap<TokenIndex, BurnedInformation>(Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+
 
         let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
             wearAccessory : shared (tokeniId : TokenIdentifier, name : Text, p : Principal) -> async Result<(), Text>;
@@ -117,15 +122,16 @@ module {
         public func confirmBurnedAccessory(index : TokenIndex) : () {
             switch(_burned.get(index)){
                 case(? burn){
-                    _burned.put(index, {
+                    _burned.delete(index);
+                    _reported.put(index, {
                         time_card_burned = burn.time_card_burned;
-                        time_avatar_burned = ?Time.now();
+                        time_avatar_burned = burn.time_avatar_burned;
                         name = burn.name;
                         tokenIdentifier = burn.tokenIdentifier;
                     });
                 };
                 case _ {
-                    _Logs.logMessage("Burned accessory not found in the burned accessories queue with index : " # Nat.toText(Nat32.toNat(index)));
+                    _Logs.logMessage("CRITICAL ERROR : " # "Burned accessory not found in the burned accessories queue with index : " # Nat.toText(Nat32.toNat(index)));
                 };
             };
         };
@@ -505,18 +511,15 @@ module {
             };
         };
 
-        public func verificationBurned() : async () {
-          for((index, item) in _burned.entries()){
-              if(Option.isNull(item.time_avatar_burned)){
+        public func cronBurned() : async () {
+            if(_burned.size() == 0) return;
+            for((index, item) in _burned.entries()){
+                if(Option.isNull(item.time_avatar_burned)){
                   ignore(AVATAR_ACTOR.report_burned_accessory (item.name, item.tokenIdentifier, index));
-              };
+                };
           };
-          return;
         };
 
-        public func saveMyAss() : async () {
-            ignore(AVATAR_ACTOR.report_burned_accessory("Boring-mask", "hddin-iykor-uwiaa-aaaaa-cmaca-uaqca-aab6q-a", 7180));
-        };
 
         ////////////////
         // HELPERS /////

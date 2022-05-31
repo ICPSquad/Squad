@@ -1,8 +1,9 @@
 import Canistergeek "mo:canistergeek/canistergeek";
+
 import Leaderboard "../leaderboard";
 module {
 
-    public type DistributionPercentage= {
+    public type DistributionPercentage = {
         Total : Nat;
         Cloth : Nat;
         Wood : Nat;

@@ -60,6 +60,7 @@ module {
         let _Ext = dependencies._Ext;
         let _Logs = dependencies._Logs;
         let _Cap = dependencies._Cap;
+        let _Items = dependencies._Items;
 
         let _nnsActor : NNS.NNS = actor(Principal.toText(dependencies.cid_ledger));
                 
@@ -128,7 +129,7 @@ module {
                     lowestPriceSales := ud.lowestPriceSales;
                     highestPriceSales := ud.highestPriceSales;
                     nextSubAccount := ud.nextSubAccount;
-                    // pendingDisbursements := ud.pendingDisbursements;
+                    pendingDisbursements := List.fromArray(ud.pendingDisbursements);
                 };
             };
         };
@@ -245,6 +246,17 @@ module {
         // Public API //
         ///////////////
 
+        // Initialize the stats.
+        public func initStats(
+            volume : Nat64,
+            highest : Nat64,
+            lowest : Nat64,
+        ) : () {
+            totalVolume := volume;
+            highestPriceSales := highest;
+            lowestPriceSales := lowest;
+        };
+
         // List all current NFT's for sale.
         public func getListings() : Types.ListingsResponse {
             let r = Buffer.Buffer<(Ext.TokenIndex, ExtListing, Metadata)>(0);
@@ -268,7 +280,7 @@ module {
             };
 
             // Verify that the caller owns the token.
-            let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, ?request.from_subaccount),Prim.charToLower); 
+            let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, request.from_subaccount),Prim.charToLower); 
             if(not _Ext.isOwnerAccount(account, index)){
                 return #err(#Other("Unauthorized"));
             };
@@ -284,6 +296,11 @@ module {
                     return #err(e);
                 };
                 case _ ();
+            };
+
+            // Ensure this item is not equipped.AccountBlob
+            if(_Items.isEquipped(index)){
+                return #err(#Other("Item is equipped."));
             };
 
             // NOTE: The interface to delete a listing is not explicit enough for my taste.
@@ -371,7 +388,7 @@ module {
                         token       = token;
                         memo        = null;
                         seller      = listing.seller;
-                        from        = AccountBlob.toText(AccountBlob.fromPrincipal(listing.seller, ?listing.subaccount));
+                        from        = AccountBlob.toText(AccountBlob.fromPrincipal(listing.seller, listing.subaccount));
                         to          = buyer;
                         price       = listing.price;
                         initiated   = Time.now();
@@ -479,7 +496,7 @@ module {
                 case (#ok(_, tokenIndex)) { tokenIndex; };
             };
             switch (listings.get(index)) {
-                case (?listing) #ok(Text.map(Ext.AccountIdentifier.fromPrincipal(listing.seller, ?listing.subaccount),Prim.charToLower), ?listing);
+                case (?listing) #ok(Text.map(Ext.AccountIdentifier.fromPrincipal(listing.seller, listing.subaccount),Prim.charToLower), ?listing);
                 case _ #err(#Other("No such listing."));
             };
         };
@@ -538,8 +555,6 @@ module {
         var disburseInterval : Int = 5_000_000_000;
         var pendingCount : Nat = 0;
         public func cronDisbursements () : async () {
-
-            // Let's try to save as many cycles on heartbeat as possible.
             if (List.size(pendingDisbursements) == 0) return;
 
             let now = Time.now();
@@ -642,7 +657,7 @@ module {
             pendingCount;
         };
 
-        // Trawl for pending transactions that we can settle.
+        // Cron for pending transactions that we can settle.
         var lastSettleCron : Int = 0;
         var settleInterval : Int = 15_000_000_000;
         public func cronSettlements () : async () {

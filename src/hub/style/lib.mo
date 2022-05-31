@@ -83,27 +83,27 @@ module {
             @Cronic : At least once per day. 
             @Verif : If the screenshot has already been taken for the current day; will log a message and doesn't update the database.
         */
-        public func getLatest() : async () {
-            let latest_style_score = await AVATAR_ACTOR.get_style_score();
-            switch(DateModule.Date.nowToDatePartsISO8601()){
-                case(null) assert(false);
-                case(? date){
-                    for((token, score) in latest_style_score.vals()){
-                        switch(style_score_daily(date)){
-                            case(? score){
-                                _Logs.logMessage("Style score screenshoot has already been taken for today.");
-                                return;
-                            };
-                            case(null){
-                                _Logs.logMessage("Style score screenshoot successfully taken for today.");
-                                style_score_daily.put((date, token), score);
-                                return;
-                            };
-                        };
-                    };
-                };
-            };
-        };
+        // public func getLatest() : async () {
+        //     let latest_style_score = await AVATAR_ACTOR.get_style_score();
+        //     switch(DateModule.Date.nowToDatePartsISO8601()){
+        //         case(null) assert(false);
+        //         case(? date){
+        //             for((token, score) in latest_style_score.vals()){
+        //                 switch(style_score_daily(date)){
+        //                     case(? score){
+        //                         _Logs.logMessage("Style score screenshoot has already been taken for today.");
+        //                         return;
+        //                     };
+        //                     case(null){
+        //                         _Logs.logMessage("Style score screenshoot successfully taken for today.");
+        //                         style_score_daily.put((date, token), score);
+        //                         return;
+        //                     };
+        //                 };
+        //             };
+        //         };
+        //     };
+        // };
 
         /* Calculate and update the current style score for the ongoing month based on the scores available in the daily_style_score archive  */
         public func updateScores() : async () {

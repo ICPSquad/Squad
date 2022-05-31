@@ -1,17 +1,24 @@
+import Array "mo:base/Array";
 import Cycles "mo:base/ExperimentalCycles";
 import Error "mo:base/Error";
 import HashMap "mo:base/HashMap";
+import Int "mo:base/Int";
 import Iter "mo:base/Iter";
+import Nat "mo:base/Bool";
 import Nat64 "mo:base/Nat64";
+import Nat8 "mo:base/Nat8";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
+import TrieMap "mo:base/Trie";
 
 import Canistergeek "mo:canistergeek/canistergeek";
 import Date "mo:canistergeek/dateModule";
 import Ext "mo:ext/Ext";
+import Hex "mo:encoding/Hex";
 
 import Admins "admins";
 import Distribution "distribution";
+import Jobs "jobs";
 import Leaderboard "leaderboard";
 import Style "style";
 
@@ -117,7 +124,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     public shared ({ caller }) func update_style() : async () {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        await _Style.getLatest();
+        // await _Style.getLatest();
         await _Style.updateScores();
     };
 
@@ -193,6 +200,60 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     //     _Distribution.generateICPSquadRewards();
     // };
 
+    public func test_decode(hex : Text) : async [Nat] {
+        switch(Hex.decode(hex)){
+            case(#ok(bytes)) {
+                return (Array.map<Nat8, Nat>(bytes, Nat8.toNat));
+            };
+            case(#err(_)){
+                return []
+            };
+        };
+    };
+
+
+    ////////////////
+    // Heartbeat //
+    //////////////
+
+    public type Job = Jobs.Job;
+
+    stable var _JobsUD : ?Jobs.UpgradeData = null;
+    let _Jobs : Jobs.Factory = Jobs.Factory({
+        _Logs = _Logs;
+    });
+
+    public shared ({ caller }) func set_job_status(bool : Bool) : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        if(bool) {
+            _Logs.logMessage("Starting job");
+        } else {
+            _Logs.logMessage("Stopping job");
+        };
+        _Jobs.setJobStatus(bool);
+    };
+
+    public shared ({ caller }) func add_job(
+        canister : Principal,
+        method : Text,
+        interval : Int,
+    ) : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Logs.logMessage("Added job for canister " # Principal.toText(canister) # " with method " # method # " and interval " # Int.toText(interval));
+        _Jobs.addJob(canister, method, interval);
+    };
+
+    public query ({ caller }) func get_jobs() : async [(Nat, Job)] {
+        assert(_Admins.isAdmin(caller));
+        return _Jobs.getJobs();  
+    };
+
+    system func heartbeat() : async () {
+        await _Jobs.doJobs();
+    };
+
     //////////////
     // UPGRADE //
     ////////////
@@ -203,6 +264,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
         _StyleUD := ? _Style.preupgrade();
+        _JobsUD := ? _Jobs.preupgrade();
     };
 
     system func postupgrade() {
@@ -214,6 +276,8 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _AdminsUD := null;
         _Style.postupgrade(_StyleUD);
         _StyleUD := null;
+        _Jobs.postupgrade(_JobsUD);
+        _JobsUD := null;
         _Logs.logMessage("Postupgrade hub");
     };
 };

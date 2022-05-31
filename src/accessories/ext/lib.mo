@@ -351,7 +351,7 @@ module {
             from : AccountIdentifier,
             to : AccountIdentifier
         ) : () {
-            assert(isOwnerAccount(from, index));
+            // assert(isOwnerAccount(from, index));
             _registry.put(index, to);
         };
 
