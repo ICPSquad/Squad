@@ -20,6 +20,7 @@ import Admins "admins";
 import Distribution "distribution";
 import Jobs "jobs";
 import Leaderboard "leaderboard";
+import Mission "mission";
 import Style "style";
 
 shared ({ caller = creator }) actor class ICPSquadHub(
@@ -200,16 +201,16 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     //     _Distribution.generateICPSquadRewards();
     // };
 
-    public func test_decode(hex : Text) : async [Nat] {
-        switch(Hex.decode(hex)){
-            case(#ok(bytes)) {
-                return (Array.map<Nat8, Nat>(bytes, Nat8.toNat));
-            };
-            case(#err(_)){
-                return []
-            };
-        };
-    };
+    // public func test_decode(hex : Text) : async [Nat] {
+    //     switch(Hex.decode(hex)){
+    //         case(#ok(bytes)) {
+    //             return (Array.map<Nat8, Nat>(bytes, Nat8.toNat));
+    //         };
+    //         case(#err(_)){
+    //             return []
+    //         };
+    //     };
+    // };
 
 
     ////////////////
@@ -261,6 +262,33 @@ shared ({ caller = creator }) actor class ICPSquadHub(
 
     system func heartbeat() : async () {
         await _Jobs.doJobs();
+    };
+
+    ////////////////
+    // Mission ////
+    //////////////
+
+    let _Mission = Mission.Center({
+        _Admins;
+        _Logs;
+    });
+
+    public shared ({ caller }) func create_mission(mission :  Mission.CreateMission) : async Result.Result<Nat, Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return _Mission.createMission(mission, caller);
+    };
+
+    public shared ({ caller }) func start_mission(id : Nat) : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return _Mission.startMission(id);
+    };
+
+    public shared ({ caller }) func verify_mission(id : Nat) : async Result.Result<Bool, Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
     };
 
     //////////////

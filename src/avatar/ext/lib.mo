@@ -300,8 +300,6 @@ module {
             _registry.delete(index);
         };
 
-
-
         func _getMaxTokenIndex() : Nat32 {
             var maximum : Nat32 = 0;
             for(index in _registry.keys()) {

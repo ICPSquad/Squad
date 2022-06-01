@@ -26,6 +26,7 @@ import Cap "cap";
 import ExtModule "ext";
 import Http "http";
 import Invoice "invoice";
+import Mission "mission";
 import SVG "utils/svg";
 import Scores "scores";
 import Users "users";
@@ -702,6 +703,23 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
         _Scores.calculateStyleScores();
+    };
+
+    /////////////
+    // Mission //
+    /////////////
+
+    let _Mission = Mission.Factory({
+        _Logs;
+        _Ext;
+        _Avatar;
+        cid;
+    });
+
+    public shared ({ caller }) func verify_mission(id : Nat, user : Principal) : async Bool {
+        assert(caller == cid_hub);
+        _Monitor.collectMetrics();
+        return _Mission.verifyMission(id, user);
     };
 
     /////////////

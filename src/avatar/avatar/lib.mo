@@ -9,7 +9,6 @@ import Prim "mo:prim";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import TrieMap "mo:base/TrieMap";
-import _avatars "mo:base/TrieSet";
 
 import Ext "mo:ext/Ext";
 
@@ -314,6 +313,15 @@ module {
                     return ?avatar.slots;
                 };
                 case(null) return null;
+            };
+        };
+
+        public func isEquipped(tokenId : TokenIdentifier) : Bool {
+            switch(getSlot(tokenId)){
+                case(? slots) { 
+                    return(_isSlotEquipped(slots));
+                };
+                case(null) return false;
             };
         };
 
@@ -915,6 +923,10 @@ module {
                     }
                 };
             };
+        };
+
+        func _isSlotEquipped(slot : Slots) : Bool {
+            return(Option.isSome(slot.Hat) or Option.isSome(slot.Eyes) or Option.isSome(slot.Body) or Option.isSome(slot.Face) or Option.isSome(slot.Misc));
         };
     };
 };
