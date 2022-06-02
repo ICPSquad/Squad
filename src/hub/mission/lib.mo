@@ -31,6 +31,7 @@ module {
 
         let _Admins = dependencies._Admins;
         let _Logs = dependencies._Logs;
+        let _Cap = dependencies._Cap;
 
         let false_encoded : [Nat8] =  [68, 73, 68, 76, 0 , 1, 126, 0]; 
         let true_encoded : [Nat8] = [68, 73, 68, 76, 0 , 1, 126, 1];
@@ -200,6 +201,19 @@ module {
                         };
                     };
                 };
+                case(#Internal){
+                    for((id, handler) in handlers.vals()){
+                        if(id == mission.id){
+                            let result = await handler(caller);
+                            if(result) {
+                                return #ok(true);
+                            } else {
+                                return #ok(false);
+                            };
+                        };
+                    };
+                    return #err("No handler found for this mission");
+                };
             };
         };
 
@@ -249,5 +263,119 @@ module {
                 };
             };
         };
+
+
+        //////////////
+        // Handler //
+        /////////////
+
+        func _mission2(caller : Principal) : async Bool {
+            let number_mint = await _Cap.numberMint(caller, null);
+            if(number_mint >= 1){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission3(caller : Principal) : async Bool {
+            let number_mint = await _Cap.numberMint(caller, null);
+            if(number_mint >= 3){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission4(caller : Principal) : async Bool {
+            let number_mint = await _Cap.numberMint(caller, null);
+            if(number_mint >= 1){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission5(caller : Principal) : async Bool {
+            let a = await _Cap.numberMint(caller, ?"Astro-helmet");
+            let b = await _Cap.numberMint(caller, ?"Astro-suit");
+            if(a >= 1 and b >= 1){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission6(caller : Principal) : async Bool {
+            let number_burn = await _Cap.numberBurn(caller, null);
+            if(number_burn >= 1){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission7(caller : Principal) : async Bool {
+            let number_burn = await _Cap.numberBurn(caller, null);
+            if(number_burn >= 3){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission8(caller : Principal) : async Bool {
+            let number_burn = await _Cap.numberBurn(caller, null);
+            if(number_burn >= 10){
+                return true;
+            };
+            return false;
+        };
+        /* 
+            Might takes a long time to resolve 
+            Wen Promise.all in Motoko ?
+        */
+        func _mission9(caller : Principal) : async Bool {
+            let a = await _Cap.numberMint(caller, ?"Cronic-eyepatch");
+            if(a >= 1){
+                return true;
+            };
+            let b = await _Cap.numberMint(caller, ?"Cronic-tshirt");
+            if(b >= 1){
+                return true;
+            };
+            let c = await _Cap.numberMint(caller, ?"Cronic-hypnose");
+            if(c >= 1){
+                return true;
+            };
+            let d = await _Cap.numberMint(caller, ?"Cronic-wallpaper");
+            if(d >= 1){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission10(caller : Principal) : async Bool {
+            let a = await _Cap.numberMint(caller, ?"Punk-mask");
+            if(a >= 1){
+                return true;
+            };
+            let b = await _Cap.numberMint(caller, ?"Punk-glasses");
+            if(b >= 1){
+                return true;
+            };
+            return false;
+        };
+
+        /*
+            Associate id with the name of the function that will process the verification of the mission.
+        */
+        let handlers : [(Nat, (caller : Principal) -> async Bool)] = [
+            (2, _mission2),
+            (3, _mission3),
+            (4, _mission4),
+            (5, _mission5),
+            (6, _mission6),
+            (7, _mission7),
+            (8, _mission8),
+            (9, _mission9),
+            (10, _mission10)
+        ];
+
+    
     };
 };

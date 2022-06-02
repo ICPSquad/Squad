@@ -265,32 +265,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         await _Jobs.doJobs();
     };
 
-    ////////////////
-    // Mission ////
-    //////////////
-
-    let _Mission = Mission.Center({
-        _Admins;
-        _Logs;
-    });
-
-    public shared ({ caller }) func create_mission(mission :  Mission.CreateMission) : async Result.Result<Nat, Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        return _Mission.createMission(mission, caller);
-    };
-
-    public shared ({ caller }) func start_mission(id : Nat) : async Result.Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        return _Mission.startMission(id);
-    };
-
-    public shared ({ caller }) func verify_mission(id : Nat) : async Result.Result<Bool, Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
-    };
 
     ////////////////
     // CAP ////////
@@ -312,6 +286,35 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Monitor.collectMetrics();
         await _Cap.numberBurn(user, accessory);
     };
+
+    ////////////////
+    // Mission ////
+    //////////////
+
+    let _Mission = Mission.Center({
+        _Admins;
+        _Logs;
+        _Cap;
+    });
+
+    public shared ({ caller }) func create_mission(mission :  Mission.CreateMission) : async Result.Result<Nat, Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return _Mission.createMission(mission, caller);
+    };
+
+    public shared ({ caller }) func start_mission(id : Nat) : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return _Mission.startMission(id);
+    };
+
+    public shared ({ caller }) func verify_mission(id : Nat) : async Result.Result<Bool, Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
+    };
+
 
     //////////////
     // UPGRADE //

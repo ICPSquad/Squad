@@ -4,6 +4,7 @@ import Time "mo:base/Time";
 import Canistergeek "mo:canistergeek/canistergeek";
 
 import Admins "../admins";
+import Cap "../cap";
 module {
 
     public type Mission = {
@@ -34,7 +35,7 @@ module {
         #Automatic : AutomaticValidation;
         #Manual : ManualValidation;
         #Custom : CustomValidation;
-        // #Internal : InternalValidation;
+        #Internal;
     };
 
     /* 
@@ -64,6 +65,11 @@ module {
         args : Blob;
     };
 
+    /* 
+        This internal validation process allow the Hub canister to directly verify a mission.
+        This is mostly used in coordination with the CAP module.
+    */
+
     public type MissionStatus = {
         #Pending;
         #Running;
@@ -77,6 +83,7 @@ module {
     public type Dependencies = {
         _Admins : Admins.Admins;
         _Logs : Canistergeek.Logger;
+        _Cap : Cap.Factory;
     };
 
     public type UpgradeData = {
