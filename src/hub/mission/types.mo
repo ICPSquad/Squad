@@ -18,6 +18,7 @@ module {
         restricted : ?[Principal];
         validation : MissionValidation;
         status : MissionStatus;
+        rewards : [Reward];
     };  
 
     public type CreateMission = {
@@ -26,6 +27,7 @@ module {
         url_icon : Text;
         restricted : ?[Principal];
         validation : MissionValidation;
+        rewards : [Reward];
     };
 
     public type MissionValidation = {
@@ -68,9 +70,20 @@ module {
         #Ended;
     };
 
+    public type Reward = {
+        #Points : Nat;
+    };
+
     public type Dependencies = {
         _Admins : Admins.Admins;
         _Logs : Canistergeek.Logger;
+    };
+
+    public type UpgradeData = {
+        next_mission_id : Nat;
+        missions : [(Nat, Mission)];
+        winners : [(Nat, [Principal])];
+        scores : [(Principal, Nat)]
     };
 
     public type Interface = {

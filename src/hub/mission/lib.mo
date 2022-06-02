@@ -2,6 +2,7 @@ import Array "mo:base/Array";
 import Blob "mo:base/Blob";
 import Hash "mo:base/Hash";
 import IC "mo:base/ExperimentalInternetComputer";
+import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
@@ -17,8 +18,10 @@ module {
     // Types //
     //////////
 
+    public type UpgradeData = Types.UpgradeData;
     public type Mission = Types.Mission;
     public type CreateMission = Types.CreateMission;
+    public type Reward = Types.Reward;
 
     public class Center(dependencies : Types.Dependencies) {
  
@@ -35,10 +38,34 @@ module {
         var next_mission_id : Nat = 0;
         let missions : TrieMap.TrieMap<Nat, Mission> = TrieMap.TrieMap<Nat, Mission>(Nat.equal, Hash.hash);
         let winners : TrieMap.TrieMap<Nat, [Principal]> = TrieMap.TrieMap<Nat, [Principal]>(Nat.equal, Hash.hash);
+        let scores : TrieMap.TrieMap<Principal,Nat> = TrieMap.TrieMap<Principal,Nat>(Principal.equal, Principal.hash);
 
+        public func preupgrade() : UpgradeData {
+            return({
+                next_mission_id;
+                missions = Iter.toArray(missions.entries());
+                winners = Iter.toArray(winners.entries());
+                scores = Iter.toArray(scores.entries());
+            })
+        };
 
-        /*  public func preupgrade() :  */
-        /* public func postupgrade() : */
+        public func postupgrade(ud : ?UpgradeData) : () {
+            switch(ud){
+                case(null) return;
+                case(? ud){
+                    next_mission_id := ud.next_mission_id;
+                    for((id, mission) in ud.missions.vals()){
+                        missions.put(id, mission);
+                    };
+                    for((id, list) in ud.winners.vals()){
+                        winners.put(id, list);
+                    };
+                    for((principal, score) in ud.scores.vals()){
+                        scores.put(principal, score);
+                    };
+                };
+            };
+        };
 
 
         //////////
@@ -59,6 +86,7 @@ module {
                 restricted = mission.restricted;
                 validation = mission.validation;
                 status = #Pending;
+                rewards = mission.rewards;
             };
             missions.put(id, mission_complete);
             next_mission_id := next_mission_id + 1;
@@ -84,6 +112,7 @@ module {
                         restricted = mission.restricted;
                         validation = mission.validation;
                         status = #Running;
+                        rewards = mission.rewards;
                     };
                     _Logs.logMessage("Mission started : " # Nat.toText(id));
                     missions.put(id, new_mission);
@@ -114,6 +143,9 @@ module {
                                     return #err("You have already verified this mission");
                                 };
                                 _addToWinner(id, caller);
+                                for(reward in mission.rewards.vals()){
+                                    _distributeReward(caller,reward);
+                                };
                             };
                             return #ok(bool);
                         };
@@ -192,6 +224,28 @@ module {
                 case(? list){
                     let new_list = Array.append<Principal>(list, [p]);
                     winners.put(id, new_list);
+                };
+            };
+        };
+
+        func _distributeReward(p : Principal, reward : Reward) : () {
+            switch(reward){
+                case(#Points(points)){
+                    _addPoints(p, points);
+                };
+                case _ {
+                    assert(false);
+                };
+            };
+        };
+
+        func _addPoints(p : Principal, points : Nat) : () {
+            switch(scores.get(p)){
+                case(null) {
+                    scores.put(p, points);
+                };
+                case(? score){
+                    scores.put(p, score + points);
                 };
             };
         };
