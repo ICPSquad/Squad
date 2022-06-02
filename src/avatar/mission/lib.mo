@@ -41,7 +41,7 @@ module {
             This function is used to validate mission with id 0. 
             Returns a boolean indicating if at least one of the avatar owned by the caller is equipped with an accessory.
         */
-        func _isAccessoryEquipped(caller : Principal) : Bool {
+        func _mission0(caller : Principal) : Bool {
             let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
             switch(_Ext.tokens(account)){
                 case(#err(_)) {
@@ -60,6 +60,33 @@ module {
             };
         };
 
+             
+        /* 
+            This function is used to validate mission with id 1. 
+            Returns a boolean indicating if at least one of the avatar owned by the caller is equipped with the Mortaboard-hat & and the Bootcamp-soldier.
+        */
+        func _mission1(caller : Principal) : Bool {
+            let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+            switch(_Ext.tokens(account)){
+                case(#err(_)) {
+                    _Logs.logMessage("isAccessory Equipped :: ERR :: _Ext.tokens");
+                    return false;
+                };
+                case(#ok(tokens)) {
+                    let tokensId = Array.map<TokenIndex, TokenIdentifier>(tokens, func(x) { Ext.TokenIdentifier.encode(dependencies.cid, x)});
+                    for(token in tokensId.vals()){
+                        let slots = _Avatar.getSlot(tokenId);
+                        let potential_hat = Option.get<Text>(slots.Hat, "none");
+                        let potential_body = Option.get<Text>(slots.Body, "none");
+                        if(potential_hat == "mortaboard-hat" and potential_body == "bootcamp-soldier"){
+                            return true;
+                        };
+                    };
+                    return false;
+                };
+            };
+        };
+
         ////////////
         // State //
         ///////////
@@ -69,7 +96,8 @@ module {
         */
 
         let missions : [(Nat, (caller : Principal) -> Bool)] = [
-            (0, _isAccessoryEquipped),
+            (0, _mission0),
+            (1, _mission1),
         ];
     
     };
