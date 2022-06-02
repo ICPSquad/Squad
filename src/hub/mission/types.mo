@@ -90,7 +90,7 @@ module {
         next_mission_id : Nat;
         missions : [(Nat, Mission)];
         winners : [(Nat, [Principal])];
-        scores : [(Principal, Nat)]
+        completedMissions : [(Principal, [(Nat, Time.Time)])];
     };
 
     public type Interface = {

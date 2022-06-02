@@ -41,12 +41,18 @@ module {
         let winners : TrieMap.TrieMap<Nat, [Principal]> = TrieMap.TrieMap<Nat, [Principal]>(Nat.equal, Hash.hash);
         let scores : TrieMap.TrieMap<Principal,Nat> = TrieMap.TrieMap<Principal,Nat>(Principal.equal, Principal.hash);
 
+        /* 
+            Keep track for each user of it's completed mission by keeping a record of the time they completed it.  
+            Also used to compute the scores for a specific round.
+        */
+        let completedMissions : TrieMap.TrieMap<Principal, [(Nat, Time.Time)]> = TrieMap.TrieMap<Principal, [(Nat, Time.Time)]>(Principal.equal, Principal.hash);
+
         public func preupgrade() : UpgradeData {
             return({
                 next_mission_id;
                 missions = Iter.toArray(missions.entries());
                 winners = Iter.toArray(winners.entries());
-                scores = Iter.toArray(scores.entries());
+                completedMissions = Iter.toArray(completedMissions.entries());
             })
         };
 
@@ -61,8 +67,8 @@ module {
                     for((id, list) in ud.winners.vals()){
                         winners.put(id, list);
                     };
-                    for((principal, score) in ud.scores.vals()){
-                        scores.put(principal, score);
+                    for((principal, completed) in ud.completedMissions.vals()){
+                        completedMissions.put(principal, completed);
                     };
                 };
             };
@@ -155,10 +161,19 @@ module {
             };
         };
 
-        public func getEngagementScore(p : Principal) : Nat {
-            switch(scores.get(p)){
+
+        public func getEngagementScore(p : Principal, start : Time.Time, end : Time.Time) : Nat {
+            switch(completedMissions.get(p)){
                 case(null) return 0;
-                case(? score) return score;
+                case(? completed){
+                    var count : Nat = 0;
+                    for((id, time) in completed.vals()){
+                        if(time >= start and time <= end){
+                            count += _scoreMission(id);
+                        };
+                    };
+                    return count;
+                };
             };
         };
 
@@ -269,6 +284,30 @@ module {
                     scores.put(p, score + points);
                 };
             };
+        };
+
+        func _scoreMission(id : Nat) : Nat {
+            switch(missions.get(id)) {
+                case(null) {
+                    _Logs.logMessage("Mission not found for id : " # Nat.toText(id));
+                    return 0;
+                };
+                case(? mission){
+                    _getPointRewardFromMission(mission);
+                };
+            };
+        };
+
+        func _getPointRewardFromMission(mission : Mission) : Nat {
+            for(reward in mission.rewards.vals()){
+                switch(reward){
+                    case(#Points(points)){
+                        return points;
+                    };
+                    case _ {};
+                }
+            };
+            return 0;
         };
 
 

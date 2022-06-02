@@ -1,3 +1,5 @@
+import Time "mo:base/Time";
+
 import Canistergeek "mo:canistergeek/canistergeek";
 import Date "mo:canistergeek/dateModule";
 
@@ -11,11 +13,17 @@ module {
     public type StyleScore = Nat;
     public type EngagementScore = Nat;
     public type TotalScore = Nat;
-    public type Score = Nat;
     public type Leaderboard = [(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore)];
+
+    public type Round = {
+        id : Nat;
+        start_date : Time.Time;
+        end_date : ?Time.Time;
+        leaderboard : ?Leaderboard;
+    };
     
     public type UpgradeData = {
-        leaderboards : [(Date, Leaderboard)];
+        rounds : [(Nat, Round)];
     };
 
     public type Dependencies = {

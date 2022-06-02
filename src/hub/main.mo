@@ -200,11 +200,46 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Mission = _Mission;
     });
 
-
-    public shared ({ caller }) func update_leaderboard() : async () {
+    public shared ({ caller }) func start_round() : async Result<Nat, Text> {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        await _Leaderboard.updateLeaderboard();
+        switch(await _Leaderboard.startRound()){
+            case(#err(e)){
+                return #err(e);
+            };
+            case(#ok(id)){
+                _Logs.logMessage("Round started : " # Nat.toText(id));
+                return #ok(id);
+            };
+        };
+    };
+
+    public shared ({ caller }) func stop_round() : async Result<Nat, Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        switch(await _Leaderboard.stopRound()){
+            case(#err(e)){
+                return #err(e);
+            };
+            case(#ok(id)) {
+                _Logs.logMessage("Round stopped : " # Nat.toText(id));
+                return #ok(id);
+            };
+        };
+    };
+
+    public shared ({ caller }) func update_round() : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        switch(await _Leaderboard.updateCurrentRound()){
+            case(#err(e)){
+                return #err(e);
+            };
+            case(#ok()) {
+                _Logs.logMessage("Round updated");
+                return #ok();
+            };
+        };
     };
 
     public query ({ caller }) func get_leaderboard() : async ?Leaderboard {
