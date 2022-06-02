@@ -431,7 +431,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         await _Items.removeAccessory(accessory, avatar, caller)
     };
 
-    public shared ({caller}) func create_accessory(
+    public shared ({ caller }) func create_accessory(
         name : Text,
         invoice_id : Nat
     ) : async Result.Result<TokenIdentifier, Text> {
@@ -466,14 +466,16 @@ shared({ caller = creator }) actor class ICPSquadNFT(
             materials_available := Array.filter<(TokenIndex,Text)>(materials, func(x) { x.0 == material_used.0 });
         };
         // Remove the materials from every database (they are burned).
-        for(tokenIndex in materials_used.toArray().vals()){
+        for(tokenIndex  in materials_used.toArray().vals()){
+            // Save the name to be report event to CAP.
+            let name = Option.get(_Items.getName(tokenIndex), "Unknown");
             _Items.burn(tokenIndex);
             _Ext.burn(tokenIndex);
             _Entrepot.burn(tokenIndex);
             // Report burning events to CAP.
             let event : IndefiniteEvent = {
                 operation = "burn";
-                details = [("token", #Text(Ext.TokenIdentifier.encode(cid,tokenIndex))), ("from", #Text(Principal.toText(caller)))];
+                details = [("token", #Text(Ext.TokenIdentifier.encode(cid,tokenIndex))), ("from", #Text(Principal.toText(caller))), ("name", #Text(name))];
                 caller = caller;
             };
             ignore(_Cap.registerEvent(event));
@@ -499,7 +501,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                         // Report minting event to CAP.
                         let event : IndefiniteEvent = {
                             operation = "mint";
-                            details = [("token", #Text(tokenIdentifier)), ("to", #Text(Principal.toText(caller)))];
+                            details = [("token", #Text(tokenIdentifier)), ("to", #Text(Principal.toText(caller))), ("name", #Text(name))];
                             caller = caller;
                         };
                         ignore(_Cap.registerEvent(event));
@@ -509,35 +511,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                   };
               };
         };
-    };
-
-    public shared ({ caller }) func burn(
-        token : TokenIdentifier
-    ) : async Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        let tindex = switch(Ext.TokenIdentifier.decode(token)){
-            case(#err(_)) {
-                return #err("Invalid token identifier");
-            };
-            case(#ok(cid, index)){ index };
-        };
-        if(_Items.isEquipped(tindex)){
-            return #err("Cannot burn equipped item. Please desequip first.");
-        };
-        // Todo add Entrepot verification
-        _Ext.burn(tindex);
-        _Items.burn(tindex);
-        _Entrepot.burn(tindex);
-        // Report burning to CAP.
-        let event : IndefiniteEvent = {
-                operation = "burn";
-                details = [("token", #Text(Ext.TokenIdentifier.encode(cid,tindex))), ("from", #Text(Principal.toText(caller)))];
-                caller = caller;
-        };
-        ignore(_Cap.registerEvent(event));
-        _Logs.logMessage("Accessory burned : " # token # " by " # Principal.toText(caller));
-        return #ok;
     };
 
     public shared ({ caller }) func mint(
@@ -584,9 +557,10 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         let (burned, decreased, not_found ) = _Items.updateAll();
         // Report all burned accessories to CAP
         for(index in burned.vals()){
+            let name = Option.get(_Items.getName(index), "Unknown");
             let event : IndefiniteEvent = {
                 operation = "burn";
-                details = [("token", #Text(Ext.TokenIdentifier.encode(cid, index)))];
+                details = [("token", #Text(Ext.TokenIdentifier.encode(cid, index))),("name", #Text(name))];
                 caller = caller;
             };
             ignore(_Cap.registerEvent(event));

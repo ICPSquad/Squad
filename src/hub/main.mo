@@ -17,6 +17,7 @@ import Ext "mo:ext/Ext";
 import Hex "mo:encoding/Hex";
 
 import Admins "admins";
+import Cap "cap";
 import Distribution "distribution";
 import Jobs "jobs";
 import Leaderboard "leaderboard";
@@ -289,6 +290,27 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
+    };
+
+    ////////////////
+    // CAP ////////
+    //////////////
+
+    let _Cap = Cap.Factory({
+        cid_bucket_accessory = Principal.fromText("qfevy-hqaaa-aaaaj-qanda-cai");
+        cid_bucket_avatar = Principal.fromText("ffu6n-ciaaa-aaaaj-qaotq-cai");
+    });
+
+    public shared ({ caller }) func get_number_mint(user : Principal, accessory : ?Text) : async Nat {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.numberMint(user, accessory);
+    };
+
+    public shared ({ caller }) func get_number_burn(user : Principal, accessory : ?Text) : async Nat {
+         assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.numberBurn(user, accessory);
     };
 
     //////////////

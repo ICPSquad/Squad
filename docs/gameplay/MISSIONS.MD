@@ -2,7 +2,7 @@
 
 ## Get some style 😎
 
-- Reward : + 50 points.
+- Reward : + 10 points.
 - Call to the avatar canister to verify.
 - Can only be done once.
 - Will run forever.
@@ -11,3 +11,7 @@
 To the moon
 
 ## To the moon 🚀
+
+## Motoko School 👨‍🏫
+
+- Reward :
