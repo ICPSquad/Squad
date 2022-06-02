@@ -134,6 +134,58 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         return _Style.getScores();
     };
 
+
+    ////////////////
+    // CAP ////////
+    //////////////
+
+    let _Cap = Cap.Factory({
+        cid_bucket_accessory = Principal.fromText("qfevy-hqaaa-aaaaj-qanda-cai");
+        cid_bucket_avatar = Principal.fromText("ffu6n-ciaaa-aaaaj-qaotq-cai");
+    });
+
+    public shared ({ caller }) func get_number_mint(user : Principal, accessory : ?Text) : async Nat {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.numberMint(user, accessory);
+    };
+
+    public shared ({ caller }) func get_number_burn(user : Principal, accessory : ?Text) : async Nat {
+         assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.numberBurn(user, accessory);
+    };
+
+    ////////////////
+    // Mission ////
+    //////////////  
+    
+    stable var _MissionUD : ?Mission.UpgradeData = null;
+    let _Mission = Mission.Center({
+        _Admins;
+        _Logs;
+        _Cap;
+    });
+
+    public shared ({ caller }) func create_mission(mission :  Mission.CreateMission) : async Result.Result<Nat, Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return _Mission.createMission(mission, caller);
+    };
+
+    public shared ({ caller }) func start_mission(id : Nat) : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return _Mission.startMission(id);
+    };
+
+    public shared ({ caller }) func verify_mission(id : Nat) : async Result.Result<Bool, Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
+    };
+
+
     ////////////////////
     // Leaderboard ////
     ///////////////////
@@ -145,6 +197,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         cid_avatar = cid_avatar;
         _Logs = _Logs;
         _Style = _Style;
+        _Mission = _Mission;
     });
 
 
@@ -159,7 +212,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Leaderboard.getCurrentLeaderboard();
     };
 
-    ////////////////////
+     ////////////////////
     // Distribution ////
     ///////////////////
 
@@ -197,22 +250,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         assert(_Admins.isAdmin(caller));
         _Distribution.rankToNumberOfTicket(rank, total);
     };
-
-    // public query func test_random() : async [(Principal,Reward)] {
-    //     _Distribution.generateICPSquadRewards();
-    // };
-
-    // public func test_decode(hex : Text) : async [Nat] {
-    //     switch(Hex.decode(hex)){
-    //         case(#ok(bytes)) {
-    //             return (Array.map<Nat8, Nat>(bytes, Nat8.toNat));
-    //         };
-    //         case(#err(_)){
-    //             return []
-    //         };
-    //     };
-    // };
-
 
     ////////////////
     // Heartbeat //
@@ -265,57 +302,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         await _Jobs.doJobs();
     };
 
-
-    ////////////////
-    // CAP ////////
-    //////////////
-
-    let _Cap = Cap.Factory({
-        cid_bucket_accessory = Principal.fromText("qfevy-hqaaa-aaaaj-qanda-cai");
-        cid_bucket_avatar = Principal.fromText("ffu6n-ciaaa-aaaaj-qaotq-cai");
-    });
-
-    public shared ({ caller }) func get_number_mint(user : Principal, accessory : ?Text) : async Nat {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Cap.numberMint(user, accessory);
-    };
-
-    public shared ({ caller }) func get_number_burn(user : Principal, accessory : ?Text) : async Nat {
-         assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Cap.numberBurn(user, accessory);
-    };
-
-    ////////////////
-    // Mission ////
-    //////////////
-
-    let _Mission = Mission.Center({
-        _Admins;
-        _Logs;
-        _Cap;
-    });
-
-    public shared ({ caller }) func create_mission(mission :  Mission.CreateMission) : async Result.Result<Nat, Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        return _Mission.createMission(mission, caller);
-    };
-
-    public shared ({ caller }) func start_mission(id : Nat) : async Result.Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        return _Mission.startMission(id);
-    };
-
-    public shared ({ caller }) func verify_mission(id : Nat) : async Result.Result<Bool, Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
-    };
-
-
     //////////////
     // UPGRADE //
     ////////////
@@ -327,6 +313,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _AdminsUD := ? _Admins.preupgrade();
         _StyleUD := ? _Style.preupgrade();
         _JobsUD := ? _Jobs.preupgrade();
+        _MissionUD := ? _Mission.preupgrade();
     };
 
     system func postupgrade() {
@@ -340,6 +327,8 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _StyleUD := null;
         _Jobs.postupgrade(_JobsUD);
         _JobsUD := null;
+        _Mission.postupgrade(_MissionUD);
+        _MissionUD := null;
         _Logs.logMessage("Postupgrade hub");
     };
 };

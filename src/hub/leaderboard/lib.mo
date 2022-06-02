@@ -1,13 +1,15 @@
-import Date "mo:canistergeek/dateModule";
-import Time "mo:base/Time";
-import Int "mo:base/Int";
-import Hash "mo:base/Hash";
-import Iter "mo:base/Iter";
-import TrieMap "mo:base/TrieMap";
-import Principal "mo:base/Principal";
-import Buffer "mo:base/Buffer";
-import Nat "mo:base/Nat";
 import Array "mo:base/Array";
+import Buffer "mo:base/Buffer";
+import Hash "mo:base/Hash";
+import Int "mo:base/Int";
+import Iter "mo:base/Iter";
+import Nat "mo:base/Nat";
+import Principal "mo:base/Principal";
+import Time "mo:base/Time";
+import TrieMap "mo:base/TrieMap";
+
+import Date "mo:canistergeek/dateModule";
+
 import Types "types";
 module {
 
@@ -31,7 +33,6 @@ module {
     public type UpgradeData = Types.UpgradeData;
     public type StyleScore = Types.StyleScore;
     public type EngagementScore = Types.EngagementScore;
-    public type MissionScore = Types.MissionScore;
     public type TotalScore = Types.TotalScore;
 
     type Date = Types.Date; //(Year, Month, Day)
@@ -42,7 +43,6 @@ module {
 
     public class Factory (dependencies : Types.Dependencies) {
 
-
         let _leaderboards : TrieMap.TrieMap<Date,Leaderboard> = TrieMap.TrieMap<Date,Leaderboard>(dateEqual, dateHash);
         
         let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
@@ -51,8 +51,7 @@ module {
         
         let _Logs = dependencies._Logs;
         let _Style = dependencies._Style;
-        // let _Missions = dependencies._Missions;
-        // let _Engagement = dependencies._Engagement;
+        let _Mission = dependencies._Mission;
 
         public func preupgrade(ud : ?UpgradeData) : () {
             switch(ud){
@@ -86,34 +85,28 @@ module {
                     date;
                 };
             };
-            var buffer : Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, ?MissionScore, TotalScore)> = Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, ?MissionScore, TotalScore)>(0);
+            var buffer : Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore)> = Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore)>(0);
             for((p, name, tokenIdentifier)in latest_infos.vals()){
                 switch(tokenIdentifier){
                     case(null) {
-                        // let mission_score = _Missions.getMissionScore(p);
-                        // let engagement_score = _Engagement.getEngagementScore(p);
-                        let engagement_score = null;
-                        let mission_score = null;
                         let style_score = null;
-                        let total_score = _getTotalScore(mission_score, engagement_score, style_score);
-                        buffer.add((p, name, tokenIdentifier, style_score, engagement_score, mission_score, total_score));
+                        let engagement_score = _Mission.getEngagementScore(p);
+                        let total_score = _getTotalScore(style_score, ?engagement_score);
+                        buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
                     };
                     case(? token) {
-                        // let engagement_score = _Engagement.getEngagementScore(p);
-                        // let mission_score = _Missions.getMissionScore(p);
                         let style_score = _Style.getScore(token);
-                        let engagement_score = null;
-                        let mission_score = null;
-                        let total_score = _getTotalScore(mission_score, engagement_score, style_score);
-                        buffer.add((p, name, tokenIdentifier, style_score, engagement_score, mission_score, total_score));
+                        let engagement_score =  _Mission.getEngagementScore(p);
+                        let total_score = _getTotalScore(style_score, ?engagement_score);
+                        buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
                     };
                 };
             };
-            // Order the leaderboard by total score.
+            // Order the Leaderboard by total score.
             let leaderboard = buffer.toArray();
-            let leaderboard_sorted = Array.sort<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, ?MissionScore, TotalScore)>(leaderboard, func(a,b) {Nat.compare(a.6, b.6)});
+            let leaderboard_sorted = Array.sort<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore)>(leaderboard, func(a,b) {Nat.compare(a.5, b.5)});
             _leaderboards.put(date_now, leaderboard_sorted);
-            _Logs.logMessage("Leaderboard updated");
+            _Logs.logMessage("Leaderboard has been updated");
         };
 
         public func getCurrentLeaderboard() : ?Leaderboard {
@@ -138,7 +131,7 @@ module {
         // UTILITIES ///
         ////////////////
 
-        func _getTotalScore(style : ?StyleScore, engage : ?EngagementScore, mission : ?MissionScore) : Nat {
+        func _getTotalScore(style : ?StyleScore, engage : ?EngagementScore) : Nat {
             var total = 0;
             switch(style) {
                 case(null) {};
@@ -147,12 +140,6 @@ module {
                 };
             };
             switch(engage){
-                case(null) {};
-                case(? value) {
-                    total := total + value;
-                };
-            };
-            switch(mission){
                 case(null) {};
                 case(? value) {
                     total := total + value;

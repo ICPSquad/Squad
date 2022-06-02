@@ -599,11 +599,18 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     public shared query ({ caller }) func get_user() : async ?UserData {
         _Users.getUser(caller);
     };
+
     /* Replace the user profile of the caller with the new profile */
     public shared ({ caller }) func modify_user(user : UserData) : async Result<(), Text> {
         _Monitor.collectMetrics();
         _Users.modifyUser(caller, user);
     };
+
+    public shared ({ caller }) func add_user(p : Principal) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Users.register(p);
+    };  
 
     /* 
         Get all user profiles 

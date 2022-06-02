@@ -1,6 +1,7 @@
-import Date "mo:canistergeek/dateModule";
 import Canistergeek "mo:canistergeek/canistergeek";
+import Date "mo:canistergeek/dateModule";
 
+import Mission "../mission";
 import Style "../style";
 module {
     public type TokenIdentifier = Text;
@@ -9,18 +10,10 @@ module {
 
     public type StyleScore = Nat;
     public type EngagementScore = Nat;
-    public type MissionScore = Nat;
     public type TotalScore = Nat;
     public type Score = Nat;
-    public type Leaderboard = [(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, ?MissionScore, TotalScore)];
+    public type Leaderboard = [(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore)];
     
-    public type Application = Text;
-    public type EngagementScoreDetails = [(Application, Score)];
-
-    public type MissionId = Nat;
-    public type MissionScoreDetails = [(MissionId, Score)];
-
-
     public type UpgradeData = {
         leaderboards : [(Date, Leaderboard)];
     };
@@ -29,6 +22,7 @@ module {
         cid_avatar : Principal;
         _Logs : Canistergeek.Logger;
         _Style : Style.Factory;
+        _Mission : Mission.Center;
     };
 
 };

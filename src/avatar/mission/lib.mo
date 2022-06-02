@@ -1,6 +1,7 @@
 import Array "mo:base/Array";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
+import Option "mo:base/Option";
 import Prim "mo:prim";
 import Text "mo:base/Text";
 
@@ -75,12 +76,20 @@ module {
                 case(#ok(tokens)) {
                     let tokensId = Array.map<TokenIndex, TokenIdentifier>(tokens, func(x) { Ext.TokenIdentifier.encode(dependencies.cid, x)});
                     for(token in tokensId.vals()){
-                        let slots = _Avatar.getSlot(tokenId);
-                        let potential_hat = Option.get<Text>(slots.Hat, "none");
-                        let potential_body = Option.get<Text>(slots.Body, "none");
-                        if(potential_hat == "mortaboard-hat" and potential_body == "bootcamp-soldier"){
-                            return true;
-                        };
+                        let slots = _Avatar.getSlot(token);
+                        switch(slots){
+                            case(null) {
+                                _Logs.logMessage("_mission1 :: ERR :: _Avatar.getSlot :: NOT FOUND");
+                            };
+                            case(? slot) {
+                                let potential_hat = Option.get<Text>(slot.Hat, "none");
+                                let potential_body = Option.get<Text>(slot.Body, "none");
+                                    if(potential_hat == "mortaboard-hat" and potential_body == "bootcamp-soldier"){
+                                        return true;
+                                    };
+                            };
+                        }
+                       
                     };
                     return false;
                 };

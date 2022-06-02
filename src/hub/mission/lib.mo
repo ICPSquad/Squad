@@ -155,6 +155,13 @@ module {
             };
         };
 
+        public func getEngagementScore(p : Principal) : Nat {
+            switch(scores.get(p)){
+                case(null) return 0;
+                case(? score) return score;
+            };
+        };
+
         //////////////
         // Helpers //
         ////////////
