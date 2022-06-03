@@ -87,7 +87,6 @@ module {
                     for((token, score) in latest_style_score.vals()){
                         style_score_daily.put((date, token), score);
                     };
-                    _Logs.logMessage("Style scores updated.");
                 };
             };
         };

@@ -123,11 +123,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Logs = _Logs;
     });
 
-    public shared ({ caller }) func update_style_score() : async () {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Style.updateScores();
-    };
 
     ////////////////
     // CAP ////////
@@ -211,20 +206,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         };
     };
 
-    public shared ({ caller }) func update_round() : async Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        switch(await _Leaderboard.updateCurrentRound()){
-            case(#err(e)){
-                return #err(e);
-            };
-            case(#ok()) {
-                _Logs.logMessage("Round updated");
-                return #ok();
-            };
-        };
-    };
-
     public query func get_round() : async ?Round {
         _Leaderboard.getCurrentRound();
     };
@@ -272,9 +253,9 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Distribution.rankToNumberOfTicket(rank, total);
     };
 
-    ////////////////
-    // Heartbeat //
-    //////////////
+    ///////////////////////
+    // Heartbeat & Jobs //
+    /////////////////////
 
     public type Job = Jobs.Job;
 
@@ -321,6 +302,39 @@ shared ({ caller = creator }) actor class ICPSquadHub(
 
     system func heartbeat() : async () {
         await _Jobs.doJobs();
+    };
+
+    /////////////
+    // Cronic //
+    ///////////
+
+    /*  
+        Query the latest available style scores from the Avatar canister and update the daily_style_score accordingly.
+        @cronic : Every hour.
+     */
+    public shared ({ caller }) func cron_style_score() : async () {
+        assert(_Admins.isAdmin(caller) or caller == cid);
+        _Monitor.collectMetrics();
+        await _Style.updateScores();
+        _Logs.logMessage("Style scores updated");
+    };
+
+    /*  
+        Update the currently running rounds if one is running.  
+        @cronic : Every hour.
+     */
+    public shared ({ caller }) func cron_round() : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller) or caller == cid);
+        _Monitor.collectMetrics();
+        switch(await _Leaderboard.updateCurrentRound()){
+            case(#err(e)){
+                return #err(e);
+            };
+            case(#ok()) {
+                _Logs.logMessage("Round updated");
+                return #ok();
+            };
+        };
     };
 
     //////////////
