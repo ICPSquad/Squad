@@ -406,12 +406,30 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Users.setDefaultAvatar(caller, tokenId);
     };
 
-//    public shared query ({ caller }) func get_default_avatar() : async (?TokenIdentifier, ?AvatarRendering) {
+    public shared query ({ caller }) func get_avatar_infos() : async (?TokenIdentifier, ?AvatarRendering) {
+        switch(_Users.getDefaultAvatar(caller)){
+            case(null){
+                return(null, null);
+            };
+            case(? tokenId){
+                let avatar_rendering = _Avatar.getAvatarRendering(tokenId);
+                return(?tokenId, avatar_rendering);
+            };
+        }
+    };
 
-//    };
 
-    public query func get_avatar_rendering(tokenId : TokenIdentifier) : async ?AvatarRendering {
-        _Avatar.getAvatarRendering(tokenId);
+    public shared query ({ caller }) func check_avatar_infos(p : Principal) : async (?TokenIdentifier, ?AvatarRendering) {
+        assert(_Admins.isAdmin(caller));
+        switch(_Users.getDefaultAvatar(p)){
+            case(null){
+                return(null, null);
+            };
+            case(? tokenId){
+                let avatar_rendering = _Avatar.getAvatarRendering(tokenId);
+                return(?tokenId, avatar_rendering);
+            };
+        }
     };
 
     let ACCESSORY_ACTOR = actor(Principal.toText(accessory_cid)) : actor {
@@ -686,13 +704,14 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     };
 
     /* 
-        Update the style scores 
+        Update the style scores. 
         @cronic : 1 hour
     */
-    public shared ({ caller }) func cron_scores() : async (){
+    public shared ({ caller }) func cron_scores() : async () {
         assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
         _Scores.calculateStyleScores();
+        _Logs.logMessage("Cron :: Style scores");
     };
 
 
@@ -704,6 +723,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
         _Users.cronDefaultAvatar();
+        _Logs.logMessage("Cron :: Default avatar");
     };
 
     /////////////

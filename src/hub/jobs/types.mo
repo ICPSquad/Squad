@@ -11,6 +11,7 @@ module {
     public type UpgradeData = {
         jobs : [(Nat, Job)];
         heartbeat_on : Bool;
+        next_job_id : Nat;
     };
 
     public type Dependencies = {

@@ -316,7 +316,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         assert(_Admins.isAdmin(caller) or caller == cid);
         _Monitor.collectMetrics();
         await _Style.updateScores();
-        _Logs.logMessage("Style scores updated");
+        _Logs.logMessage("Cron :: Style scores (hub)");
     };
 
     /*  
@@ -331,7 +331,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                 return #err(e);
             };
             case(#ok()) {
-                _Logs.logMessage("Round updated");
+                _Logs.logMessage("Cron :: round updated");
                 return #ok();
             };
         };

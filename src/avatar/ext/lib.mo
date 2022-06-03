@@ -1,3 +1,4 @@
+import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
@@ -7,7 +8,6 @@ import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import TrieMap "mo:base/TrieMap";
-import _registry "mo:base/ExperimentalStableMemory";
 
 import AccountIdentifier "mo:principal/AccountIdentifier";
 import Ext "mo:ext/Ext";
@@ -220,6 +220,11 @@ module {
 
         public func getRegistry() : [(TokenIndex, AccountIdentifier)] {
             Iter.toArray(_registry.entries());
+        };
+
+        public func getRegistryIdentifier() : [(TokenIdentifier, AccountIdentifier)] {
+            let registry = Iter.toArray(_registry.entries());
+            return(Array.map<(TokenIndex, AccountIdentifier), (TokenIdentifier, AccountIdentifier)>(registry, func(x) {(Ext.TokenIdentifier.encode(CANISTER_ID, x.0), x.1)}));
         };
 
         /////////////////////////////

@@ -1,3 +1,4 @@
+import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
 import Iter "mo:base/Iter";
 import Nat64 "mo:base/Nat64";
@@ -128,6 +129,19 @@ module {
             _users.get(caller);
         };
 
+        public func getDefaultAvatar(
+            caller : Principal
+        ) : ?TokenIdentifier {
+            switch(_users.get(caller)){
+                case(null){
+                    return null;
+                };
+                case(? user){
+                    return user.selected_avatar;
+                };
+            };
+        };
+
         public func modifyUser(
             caller : Principal,
             user : User
@@ -237,8 +251,22 @@ module {
             Check all the user and verify that they have a default avatar.
             In case they don't, set the default avatar to the (optional) first one they own.
             In case they have one : verify that they still own it. If they don't : set the default avatar to the (optional) first one they own.
+            CANNOT BE USED : EXCEED CYCLE LIMIT FOR ONE ROUND OF EXECUTION
         */
         public func cronDefaultAvatar () : () {
+            // Build the ownership map to easily verify if a user owns an avatar
+            let _ownerships : TrieMap.TrieMap<AccountIdentifier, [TokenIdentifier]> = TrieMap.TrieMap<AccountIdentifier, [TokenIdentifier]>(Text.equal, Text.hash);
+            let registry = _Ext.getRegistryIdentifier();
+            for((tokenId, account) in registry.vals()){
+                switch(_ownerships.get(account)){
+                    case(null){
+                        _ownerships.put(account, [tokenId]);
+                    };
+                    case(? tokens){
+                        _ownerships.put(account, Array.append<TokenIdentifier>(tokens, [tokenId]));
+                    };
+                };
+            };
             for((p, user) in _users.entries()){
                 let account = switch(user.account_identifier){
                     case(? account) {account};
@@ -250,11 +278,9 @@ module {
                 switch(user.selected_avatar){
                     // They don't have a selected avatar : set it to be the (optional) first one they own.
                     case(null) {
-                        switch(_Ext.defaultToken(account)){
-                            // No token found. Skip.
+                        switch(_ownerships.get(account)){
                             case(null){};
-                            // Token found. Set it as the default avatar.
-                            case(? tokenId){
+                            case(? tokens){
                                 let new_user = {
                                     name = user.name;
                                     email = user.email;
@@ -265,20 +291,36 @@ module {
                                     minted = user.minted;
                                     account_identifier = user.account_identifier;
                                     invoice_id = user.invoice_id;
-                                    selected_avatar = ?tokenId;
+                                    selected_avatar = ?tokens[0];
                                 };
                                 _users.put(p, new_user);
                             };
                         };
                     };
+                    // They do have a selected avatar : verify that they still own it. If they don't : set the default avatar to null.
                     case(? token){
-                        if(not(_verifySelectedAvatar(token, account))){
-                            // The user doesn't own this avatar. Set it to be the (optional) first one they own.
-                            switch(_Ext.defaultToken(account)){
-                                // No token found. Skip.
-                                case(null){};
-                                // Token found. Set it as the default avatar.
-                                case(? tokenId){
+                        switch(_ownerships.get(account)){
+                            // They don't own any avatar...
+                            case(null){
+                                let new_user = {
+                                    name = user.name;
+                                    email = user.email;
+                                    discord = user.discord;
+                                    twitter = user.twitter;
+                                    rank = user.rank;
+                                    height = user.height;
+                                    minted = user.minted;
+                                    account_identifier = user.account_identifier;
+                                    invoice_id = user.invoice_id;
+                                    selected_avatar = null;
+                                };
+                                _users.put(p, new_user);
+                            };
+                            case(? tokens){
+                                if(Option.isSome(Array.find<TokenIdentifier>(tokens, func(x) {x == token}))){
+                                    // They still own this avatar. Do nothing.
+                                } else {
+                                    // They don't own this avatar but they have others. Set the default avatar to the first one in the array.
                                     let new_user = {
                                         name = user.name;
                                         email = user.email;
@@ -289,16 +331,17 @@ module {
                                         minted = user.minted;
                                         account_identifier = user.account_identifier;
                                         invoice_id = user.invoice_id;
-                                        selected_avatar = ?tokenId;
+                                        selected_avatar = ?tokens[0];
                                     };
                                     _users.put(p, new_user);
                                 };
                             };
-                        };
+                        }
                     };
                 };
             };
         };
+
 
         /////////////////
         // UTILITIES ////
@@ -321,6 +364,7 @@ module {
 
         /* 
             Returns a boolean indicating if the specifiec account is owner of the specified tokenId.
+            CONSUMES WAY TOO MUCH CYCLES TO ITERATE OVER THE WHOLE REGISTRY
          */
         func _verifySelectedAvatar(tokenId : TokenIdentifier, account : Text) : Bool {
             switch(_Ext.bearer(tokenId)){

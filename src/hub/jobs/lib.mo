@@ -23,6 +23,7 @@ module {
         //////////
 
         var heartbeat_on : Bool = false;
+        var next_job_id : Nat = 0;
 
         let jobs : TrieMap.TrieMap<Nat, Job> = TrieMap.TrieMap(Nat.equal, Hash.hash);
 
@@ -32,6 +33,7 @@ module {
             return({
                 jobs = Iter.toArray(jobs.entries());
                 heartbeat_on;
+                next_job_id;
             })
         };
 
@@ -43,6 +45,7 @@ module {
                         jobs.put(id, job);
                     };
                     heartbeat_on := ud.heartbeat_on;
+                    next_job_id := ud.next_job_id;
                 };
             };
         };
@@ -60,7 +63,8 @@ module {
             method : Text,
             interval : Int,
         ) : () {
-            let id = jobs.size();
+            let id = next_job_id;
+            next_job_id +=  1;
             let job : Job = { canister; method_name = method; interval; last_time = Time.now() };
             jobs.put(id, job);
         };  
