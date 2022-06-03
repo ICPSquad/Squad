@@ -63,23 +63,27 @@ module {
         let _Style = dependencies._Style;
         let _Mission = dependencies._Mission;
 
-        public func preupgrade(ud : ?UpgradeData) : () {
+
+        public func preupgrade() : UpgradeData {
+            return ({
+                rounds = Iter.toArray(_rounds.entries());
+                next_round_id;
+                current_round_id;
+            });
+        };
+
+        public func postupgrade(ud : ?UpgradeData) : () {
             switch(ud){
                 case(null){};
                 case(? ud){
                     for((id, round) in ud.rounds.vals()){
                         _rounds.put(id, round);
                     };
+                    current_round_id := ud.current_round_id;
+                    next_round_id := ud.next_round_id;
                 };
             };
         };
-
-        public func postupgrade() : UpgradeData {
-            return {
-                rounds = Iter.toArray(_rounds.entries());
-            }
-        };
-
         //////////
         // API //
         ////////
@@ -192,6 +196,25 @@ module {
             };
         };
 
+        public func getCurrentRound() : ?Round {
+            switch(current_round_id){
+                case(null){
+                    return null;
+                };
+                case(? id){
+                    switch(_rounds.get(id)){
+                        case(null){
+                            _Logs.logMessage("CRITICAL ERR :: No round found for current round id " # Nat.toText(id));
+                            return null;
+                        };
+                        case(? round){
+                            return ?round;
+                        };
+                    };
+                };
+            };
+        };
+
         /////////////////
         // UTILITIES ///
         ////////////////
@@ -225,7 +248,7 @@ module {
                         buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
                     };
                     case(? token) {
-                        let style_score = _Style.getScore(token);
+                        let style_score = _Style.getScore(token, round.start_date, Time.now());
                         let engagement_score =  _Mission.getEngagementScore(p, round.start_date, Time.now());
                         let total_score = _getTotalScore(style_score, ?engagement_score);
                         buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));

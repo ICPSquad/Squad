@@ -123,17 +123,11 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Logs = _Logs;
     });
 
-    public shared ({ caller }) func update_style() : async () {
+    public shared ({ caller }) func update_style_score() : async () {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        // await _Style.getLatest();
         await _Style.updateScores();
     };
-
-    public query func get_style_scores() : async [(TokenIdentifier, StyleScore)] {
-        return _Style.getScores();
-    };
-
 
     ////////////////
     // CAP ////////
@@ -143,18 +137,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         cid_bucket_accessory = Principal.fromText("qfevy-hqaaa-aaaaj-qanda-cai");
         cid_bucket_avatar = Principal.fromText("ffu6n-ciaaa-aaaaj-qaotq-cai");
     });
-
-    public shared ({ caller }) func get_number_mint(user : Principal, accessory : ?Text) : async Nat {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Cap.numberMint(user, accessory);
-    };
-
-    public shared ({ caller }) func get_number_burn(user : Principal, accessory : ?Text) : async Nat {
-         assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Cap.numberBurn(user, accessory);
-    };
 
     ////////////////
     // Mission ////
@@ -191,6 +173,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     ///////////////////
 
     public type Leaderboard = Leaderboard.Leaderboard;
+    public type Round = Leaderboard.Round;
 
     stable var _LeaderboardUD : ?Leaderboard.UpgradeData = null;
     let _Leaderboard = Leaderboard.Factory({
@@ -242,8 +225,11 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         };
     };
 
-    public query ({ caller }) func get_leaderboard() : async ?Leaderboard {
-        assert(_Admins.isAdmin(caller));
+    public query func get_round() : async ?Round {
+        _Leaderboard.getCurrentRound();
+    };
+
+    public query func get_leaderboard() : async ?Leaderboard {
         _Leaderboard.getCurrentLeaderboard();
     };
 
@@ -347,6 +333,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
         _StyleUD := ? _Style.preupgrade();
+        _LeaderboardUD := ? _Leaderboard.preupgrade();
         _JobsUD := ? _Jobs.preupgrade();
         _MissionUD := ? _Mission.preupgrade();
     };
@@ -360,6 +347,8 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _AdminsUD := null;
         _Style.postupgrade(_StyleUD);
         _StyleUD := null;
+        _Leaderboard.postupgrade(_LeaderboardUD);
+        _LeaderboardUD := null;
         _Jobs.postupgrade(_JobsUD);
         _JobsUD := null;
         _Mission.postupgrade(_MissionUD);

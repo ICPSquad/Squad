@@ -8,7 +8,6 @@ module {
 
     public type UpgradeData = {
         style_score_daily : [((Date, TokenIdentifier), StyleScore)];
-        style_score : [(TokenIdentifier, StyleScore)]
     };
 
     public type Dependencies = {

@@ -4,6 +4,7 @@ import Int "mo:base/Int";
 import Iter "mo:base/Iter";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
+import Time "mo:base/Time";
 import TrieMap "mo:base/TrieMap";
 
 import DateModule "mo:canistergeek/dateModule";
@@ -48,7 +49,6 @@ module {
     public class Factory(dependencies : Types.Dependencies)  {
         
         let style_score_daily : TrieMap.TrieMap<(Date, TokenIdentifier), StyleScore> = TrieMap.TrieMap<(Date, TokenIdentifier), StyleScore>(customEqual, customHash);
-        let style_score : TrieMap.TrieMap<TokenIdentifier, StyleScore> = TrieMap.TrieMap<TokenIdentifier, StyleScore>(Text.equal, Text.hash);
 
         let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
             get_style_score : shared () -> async [(TokenIdentifier, StyleScore)];
@@ -59,10 +59,9 @@ module {
 
 
         public func preupgrade() : UpgradeData {
-            return {
-                    style_score_daily = Iter.toArray(style_score_daily.entries());
-                    style_score = Iter.toArray(style_score.entries());
-            }
+            return ({
+                style_score_daily = Iter.toArray(style_score_daily.entries());
+            });
         };
 
         public func postupgrade(ud : ?UpgradeData) : () {
@@ -72,9 +71,6 @@ module {
                     for((date, score) in ud.style_score_daily.vals()){
                         style_score_daily.put(date, score);
                     };
-                    for((token, score) in ud.style_score.vals()){
-                        style_score.put(token, score);
-                    };
                 };
             };
         };
@@ -83,66 +79,32 @@ module {
             @Cronic : At least once per day. 
             @Verif : If the screenshot has already been taken for the current day; will log a message and doesn't update the database.
         */
-        // public func getLatest() : async () {
-        //     let latest_style_score = await AVATAR_ACTOR.get_style_score();
-        //     switch(DateModule.Date.nowToDatePartsISO8601()){
-        //         case(null) assert(false);
-        //         case(? date){
-        //             for((token, score) in latest_style_score.vals()){
-        //                 switch(style_score_daily(date)){
-        //                     case(? score){
-        //                         _Logs.logMessage("Style score screenshoot has already been taken for today.");
-        //                         return;
-        //                     };
-        //                     case(null){
-        //                         _Logs.logMessage("Style score screenshoot successfully taken for today.");
-        //                         style_score_daily.put((date, token), score);
-        //                         return;
-        //                     };
-        //                 };
-        //             };
-        //         };
-        //     };
-        // };
-
-        /* Calculate and update the current style score for the ongoing month based on the scores available in the daily_style_score archive  */
         public func updateScores() : async () {
-            // Get all the scores for the current month
-            // Sum up all the available style score for this month for each avatar
-            // Update the database
-            let current_date : Date = switch(DateModule.Date.nowToDatePartsISO8601()){
-                case(? date) {date};
-                case(_) {
-                    assert(false);
-                    (0, 0, 0);
+            let latest_style_score = await AVATAR_ACTOR.get_style_score();
+            switch(DateModule.Date.nowToDatePartsISO8601()){
+                case(null) assert(false);
+                case(? date){
+                    for((token, score) in latest_style_score.vals()){
+                        style_score_daily.put((date, token), score);
+                    };
+                    _Logs.logMessage("Style scores updated.");
                 };
             };
-            let number_days_in_month = DateModule.Date.getNumberOfDaysInMonth(current_date.0, current_date.1);
-            let days_month_buffer : Buffer.Buffer<Date> = Buffer.Buffer<Date>(0);
-            for(i in Iter.range(1, number_days_in_month)){
-                days_month_buffer.add((current_date.0, current_date.1, i));
-            };
-            let date_current_month : [Date] = days_month_buffer.toArray();
-            let tokens : [TokenIdentifier] = await AVATAR_ACTOR.tokens_ids();
-            for(token in tokens.vals()){
-                let style_score_month = _getSumStyleScore(date_current_month, token); 
-                style_score.put(token, style_score_month);
-            };
-            _Logs.logMessage("Monthly style score successfully calculated.");
         };
 
-        public func getScores() : [(TokenIdentifier, StyleScore)] {
-            return Iter.toArray(style_score.entries());
-        };
-
-        public func getScore(tokenId : TokenIdentifier) : ?StyleScore {
-            style_score.get(tokenId);
+        public func getScore(tokenId : TokenIdentifier, start : Time.Time, end : Time.Time) : ?StyleScore {
+            let dates = _getDatesBetween(start, end);
+            let score = _getSumStyleScore(dates, tokenId);
+            return ?score;
         };
 
         /////////////////
         // Utilities ///
         ///////////////
 
+        /*  
+            Sum all the styles scores for the given dates for the specified tokenIdentifier. 
+         */
         func _getSumStyleScore(dates : [Date], token : TokenIdentifier) : Nat {
             var sum : Nat = 0;
             for(date in dates.vals()){
@@ -155,6 +117,45 @@ module {
             };
             return sum;
         }; 
+
+        /*
+            Takes T1 & T2 and returns an array of dates between T1 and T2. 
+         */
+        func _getDatesBetween(start : Time.Time, end : Time.Time) : [Date] {
+            if(end < start){
+                assert(false);
+                return [];
+            };
+            var buffer : Buffer.Buffer<Date> = Buffer.Buffer<Date>(0);
+            let date_start = switch(DateModule.Date.toDatePartsISO8601(start)){
+                case(null) {
+                    assert(false);
+                    (0, 0, 0);
+                };
+                case(? date_parts) {
+                    date_parts;
+                };
+            };
+            buffer.add(date_start);
+            let ONE_DAY_NANOS : Nat = 86_400_000_000_000;
+            var next_day = start + ONE_DAY_NANOS;
+            var count = 0;
+            while(next_day <= end and count < 100){
+                let date = switch(DateModule.Date.toDatePartsISO8601(next_day)){
+                    case(null) {
+                        assert(false);
+                        (0, 0, 0);
+                    };
+                    case(? date_parts) {
+                        date_parts;
+                    };
+                };
+                buffer.add(date);
+                next_day += ONE_DAY_NANOS;
+                count += 1;
+            };
+            return buffer.toArray();
+        };
     }; 
 
 

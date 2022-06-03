@@ -24,6 +24,8 @@ module {
     
     public type UpgradeData = {
         rounds : [(Nat, Round)];
+        current_round_id : ?Nat;
+        next_round_id : Nat;
     };
 
     public type Dependencies = {
