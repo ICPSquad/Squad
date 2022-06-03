@@ -25,6 +25,7 @@ module {
     public type UpgradeData = Types.UpgradeData;
     public type Component = Types.Component;
     public type Avatar = Types.Avatar;
+    public type AvatarRendering = Types.AvatarRendering;
     public type MintInformation = Types.MintInformation;
     public type Style = Types.Style;
 
@@ -300,6 +301,15 @@ module {
 
         public func getAvatar(tokenId : TokenIdentifier) : ?Avatar {
             return _avatars.get(tokenId);
+        };
+
+        public func getAvatarRendering(tokenId : TokenIdentifier) : ?AvatarRendering {
+            switch(_avatars.get(tokenId)){
+                case(? avatar) {
+                    return ?_createAvatarRendering(avatar);
+                };
+                case(null) return null;
+            };
         };
 
         public func getStats() : (Nat,Nat) {
@@ -927,6 +937,21 @@ module {
 
         func _isSlotEquipped(slot : Slots) : Bool {
             return(Option.isSome(slot.Hat) or Option.isSome(slot.Eyes) or Option.isSome(slot.Body) or Option.isSome(slot.Face) or Option.isSome(slot.Misc));
+        };
+
+        func _createAvatarRendering(avatar : Avatar) : AvatarRendering {
+            return({
+                background = avatar.background;
+                profile = avatar.profile;
+                ears = avatar.ears;
+                mouth = avatar.mouth;
+                eyes = avatar.eyes;
+                nose = avatar.nose;
+                hair = avatar.hair;
+                cloth = avatar.cloth;
+                slots = avatar.slots;
+                style = avatar.style;
+            })
         };
     };
 };

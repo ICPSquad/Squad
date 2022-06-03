@@ -196,6 +196,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     type Avatar_New = Avatar.Avatar;
     type Component_New = Avatar.Component;
     public type MintInformation = Avatar.MintInformation;
+    public type AvatarRendering = Avatar.AvatarRendering;
 
     stable var _AvatarUD : ?Avatar.UpgradeData = null;
     let _Avatar = Avatar.Factory({
@@ -287,12 +288,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         }
     };
 
-    public shared ({ caller }) func clean_blob() : async () {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Avatar.cleanBlob();
-    };
-
     public type MintResult = Result<TokenIdentifier, Text>;
     public shared ({caller}) func mint(
         info : MintInformation,
@@ -346,32 +341,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
             };
         };
     };
-
-    // /* Used locally to test the avatar rendering engine */
-    // public shared ({caller}) func mint_test(
-    //     info : MintInformation,
-    // ) : async MintResult {
-    //     assert(_Admins.isAdmin(caller));
-    //     _Monitor.collectMetrics();
-    //     switch(_Ext.mint({ to = #principal(caller); metadata = null; })){
-    //         case(#err(#Other(e))) return #err(e);
-    //         case(#err(#InvalidToken(e))) return #err(e);
-    //         case(#ok(index)){
-    //             let tokenId = Ext.TokenIdentifier.encode(cid, index);
-    //             _Logs.logMessage("Minted token: " # tokenId);
-    //             switch(_Avatar.createAvatar(info, tokenId)){
-    //                 case(#ok) {
-    //                     _Logs.logMessage("Created avatar: " # tokenId # "by " # Principal.toText(caller));
-    //                     return #ok(tokenId);
-    //                 };
-    //                 case(#err(e)){
-    //                     _Logs.logMessage("Error during avatar creation for token: " # tokenId);
-    //                     return #err(e);
-    //                 };
-    //             };
-    //         };
-    //     };
-    // };
 
     public shared ({caller}) func wearAccessory(
         tokenId : TokenIdentifier,
@@ -429,6 +398,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
                 };
             };
         };
+    };
+
+    public query func get_avatar_rendering(tokenId : TokenIdentifier) : async ?AvatarRendering {
+        _Avatar.getAvatarRendering(tokenId);
     };
 
     let ACCESSORY_ACTOR = actor(Principal.toText(accessory_cid)) : actor {

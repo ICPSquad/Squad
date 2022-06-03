@@ -56,6 +56,19 @@ module {
         blob : Blob;
     };
 
+    public type AvatarRendering = {
+        background  : Text;
+        profile : Text;
+        ears : Text;
+        mouth : Text;
+        eyes : Text;
+        nose : Text;
+        hair : Text;
+        cloth : Text;
+        slots : Slots;
+        style : Style;
+    };
+
     public type MintInformation = {
         background : Text;
         profile : Text;
