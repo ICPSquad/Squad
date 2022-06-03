@@ -1,6 +1,20 @@
 import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from '@dfinity/agent';
+
 export type AccountIdentifier = string;
 export type AccountIdentifier__1 = string;
+export interface AvatarRendering {
+  'mouth' : string,
+  'background' : string,
+  'ears' : string,
+  'eyes' : string,
+  'hair' : string,
+  'cloth' : string,
+  'nose' : string,
+  'slots' : Slots,
+  'style' : Style,
+  'profile' : string,
+}
 export type Balance = bigint;
 export interface BalanceRequest { 'token' : TokenIdentifier__1, 'user' : User }
 export type BalanceResponse = { 'ok' : Balance } |
@@ -82,78 +96,69 @@ export interface HourlyMetricsData {
   'timeMillis' : bigint,
 }
 export interface ICPSquadNFT {
-  'acceptCycles' : () => Promise<undefined>,
-  'add_admin' : (arg_0: Principal) => Promise<undefined>,
-  'associate_legendary' : (arg_0: string, arg_1: TokenIdentifier) => Promise<
-      Result
-    >,
-  'availableCycles' : () => Promise<bigint>,
-  'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
-  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_6>,
-  'burn' : (arg_0: TokenIdentifier) => Promise<Result>,
-  'calculate_style_score' : () => Promise<undefined>,
-  'changeStyle' : (arg_0: string) => Promise<undefined>,
-  'clean_blob' : () => Promise<undefined>,
-  'collectCanisterMetrics' : () => Promise<undefined>,
-  'delete' : (arg_0: string) => Promise<Result>,
-  'delete_admin' : (arg_0: Principal) => Promise<undefined>,
-  'details' : (arg_0: TokenIdentifier) => Promise<Result_5>,
-  'draw' : (arg_0: TokenIdentifier) => Promise<Result>,
-  'eventsSize' : () => Promise<bigint>,
-  'extensions' : () => Promise<Array<Extension>>,
-  'getCanisterLog' : (arg_0: [] | [CanisterLogRequest]) => Promise<
-      [] | [CanisterLogResponse]
-    >,
-  'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
-      [] | [CanisterMetrics]
-    >,
-  'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__1]>>,
-  'getTokens' : () => Promise<Array<[TokenIndex, Metadata]>>,
-  'get_all_users' : () => Promise<Array<[Principal, UserData]>>,
-  'get_infos_leaderboard' : () => Promise<
-      Array<[Principal, [] | [Name__2], [] | [TokenIdentifier]]>
-    >,
-  'get_number_users' : () => Promise<bigint>,
-  'get_style_score' : () => Promise<Array<[TokenIdentifier, StyleScore]>>,
-  'get_user' : () => Promise<[] | [UserData]>,
-  'http_request' : (arg_0: Request) => Promise<Response>,
-  'init_cap' : () => Promise<Result>,
-  'is_admin' : (arg_0: Principal) => Promise<boolean>,
-  'metadata' : (arg_0: TokenIdentifier) => Promise<Result_4>,
-  'mint' : (arg_0: MintInformation, arg_1: [] | [bigint]) => Promise<
-      MintResult
-    >,
-  'mint_test' : (arg_0: MintInformation) => Promise<MintResult>,
-  'modify_user' : (arg_0: UserData) => Promise<Result>,
-  'registerComponent' : (arg_0: string, arg_1: Component) => Promise<Result>,
-  'removeAccessory' : (
-      arg_0: TokenIdentifier,
-      arg_1: string,
-      arg_2: Principal,
-    ) => Promise<Result>,
-  'report_burned_accessory' : (
-      arg_0: string,
-      arg_1: TokenIdentifier,
-      arg_2: TokenIndex,
-    ) => Promise<undefined>,
-  'supply' : () => Promise<bigint>,
-  'tokens' : (arg_0: AccountIdentifier__1) => Promise<Result_3>,
-  'tokens_ext' : (arg_0: AccountIdentifier__1) => Promise<Result_2>,
-  'tokens_id' : (arg_0: AccountIdentifier__1) => Promise<Result_1>,
-  'tokens_ids' : () => Promise<Array<TokenIdentifier>>,
-  'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
-  'upload' : (arg_0: Array<number>) => Promise<undefined>,
-  'uploadClear' : () => Promise<undefined>,
-  'uploadFinalize' : (arg_0: string, arg_1: Meta, arg_2: string) => Promise<
-      Result
-    >,
-  'upload_stats' : (arg_0: Stats) => Promise<undefined>,
-  'verificationEvents' : () => Promise<undefined>,
-  'wearAccessory' : (
-      arg_0: TokenIdentifier,
-      arg_1: string,
-      arg_2: Principal,
-    ) => Promise<Result>,
+  'acceptCycles' : ActorMethod<[], undefined>,
+  'add_admin' : ActorMethod<[Principal], undefined>,
+  'add_user' : ActorMethod<[Principal], Result>,
+  'associate_legendary' : ActorMethod<[string, TokenIdentifier], Result>,
+  'availableCycles' : ActorMethod<[], bigint>,
+  'balance' : ActorMethod<[BalanceRequest], BalanceResponse>,
+  'bearer' : ActorMethod<[TokenIdentifier], Result_6>,
+  'burn' : ActorMethod<[TokenIdentifier], Result>,
+  'calculate_style_score' : ActorMethod<[], undefined>,
+  'changeStyle' : ActorMethod<[string], undefined>,
+  'collectCanisterMetrics' : ActorMethod<[], undefined>,
+  'cron_events' : ActorMethod<[], undefined>,
+  'cron_scores' : ActorMethod<[], undefined>,
+  'delete' : ActorMethod<[string], Result>,
+  'delete_admin' : ActorMethod<[Principal], undefined>,
+  'details' : ActorMethod<[TokenIdentifier], Result_5>,
+  'draw' : ActorMethod<[TokenIdentifier], Result>,
+  'extensions' : ActorMethod<[], Array<Extension>>,
+  'getCanisterLog' : ActorMethod<
+    [[] | [CanisterLogRequest]],
+    [] | [CanisterLogResponse],
+  >,
+  'getCanisterMetrics' : ActorMethod<
+    [GetMetricsParameters],
+    [] | [CanisterMetrics],
+  >,
+  'getRegistry' : ActorMethod<[], Array<[TokenIndex, AccountIdentifier__1]>>,
+  'getTokens' : ActorMethod<[], Array<[TokenIndex, Metadata]>>,
+  'get_all_users' : ActorMethod<[], Array<[Principal, UserData]>>,
+  'get_avatar_rendering' : ActorMethod<
+    [TokenIdentifier],
+    [] | [AvatarRendering],
+  >,
+  'get_infos_leaderboard' : ActorMethod<
+    [],
+    Array<[Principal, [] | [Name__2], [] | [TokenIdentifier]]>,
+  >,
+  'get_number_users' : ActorMethod<[], bigint>,
+  'get_style_score' : ActorMethod<[], Array<[TokenIdentifier, StyleScore]>>,
+  'get_user' : ActorMethod<[], [] | [UserData]>,
+  'http_request' : ActorMethod<[Request], Response>,
+  'is_admin' : ActorMethod<[Principal], boolean>,
+  'metadata' : ActorMethod<[TokenIdentifier], Result_4>,
+  'mint' : ActorMethod<[MintInformation, [] | [bigint]], MintResult>,
+  'modify_user' : ActorMethod<[UserData], Result>,
+  'registerComponent' : ActorMethod<[string, Component], Result>,
+  'removeAccessory' : ActorMethod<[TokenIdentifier, string, Principal], Result>,
+  'report_burned_accessory' : ActorMethod<
+    [string, TokenIdentifier, TokenIndex],
+    undefined,
+  >,
+  'supply' : ActorMethod<[], bigint>,
+  'tokens' : ActorMethod<[AccountIdentifier__1], Result_3>,
+  'tokens_ext' : ActorMethod<[AccountIdentifier__1], Result_2>,
+  'tokens_id' : ActorMethod<[AccountIdentifier__1], Result_1>,
+  'tokens_ids' : ActorMethod<[], Array<TokenIdentifier>>,
+  'transfer' : ActorMethod<[TransferRequest], TransferResponse>,
+  'upload' : ActorMethod<[Array<number>], undefined>,
+  'uploadClear' : ActorMethod<[], undefined>,
+  'uploadFinalize' : ActorMethod<[string, Meta, string], Result>,
+  'upload_stats' : ActorMethod<[Stats], undefined>,
+  'verify_mission' : ActorMethod<[bigint, Principal], boolean>,
+  'wearAccessory' : ActorMethod<[TokenIdentifier, string, Principal], Result>,
 }
 export interface Listing {
   'subaccount' : [] | [SubAccount],
@@ -232,11 +237,19 @@ export type Result_5 = { 'ok' : [AccountIdentifier__1, [] | [Listing]] } |
   { 'err' : CommonError };
 export type Result_6 = { 'ok' : AccountIdentifier__1 } |
   { 'err' : CommonError };
+export interface Slots {
+  'Hat' : [] | [string],
+  'Body' : [] | [string],
+  'Eyes' : [] | [string],
+  'Face' : [] | [string],
+  'Misc' : [] | [string],
+}
 export type Stars = bigint;
 export type Stats = Array<[Name, Stars]>;
-export type StreamingCallback = (arg_0: StreamingCallbackToken) => Promise<
-    StreamingCallbackResponse
-  >;
+export type StreamingCallback = ActorMethod<
+  [StreamingCallbackToken],
+  StreamingCallbackResponse,
+>;
 export interface StreamingCallbackResponse {
   'token' : [] | [StreamingCallbackToken],
   'body' : Array<number>,
@@ -252,6 +265,8 @@ export type StreamingStrategy = {
       'callback' : StreamingCallback,
     }
   };
+export type Style = { 'Old' : string } |
+  { 'Colors' : Colors };
 export type StyleScore = bigint;
 export type SubAccount = Array<number>;
 export type Tag = string;

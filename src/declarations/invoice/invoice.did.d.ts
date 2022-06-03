@@ -1,4 +1,6 @@
 import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from '@dfinity/agent';
+
 export type AccountIdentifier = { 'principal' : Principal } |
   { 'blob' : Array<number> } |
   { 'text' : string };
@@ -126,34 +128,39 @@ export interface HourlyMetricsData {
   'timeMillis' : bigint,
 }
 export interface Invoice {
-  'acceptCycles' : () => Promise<undefined>,
-  'accountIdentifierToBlob' : (arg_0: AccountIdentifier__1) => Promise<
-      AccountIdentifierToBlobResult
-    >,
-  'add_admin' : (arg_0: Principal) => Promise<undefined>,
-  'availableCycles' : () => Promise<bigint>,
-  'collectCanisterMetrics' : () => Promise<undefined>,
-  'create_invoice' : (arg_0: Category) => Promise<CreateInvoiceResult>,
-  'getCanisterLog' : (arg_0: [] | [CanisterLogRequest]) => Promise<
-      [] | [CanisterLogResponse]
-    >,
-  'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
-      [] | [CanisterMetrics]
-    >,
-  'get_account_identifier' : (arg_0: GetAccountIdentifierArgs) => Promise<
-      GetAccountIdentifierResult
-    >,
-  'get_balance' : (arg_0: GetBalanceArgs) => Promise<GetBalanceResult>,
-  'get_invoice' : (arg_0: GetInvoiceArgs) => Promise<GetInvoiceResult>,
-  'is_admin' : (arg_0: Principal) => Promise<boolean>,
-  'transfer' : (arg_0: TransferArgs) => Promise<TransferResult>,
-  'verify_invoice_accessory' : (arg_0: VerifyInvoiceArgs) => Promise<
-      VerifyInvoiceResult
-    >,
-  'verify_invoice_avatar' : (
-      arg_0: VerifyInvoiceArgs,
-      arg_1: Principal,
-    ) => Promise<VerifyInvoiceResult>,
+  'acceptCycles' : ActorMethod<[], undefined>,
+  'accountIdentifierToBlob' : ActorMethod<
+    [AccountIdentifier__1],
+    AccountIdentifierToBlobResult,
+  >,
+  'add_admin' : ActorMethod<[Principal], undefined>,
+  'availableCycles' : ActorMethod<[], bigint>,
+  'collectCanisterMetrics' : ActorMethod<[], undefined>,
+  'create_invoice' : ActorMethod<[Category], CreateInvoiceResult>,
+  'getCanisterLog' : ActorMethod<
+    [[] | [CanisterLogRequest]],
+    [] | [CanisterLogResponse],
+  >,
+  'getCanisterMetrics' : ActorMethod<
+    [GetMetricsParameters],
+    [] | [CanisterMetrics],
+  >,
+  'get_account_identifier' : ActorMethod<
+    [GetAccountIdentifierArgs],
+    GetAccountIdentifierResult,
+  >,
+  'get_balance' : ActorMethod<[GetBalanceArgs], GetBalanceResult>,
+  'get_invoice' : ActorMethod<[GetInvoiceArgs], GetInvoiceResult>,
+  'is_admin' : ActorMethod<[Principal], boolean>,
+  'transfer' : ActorMethod<[TransferArgs], TransferResult>,
+  'verify_invoice_accessory' : ActorMethod<
+    [VerifyInvoiceArgs],
+    VerifyInvoiceResult,
+  >,
+  'verify_invoice_avatar' : ActorMethod<
+    [VerifyInvoiceArgs, Principal],
+    VerifyInvoiceResult,
+  >,
 }
 export interface Invoice__1 {
   'id' : bigint,

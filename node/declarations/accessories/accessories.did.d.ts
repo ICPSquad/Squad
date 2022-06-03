@@ -1,4 +1,6 @@
 import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from '@dfinity/agent';
+
 export interface AccessoryInventory {
   'tokenIdentifier' : string,
   'name' : string,
@@ -38,12 +40,36 @@ export type CommonError = { 'InvalidToken' : TokenIdentifier__1 } |
   { 'Other' : string };
 export type CommonError__1 = { 'InvalidToken' : TokenIdentifier__1 } |
   { 'Other' : string };
+export type CommonError__2 = { 'InvalidToken' : TokenIdentifier__1 } |
+  { 'Other' : string };
 export interface DailyMetricsData {
   'updateCalls' : bigint,
   'canisterHeapMemorySize' : NumericEntity,
   'canisterCycles' : NumericEntity,
   'canisterMemorySize' : NumericEntity,
   'timeMillis' : bigint,
+}
+export type DetailsResponse = {
+    'ok' : [AccountIdentifier__1, [] | [Listing__1]]
+  } |
+  { 'err' : CommonError__2 };
+export type Disbursement = [
+  TokenIndex__1,
+  AccountIdentifier__1,
+  SubAccount__1,
+  bigint,
+];
+export interface EntrepotTransaction {
+  'token' : TokenIdentifier__2,
+  'time' : Time,
+  'seller' : Principal,
+  'buyer' : AccountIdentifier__1,
+  'price' : bigint,
+}
+export interface ExtListing {
+  'locked' : [] | [Time],
+  'seller' : Principal,
+  'price' : bigint,
 }
 export type Extension = string;
 export type Floor = bigint;
@@ -76,78 +102,73 @@ export interface HourlyMetricsData {
   'timeMillis' : bigint,
 }
 export interface ICPSquadNFT {
-  'acceptCycles' : () => Promise<undefined>,
-  'add_admin' : (arg_0: Principal) => Promise<undefined>,
-  'add_template' : (arg_0: string, arg_1: Template) => Promise<Result_7>,
-  'allPayments' : () => Promise<Array<[Principal, Array<SubAccount__1>]>>,
-  'allSettlements' : () => Promise<Array<[TokenIndex, Settlement]>>,
-  'availableCycles' : () => Promise<bigint>,
-  'balance' : (arg_0: BalanceRequest) => Promise<BalanceResponse>,
-  'bearer' : (arg_0: TokenIdentifier) => Promise<Result_6>,
-  'burn' : (arg_0: TokenIdentifier) => Promise<Result>,
-  'clearPayments' : (arg_0: Principal, arg_1: Array<SubAccount__1>) => Promise<
-      undefined
-    >,
-  'collectCanisterMetrics' : () => Promise<undefined>,
-  'confirmed_burned_accessory' : (arg_0: TokenIndex) => Promise<undefined>,
-  'create_accessory' : (arg_0: string, arg_1: bigint) => Promise<Result__1_3>,
-  'details' : (arg_0: TokenIdentifier) => Promise<Result_5>,
-  'eventsSize' : () => Promise<bigint>,
-  'extensions' : () => Promise<Array<Extension>>,
-  'getCanisterLog' : (arg_0: [] | [CanisterLogRequest]) => Promise<
-      [] | [CanisterLogResponse]
-    >,
-  'getCanisterMetrics' : (arg_0: GetMetricsParameters) => Promise<
-      [] | [CanisterMetrics]
-    >,
-  'getInventory' : () => Promise<Result_4>,
-  'getRegistry' : () => Promise<Array<[TokenIndex, AccountIdentifier__2]>>,
-  'getTokens' : () => Promise<Array<[TokenIndex, Metadata]>>,
-  'get_name' : (arg_0: TokenIndex) => Promise<[] | [string]>,
-  'get_recipes' : () => Promise<Array<[string, Recipe__1]>>,
-  'get_stats_items' : () => Promise<
-      Array<[string, Supply, [] | [Floor], [] | [LastSoldPrice]]>
-    >,
-  'get_templates' : () => Promise<Array<[string, Template]>>,
-  'http_request' : (arg_0: Request) => Promise<Response>,
-  'init_cap' : () => Promise<Result__1_1>,
-  'is_admin' : (arg_0: Principal) => Promise<boolean>,
-  'list' : (arg_0: ListRequest) => Promise<Result__1>,
-  'listings' : () => Promise<Array<[TokenIndex, Listing__1, Metadata__1]>>,
-  'lock' : (
-      arg_0: string,
-      arg_1: bigint,
-      arg_2: AccountIdentifier__2,
-      arg_3: SubAccount__1,
-    ) => Promise<Result__1_2>,
-  'metadata' : (arg_0: TokenIdentifier) => Promise<Result_3>,
-  'mint' : (arg_0: string, arg_1: Principal) => Promise<Result>,
-  'payments' : () => Promise<[] | [Array<SubAccount__1>]>,
-  'remove_accessory' : (
-      arg_0: TokenIdentifier,
-      arg_1: TokenIdentifier,
-    ) => Promise<Result__1_1>,
-  'remove_admin' : (arg_0: Principal) => Promise<undefined>,
-  'settle' : (arg_0: string) => Promise<Result__1>,
-  'settlements' : () => Promise<
-      Array<[TokenIndex, AccountIdentifier__2, bigint]>
-    >,
-  'stats' : () => Promise<
-      [bigint, bigint, bigint, bigint, bigint, bigint, bigint]
-    >,
-  'tokenId' : (arg_0: TokenIndex) => Promise<string>,
-  'tokens' : (arg_0: AccountIdentifier__2) => Promise<Result_2>,
-  'tokens_ext' : (arg_0: AccountIdentifier__2) => Promise<Result_1>,
-  'transactions' : () => Promise<Array<Transaction>>,
-  'transfer' : (arg_0: TransferRequest) => Promise<TransferResponse>,
-  'update_accessories' : () => Promise<undefined>,
-  'update_accessory' : (arg_0: TokenIndex) => Promise<undefined>,
-  'verificationEvents' : () => Promise<undefined>,
-  'verification_burned' : () => Promise<undefined>,
-  'wear_accessory' : (
-      arg_0: TokenIdentifier,
-      arg_1: TokenIdentifier,
-    ) => Promise<Result>,
+  'acceptCycles' : ActorMethod<[], undefined>,
+  'add_admin' : ActorMethod<[Principal], undefined>,
+  'add_template' : ActorMethod<[string, Template], Result_7>,
+  'availableCycles' : ActorMethod<[], bigint>,
+  'balance' : ActorMethod<[BalanceRequest], BalanceResponse>,
+  'bearer' : ActorMethod<[TokenIdentifier], Result_6>,
+  'collectCanisterMetrics' : ActorMethod<[], undefined>,
+  'confirmed_burned_accessory' : ActorMethod<[TokenIndex], undefined>,
+  'create_accessory' : ActorMethod<[string, bigint], Result__1_1>,
+  'cron_burned' : ActorMethod<[], undefined>,
+  'cron_disbursements' : ActorMethod<[], undefined>,
+  'cron_events' : ActorMethod<[], undefined>,
+  'cron_settlements' : ActorMethod<[], undefined>,
+  'details' : ActorMethod<[TokenIdentifier], DetailsResponse>,
+  'disbursement_pending_count' : ActorMethod<[], bigint>,
+  'disbursement_queue_size' : ActorMethod<[], bigint>,
+  'extensions' : ActorMethod<[], Array<Extension>>,
+  'getCanisterLog' : ActorMethod<
+    [[] | [CanisterLogRequest]],
+    [] | [CanisterLogResponse],
+  >,
+  'getCanisterMetrics' : ActorMethod<
+    [GetMetricsParameters],
+    [] | [CanisterMetrics],
+  >,
+  'getInventory' : ActorMethod<[], Result_5>,
+  'getRegistry' : ActorMethod<[], Array<[TokenIndex, AccountIdentifier__2]>>,
+  'getTokens' : ActorMethod<[], Array<[TokenIndex, Metadata]>>,
+  'get_name' : ActorMethod<[TokenIndex], [] | [string]>,
+  'get_recipes' : ActorMethod<[], Array<[string, Recipe__1]>>,
+  'get_stats_items' : ActorMethod<
+    [],
+    Array<[string, Supply, [] | [Floor], [] | [LastSoldPrice]]>,
+  >,
+  'get_templates' : ActorMethod<[], Array<[string, Template]>>,
+  'http_request' : ActorMethod<[Request], Response>,
+  'is_admin' : ActorMethod<[Principal], boolean>,
+  'is_owner_account' : ActorMethod<[AccountIdentifier__2, TokenIndex], boolean>,
+  'list' : ActorMethod<[ListRequest], ListResponse>,
+  'listings' : ActorMethod<[], ListingResponse>,
+  'lock' : ActorMethod<
+    [TokenIdentifier, bigint, AccountIdentifier__2, Array<number>],
+    LockResponse,
+  >,
+  'metadata' : ActorMethod<[TokenIdentifier], Result_4>,
+  'mint' : ActorMethod<[string, Principal], Result>,
+  'payments' : ActorMethod<[], [] | [Array<SubAccount__2>]>,
+  'read_disbursements' : ActorMethod<[], Array<Disbursement>>,
+  'remove_accessory' : ActorMethod<
+    [TokenIdentifier, TokenIdentifier],
+    Result__1,
+  >,
+  'remove_admin' : ActorMethod<[Principal], undefined>,
+  'settle' : ActorMethod<[TokenIdentifier], Result_3>,
+  'stats' : ActorMethod<
+    [],
+    [bigint, bigint, bigint, bigint, bigint, bigint, bigint],
+  >,
+  'tokenId' : ActorMethod<[TokenIndex], string>,
+  'tokens' : ActorMethod<[AccountIdentifier__2], Result_2>,
+  'tokens_ext' : ActorMethod<[AccountIdentifier__2], Result_1>,
+  'transactions' : ActorMethod<[], Array<EntrepotTransaction>>,
+  'transactions_new' : ActorMethod<[], Array<[bigint, Transaction]>>,
+  'transfer' : ActorMethod<[TransferRequest], TransferResponse>,
+  'update_accessories' : ActorMethod<[], undefined>,
+  'update_accessory' : ActorMethod<[TokenIndex], undefined>,
+  'wear_accessory' : ActorMethod<[TokenIdentifier, TokenIdentifier], Result>,
 }
 export type Inventory = Array<ItemInventory>;
 export type ItemInventory = { 'Accessory' : AccessoryInventory } |
@@ -155,20 +176,26 @@ export type ItemInventory = { 'Accessory' : AccessoryInventory } |
 export type LastSoldPrice = bigint;
 export interface ListRequest {
   'token' : TokenIdentifier__2,
-  'from_subaccount' : [] | [SubAccount__2],
+  'from_subaccount' : [] | [SubAccount__1],
   'price' : [] | [bigint],
 }
+export type ListResponse = { 'ok' : null } |
+  { 'err' : CommonError__2 };
 export interface Listing {
   'subaccount' : [] | [SubAccount],
-  'locked' : [] | [Time__1],
-  'seller' : Principal,
-  'price' : bigint,
-}
-export interface Listing__1 {
   'locked' : [] | [Time],
   'seller' : Principal,
   'price' : bigint,
 }
+export type ListingResponse = Array<[TokenIndex__1, ExtListing, Metadata__1]>;
+export interface Listing__1 {
+  'subaccount' : [] | [SubAccount__1],
+  'locked' : [] | [Time],
+  'seller' : Principal,
+  'price' : bigint,
+}
+export type LockResponse = { 'ok' : AccountIdentifier__1 } |
+  { 'err' : CommonError__2 };
 export interface LogMessagesData { 'timeNanos' : Nanos, 'message' : string }
 export interface MaterialInventory {
   'tokenIdentifier' : string,
@@ -225,33 +252,24 @@ export type Result_1 = {
   { 'err' : CommonError };
 export type Result_2 = { 'ok' : Array<TokenIndex> } |
   { 'err' : CommonError };
-export type Result_3 = { 'ok' : Metadata } |
-  { 'err' : CommonError__1 };
-export type Result_4 = { 'ok' : Inventory } |
-  { 'err' : string };
-export type Result_5 = { 'ok' : [AccountIdentifier__2, [] | [Listing]] } |
+export type Result_3 = { 'ok' : null } |
   { 'err' : CommonError };
+export type Result_4 = { 'ok' : Metadata } |
+  { 'err' : CommonError__1 };
+export type Result_5 = { 'ok' : Inventory } |
+  { 'err' : string };
 export type Result_6 = { 'ok' : AccountIdentifier__2 } |
   { 'err' : CommonError };
 export type Result_7 = { 'ok' : string } |
   { 'err' : string };
 export type Result__1 = { 'ok' : null } |
-  { 'err' : CommonError };
-export type Result__1_1 = { 'ok' : null } |
   { 'err' : string };
-export type Result__1_2 = { 'ok' : AccountIdentifier__2 } |
-  { 'err' : CommonError };
-export type Result__1_3 = { 'ok' : TokenIdentifier } |
+export type Result__1_1 = { 'ok' : TokenIdentifier } |
   { 'err' : string };
-export interface Settlement {
-  'subaccount' : SubAccount__2,
-  'seller' : Principal,
-  'buyer' : AccountIdentifier__1,
-  'price' : bigint,
-}
-export type StreamingCallback = (arg_0: StreamingCallbackToken) => Promise<
-    StreamingCallbackResponse
-  >;
+export type StreamingCallback = ActorMethod<
+  [StreamingCallbackToken],
+  StreamingCallbackResponse,
+>;
 export interface StreamingCallbackResponse {
   'token' : [] | [StreamingCallbackToken],
   'body' : Array<number>,
@@ -281,16 +299,21 @@ export type Template = {
   { 'LegendaryAccessory' : Array<number> } |
   { 'Material' : Array<number> };
 export type Time = bigint;
-export type Time__1 = bigint;
 export type TokenIdentifier = string;
 export type TokenIdentifier__1 = string;
 export type TokenIdentifier__2 = string;
 export type TokenIndex = number;
+export type TokenIndex__1 = number;
 export interface Transaction {
+  'id' : bigint,
+  'to' : AccountIdentifier__1,
+  'closed' : [] | [Time],
   'token' : TokenIdentifier__2,
-  'time' : Time,
+  'initiated' : Time,
+  'from' : AccountIdentifier__1,
+  'memo' : [] | [Array<number>],
   'seller' : Principal,
-  'buyer' : AccountIdentifier__1,
+  'bytes' : Array<number>,
   'price' : bigint,
 }
 export interface TransferRequest {

@@ -8,6 +8,7 @@ import Result "mo:base/Result";
 import Text "mo:base/Text";
 import TrieMap "mo:base/TrieMap";
 
+import AccountIdentifier "mo:principal/AccountIdentifier";
 import Ext "mo:ext/Ext";
 
 import Types "types";
@@ -199,6 +200,106 @@ module {
             };
         };
 
+        public func setDefaultAvatar(p : Principal, tokenId : TokenIdentifier) : Result<(), Text> {
+            switch(_users.get(p)){
+                case(null){
+                    return #err("No user found");
+                };
+                case(? user){
+                    let account = switch(user.account_identifier){
+                        case(? account) {account};
+                        case(null) {
+                            Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
+                        };
+                    };
+                    if(_verifySelectedAvatar(tokenId, account)){
+                        let new_user = {
+                            name = user.name;
+                            email = user.email;
+                            discord = user.discord;
+                            twitter = user.twitter;
+                            rank = user.rank;
+                            height = user.height;
+                            minted = user.minted;
+                            account_identifier = user.account_identifier;
+                            invoice_id = user.invoice_id;
+                            selected_avatar = ?tokenId;
+                        };
+                        _users.put(p, new_user);
+                        return #ok;
+                    };
+                    return #err("User doesn't own this avatar. Cannot set as default");
+                };
+            };
+        };
+
+        /* 
+            Check all the user and verify that they have a default avatar.
+            In case they don't, set the default avatar to the (optional) first one they own.
+            In case they have one : verify that they still own it. If they don't : set the default avatar to the (optional) first one they own.
+        */
+        public func cronDefaultAvatar () : () {
+            for((p, user) in _users.entries()){
+                let account = switch(user.account_identifier){
+                    case(? account) {account};
+                    case(null) {
+                        _setAccountIdentifier(p);
+                        Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
+                    };
+                };
+                switch(user.selected_avatar){
+                    // They don't have a selected avatar : set it to be the (optional) first one they own.
+                    case(null) {
+                        switch(_Ext.defaultToken(account)){
+                            // No token found. Skip.
+                            case(null){};
+                            // Token found. Set it as the default avatar.
+                            case(? tokenId){
+                                let new_user = {
+                                    name = user.name;
+                                    email = user.email;
+                                    discord = user.discord;
+                                    twitter = user.twitter;
+                                    rank = user.rank;
+                                    height = user.height;
+                                    minted = user.minted;
+                                    account_identifier = user.account_identifier;
+                                    invoice_id = user.invoice_id;
+                                    selected_avatar = ?tokenId;
+                                };
+                                _users.put(p, new_user);
+                            };
+                        };
+                    };
+                    case(? token){
+                        if(not(_verifySelectedAvatar(token, account))){
+                            // The user doesn't own this avatar. Set it to be the (optional) first one they own.
+                            switch(_Ext.defaultToken(account)){
+                                // No token found. Skip.
+                                case(null){};
+                                // Token found. Set it as the default avatar.
+                                case(? tokenId){
+                                    let new_user = {
+                                        name = user.name;
+                                        email = user.email;
+                                        discord = user.discord;
+                                        twitter = user.twitter;
+                                        rank = user.rank;
+                                        height = user.height;
+                                        minted = user.minted;
+                                        account_identifier = user.account_identifier;
+                                        invoice_id = user.invoice_id;
+                                        selected_avatar = ?tokenId;
+                                    };
+                                    _users.put(p, new_user);
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
         /////////////////
         // UTILITIES ////
         ////////////////
@@ -218,6 +319,9 @@ module {
             }
         };
 
+        /* 
+            Returns a boolean indicating if the specifiec account is owner of the specified tokenId.
+         */
         func _verifySelectedAvatar(tokenId : TokenIdentifier, account : Text) : Bool {
             switch(_Ext.bearer(tokenId)){
                 case(#err(_)) return false;
@@ -229,11 +333,19 @@ module {
                 };
             };
         };
-
+        
+        /* 
+            Returns the optional token identifier of the avatar of the user.
+            If the user has not selected a default avatar, returns null.
+            If the user has selected a default avatar, but he doesn't own the token at this moment, returns null.
+         */
         func _getAvatar(p : Principal, user : User) : ?TokenIdentifier {
             let account = switch(user.account_identifier){
                 case(? some) some;
-                case(null) Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
+                case(null){ 
+                    _setAccountIdentifier(p);
+                    Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
+                };
             };
             switch(user.selected_avatar){
                 case(null) return null;
@@ -242,6 +354,30 @@ module {
                         return ?token;
                     };
                     return null;
+                };
+            };
+        };
+
+        func _setAccountIdentifier(p : Principal) : () {
+            switch(_users.get(p)){
+                case(null) {
+                    return;
+                };
+                case(? user){
+                    let account = Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
+                    let new_user = {
+                        name = user.name;
+                        email = user.email;
+                        discord = user.discord;
+                        twitter = user.twitter;
+                        rank = user.rank;
+                        height = user.height;
+                        minted = user.minted;
+                        account_identifier = ?account;
+                        invoice_id = user.invoice_id;
+                        selected_avatar = user.selected_avatar;
+                    };
+                    _users.put(p, new_user);
                 };
             };
         };

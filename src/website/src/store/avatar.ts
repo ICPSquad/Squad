@@ -6,6 +6,7 @@ import { principalToAddress } from "@src/utils/tools/principal";
 
 export const avatar = writable<AvatarStore>({
   tokenIdentifier: null,
+  rendering: null,
 });
 
 actors.subscribe(async ({ avatarActor }) => {

@@ -1,4 +1,6 @@
 import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from '@dfinity/agent';
+
 export interface AccountBalanceArgs { 'account' : AccountIdentifier }
 export type AccountIdentifier = Array<number>;
 export type BlockIndex = bigint;
@@ -24,6 +26,6 @@ export type TransferError = {
 export type TransferResult = { 'Ok' : BlockIndex } |
   { 'Err' : TransferError };
 export interface _SERVICE {
-  'account_balance' : (arg_0: AccountBalanceArgs) => Promise<Tokens>,
-  'transfer' : (arg_0: TransferArgs) => Promise<TransferResult>,
+  'account_balance' : ActorMethod<[AccountBalanceArgs], Tokens>,
+  'transfer' : ActorMethod<[TransferArgs], TransferResult>,
 }

@@ -220,10 +220,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Ext.bearer(tokenId);
     };
 
-    // public query func details(tokenId : TokenIdentifier) : async Result<(AccountIdentifier, ?ExtModule.Listing), CommonError> {
-    //     _Ext.details(tokenId);
-    // };
-
     //////////
     // CAP //
     /////////
@@ -236,80 +232,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         overrideRouterId = null;
         provideRootBucketId = ?"qfevy-hqaaa-aaaaj-qanda-cai";
     });
-
-
-    // private func _isLocked (token : TokenIndex) : Bool {
-    //     switch(_tokenListing.get(token)){
-    //         case(?listing){
-    //             switch(listing.locked){
-    //                 case(?time) {
-    //                     if(time > Time.now()){
-    //                         return true;
-    //                     } else {
-    //                         return false;
-    //                     }
-    //                 };
-    //                 case(_) {
-    //                     return false;
-    //                 };
-    //             };
-    //         };
-    //         case(_) {
-    //             return false;
-    //         };
-    //     };
-    // };
-
-    // private func _getPrice(index : TokenIndex) : Result<Nat, ()> {
-    //     switch(_tokenListing.get(index)){
-    //         case(?listing){
-    //             return #ok(Nat64.toNat(listing.price));
-    //         };
-    //         case(_) {
-    //             return #err();
-    //         };
-    //     };
-    // };
-
-    // private func _getFloorPrice(indexs : [TokenIndex]) : ?Nat {
-    //     if(indexs.size() == 0){
-    //         return null
-    //     };
-    //     var prices = Buffer.Buffer<Nat>(0);
-    //     for(index in indexs.vals()){
-    //         switch(_getPrice(index)){
-    //             case(#err()){};
-    //             case(#ok(value)){
-    //                 prices.add(value);
-    //             };
-    //         };
-    //     };
-    //     let array_prices = prices.toArray();
-    //     if(array_prices.size() == 0){
-    //         return null
-    //     };
-    //     let array_sorted = Array.sort<Nat>(array_prices, Nat.compare);
-    //     return ?array_sorted[0];
-    // };
-
-    /* Returns the optional last price at which a transaction was made for one of the tokenIdentifier  */
-    // private func _getLastPrice(tokenIds : [TokenIdentifier]) : ?Nat {
-    //     let transactions : [Transaction] = Array.filter<Transaction>(_transactions, func(x) {Option.isSome(Array.find<TokenIdentifier>(tokenIds, func(a) {a == x.token}))});
-    //     if(transactions.size() == 0){
-    //         return null
-    //     } else {
-    //         var last_price = transactions[0].price;
-    //         var last_time = transactions[0].time;
-    //         for(transaction in transactions.vals()){
-    //             if(transaction.time > last_time){
-    //                 last_time := transaction.time;
-    //                 last_price := transaction.price;
-    //             };
-    //         };
-    //         ?Nat64.toNat(last_price);
-    //     };
-    // };
-
 
     ////////////////
     // INVOICE ////

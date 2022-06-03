@@ -1,6 +1,6 @@
 export const idlFactory = ({ IDL }) => {
-  const TokenIdentifier = IDL.Text;
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+  const TokenIdentifier = IDL.Text;
   const TokenIdentifier__1 = IDL.Text;
   const AccountIdentifier = IDL.Text;
   const User = IDL.Variant({
@@ -148,6 +148,28 @@ export const idlFactory = ({ IDL }) => {
     'account_identifier' : IDL.Opt(IDL.Text),
     'discord' : IDL.Opt(IDL.Text),
   });
+  const Slots = IDL.Record({
+    'Hat' : IDL.Opt(IDL.Text),
+    'Body' : IDL.Opt(IDL.Text),
+    'Eyes' : IDL.Opt(IDL.Text),
+    'Face' : IDL.Opt(IDL.Text),
+    'Misc' : IDL.Opt(IDL.Text),
+  });
+  const Color = IDL.Tuple(IDL.Nat8, IDL.Nat8, IDL.Nat8, IDL.Nat8);
+  const Colors = IDL.Vec(IDL.Record({ 'color' : Color, 'spot' : IDL.Text }));
+  const Style = IDL.Variant({ 'Old' : IDL.Text, 'Colors' : Colors });
+  const AvatarRendering = IDL.Record({
+    'mouth' : IDL.Text,
+    'background' : IDL.Text,
+    'ears' : IDL.Text,
+    'eyes' : IDL.Text,
+    'hair' : IDL.Text,
+    'cloth' : IDL.Text,
+    'nose' : IDL.Text,
+    'slots' : Slots,
+    'style' : Style,
+    'profile' : IDL.Text,
+  });
   const Name__2 = IDL.Text;
   const StyleScore = IDL.Nat;
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
@@ -184,8 +206,6 @@ export const idlFactory = ({ IDL }) => {
     'status_code' : IDL.Nat16,
   });
   const Result_4 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError__1 });
-  const Color = IDL.Tuple(IDL.Nat8, IDL.Nat8, IDL.Nat8, IDL.Nat8);
-  const Colors = IDL.Vec(IDL.Record({ 'color' : Color, 'spot' : IDL.Text }));
   const MintInformation = IDL.Record({
     'mouth' : IDL.Text,
     'background' : IDL.Text,
@@ -261,6 +281,7 @@ export const idlFactory = ({ IDL }) => {
   const ICPSquadNFT = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
     'add_admin' : IDL.Func([IDL.Principal], [], []),
+    'add_user' : IDL.Func([IDL.Principal], [Result], []),
     'associate_legendary' : IDL.Func([IDL.Text, TokenIdentifier], [Result], []),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
@@ -268,13 +289,13 @@ export const idlFactory = ({ IDL }) => {
     'burn' : IDL.Func([TokenIdentifier], [Result], []),
     'calculate_style_score' : IDL.Func([], [], ['oneway']),
     'changeStyle' : IDL.Func([IDL.Text], [], []),
-    'clean_blob' : IDL.Func([], [], []),
     'collectCanisterMetrics' : IDL.Func([], [], []),
+    'cron_events' : IDL.Func([], [], []),
+    'cron_scores' : IDL.Func([], [], []),
     'delete' : IDL.Func([IDL.Text], [Result], []),
     'delete_admin' : IDL.Func([IDL.Principal], [], []),
     'details' : IDL.Func([TokenIdentifier], [Result_5], ['query']),
     'draw' : IDL.Func([TokenIdentifier], [Result], []),
-    'eventsSize' : IDL.Func([], [IDL.Nat], ['query']),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
     'getCanisterLog' : IDL.Func(
         [IDL.Opt(CanisterLogRequest)],
@@ -301,6 +322,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(IDL.Principal, UserData))],
         [],
       ),
+    'get_avatar_rendering' : IDL.Func(
+        [TokenIdentifier],
+        [IDL.Opt(AvatarRendering)],
+        ['query'],
+      ),
     'get_infos_leaderboard' : IDL.Func(
         [],
         [
@@ -318,11 +344,9 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_user' : IDL.Func([], [IDL.Opt(UserData)], ['query']),
     'http_request' : IDL.Func([Request], [Response], ['query']),
-    'init_cap' : IDL.Func([], [Result], []),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'metadata' : IDL.Func([TokenIdentifier], [Result_4], ['query']),
     'mint' : IDL.Func([MintInformation, IDL.Opt(IDL.Nat)], [MintResult], []),
-    'mint_test' : IDL.Func([MintInformation], [MintResult], []),
     'modify_user' : IDL.Func([UserData], [Result], []),
     'registerComponent' : IDL.Func([IDL.Text, Component], [Result], []),
     'removeAccessory' : IDL.Func(
@@ -345,7 +369,7 @@ export const idlFactory = ({ IDL }) => {
     'uploadClear' : IDL.Func([], [], []),
     'uploadFinalize' : IDL.Func([IDL.Text, Meta, IDL.Text], [Result], []),
     'upload_stats' : IDL.Func([Stats], [], ['oneway']),
-    'verificationEvents' : IDL.Func([], [], []),
+    'verify_mission' : IDL.Func([IDL.Nat, IDL.Principal], [IDL.Bool], []),
     'wearAccessory' : IDL.Func(
         [TokenIdentifier, IDL.Text, IDL.Principal],
         [Result],

@@ -18,6 +18,7 @@ import AccountIdentifier "mo:principal/AccountIdentifier";
 import Canistergeek "mo:canistergeek/canistergeek";
 import Ext "mo:ext/Ext";
 import Root "mo:cap/Root";
+import _Monitor "mo:canistergeek/typesModule";
 
 import Admins "admins";
 import Assets "assets";
@@ -400,6 +401,15 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
+    public shared ({ caller }) func set_default_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
+        _Monitor.collectMetrics();
+        _Users.setDefaultAvatar(caller, tokenId);
+    };
+
+//    public shared query ({ caller }) func get_default_avatar() : async (?TokenIdentifier, ?AvatarRendering) {
+
+//    };
+
     public query func get_avatar_rendering(tokenId : TokenIdentifier) : async ?AvatarRendering {
         _Avatar.getAvatarRendering(tokenId);
     };
@@ -683,6 +693,17 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
         _Scores.calculateStyleScores();
+    };
+
+
+    /* 
+        Run a verification of the integrity of the defaults avatar and modify them if needed.
+        @cronic : 1 hour
+     */
+    public shared ({ caller }) func cron_default_avatar() : async () {
+        assert(_Admins.isAdmin(caller) or caller == cid_hub);
+        _Monitor.collectMetrics();
+        _Users.cronDefaultAvatar();
     };
 
     /////////////

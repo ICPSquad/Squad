@@ -54,7 +54,7 @@ wait
 
 echo "Deploying the modules into canisters 🚀"
 dfx canister install avatar --mode install --argument "(principal \"${AVATAR_CANISTER_ID}\", principal \"${ACCESSORIES_CANISTER_ID}\", principal \"${INVOICE_CANISTER_ID}\", principal \"${HUB_CANISTER_ID}\")"
-dfx canister install accessories --mode install --argument "(principal \"${ACCESSORIES_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\", principal \"${INVOICE_CANISTER_ID}\")"
+dfx canister install accessories --mode install --argument "(principal \"${ACCESSORIES_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\", principal \"${INVOICE_CANISTER_ID}\", principal \"${LEDGER_CANISTER_ID}\", principal \"${HUB_CANISTER_ID}\")"
 dfx canister install invoice --mode install --argument "(principal \"${LEDGER_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\", principal \"${ACCESSORIES_CANISTER_ID}\", null, null)" 
 dfx canister install hub --mode install --argument "(principal \"${HUB_CANISTER_ID}\", principal \"${INVOICE_CANISTER_ID}\", principal \"${AVATAR_CANISTER_ID}\")"
 wait
