@@ -1,11 +1,13 @@
-import Ext "mo:ext/Ext";
 import Int "mo:base/Int";
 import Iter "mo:base/Iter";
+import Principal "mo:base/Principal";
+import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import TrieMap "mo:base/TrieMap";
-import Result "mo:base/Result";
-import Principal "mo:base/Principal";
+
+import Ext "mo:ext/Ext";
+
 import Types "types";
 
 
@@ -89,12 +91,10 @@ module {
             return Iter.toArray(styleScores.entries());
         };
 
+        /*
+            Updates the style score with the latest equipped accessorie 
+         */
         public func calculateStyleScores() : () {
-            if(not (_isTimeToCalculate())){
-                _Logs.logMessage("Not time to calculate");
-                return;
-            };
-            _Logs.logMessage("Calculating style scores ");
             let registry = _Ext.getRegistry();
             for ((tokenIndex, account ) in registry.vals()){
                 let tokenIdentifier = Ext.TokenIdentifier.encode(CID, tokenIndex);
@@ -107,22 +107,12 @@ module {
                     };
                 };
             };
-            last_time_of_calculation := Time.now();
-            _Logs.logMessage("Calculated style scores");
         };
 
 
         //////////////////
         /// Helpers /////
         /////////////////
-
-        let ONE_DAY_NANOSECONDS : Time = 24 * 60 * 60 * 1000000000;
-
-        func _isTimeToCalculate () : Bool {
-            let now = Time.now();
-            let diff = now - last_time_of_calculation;
-            return (diff >= ONE_DAY_NANOSECONDS);
-        };
 
         func _calculateScore(tokenId : TokenIdentifier) : ?Nat {
             switch(_Avatar.getSlot(tokenId)){
