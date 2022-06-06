@@ -503,6 +503,13 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Items.getInventory(caller);
     };
 
+    public shared ({ caller }) func get_accessories_holders() : async [(AccountIdentifier, Nat)] {
+        assert(_Admins.isAdmin(caller) or caller == cid_hub);
+        _Monitor.collectMetrics();
+        _Items.getHolders();
+    };  
+
+
     //////////
     // HTTP //
     //////////

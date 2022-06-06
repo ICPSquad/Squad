@@ -173,7 +173,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         _Assets.uploadClear();
     };
 
-    public shared ({ caller }) func delete(
+    public shared ({ caller }) func delete_file(
         filePath : Text
     ) : async Result<(), Text> {
         assert(_Admins.isAdmin(caller));
@@ -418,7 +418,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         }
     };
 
-
     public shared query ({ caller }) func check_avatar_infos(p : Principal) : async (?TokenIdentifier, ?AvatarRendering) {
         assert(_Admins.isAdmin(caller));
         switch(_Users.getDefaultAvatar(p)){
@@ -638,6 +637,12 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
         _Users.getInfosLeaderboard();
+    };
+
+    public shared query ({ caller }) func get_infos_holders() : async [(Principal, ?AccountIdentifier, ?Text, ?Text, ?TokenIdentifier)] {
+        assert(_Admins.isAdmin(caller) or caller == cid_hub);
+        _Monitor.collectMetrics();
+        _Users.getInfosHolders();
     };
 
     /////////////

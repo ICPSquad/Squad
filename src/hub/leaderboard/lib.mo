@@ -41,6 +41,7 @@ module {
     type Date = Types.Date; //(Year, Month, Day)
     type Time = Time.Time;
     type TokenIdentifier = Text;
+    type AccountIdentifier = Text;
     type Name = Text;
     type Message = Text;
 
@@ -57,6 +58,7 @@ module {
         
         let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
             get_infos_leaderboard : shared () -> async [(Principal, ?Name, ?TokenIdentifier)];
+            get_infos_holders : shared () -> async [(Principal, ?AccountIdentifier, ?Text, ?Text, ?TokenIdentifier)];
         };
         
         let _Logs = dependencies._Logs;
@@ -213,6 +215,38 @@ module {
                     };
                 };
             };
+        };
+
+        ////////////////
+        // Temporary ///
+        ////////////////
+
+        let ACCESSORY_ACTOR = actor(Principal.toText(dependencies.cid_accessory)) : actor {
+          get_accessories_holders : shared () -> async [(AccountIdentifier, Nat)];
+        };
+
+        public func getBestHolders() : async [(AccountIdentifier, Nat, ?Principal, ?Text, ?Text, ?TokenIdentifier)] {
+            let stats : [(AccountIdentifier, Nat)] = await ACCESSORY_ACTOR.get_accessories_holders();
+            let infos_opt : [(Principal, ?AccountIdentifier, ?Text, ?Text, ?TokenIdentifier)] = await AVATAR_ACTOR.get_infos_holders();
+            let infos = Array.map<(Principal, ?AccountIdentifier, ?Text, ?Text, ?TokenIdentifier), (Principal, AccountIdentifier, Text, Text, TokenIdentifier)>(infos_opt, func(x) {(
+                return((x.0, Option.get<Text>(x.1, ""), Option.get<Text>(x.2, ""),  Option.get<Text>(x.3, ""),  Option.get<Text>(x.4, "")))
+            )});
+            let r : Buffer.Buffer<(AccountIdentifier, Nat, ?Principal, ?Text, ?Text, ?TokenIdentifier)> = Buffer.Buffer<(AccountIdentifier, Nat, ?Principal, ?Text, ?Text, ?TokenIdentifier)>(0);
+            for((account, nb) in stats.vals()){
+                let infos_opt = Array.find<(Principal, AccountIdentifier, Text, Text, Text)>(infos, func(x) {return(x.1 == account)});
+                switch(infos_opt){
+                    case(? info){
+                        r.add((account, nb, ?info.0, ?info.2, ?info.3, ?info.4));
+                    };
+                    case(null){
+                        r.add((account, nb, null, null, null, null));
+                    };
+                };
+            };
+            // Sort by number of accessories
+            return(Array.sort<(AccountIdentifier, Nat, ?Principal, ?Text, ?Text, ?TokenIdentifier)>(r.toArray(), func(x, y) {
+                return(Nat.compare(x.1, y.1));
+            }));
         };
 
         /////////////////

@@ -30,6 +30,7 @@ module {
 
     public type Dependencies = {
         cid_avatar : Principal;
+        cid_accessory : Principal;
         _Logs : Canistergeek.Logger;
         _Style : Style.Factory;
         _Mission : Mission.Center;

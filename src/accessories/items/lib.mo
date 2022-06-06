@@ -40,6 +40,7 @@ module {
     public type BurnedInformation = Types.BurnedInformation;
     type TokenIndex = Ext.TokenIndex;
     type TokenIdentifier = Ext.TokenIdentifier;
+    type AccountIdentifier = Ext.AccountIdentifier;
     type Result<A,B> = Result.Result<A,B>;
     type Time = Time.Time;
 
@@ -520,6 +521,37 @@ module {
           };
         };
 
+        public func getHolders() : [(AccountIdentifier, Nat)] {
+            let ownerships : TrieMap.TrieMap<AccountIdentifier, [TokenIndex]> = TrieMap.TrieMap<AccountIdentifier, [TokenIndex]>(Text.equal, Text.hash);
+            let registry = _Ext.getRegistry();
+            for((token, account) in registry.vals()){
+                switch(ownerships.get(account)){
+                    case(? list){
+                        ownerships.put(account, Array.append<TokenIndex>(list, [token]));
+                    };
+                    case(null) {
+                        ownerships.put(account, [token]);
+                    };
+                };
+            };
+            // Coun the number of Accessories for each account
+            let r : Buffer.Buffer<(AccountIdentifier, Nat)> = Buffer.Buffer<(AccountIdentifier, Nat)>(0);
+            for((account, tokens) in ownerships.entries()){
+                var count : Nat = 0;
+                for(token in tokens.vals()){
+                    if(_isAccessory(token)){
+                        count += 1;
+                    };
+                };
+                r.add((account, count));
+            };
+            let count = r.toArray();
+            // Return the array ordered by count
+            return(Array.sort<(AccountIdentifier, Nat)>(count, func(a : (AccountIdentifier, Nat), b : (AccountIdentifier, Nat)) {
+                Nat.compare(a.1, b.1);
+            }));
+        };
+
 
         ////////////////
         // HELPERS /////
@@ -669,6 +701,17 @@ module {
                 };
             };
             return buffer.toArray();
+        };
+
+        func _isAccessory(index : TokenIndex) : Bool {
+            switch(_items.get(index)){
+                case(?#Accessory(_)){
+                    return true;
+                };
+                case(_){
+                    return false;
+                };
+            };
         };
 
     };

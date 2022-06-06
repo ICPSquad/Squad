@@ -227,6 +227,7 @@ module {
             return(Array.map<(TokenIndex, AccountIdentifier), (TokenIdentifier, AccountIdentifier)>(registry, func(x) {(Ext.TokenIdentifier.encode(CANISTER_ID, x.0), x.1)}));
         };
 
+
         /////////////////////////////
         // @ext:stoic integration //
         ///////////////////////////

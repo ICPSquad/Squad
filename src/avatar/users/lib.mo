@@ -192,6 +192,18 @@ module {
             };
             return buffer.toArray();
         };
+        
+        /* 
+            Returns an array of (Principal, AccountIdentifier, Twitter, Discord, Avatar tokenIdentifier)  
+        */
+        public func getInfosHolders() : [(Principal, ?AccountIdentifier, ?Text, ?Text, ?TokenIdentifier )] {
+            var r : Buffer.Buffer<(Principal, ?AccountIdentifier, ?Text, ?Text, ?TokenIdentifier)> = Buffer.Buffer<(Principal, ?AccountIdentifier, ?Text, ?Text, ?TokenIdentifier)>(0);
+            for((p, user) in _users.entries()) {
+                let infos = (p, user.account_identifier, user.twitter, user.discord, _getAvatar(p, user));
+                r.add(infos);
+            };
+            return r.toArray();
+        };
 
         public func defaultAvatar(p : Principal) : () {
             switch(_users.get(p)){
@@ -251,7 +263,6 @@ module {
             Check all the user and verify that they have a default avatar.
             In case they don't, set the default avatar to the (optional) first one they own.
             In case they have one : verify that they still own it. If they don't : set the default avatar to the (optional) first one they own.
-            CANNOT BE USED : EXCEED CYCLE LIMIT FOR ONE ROUND OF EXECUTION
         */
         public func cronDefaultAvatar () : () {
             // Build the ownership map to easily verify if a user owns an avatar
@@ -300,7 +311,7 @@ module {
                     // They do have a selected avatar : verify that they still own it. If they don't : set the default avatar to null.
                     case(? token){
                         switch(_ownerships.get(account)){
-                            // They don't own any avatar...
+                            // They don't own any avatar : set the default avatar to null.
                             case(null){
                                 let new_user = {
                                     name = user.name;

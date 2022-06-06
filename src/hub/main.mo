@@ -28,6 +28,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     cid : Principal,
     cid_invoice : Principal,
     cid_avatar : Principal,
+    cid_accessory : Principal,
 ) = this {
 
     ////////////
@@ -173,6 +174,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     stable var _LeaderboardUD : ?Leaderboard.UpgradeData = null;
     let _Leaderboard = Leaderboard.Factory({
         cid_avatar = cid_avatar;
+        cid_accessory;
         _Logs = _Logs;
         _Style = _Style;
         _Mission = _Mission;
@@ -214,6 +216,12 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Leaderboard.getCurrentLeaderboard();
     };
 
+    public shared ({ caller }) func get_holders() : async [(Ext.AccountIdentifier, Nat, ?Principal, ?Text, ?Text, ?TokenIdentifier)] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Leaderboard.getBestHolders();
+    };
+ 
      ////////////////////
     // Distribution ////
     ///////////////////
