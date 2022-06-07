@@ -130,6 +130,10 @@ export interface ICPSquadNFT {
   'getInventory' : ActorMethod<[], Result_5>,
   'getRegistry' : ActorMethod<[], Array<[TokenIndex, AccountIdentifier__2]>>,
   'getTokens' : ActorMethod<[], Array<[TokenIndex, Metadata]>>,
+  'get_accessories_holders' : ActorMethod<
+    [],
+    Array<[AccountIdentifier__2, bigint]>,
+  >,
   'get_name' : ActorMethod<[TokenIndex], [] | [string]>,
   'get_recipes' : ActorMethod<[], Array<[string, Recipe__1]>>,
   'get_stats_items' : ActorMethod<

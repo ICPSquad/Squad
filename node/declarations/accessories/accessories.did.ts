@@ -338,6 +338,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(TokenIndex, Metadata))],
         ['query'],
       ),
+    'get_accessories_holders' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(AccountIdentifier__2, IDL.Nat))],
+        [],
+      ),
     'get_name' : IDL.Func([TokenIndex], [IDL.Opt(IDL.Text)], ['query']),
     'get_recipes' : IDL.Func(
         [],

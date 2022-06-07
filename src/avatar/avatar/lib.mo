@@ -28,6 +28,7 @@ module {
     public type AvatarRendering = Types.AvatarRendering;
     public type MintInformation = Types.MintInformation;
     public type Style = Types.Style;
+    public type Colors = Types.Colors;
 
     public class Factory(dependencies : Types.Dependencies) : Types.Interface {
 

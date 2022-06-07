@@ -3,12 +3,9 @@
   import Footer from "@src/components/shared/Footer.svelte";
   import Categories from "@src/components/create-accessory/Categories.svelte";
   import CardSelection from "@src/components/create-accessory/CardSelection.svelte";
-  import AccessoryDetails from "@src/components/create-accessory/AccessoryDetails.svelte";
-  import Recipe from "@src/components/create-accessory/Recipe.svelte";
-  import Description from "@src/components/create-accessory/Description.svelte";
   import Checkout from "@src/components/create-accessory/Checkout.svelte";
   import { accessoriesActor } from "@src/api/actor";
-  import { nameToDescription, nameToRecipe, createMintTokensFromInventoryAndRecipe } from "@utils/recipes";
+  import { nameToDescription, nameToRecipe } from "@utils/recipes";
   import { nameToStats } from "@src/utils/stats";
   import type { State } from "@src/components/create-accessory/types";
   import AccessoryInfos from "@src/components/create-accessory/AccessoryInfos.svelte";

@@ -106,11 +106,16 @@ export interface ICPSquadNFT {
   'burn' : ActorMethod<[TokenIdentifier], Result>,
   'calculate_style_score' : ActorMethod<[], undefined>,
   'changeStyle' : ActorMethod<[string], undefined>,
+  'check_avatar_infos' : ActorMethod<
+    [Principal],
+    [[] | [TokenIdentifier], [] | [AvatarRendering]],
+  >,
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
+  'cron_default_avatar' : ActorMethod<[], undefined>,
   'cron_events' : ActorMethod<[], undefined>,
   'cron_scores' : ActorMethod<[], undefined>,
-  'delete' : ActorMethod<[string], Result>,
   'delete_admin' : ActorMethod<[Principal], undefined>,
+  'delete_file' : ActorMethod<[string], Result>,
   'details' : ActorMethod<[TokenIdentifier], Result_5>,
   'draw' : ActorMethod<[TokenIdentifier], Result>,
   'extensions' : ActorMethod<[], Array<Extension>>,
@@ -125,9 +130,21 @@ export interface ICPSquadNFT {
   'getRegistry' : ActorMethod<[], Array<[TokenIndex, AccountIdentifier__1]>>,
   'getTokens' : ActorMethod<[], Array<[TokenIndex, Metadata]>>,
   'get_all_users' : ActorMethod<[], Array<[Principal, UserData]>>,
-  'get_avatar_rendering' : ActorMethod<
-    [TokenIdentifier],
-    [] | [AvatarRendering],
+  'get_avatar_infos' : ActorMethod<
+    [],
+    [[] | [TokenIdentifier], [] | [AvatarRendering]],
+  >,
+  'get_infos_holders' : ActorMethod<
+    [],
+    Array<
+      [
+        Principal,
+        [] | [AccountIdentifier__1],
+        [] | [string],
+        [] | [string],
+        [] | [TokenIdentifier],
+      ]
+    >,
   >,
   'get_infos_leaderboard' : ActorMethod<
     [],
@@ -147,6 +164,7 @@ export interface ICPSquadNFT {
     [string, TokenIdentifier, TokenIndex],
     undefined,
   >,
+  'set_default_avatar' : ActorMethod<[TokenIdentifier], Result>,
   'supply' : ActorMethod<[], bigint>,
   'tokens' : ActorMethod<[AccountIdentifier__1], Result_3>,
   'tokens_ext' : ActorMethod<[AccountIdentifier__1], Result_2>,

@@ -29,6 +29,28 @@ export const idlFactory = ({ IDL }) => {
     'ok' : AccountIdentifier__1,
     'err' : CommonError,
   });
+  const Slots = IDL.Record({
+    'Hat' : IDL.Opt(IDL.Text),
+    'Body' : IDL.Opt(IDL.Text),
+    'Eyes' : IDL.Opt(IDL.Text),
+    'Face' : IDL.Opt(IDL.Text),
+    'Misc' : IDL.Opt(IDL.Text),
+  });
+  const Color = IDL.Tuple(IDL.Nat8, IDL.Nat8, IDL.Nat8, IDL.Nat8);
+  const Colors = IDL.Vec(IDL.Record({ 'color' : Color, 'spot' : IDL.Text }));
+  const Style = IDL.Variant({ 'Old' : IDL.Text, 'Colors' : Colors });
+  const AvatarRendering = IDL.Record({
+    'mouth' : IDL.Text,
+    'background' : IDL.Text,
+    'ears' : IDL.Text,
+    'eyes' : IDL.Text,
+    'hair' : IDL.Text,
+    'cloth' : IDL.Text,
+    'nose' : IDL.Text,
+    'slots' : Slots,
+    'style' : Style,
+    'profile' : IDL.Text,
+  });
   const SubAccount = IDL.Vec(IDL.Nat8);
   const Time = IDL.Int;
   const Listing = IDL.Record({
@@ -147,28 +169,6 @@ export const idlFactory = ({ IDL }) => {
     'email' : IDL.Opt(IDL.Text),
     'account_identifier' : IDL.Opt(IDL.Text),
     'discord' : IDL.Opt(IDL.Text),
-  });
-  const Slots = IDL.Record({
-    'Hat' : IDL.Opt(IDL.Text),
-    'Body' : IDL.Opt(IDL.Text),
-    'Eyes' : IDL.Opt(IDL.Text),
-    'Face' : IDL.Opt(IDL.Text),
-    'Misc' : IDL.Opt(IDL.Text),
-  });
-  const Color = IDL.Tuple(IDL.Nat8, IDL.Nat8, IDL.Nat8, IDL.Nat8);
-  const Colors = IDL.Vec(IDL.Record({ 'color' : Color, 'spot' : IDL.Text }));
-  const Style = IDL.Variant({ 'Old' : IDL.Text, 'Colors' : Colors });
-  const AvatarRendering = IDL.Record({
-    'mouth' : IDL.Text,
-    'background' : IDL.Text,
-    'ears' : IDL.Text,
-    'eyes' : IDL.Text,
-    'hair' : IDL.Text,
-    'cloth' : IDL.Text,
-    'nose' : IDL.Text,
-    'slots' : Slots,
-    'style' : Style,
-    'profile' : IDL.Text,
   });
   const Name__2 = IDL.Text;
   const StyleScore = IDL.Nat;
@@ -289,11 +289,17 @@ export const idlFactory = ({ IDL }) => {
     'burn' : IDL.Func([TokenIdentifier], [Result], []),
     'calculate_style_score' : IDL.Func([], [], ['oneway']),
     'changeStyle' : IDL.Func([IDL.Text], [], []),
+    'check_avatar_infos' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(TokenIdentifier), IDL.Opt(AvatarRendering)],
+        ['query'],
+      ),
     'collectCanisterMetrics' : IDL.Func([], [], []),
+    'cron_default_avatar' : IDL.Func([], [], []),
     'cron_events' : IDL.Func([], [], []),
     'cron_scores' : IDL.Func([], [], []),
-    'delete' : IDL.Func([IDL.Text], [Result], []),
     'delete_admin' : IDL.Func([IDL.Principal], [], []),
+    'delete_file' : IDL.Func([IDL.Text], [Result], []),
     'details' : IDL.Func([TokenIdentifier], [Result_5], ['query']),
     'draw' : IDL.Func([TokenIdentifier], [Result], []),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
@@ -322,9 +328,24 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(IDL.Principal, UserData))],
         [],
       ),
-    'get_avatar_rendering' : IDL.Func(
-        [TokenIdentifier],
-        [IDL.Opt(AvatarRendering)],
+    'get_avatar_infos' : IDL.Func(
+        [],
+        [IDL.Opt(TokenIdentifier), IDL.Opt(AvatarRendering)],
+        ['query'],
+      ),
+    'get_infos_holders' : IDL.Func(
+        [],
+        [
+          IDL.Vec(
+            IDL.Tuple(
+              IDL.Principal,
+              IDL.Opt(AccountIdentifier__1),
+              IDL.Opt(IDL.Text),
+              IDL.Opt(IDL.Text),
+              IDL.Opt(TokenIdentifier),
+            )
+          ),
+        ],
         ['query'],
       ),
     'get_infos_leaderboard' : IDL.Func(
@@ -359,6 +380,7 @@ export const idlFactory = ({ IDL }) => {
         [],
         [],
       ),
+    'set_default_avatar' : IDL.Func([TokenIdentifier], [Result], []),
     'supply' : IDL.Func([], [IDL.Nat], ['query']),
     'tokens' : IDL.Func([AccountIdentifier__1], [Result_3], ['query']),
     'tokens_ext' : IDL.Func([AccountIdentifier__1], [Result_2], ['query']),
@@ -378,6 +400,4 @@ export const idlFactory = ({ IDL }) => {
   });
   return ICPSquadNFT;
 };
-export const init = ({ IDL }) => {
-  return [IDL.Principal, IDL.Principal, IDL.Principal, IDL.Principal];
-};
+export const init = ({ IDL }) => { return []; };

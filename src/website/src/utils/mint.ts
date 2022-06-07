@@ -3,7 +3,7 @@ import type { AvatarColors } from "../types/color.d";
 import { get } from "svelte/store";
 import { actors } from "@src/store/actor";
 import type { MintInformation, Colors, MintResult as MintResultAvatar } from "@canisters/avatar/avatar.did.d";
-import type { TokenIdentifier, Result_3 as MintResultAccessory } from "@canisters/accessories/accessories.did.d";
+import type { Result_3 as MintResultAccessory } from "@canisters/accessories/accessories.did.d";
 
 /* 
     Create the mint request to send to the canister.
@@ -55,6 +55,7 @@ export function capitalizeFirstLetter(word: string) {
 
 export async function mintRequestAvatar(components: AvatarComponents, color: AvatarColors, invoiceId?: number): Promise<MintResultAvatar> {
   let id: [bigint] | [] = invoiceId ? [BigInt(invoiceId)] : [];
+  let mint_request = createMintRequest(components, color) as MintInformation;
   const result = await get(actors).avatarActor.mint(createMintRequest(components, color), id);
   return result;
 }

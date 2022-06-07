@@ -2,7 +2,6 @@ import type { AvatarStore } from "./types/avatar-store";
 import { writable, get } from "svelte/store";
 import { actors } from "./actor";
 import { user } from "./user";
-import { principalToAddress } from "@src/utils/tools/principal";
 
 export const avatar = writable<AvatarStore>({
   tokenIdentifier: null,
@@ -12,17 +11,27 @@ export const avatar = writable<AvatarStore>({
 actors.subscribe(async ({ avatarActor }) => {
   const { principal: principal } = get(user);
   if (avatarActor && principal) {
-    const aid = principalToAddress(principal);
-    const result = await avatarActor.tokens_id(aid);
-    if ("ok" in result) {
-      let tokens_id = result.ok;
-      if (tokens_id.length > 0) {
-        avatar.update((a) => ({ ...a, tokenIdentifier: tokens_id[0] }));
-      } else {
-        avatar.update((a) => ({ ...a, tokenIdentifier: null }));
-      }
+    const result = await avatarActor.get_avatar_infos();
+    console.log("avatarActor.get_avatar_infos", result);
+    if (result[0].length > 0 && result[1].length > 0) {
+      //@ts-ignore
+      avatar.update((a) => ({ ...a, rendering: result[1][0], tokenIdentifier: result[0][0] }));
     } else {
-      throw new Error("Could not get avatar");
+      throw new Error("No avatar found");
     }
   }
 });
+
+export async function updateAvatar(): Promise<void> {
+  const { avatarActor } = get(actors);
+  if (!avatarActor) {
+    throw new Error("No avatar actor");
+  }
+  const result = await avatarActor.get_avatar_infos();
+  if (result[0].length > 0 && result[1].length > 0) {
+    //@ts-ignore
+    avatar.update((a) => ({ ...a, rendering: result[1][0], tokenIdentifier: result[0][0] }));
+  } else {
+    throw new Error("No avatar found");
+  }
+}

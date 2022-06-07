@@ -1,4 +1,4 @@
-import { HOST, avatarID, accessoriesID, invoiceID, ledgerID } from "./const";
+import { avatarID, accessoriesID, invoiceID, ledgerID } from "./const";
 import { idlFactory as idlFactoryAvatar } from "@canisters/avatar/avatar.did";
 import { idlFactory as idlFactoryAccessories } from "@canisters/accessories/accessories.did";
 import { idlFactory as idlFactoryInvoice } from "@canisters/invoice/invoice.did";
@@ -10,12 +10,11 @@ import { user } from "@src/store/user";
 export async function plugConnection(): Promise<void> {
   const result = await window.ic.plug.requestConnect({
     whitelist: [avatarID, accessoriesID, invoiceID, ledgerID],
-    host: HOST,
   });
   if (!result) {
     throw new Error("Unable to connect to the plug");
   }
-
+  // Initialize and stores the actor
   const principal = await window.ic.plug.agent.getPrincipal();
   const avatarActor = await window.ic.plug.createActor({
     canisterId: avatarID,
@@ -35,5 +34,4 @@ export async function plugConnection(): Promise<void> {
   });
   user.update((u) => ({ ...u, wallet: "plug", loggedIn: true, principal }));
   actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor }));
-  return;
 }

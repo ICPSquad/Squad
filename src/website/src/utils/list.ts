@@ -786,3 +786,37 @@ export function nameToSlot(name: string) {
     throw new Error(`Component ${name} not found`);
   }
 }
+
+/* 
+  Quick fix to fix the issues of eyes accessories and eyes component resulting in a collision.
+ */
+export function nameToSlotAccessory(name: string) {
+  const component = components.find((component) => component.name === name);
+  if (component) {
+    if (component.type === "eyes") {
+      return "glasses";
+    }
+    return component.type;
+  } else {
+    throw new Error(`Component ${name} not found`);
+  }
+}
+
+export function categoryToAccessories(category) {
+  if (category === "hat") {
+    return hatAccessories;
+  }
+  if (category === "face") {
+    return faceAccessories;
+  }
+  if (category === "body") {
+    return bodyAccessories;
+  }
+  if (category === "misc") {
+    return miscAccessories;
+  }
+  if (category === "eyes") {
+    return eyesAccessories;
+  }
+  throw new Error(`Category ${category} not found`);
+}

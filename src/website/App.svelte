@@ -10,6 +10,7 @@
   import Dashboard from "@src/pages/Dashboard.svelte";
   import Contact from "@src/pages/Contact.svelte";
   import CreateAccessory from "@src/pages/CreateAccessory.svelte";
+  import AddAccessories from "@src/pages/AddAccessories.svelte";
 </script>
 
 <Router>
@@ -23,4 +24,5 @@
   <Route path="partners"><Partners /></Route>
   <Route path="contact"><Contact /></Route>
   <Route path="dashboard"><Dashboard /></Route>
+  <Route path="add-accessories"><AddAccessories /></Route>
 </Router>

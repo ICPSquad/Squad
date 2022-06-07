@@ -10,9 +10,10 @@
   import AvatarPreview from "@src/components/create-avatar/AvatarPreview.svelte";
   import Checkout from "@src/components/create-avatar/Checkout.svelte";
   import type { State } from "@src/components/create-avatar/types";
+  import { categoriesOnlyAccessories, categoryDisplayName } from "@utils/categories";
 
   // Include accessories : (default is false, only include for testing purposes)
-  let includeAccessories = true;
+  let includeAccessories = false;
 
   // Category showing
   let categoryShowing = "profile";

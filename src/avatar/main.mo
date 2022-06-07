@@ -32,12 +32,12 @@ import SVG "utils/svg";
 import Scores "scores";
 import Users "users";
 
-shared ({ caller = creator }) actor class ICPSquadNFT(
-    cid : Principal,
-    accessory_cid : Principal,
-    invoice_cid : Principal,
-    cid_hub : Principal
-) = this {
+shared ({ caller = creator }) actor class ICPSquadNFT() = this {
+
+    let cid = Principal.fromText("jmuqr-yqaaa-aaaaj-qaicq-cai");
+    let accessory_cid = Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai");
+    let invoice_cid = Principal.fromText("if27l-eyaaa-aaaaj-qaq5a-cai");
+    let cid_hub = Principal.fromText("p4y2d-yyaaa-aaaaj-qaixa-cai");
 
     ///////////
     // TYPES //
@@ -194,9 +194,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     // Avatar ////
     /////////////
 
-    type Avatar_New = Avatar.Avatar;
-    type Component_New = Avatar.Component;
     public type MintInformation = Avatar.MintInformation;
+    public type Colors = Avatar.Colors;
+    public type MintResult = Result<TokenIdentifier, Text>;
     public type AvatarRendering = Avatar.AvatarRendering;
 
     stable var _AvatarUD : ?Avatar.UpgradeData = null;
@@ -289,7 +289,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
         }
     };
 
-    public type MintResult = Result<TokenIdentifier, Text>;
     public shared ({caller}) func mint(
         info : MintInformation,
         invoice_id : ?Nat

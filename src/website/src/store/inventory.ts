@@ -34,12 +34,12 @@ export function getMaterials(): Array<[string, TokenIdentifier]> {
   Returns a list of accessories [Name, TokenIdentifier] from the inventory
 */
 
-export function getAccessories(): Array<[string, TokenIdentifier]> {
+export function getAccessories(inventory: Inventory): Array<[string, TokenIdentifier]> {
   var accessories = [];
-  let keys = Object.keys(get(inventory));
+  let keys = Object.keys(inventory);
   keys.forEach((key) => {
     if (inventory[key].Accessory) {
-      accessories.push([get(inventory)[key].Accessory.name.toLowerCase(), get(inventory)[key].Accessory.tokenIdentifier]);
+      accessories.push([inventory[key].Accessory.name.toLowerCase(), inventory[key].Accessory.tokenIdentifier]);
     }
   });
   return accessories;
