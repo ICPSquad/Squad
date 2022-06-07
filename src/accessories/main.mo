@@ -539,7 +539,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         let items = _Items.getItems();
         let buffer = Buffer.Buffer<(Text, Supply, ?Floor, ?LastSoldPrice)>(items.size());
         for (item in items.vals()){
-            buffer.add((item.0, item.1.size(), _Entrepot.getFloorPrice(item.1), _Entrepot.getLastPrice(item.1)));
+            buffer.add((item.0, item.1.size(), _Entrepot.getFloorPrice(item.1), null));
         };
         return buffer.toArray();
     };

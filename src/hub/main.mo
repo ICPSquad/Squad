@@ -222,45 +222,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         await _Leaderboard.getBestHolders();
     };
  
-     ////////////////////
-    // Distribution ////
-    ///////////////////
-
-    public type Reward = Distribution.Reward;
-
-    // stable var _DistributionUD : ?Distribution.UpgradeData = null;
-    private let _Distribution : Distribution.Factory = Distribution.Factory({
-        _Leaderboard = _Leaderboard;
-        _Logs = _Logs;
-        MATERIAL_TO_POINT_RATIO = 0.1; //17.4
-    });
-
-    public shared ({ caller }) func pre_compute() : async () {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Distribution.preCompute();  
-    };
-
-    public shared ({ caller }) func generate_draft() : async () {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Distribution.generateDraft();
-    };
-
-    public query func get_draft() : async [Principal] {
-        return _Distribution.getDraft();
-    };
-
-    public query ({ caller }) func get_number_of_ticket(p : Principal) : async Nat {
-        assert(_Admins.isAdmin(caller));
-        _Distribution.getNumberOfTickets(p);
-    };
-
-    public query ({ caller }) func rank_to_number_of_ticket(rank : Nat, total : Nat) : async Nat {
-        assert(_Admins.isAdmin(caller));
-        _Distribution.rankToNumberOfTicket(rank, total);
-    };
-
     ///////////////////////
     // Heartbeat & Jobs //
     /////////////////////

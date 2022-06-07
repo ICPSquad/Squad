@@ -78,12 +78,17 @@
   }
 
   const handleMint = async () => {
-    const result = await mintRequestAccessory(capitalizeFirstLetter(cardSelected), Number(invoice.id));
-    if ("ok" in result) {
-      setState("accessory-minted");
-    } else {
+    try {
+      const result = await mintRequestAccessory(capitalizeFirstLetter(cardSelected), Number(invoice.id));
+      if ("ok" in result) {
+        setState("accessory-minted");
+      } else {
+        setState("error");
+        error_message = result.err;
+      }
+    } catch (e) {
       setState("error");
-      error_message = result.err;
+      error_message = "The minting operation was rejected by the wallet";
     }
   };
 
@@ -120,12 +125,10 @@
     <MissingMaterials {missing_materials} />
     <div class="back" on:click={() => setState("creating-accessory")}>← Back</div>
   {:else if state === "error"}
-    <p>An errorr occured 😵‍💫</p>
+    <p>An error occured 😵‍💫</p>
     <p>{error_message}</p>
     <button> <a href="https://discord.gg/CZ9JgnaySu" target="_blank"> Support </a> </button>
-    <Link to="/">
-      <button>Home</button>
-    </Link>
+    <div class="back" on:click={() => setState("creating-accessory")}>← Back</div>
   {:else if state === "accessory-minted"}
     <p>Congratulation : your accessory has been successfully minted !</p>
     <p>You will receive it in your wallet in a few seconds 🎁</p>
@@ -147,7 +150,6 @@
   }
 
   button {
-    max-width: 500px;
     margin-top: 20px;
   }
 

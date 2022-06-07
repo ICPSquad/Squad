@@ -27,11 +27,6 @@
     setState("waiting-invoice");
   }
 
-  // const handleConnectStoic = () => {
-  //   await stoic
-  //   setState("waiting-invoice");
-  // };
-
   $: if (state === "waiting-invoice") {
     handleInvoice();
   }
@@ -75,13 +70,18 @@
   }
 
   const handleMint = async () => {
-    const result = await mintRequestAvatar(components, colors, invoice ? Number(invoice.id) : undefined);
-    if ("ok" in result) {
-      token_identifier = result.ok;
-      setState("avatar-minted");
-    } else {
+    try {
+      const result = await mintRequestAvatar(components, colors, invoice ? Number(invoice.id) : undefined);
+      if ("ok" in result) {
+        token_identifier = result.ok;
+        setState("avatar-minted");
+      } else {
+        setState("error");
+        error_message = result.err;
+      }
+    } catch (e) {
       setState("error");
-      error_message = result.err;
+      error_message = "The minting was rejected by the wallet.";
     }
   };
 
@@ -103,7 +103,6 @@
   {#if state === "waiting-wallet-connection"}
     <p>Please connect a wallet to continue</p>
     <button on:click={() => handleConnectPlug()}>Plug wallet</button>
-    <!-- <button on:click={() => handleConnectStoic()}>Stoic wallet</button> -->
     <div class="back" on:click={() => setState("creating-avatar")}>← Back</div>
   {:else if state === "waiting-invoice"}
     <Spinner message="Please wait..." />
@@ -121,15 +120,13 @@
       href="https://twitter.com/intent/tweet?text=I%27ve%20just%20minted%20my%20ICPSquad%20avatar%20!%20Join%20the%20squad%2C%20explore%20the%20ecosystem%2C%20have%20fun%20and%20earn%20prizes%20%3A%20icpsquad.dfinitycommunity.com%20.%20Powered%20by%20%23ICP"
       target="_blank"
       ><button> Share </button>
-      <button on:click={() => handleDownload()}> Download </button>
     </a>
+    <button on:click={() => handleDownload()}> Download </button>
   {:else if state === "error"}
     <p>An errorr occured 😵‍💫</p>
     <p>{error_message}</p>
     <a href="https://discord.gg/CZ9JgnaySu" target="_blank"><button> Support </button> </a>
-    <Link to="/">
-      <button>Home</button>
-    </Link>
+    <div class="back" on:click={() => setState("creating-avatar")}>← Back</div>
   {/if}
 </div>
 

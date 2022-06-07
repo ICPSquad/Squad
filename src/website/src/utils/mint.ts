@@ -3,7 +3,7 @@ import type { AvatarColors } from "../types/color.d";
 import { get } from "svelte/store";
 import { actors } from "@src/store/actor";
 import type { MintInformation, Colors, MintResult as MintResultAvatar } from "@canisters/avatar/avatar.did.d";
-import type { Result_3 as MintResultAccessory } from "@canisters/accessories/accessories.did.d";
+import type { Result__1_1 as MintResultAccessory } from "@canisters/accessories/accessories.did.d";
 
 /* 
     Create the mint request to send to the canister.
