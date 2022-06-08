@@ -3,18 +3,18 @@
     import {categoriesOnlyAccessories, categoryDisplayName} from "@src/utils/categories";
 
     const categories = categoriesOnlyAccessories;
-  
+
     export let categoryShowing: string;
     export let setCategoryShowing: (category: string) => void;
-  
+
     let listExpanded: boolean = false;
-  
+
     const handleSetCategory = (category: string) => {
       listExpanded = false;
       setCategoryShowing(category);
     };
   </script>
-  
+
   <div>
     <div class="categories desktop">
       {#each categories as category}
@@ -52,14 +52,14 @@
       {/if}
     </div>
   </div>
-  
+
   <style lang="scss">
     @use "./src/website/src/styles" as *;
-  
+
     .categories.mobile {
       display: none;
     }
-  
+
     button.category {
       background-color: $verydarkgrey;
       display: flex;
@@ -72,28 +72,18 @@
         color: $blue;
       }
     }
-  
-    div.carat {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      &.mobile {
-        display: none;
-      }
-    }
-  
+
     @media (max-width: 960px) {
       button.category {
         padding: 12px 20px;
       }
-  
+
       .categories.desktop {
         display: none;
       }
-  
+
       .categories.mobile {
         display: block;
       }
     }
   </style>
-  

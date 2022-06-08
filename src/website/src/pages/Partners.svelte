@@ -120,8 +120,7 @@
   @use "../styles" as *;
 
   h1,
-  h3,
-  button {
+  h3 {
     --page-feature-color: #{$yellow};
   }
 

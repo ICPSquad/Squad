@@ -1,13 +1,19 @@
 <script>
   export let legendary;
+  let hover;
 </script>
 
 <div on:hover={() => (hover = true)} class="avatar">
   <div class="image">
-    <img src={"/assets/legendaries/" + legendary.svg} alt={legendary.name + " ICP Squad Avatar"} />
+    <img
+      src={"/assets/legendaries/" + legendary.svg}
+      alt={legendary.name + " ICP Squad Avatar"}
+    />
     <div class="hover">
       {#each legendary.links as link}
-        <a href={link.url} target="_blank" class="button legend-link">{link.label}</a>
+        <a href={link.url} target="_blank" class="button legend-link"
+          >{link.label}</a
+        >
       {/each}
     </div>
   </div>

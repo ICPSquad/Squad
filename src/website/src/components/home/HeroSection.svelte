@@ -18,11 +18,17 @@
     <div class="content">
       <div class="squad-number">
         <div><strong>{number ? number : "5288"}</strong> SQUAD MEMBERS</div>
-        <img id="avatar-collage" src="/assets/avatar-collage.png" alt="Collage of ICP Squad Avatars" />
+        <img
+          id="avatar-collage"
+          src="/assets/avatar-collage.png"
+          alt="Collage of ICP Squad Avatars"
+        />
       </div>
       <h2>Join the revolution</h2>
       <p class="large">
-        A new chapter of the Internet is opening. Start by minting your avatar, then take part in the adventure and get rewarded as your explore a new wave of decentralized applications.
+        A new chapter of the Internet is opening. Start by minting your avatar,
+        then take part in the adventure and get rewarded as your explore a new
+        wave of decentralized applications.
       </p>
       <div class="buttons">
         <LinkButton to="/create-avatar">
@@ -45,11 +51,6 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 40px;
-  }
-  .background {
-    background-image: url("/assets/home-hero-background.png");
-    background-size: cover;
-    background-repeat: no-repeat;
   }
   .squad-number {
     display: flex;
@@ -111,10 +112,6 @@
       }
     }
 
-    h1 {
-      text-align: center;
-      margin-top: 20px;
-    }
     p.large {
       text-align: center;
       font-size: 1rem;

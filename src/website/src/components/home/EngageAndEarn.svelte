@@ -30,12 +30,6 @@
     align-items: center;
   }
 
-  .button {
-    max-width: 600px;
-    background-color: $yellow;
-    color: $black;
-  }
-
   img {
     width: 600px;
     margin: 20px 0 60px;

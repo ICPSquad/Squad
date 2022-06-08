@@ -35,7 +35,4 @@
     align-items: center;
     cursor: pointer;
   }
-  article {
-    margin-top: 30px;
-  }
 </style>
