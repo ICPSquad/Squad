@@ -11,6 +11,7 @@
   import Contact from "@src/pages/Contact.svelte";
   import CreateAccessory from "@src/pages/CreateAccessory.svelte";
   import AddAccessories from "@src/pages/AddAccessories.svelte";
+  import Leaderboard from "@src/pages/Leaderboard.svelte";
 </script>
 
 <Router>
@@ -25,4 +26,5 @@
   <Route path="contact"><Contact /></Route>
   <Route path="dashboard"><Dashboard /></Route>
   <Route path="add-accessories"><AddAccessories /></Route>
+  <Route path="leaderboard"><Leaderboard /></Route>
 </Router>
