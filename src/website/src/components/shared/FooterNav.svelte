@@ -28,18 +28,50 @@
           url: "/accessories",
         },
         {
+          label: "Documentation",
+          url: "/about#roadmap",
+          external: true,
+        },
+        {
           label: "Blog",
           url: "https://www.dfinitycommunity.com/tag/icpsquad/",
           external: true,
         },
-        // {
-        //   label: "Roadmap",
-        //   url: "/about#roadmap",
-        // },
-        // {
-        //   label: "Whitepaper",
-        //   url: "#",
-        // },
+        {
+          label: "Roadmap",
+          url: "",
+          external: true,
+        },
+      ],
+    },
+    {
+      title: "Create",
+      items: [
+        {
+          label: "Create Avatar",
+          url: "/create-avatar",
+        },
+        {
+          label: "Create Accessory",
+          url: "/create-accessory",
+        },
+      ],
+    },
+    {
+      title: "Engage",
+      items: [
+        {
+          label: "Add accessory",
+          url: "/add-accessory",
+        },
+        {
+          label: "Leaderboard",
+          url: "/leaderboard",
+        },
+        {
+          label: "Mission",
+          url: "/mission",
+        },
       ],
     },
     {
@@ -59,33 +91,6 @@
         },
       ],
     },
-    {
-      title: "Engage",
-      items: [
-        {
-          label: "Create Avatar",
-          url: "/create-avatar",
-        },
-        {
-          label: "Dashboard",
-          url: "/dashboard",
-        },
-        {
-          label: "Discord",
-          url: "https://discord.gg/SqtQ3UJR",
-          external: true,
-        },
-        {
-          label: "Twitter",
-          url: "https://twitter.com/ICPSquadNFT",
-          external: true,
-        },
-        {
-          label: "Contact",
-          url: "/contact",
-        },
-      ],
-    },
   ];
 </script>
 
@@ -98,19 +103,10 @@
       <div class="items">
         {#each itemGroup.items as item}
           {#if item.external}
-            <a
-              class="item"
-              style="text-align: {textAlignCenter ? 'center' : 'left'}"
-              href={item.url}
-              target={item.external ? "_blank" : ""}
-              >{item.label}
-            </a>
+            <a class="item" style="text-align: {textAlignCenter ? 'center' : 'left'}" href={item.url} target={item.external ? "_blank" : ""}>{item.label} </a>
           {:else}
             <Link on:click={closeMenu} to={item.url}>
-              <div
-                class="item"
-                style="text-align: {textAlignCenter ? 'center' : 'left'}"
-              >
+              <div class="item" style="text-align: {textAlignCenter ? 'center' : 'left'}">
                 {item.label}
               </div>
             </Link>
@@ -128,7 +124,7 @@
     --page-feature-color: #{$pink};
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-gap: 40px;
     margin-bottom: 40px;
   }

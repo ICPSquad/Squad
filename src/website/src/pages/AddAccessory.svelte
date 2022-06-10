@@ -93,7 +93,7 @@
 
 <Header />
 <div class="page-header">
-  <h1>Add accessories</h1>
+  <h1>Add accessory</h1>
 </div>
 <main class="container">
   {#if !$user.loggedIn}
