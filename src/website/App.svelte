@@ -7,7 +7,7 @@
   import Accessories from "@src/pages/Accessories.svelte";
   import About from "@src/pages/About.svelte";
   import Partners from "@src/pages/Partners.svelte";
-  import Dashboard from "@src/pages/Dashboard.svelte";
+  import Mission from "@src/pages/Mission.svelte";
   import Contact from "@src/pages/Contact.svelte";
   import CreateAccessory from "@src/pages/CreateAccessory.svelte";
   import AddAccessories from "@src/pages/AddAccessories.svelte";
@@ -24,7 +24,7 @@
   <Route path="about-us"><About /></Route>
   <Route path="partners"><Partners /></Route>
   <Route path="contact"><Contact /></Route>
-  <Route path="dashboard"><Dashboard /></Route>
+  <Route path="mission"><Mission /></Route>
   <Route path="add-accessories"><AddAccessories /></Route>
   <Route path="leaderboard"><Leaderboard /></Route>
 </Router>

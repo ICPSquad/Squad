@@ -7,7 +7,7 @@
 
 <Header />
 <div class="page-header">
-  <h1>Dashboard</h1>
+  <h1>Mission</h1>
 </div>
 <div class="container" />
 <Join />
