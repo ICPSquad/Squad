@@ -162,6 +162,16 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
     };
 
+    public query func get_missions() : async [Mission.Mission] {
+        return _Mission.getMissions();
+    };
+
+    public shared ({ caller }) func reset_score() : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Mission.resetScore();
+        _Logs.logMessage("Reset score by " # Principal.toText(caller));
+    };
 
     ////////////////////
     // Leaderboard ////

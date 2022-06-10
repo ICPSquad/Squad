@@ -177,6 +177,16 @@ module {
             };
         };
 
+        public func resetScore() : () {
+            for((principal, _) in scores.entries()){
+                scores.put(principal, 0);
+            };
+        };
+
+        public func getMissions() : [Mission] {
+            return Iter.toArray(missions.vals());
+        };
+
         //////////////
         // Helpers //
         ////////////

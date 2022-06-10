@@ -15,7 +15,7 @@
   $: my_index = leaderboard ? leaderboard.findIndex((info) => info[0].toText() === my_principal.toText()) : -1;
 </script>
 
-{#if $user.loggedIn}
+{#if $user.loggedIn && my_index > -1}
   <div class="grid-row">
     <div class="rank">{my_index + 1}</div>
     <div class="avatar">
