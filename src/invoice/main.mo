@@ -109,7 +109,6 @@ shared ({ caller = creator }) actor class Invoice(
 
     let _Ledger : ICP.Factory = ICP.Factory(ledger_cid) ;
 
-
 // #region Types
   type Details = T.Details;
   type Token = T.Token;
@@ -558,4 +557,8 @@ public func accountIdentifierToBlob (accountIdentifier : AccountIdentifier) : as
     entries := Iter.toArray(invoices.entries());
   };
 // #endregion
+
+public func hello() : async Text {
+  return("Hello from the canister");
+} 
 }

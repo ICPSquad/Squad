@@ -7,7 +7,7 @@ const avatarID = "jmuqr-yqaaa-aaaaj-qaicq-cai";
 const accessoriesID = "po6n2-uiaaa-aaaaj-qaiua-cai";
 const invoiceID = "if27l-eyaaa-aaaaj-qaq5a-cai";
 const ledgerID = "ryjl3-tyaaa-aaaaa-aaaba-cai";
-
+const hubID = "p4y2d-yyaaa-aaaaj-qaixa-cai";
 
 const AMOUNT_MINT = { e8s: BigInt(10_000_000) };
 const AMOUNT_FEE = { e8s: BigInt(10_000) };
@@ -15,4 +15,4 @@ const AMOUNT_FEE = { e8s: BigInt(10_000) };
 // const HOST = process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000";
 const HOST = "https://mainnet.dfinity.network";
 
-export { avatarID, accessoriesID, invoiceID, ledgerID, AMOUNT_MINT, AMOUNT_FEE, HOST };
+export { avatarID, accessoriesID, invoiceID, ledgerID, hubID, AMOUNT_MINT, AMOUNT_FEE, HOST };

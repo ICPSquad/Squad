@@ -151,6 +151,7 @@ export interface Invoice {
   >,
   'get_balance' : ActorMethod<[GetBalanceArgs], GetBalanceResult>,
   'get_invoice' : ActorMethod<[GetInvoiceArgs], GetInvoiceResult>,
+  'hello' : ActorMethod<[], string>,
   'is_admin' : ActorMethod<[Principal], boolean>,
   'transfer' : ActorMethod<[TransferArgs], TransferResult>,
   'verify_invoice_accessory' : ActorMethod<

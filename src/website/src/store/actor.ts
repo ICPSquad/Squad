@@ -6,4 +6,5 @@ export const actors = writable<actorStore>({
   accessoriesActor: undefined,
   invoiceActor: undefined,
   ledgerActor: undefined,
+  hubActor: undefined,
 });

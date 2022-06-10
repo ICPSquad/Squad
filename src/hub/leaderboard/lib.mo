@@ -291,7 +291,7 @@ module {
             };
             // Order the Leaderboard by total score.
             let leaderboard = buffer.toArray();
-            let leaderboard_sorted = Array.sort<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore)>(leaderboard, func(a,b) {Nat.compare(a.5, b.5)});
+            let leaderboard_sorted = Array.sort<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore)>(leaderboard, func(a,b) {Nat.compare(b.5, a.5)});
             return ({
                 id = round.id;
                 start_date = round.start_date;

@@ -18,7 +18,6 @@ import Hex "mo:encoding/Hex";
 
 import Admins "admins";
 import Cap "cap";
-import Distribution "distribution";
 import Jobs "jobs";
 import Leaderboard "leaderboard";
 import Mission "mission";

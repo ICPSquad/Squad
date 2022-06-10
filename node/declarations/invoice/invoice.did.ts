@@ -267,6 +267,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_balance' : IDL.Func([GetBalanceArgs], [GetBalanceResult], []),
     'get_invoice' : IDL.Func([GetInvoiceArgs], [GetInvoiceResult], ['query']),
+    'hello' : IDL.Func([], [IDL.Text], []),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'transfer' : IDL.Func([TransferArgs], [TransferResult], []),
     'verify_invoice_accessory' : IDL.Func(

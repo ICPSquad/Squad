@@ -10,7 +10,9 @@ import { idlFactory as idlFactoryInvoice } from "@canisters/invoice/invoice.did"
 import type { Invoice } from "@canisters/invoice/invoice.did.d";
 import { idlFactory as idlFactoryLedger } from "@canisters/ledger/ledger.did";
 import type { _SERVICE as Ledger } from "@canisters/ledger/ledger.did.d";
-import { avatarID, accessoriesID, invoiceID, ledgerID, HOST } from "@utils/const";
+import { idlFactory as idlFactoryHub } from "@canisters/hub/hub.did";
+import type { _SERVICE as Hub } from "@canisters/hub/hub.did.d";
+import { avatarID, accessoriesID, invoiceID, ledgerID, hubID, HOST } from "@utils/const";
 
 function createActor<T>(canisterId: string | Principal, idlFactory: IDL.InterfaceFactory, options: HttpAgentOptions): ActorSubclass<T> {
   const agent = new HttpAgent({
@@ -49,6 +51,12 @@ export function invoiceActor(identity?: Identity): ActorSubclass<Invoice> {
 
 export function ledgerActor(identity?: Identity): ActorSubclass<Ledger> {
   return createActor(ledgerID, idlFactoryLedger, {
+    identity,
+  });
+}
+
+export function hubActor(identity?: Identity): ActorSubclass<Hub> {
+  return createActor(hubID, idlFactoryHub, {
     identity,
   });
 }

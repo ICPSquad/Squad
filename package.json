@@ -57,6 +57,7 @@
     "@emailjs/browser": "^3.6.2",
     "ic-stoic-identity": "^2.0.0",
     "js-sha256": "^0.9.0",
+    "svelte-paginate": "^0.0.1",
     "svelte-routing": "^1.6.0"
   }
 }

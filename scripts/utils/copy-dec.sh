@@ -2,10 +2,7 @@
 
 # Generate declarations files using dfx
 
-dfx generate avatar
-dfx generate accessories
-dfx generate invoice
-dfx generate ledger
+dfx generate hub
 
 # Change declarations from JS to TS
 pushd src/declarations
