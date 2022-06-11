@@ -120,12 +120,5 @@ module {
 
         get_pending_mission : () -> [Mission];
 
-
-
-        /* Get the current mission score  */
-        // get_scores : () -> [(Principal, Score)];
-
-
-
     };
 };

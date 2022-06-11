@@ -15,8 +15,8 @@
     <MissionCard title={mission.title} description={mission.description} image={mission.image} />
   {/each} -->
   <MissionCard />
-  <MissionCard />
-  <MissionCard />
+  <!-- <MissionCard />
+  <MissionCard /> -->
 </div>
 <Join />
 <Newsletter />

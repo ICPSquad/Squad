@@ -307,7 +307,7 @@
     {
       svg: "Weed.svg",
       name: "Andrew weed",
-      role: "?",
+      role: "Community figure",
       categorie: "Community",
       links: [
         {

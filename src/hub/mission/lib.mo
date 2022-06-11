@@ -161,6 +161,19 @@ module {
             };
         };
 
+        public func deleteMission(id : Nat) : Result.Result<(), Text> {
+            switch(missions.get(id)){
+                case(null) {
+                    _Logs.logMessage("Mission not found for id : " # Nat.toText(id));
+                    return #err("Mission not found for id : " # Nat.toText(id));
+                };
+                case(? mission){
+                    missions.delete(id);
+                    return #ok();
+                };
+            };
+        };
+
 
         public func getEngagementScore(p : Principal, start : Time.Time, end : Time.Time) : Nat {
             switch(completedMissions.get(p)){

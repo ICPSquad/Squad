@@ -162,6 +162,12 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
     };
 
+    public shared ({ caller }) func delete_mission(id : Nat) : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return _Mission.deleteMission(id);
+    };
+
     public query func get_missions() : async [Mission.Mission] {
         return _Mission.getMissions();
     };
