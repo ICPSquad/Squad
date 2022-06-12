@@ -1,6 +1,8 @@
 import Result "mo:base/Result";
-import ExtModule "../ext";
+
 import Canistergeek "mo:canistergeek/canistergeek";
+
+import ExtModule "../ext";
 module {
     public type Result<A,B> = Result.Result<A,B>;
 
@@ -30,24 +32,5 @@ module {
     public type UpgradeData = {
         users : [(Principal, User)];
     };
-
-    // public type Interface = {
-
-    //     //  Get the UD before upgrading. 
-    //     preupgrade : () -> UpgradeData;
-
-    //     // Reinitialize the state of the module after upgrading.
-    //     postupgrade : (ud : ?UpgradeData) -> ();
-
-    //     // Register the user informations a first time.
-    //     register : (caller : Principal) -> Result<(), Text>;
-
-    //     // Returns the optional profile of the caller.
-    //     getUser : (caller : Principal) -> ?User;
-
-    //     //Modify an user profile
-    //     modifyUser : (caller : Principal, user : User) -> Result<(), Text>;
-    // };
-
 
 };

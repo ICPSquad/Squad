@@ -1,6 +1,7 @@
 <script lang="ts">
   import Header from "@components/shared/Header.svelte";
   import Footer from "@components/shared/Footer.svelte";
+  import UserCard from "@src/components/leaderboard/UserCard.svelte";
   import type { Leaderboard } from "@canisters/hub/hub.did.d";
   import { hubActor } from "@src/api/actor";
   import { paginate, DarkPaginationNav } from "svelte-paginate";
@@ -8,6 +9,8 @@
 
   let currentPage = 1;
   let pageSize = 100;
+  let open = false;
+
   let leaderboard: Leaderboard | undefined | null;
   $: paginatedLeaderboard = leaderboard ? paginate({ items: leaderboard, pageSize, currentPage }) : [];
   let hub_actor = hubActor();
@@ -52,16 +55,14 @@
   </div>
   {#if leaderboard}
     {#each paginatedLeaderboard as info, i}
-      <div class="grid-row">
-        <div class="rank">{(currentPage - 1) * 100 + (i + 1)}</div>
-        <div class="avatar">
-          <a href={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?type=thumbnail&tokenid=${info[2]}`} target="_blank">
-            <img src={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/tokenid=${info[2]}`} alt="Avatar" />
-          </a>
-        </div>
-        <div class="name">{info[1].length > 0 ? info[1] : info[0].toText()}</div>
-        <div class="points">{Number(info[5])}</div>
-      </div>
+      <UserCard
+        rank={(currentPage - 1) * 100 + (i + 1)}
+        tokenIdentifier={info[2]}
+        name={info[1].length > 0 ? info[1] : info[0].toText()}
+        total_score={Number(info[5])}
+        style_score={Number(info[3])}
+        engagement_score={Number(info[4])}
+      />
     {/each}
     <DarkPaginationNav class="pagination" totalItems={leaderboard.length} {pageSize} {currentPage} limit={1} showStepOptions={true} on:setPage={(e) => (currentPage = e.detail.page)} />
   {/if}
@@ -145,6 +146,11 @@
     font-weight: bold;
   }
   .points {
+    display: flex;
+
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
     font-size: 20px;
     font-weight: bold;
   }
