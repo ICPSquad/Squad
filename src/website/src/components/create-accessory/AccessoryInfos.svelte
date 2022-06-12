@@ -9,12 +9,11 @@
   // Price and suplly informations about the accessory
   export let supply: number | null = null;
   export let floorPrice: number | null = null;
-  export let lastPrice: number | null = null;
 
   // Description
   export let description: string | undefined;
 </script>
 
-<AccessoryDetails {supply} {floorPrice} {lastPrice} />
+<AccessoryDetails {supply} {floorPrice} />
 <Description {description} />
 <Recipe {recipe} />

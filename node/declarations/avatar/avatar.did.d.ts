@@ -175,7 +175,6 @@ export interface ICPSquadNFT {
   'uploadClear' : ActorMethod<[], undefined>,
   'uploadFinalize' : ActorMethod<[string, Meta, string], Result>,
   'upload_stats' : ActorMethod<[Stats], undefined>,
-  'verify_mission' : ActorMethod<[bigint, Principal], boolean>,
   'wearAccessory' : ActorMethod<[TokenIdentifier, string, Principal], Result>,
 }
 export interface Listing {

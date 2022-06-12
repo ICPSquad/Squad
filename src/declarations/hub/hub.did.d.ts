@@ -84,6 +84,8 @@ export interface ICPSquadHub {
   'cron_round' : ActorMethod<[], Result__1_1>,
   'cron_style_score' : ActorMethod<[], undefined>,
   'delete_job' : ActorMethod<[bigint], undefined>,
+  'delete_mission' : ActorMethod<[bigint], Result_1>,
+  'fix' : ActorMethod<[], undefined>,
   'getCanisterLog' : ActorMethod<
     [[] | [CanisterLogRequest]],
     [] | [CanisterLogResponse],
@@ -107,8 +109,11 @@ export interface ICPSquadHub {
   >,
   'get_jobs' : ActorMethod<[], Array<[bigint, Job]>>,
   'get_leaderboard' : ActorMethod<[], [] | [Leaderboard__1]>,
+  'get_missions' : ActorMethod<[], Array<Mission>>,
   'get_round' : ActorMethod<[], [] | [Round]>,
   'is_admin' : ActorMethod<[Principal], boolean>,
+  'my_completed_missions' : ActorMethod<[], Array<[bigint, Time]>>,
+  'reset_score' : ActorMethod<[], undefined>,
   'set_job_status' : ActorMethod<[boolean], undefined>,
   'start_mission' : ActorMethod<[bigint], Result_1>,
   'start_round' : ActorMethod<[], Result__1>,
@@ -145,6 +150,23 @@ export interface LogMessagesData { 'timeNanos' : Nanos, 'message' : string }
 export interface ManualValidation { 'moderators' : Array<Principal> }
 export type MetricsGranularity = { 'hourly' : null } |
   { 'daily' : null };
+export interface Mission {
+  'id' : bigint,
+  'status' : MissionStatus,
+  'title' : string,
+  'creator' : Principal,
+  'description' : string,
+  'created_at' : Time,
+  'rewards' : Array<Reward>,
+  'restricted' : [] | [Array<Principal>],
+  'url_icon' : string,
+  'ended_at' : [] | [Time],
+  'validation' : MissionValidation,
+  'started_at' : [] | [Time],
+}
+export type MissionStatus = { 'Ended' : null } |
+  { 'Running' : null } |
+  { 'Pending' : null };
 export type MissionValidation = { 'Internal' : null } |
   { 'Custom' : CustomValidation } |
   { 'Manual' : ManualValidation } |

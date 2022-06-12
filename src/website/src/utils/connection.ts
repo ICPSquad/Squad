@@ -10,10 +10,10 @@ import { user } from "@src/store/user";
 
 export async function plugConnection(): Promise<void> {
   const result = await window.ic.plug.requestConnect({
-    whitelist: [avatarID, accessoriesID, invoiceID, ledgerID],
+    whitelist: [avatarID, accessoriesID, invoiceID, ledgerID, hubID],
   });
   if (!result) {
-    throw new Error("Unable to connect to the plug");
+    throw new Error("Unable to connect to Plug wallet");
   }
   // Initialize and stores the actor
   const principal = await window.ic.plug.agent.getPrincipal();

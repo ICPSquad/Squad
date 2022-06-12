@@ -1,30 +1,8 @@
-export const categoriesExludingAccessories = [
-  "profile",
-  "hairs",
-  "eyes",
-  "mouth",
-  "ears",
-  "nose",
-  "clothes",
-  "background",
-];
+export const categoriesExludingAccessories = ["profile", "hairs", "eyes", "mouth", "ears", "nose", "clothes", "background"];
 
-export const categoriesIncludingAccessories = [
-  ...categoriesExludingAccessories,
-  "hat",
-  "face",
-  "glasses",
-  "body",
-  "misc",
-];
+export const categoriesIncludingAccessories = [...categoriesExludingAccessories, "hat", "face", "glasses", "body", "misc"];
 
-export const categoriesOnlyAccessories = [
-  "hat",
-  "face",
-  "glasses",
-  "body",
-  "misc",
-];
+export const categoriesOnlyAccessories = ["hat", "face", "glasses", "body", "misc"];
 
 export const categoryDisplayName = {
   background: "Background",
@@ -49,3 +27,5 @@ export const categoryToColorPickers = {
   eyes: ["eyes", "eyeliner"],
   clothes: ["clothes"],
 };
+
+export const mission_status = ["active", "pending", "completed"];

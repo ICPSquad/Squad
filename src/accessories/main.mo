@@ -533,13 +533,12 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     public type Name = Text;
     public type Supply = Nat;
     public type Floor = Nat64;
-    public type LastSoldPrice = Nat64;
 
-    public query func get_stats_items() : async [(Text, Supply, ?Floor, ?LastSoldPrice)] {
+    public query func get_stats_items() : async [(Text, Supply, ?Floor)] {
         let items = _Items.getItems();
-        let buffer = Buffer.Buffer<(Text, Supply, ?Floor, ?LastSoldPrice)>(items.size());
+        let buffer = Buffer.Buffer<(Text, Supply, ?Floor)>(items.size());
         for (item in items.vals()){
-            buffer.add((item.0, item.1.size(), _Entrepot.getFloorPrice(item.1), null));
+            buffer.add((item.0, item.1.size(), _Entrepot.getFloorPrice(item.1)));
         };
         return buffer.toArray();
     };

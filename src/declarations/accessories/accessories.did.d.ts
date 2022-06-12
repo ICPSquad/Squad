@@ -136,10 +136,7 @@ export interface ICPSquadNFT {
   >,
   'get_name' : ActorMethod<[TokenIndex], [] | [string]>,
   'get_recipes' : ActorMethod<[], Array<[string, Recipe__1]>>,
-  'get_stats_items' : ActorMethod<
-    [],
-    Array<[string, Supply, [] | [Floor], [] | [LastSoldPrice]]>,
-  >,
+  'get_stats_items' : ActorMethod<[], Array<[string, Supply, [] | [Floor]]>>,
   'get_templates' : ActorMethod<[], Array<[string, Template]>>,
   'http_request' : ActorMethod<[Request], Response>,
   'is_admin' : ActorMethod<[Principal], boolean>,
@@ -177,7 +174,6 @@ export interface ICPSquadNFT {
 export type Inventory = Array<ItemInventory>;
 export type ItemInventory = { 'Accessory' : AccessoryInventory } |
   { 'Material' : MaterialInventory };
-export type LastSoldPrice = bigint;
 export interface ListRequest {
   'token' : TokenIdentifier__2,
   'from_subaccount' : [] | [SubAccount__1],

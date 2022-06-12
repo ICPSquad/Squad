@@ -39,7 +39,6 @@
     .get_stats_items()
     .then((stats) => {
       informations = stats;
-      console.log(informations);
     });
 
   function handleMint() {
@@ -64,7 +63,7 @@
       <Checkout {state} {setState} {cardSelected} />
     {/if}
     <div class="accessory-details">
-      <AccessoryInfos {recipe} {description} supply={stats[0]} floorPrice={stats[1]} lastPrice={stats[2]} />
+      <AccessoryInfos {recipe} {description} supply={stats[0]} floorPrice={stats[1]} />
       {#if recipe.length > 0 && state === "creating-accessory"}
         <button class="mint" on:click={handleMint}> Mint </button>
         <p class="small">Minting an accessory requires to burn the necessary materials with a fee of 0.5 ICP</p>

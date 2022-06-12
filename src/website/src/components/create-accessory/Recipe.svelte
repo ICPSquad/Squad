@@ -5,7 +5,6 @@
   $: recipeObject = recipeArrayToObject(recipe);
 
   function recipeArrayToObject(recipe: Recipe): any {
-    console.log(recipe);
     let recipeObject = {};
     recipe.forEach((ingredient) => {
       recipeObject[ingredient] = recipeObject[ingredient] ? recipeObject[ingredient] + 1 : 1;

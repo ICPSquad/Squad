@@ -168,7 +168,6 @@ export const idlFactory = ({ IDL }) => {
   const Recipe__1 = IDL.Vec(IDL.Text);
   const Supply = IDL.Nat;
   const Floor = IDL.Nat64;
-  const LastSoldPrice = IDL.Nat64;
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
   const Request = IDL.Record({
     'url' : IDL.Text,
@@ -351,11 +350,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_stats_items' : IDL.Func(
         [],
-        [
-          IDL.Vec(
-            IDL.Tuple(IDL.Text, Supply, IDL.Opt(Floor), IDL.Opt(LastSoldPrice))
-          ),
-        ],
+        [IDL.Vec(IDL.Tuple(IDL.Text, Supply, IDL.Opt(Floor)))],
         ['query'],
       ),
     'get_templates' : IDL.Func(

@@ -595,15 +595,41 @@ module {
         };
 
         /* 
-            Get the minimum price for a transaction involving one of those tokens 
+            Get the minimum price for a transaction involving one of the token in the list
         */
         public func getFloorPrice(indexs : [Ext.TokenIndex]) : ?Nat64 {
-            let price = _getFloorPrice(_getTransactions(indexs));
-            if(price == 0) {
-                return null
-            } else {
-                return ?price
-            }
+            let transactionIndex : TrieMap.TrieMap<Ext.TokenIndex, Nat64> = TrieMap.TrieMap<Ext.TokenIndex, Nat64>(Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+            for((index, transaction) in transactions.entries()){
+                let tokenIndex : Ext.TokenIndex = switch(Ext.TokenIdentifier.decode(transaction.token)){
+                    case(#err(_)) {
+                        assert(false);
+                        42 : Ext.TokenIndex;
+                    };
+                    case(#ok(_, tokenIndex)) {
+                        tokenIndex : Ext.TokenIndex;
+                    };
+                };
+                transactionIndex.put(tokenIndex, transaction.price);
+            };
+            var minimum : ?Nat64 = null;
+            for(tokenIndex in indexs.vals()){
+                switch(transactionIndex.get(tokenIndex)){
+                    case(null){};
+                    case(? price){
+                        switch(minimum){
+                            case(null) {
+                                minimum := ?price;
+                            };
+                            case(? min){
+                                if(price < min){
+                                    minimum := ?price;
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+            return minimum;
         };
 
         public func burn(index : Ext.TokenIndex) : () {
@@ -739,7 +765,7 @@ module {
         ////////////////////
 
         /* 
-            Takes a transaction and a token and returns a boolean indicating if the transaction involved the token.
+            Takes a transaction and a Token index and returns a boolean indicating if the transaction involved the Token index.
         */
         func _isYourTransaction(
             index : Ext.TokenIndex,

@@ -1,10 +1,20 @@
 <script lang="ts">
-  export let id: Number = 0;
+  import { createEventDispatcher } from "svelte";
   export let title: string = "Show your style 😎";
   export let description: string = "Mint one accessory to complete this mission.";
   export let reward: string = "100 points";
-  //   export let start_date: Number = 0;
-  //   export let end_date: Number = 0;
+  export let completed: BigInt[] = [];
+  export let id: BigInt = BigInt(1);
+
+  $: isCompleted = completed.includes(id);
+
+  let dispatch = createEventDispatcher();
+  const handleClick = () => {
+    if (isCompleted) {
+      return;
+    }
+    dispatch("validateMission", id);
+  };
 </script>
 
 <div class="card">
@@ -15,18 +25,19 @@
     <p>Task : {description}</p>
   </div>
   <div class="rewards">
-    <p>Reward: {reward}</p>
-  </div>
-  <div class="rewards">
-    <p>Remaining time : 30 days.</p>
+    <p>Reward : {reward}</p>
   </div>
   <div class="validation">
-    <button> Validate </button>
+    <button class={isCompleted ? "completed" : ""} on:click={handleClick}> {isCompleted ? "Completed" : "Validate"} </button>
   </div>
 </div>
 
 <style lang="scss">
   @use "../../styles" as *;
+
+  .completed {
+    background-color: $green;
+  }
 
   .card {
     width: 100%;

@@ -391,7 +391,6 @@ export const idlFactory = ({ IDL }) => {
     'uploadClear' : IDL.Func([], [], []),
     'uploadFinalize' : IDL.Func([IDL.Text, Meta, IDL.Text], [Result], []),
     'upload_stats' : IDL.Func([Stats], [], ['oneway']),
-    'verify_mission' : IDL.Func([IDL.Nat, IDL.Principal], [IDL.Bool], []),
     'wearAccessory' : IDL.Func(
         [TokenIdentifier, IDL.Text, IDL.Principal],
         [Result],

@@ -25,6 +25,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_2 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text });
   const Result__1_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+  const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const GetLogMessagesFilter = IDL.Record({
     'analyzeCount' : IDL.Nat32,
     'messageRegex' : IDL.Opt(IDL.Text),
@@ -130,6 +131,26 @@ export const idlFactory = ({ IDL }) => {
       TotalScore,
     )
   );
+  const MissionStatus = IDL.Variant({
+    'Ended' : IDL.Null,
+    'Running' : IDL.Null,
+    'Pending' : IDL.Null,
+  });
+  const Time = IDL.Int;
+  const Mission = IDL.Record({
+    'id' : IDL.Nat,
+    'status' : MissionStatus,
+    'title' : IDL.Text,
+    'creator' : IDL.Principal,
+    'description' : IDL.Text,
+    'created_at' : Time,
+    'rewards' : IDL.Vec(Reward),
+    'restricted' : IDL.Opt(IDL.Vec(IDL.Principal)),
+    'url_icon' : IDL.Text,
+    'ended_at' : IDL.Opt(Time),
+    'validation' : MissionValidation,
+    'started_at' : IDL.Opt(Time),
+  });
   const Leaderboard = IDL.Vec(
     IDL.Tuple(
       IDL.Principal,
@@ -140,14 +161,12 @@ export const idlFactory = ({ IDL }) => {
       TotalScore,
     )
   );
-  const Time = IDL.Int;
   const Round = IDL.Record({
     'id' : IDL.Nat,
     'leaderboard' : IDL.Opt(Leaderboard),
     'end_date' : IDL.Opt(Time),
     'start_date' : Time,
   });
-  const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const Result__1 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text });
   const Result = IDL.Variant({ 'ok' : IDL.Bool, 'err' : IDL.Text });
   const ICPSquadHub = IDL.Service({
@@ -160,6 +179,8 @@ export const idlFactory = ({ IDL }) => {
     'cron_round' : IDL.Func([], [Result__1_1], []),
     'cron_style_score' : IDL.Func([], [], []),
     'delete_job' : IDL.Func([IDL.Nat], [], []),
+    'delete_mission' : IDL.Func([IDL.Nat], [Result_1], []),
+    'fix' : IDL.Func([], [], []),
     'getCanisterLog' : IDL.Func(
         [IDL.Opt(CanisterLogRequest)],
         [IDL.Opt(CanisterLogResponse)],
@@ -188,8 +209,15 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_jobs' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Nat, Job))], ['query']),
     'get_leaderboard' : IDL.Func([], [IDL.Opt(Leaderboard__1)], ['query']),
+    'get_missions' : IDL.Func([], [IDL.Vec(Mission)], ['query']),
     'get_round' : IDL.Func([], [IDL.Opt(Round)], ['query']),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
+    'my_completed_missions' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Nat, Time))],
+        [],
+      ),
+    'reset_score' : IDL.Func([], [], []),
     'set_job_status' : IDL.Func([IDL.Bool], [], []),
     'start_mission' : IDL.Func([IDL.Nat], [Result_1], []),
     'start_round' : IDL.Func([], [Result__1], []),

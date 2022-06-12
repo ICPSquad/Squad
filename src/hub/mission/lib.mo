@@ -150,6 +150,7 @@ module {
                                     return #err("You have already verified this mission");
                                 };
                                 _addToWinner(id, caller);
+                                _addToCompletedMission(id, caller);
                                 for(reward in mission.rewards.vals()){
                                     _distributeReward(caller,reward);
                                 };
@@ -196,8 +197,21 @@ module {
             };
         };
 
+        public func fix() : () {
+            winners.delete(3);
+        };
+
         public func getMissions() : [Mission] {
             return Iter.toArray(missions.vals());
+        };
+
+        public func myCompletedMissions(caller : Principal) : [(Nat, Time.Time)] {
+            switch(completedMissions.get(caller)){
+                case(null) return [];
+                case(? completed){
+                    return completed;
+                };
+            };
         };
 
         //////////////
@@ -287,6 +301,18 @@ module {
             };
         };
 
+        func _addToCompletedMission(id : Nat, p : Principal) : () {
+            switch(completedMissions.get(p)){
+                case(null){
+                    completedMissions.put(p, [(id, Time.now())]);
+                };
+                case(? list){
+                    let new_list = Array.append<(Nat, Time.Time)>(list, [(id, Time.now())]);
+                    completedMissions.put(p, new_list);
+                };
+            };
+        };
+
         func _distributeReward(p : Principal, reward : Reward) : () {
             switch(reward){
                 case(#Points(points)){
@@ -337,68 +363,11 @@ module {
         //////////////
         // Handler //
         /////////////
-
-        func _mission2(caller : Principal) : async Bool {
-            let number_mint = await _Cap.numberMint(caller, null);
-            if(number_mint >= 1){
-                return true;
-            };
-            return false;
-        };
-
-        func _mission3(caller : Principal) : async Bool {
-            let number_mint = await _Cap.numberMint(caller, null);
-            if(number_mint >= 3){
-                return true;
-            };
-            return false;
-        };
-
-        func _mission4(caller : Principal) : async Bool {
-            let number_mint = await _Cap.numberMint(caller, null);
-            if(number_mint >= 1){
-                return true;
-            };
-            return false;
-        };
-
-        func _mission5(caller : Principal) : async Bool {
-            let a = await _Cap.numberMint(caller, ?"Astro-helmet");
-            let b = await _Cap.numberMint(caller, ?"Astro-suit");
-            if(a >= 1 and b >= 1){
-                return true;
-            };
-            return false;
-        };
-
-        func _mission6(caller : Principal) : async Bool {
-            let number_burn = await _Cap.numberBurn(caller, null);
-            if(number_burn >= 1){
-                return true;
-            };
-            return false;
-        };
-
-        func _mission7(caller : Principal) : async Bool {
-            let number_burn = await _Cap.numberBurn(caller, null);
-            if(number_burn >= 3){
-                return true;
-            };
-            return false;
-        };
-
-        func _mission8(caller : Principal) : async Bool {
-            let number_burn = await _Cap.numberBurn(caller, null);
-            if(number_burn >= 10){
-                return true;
-            };
-            return false;
-        };
         /* 
-            Might takes a long time to resolve 
-            Wen Promise.all in Motoko ?
+            Returns a boolean indicating if the caller has minted at least one branded Cronic accessory.
+            Might takes a long time to resolve. Wen Promise.all in Motoko ?
         */
-        func _mission9(caller : Principal) : async Bool {
+        func _mission1(caller : Principal) : async Bool {
             let a = await _Cap.numberMint(caller, ?"Cronic-eyepatch");
             if(a >= 1){
                 return true;
@@ -418,7 +387,7 @@ module {
             return false;
         };
 
-        func _mission10(caller : Principal) : async Bool {
+        func _mission2(caller : Principal) : async Bool {
             let a = await _Cap.numberMint(caller, ?"Punk-mask");
             if(a >= 1){
                 return true;
@@ -430,19 +399,96 @@ module {
             return false;
         };
 
+        /* 
+            Validate the participation in the Motoko Bootcamp 
+            Returns a boolean indicating if the caller has participated in the bootcamp.
+        */
+        let graduates : [Principal] = [
+            Principal.fromText("udmjf-fyc6j-f7dnl-dw5bh-hh4wg-ln7iy-36pgp-mjocm-my4vc-r2irg-2ae")
+        ];
+        func _mission3(caller : Principal) : async Bool {
+            _Logs.logMessage("Checking if " # Principal.toText(caller) # " has participated in the bootcamp");
+            switch(Array.find<Principal>(graduates, func(x) { Principal.equal(x, caller)})){
+                case(null){
+                    return false;
+                };
+                case(? p){
+                    return true;
+                };
+            };
+        };
+
+        func _mission4(caller : Principal) : async Bool {
+            let number_mint = await _Cap.numberMint(caller, null);
+            if(number_mint >= 1){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission5(caller : Principal) : async Bool {
+            let number_mint = await _Cap.numberMint(caller, null);
+            if(number_mint >= 3){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission6(caller : Principal) : async Bool {
+            let number_mint = await _Cap.numberMint(caller, null);
+            if(number_mint >= 1){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission8(caller : Principal) : async Bool {
+            let a = await _Cap.numberMint(caller, ?"Astro-helmet");
+            let b = await _Cap.numberMint(caller, ?"Astro-suit");
+            if(a >= 1 and b >= 1){
+                return true;
+            };
+            return false;
+        };
+
+        // func _mission6(caller : Principal) : async Bool {
+        //     let number_burn = await _Cap.numberBurn(caller, null);
+        //     if(number_burn >= 1){
+        //         return true;
+        //     };
+        //     return false;
+        // };
+
+        // func _mission7(caller : Principal) : async Bool {
+        //     let number_burn = await _Cap.numberBurn(caller, null);
+        //     if(number_burn >= 3){
+        //         return true;
+        //     };
+        //     return false;
+        // };
+
+        // func _mission8(caller : Principal) : async Bool {
+        //     let number_burn = await _Cap.numberBurn(caller, null);
+        //     if(number_burn >= 10){
+        //         return true;
+        //     };
+        //     return false;
+        // };
+
+
         /*
-            Associate id with the name of the function that will process the verification of the mission.
+            Associate a mission Id with the function that will process to the verification.
         */
         let handlers : [(Nat, (caller : Principal) -> async Bool)] = [
+            (1, _mission1),
             (2, _mission2),
             (3, _mission3),
             (4, _mission4),
             (5, _mission5),
             (6, _mission6),
-            (7, _mission7),
+            // (7, _mission7),
             (8, _mission8),
-            (9, _mission9),
-            (10, _mission10)
+            // (10, _mission10)
         ];
 
     

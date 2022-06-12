@@ -9,6 +9,7 @@ import Nat64 "mo:base/Nat64";
 import Nat8 "mo:base/Nat8";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
+import Time "mo:base/Time";
 import TrieMap "mo:base/Trie";
 
 import Canistergeek "mo:canistergeek/canistergeek";
@@ -124,9 +125,9 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     });
 
 
-    ////////////////
-    // CAP ////////
-    //////////////
+    ///////////
+    // CAP ///
+    /////////
 
     let _Cap = Cap.Factory({
         cid_bucket_accessory = Principal.fromText("qfevy-hqaaa-aaaaj-qanda-cai");
@@ -136,6 +137,8 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     ////////////////
     // Mission ////
     //////////////  
+
+    public type Mission = Mission.Mission;
     
     stable var _MissionUD : ?Mission.UpgradeData = null;
     let _Mission = Mission.Center({
@@ -157,9 +160,18 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
 
     public shared ({ caller }) func verify_mission(id : Nat) : async Result.Result<Bool, Text> {
-        assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
+    };
+
+    public shared ({ caller }) func my_completed_missions() : async [(Nat, Time.Time)] {
+        _Monitor.collectMetrics();
+        return _Mission.myCompletedMissions(caller);
+    };
+
+    public shared ({ caller }) func fix() : async () {
+        _Monitor.collectMetrics();
+        return _Mission.fix();
     };
 
     public shared ({ caller }) func delete_mission(id : Nat) : async Result.Result<(), Text> {
@@ -168,7 +180,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         return _Mission.deleteMission(id);
     };
 
-    public query func get_missions() : async [Mission.Mission] {
+    public query func get_missions() : async [Mission] {
         return _Mission.getMissions();
     };
 
