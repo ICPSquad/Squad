@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Link } from "svelte-routing";
   import Header from "@src/components/shared/Header.svelte";
   import Footer from "@src/components/shared/Footer.svelte";
   import Accessories from "@components/add-accessories/Accessories.svelte";
@@ -12,12 +13,13 @@
   import { plugConnection } from "@utils/connection";
   import RenderAvatar from "@src/components/render/RenderAvatar.svelte";
   import AvatarComponentsSvg from "@src/components/AvatarComponentsSvg.svelte";
-  import { renderingToColorsAndComponents, isEquipped } from "@utils/avatar";
+  import { renderingToColorsAndComponents } from "@utils/avatar";
   import { nameToSlotAccessory } from "@utils/list";
   import { removeAccessory, wearAccessory } from "@utils/accessories";
 
   const categories = ["hat", "face", "eyes", "body", "misc"];
 
+  let showMyAccessories: boolean = true;
   let colors: AvatarColors;
   let components: AvatarComponents;
   let accessories: Array<[string, TokenIdentifier, boolean]> = [];
@@ -67,6 +69,7 @@
     let accessoryId = e.detail.tokenId;
     let name = e.detail.name;
     if (isSlotEquipped(name) && !isEquipped) {
+      alert("You need to remove the accessory currently in this slot before adding another one.");
       return;
     }
     let confirm_message = isEquipped
@@ -99,6 +102,10 @@
     }
     return false;
   }
+
+  function toggleMyAccessories() {
+    showMyAccessories = !showMyAccessories;
+  }
 </script>
 
 <Header />
@@ -120,28 +127,35 @@
         {:else}
           <RenderAvatar avatarColors={colors} avatarComponents={components} />
         {/if}
+        <Link to="/create-accessory">
+          <button> Create accessory </button>
+        </Link>
+        <button on:click={() => toggleMyAccessories()}> {showMyAccessories ? "all accessories" : " my accessories"} </button>
       </div>
       <div id="avatar-components">
-        <h3>MY ACCESSSORIES</h3>
-        <div class="my-accessories">
-          {#each accessories as [name, token, equipped]}
-            <AccessoryCardToken
-              {name}
-              tokenId={token}
-              isEquipped={equipped}
-              isSlotEquipped={isSlotEquipped(name)}
-              on:mouseEnterCard={handleMouseEnter}
-              on:mouseExitCard={handleMouseExit}
-              on:clickCard={handleClick}
-            />
-          {/each}
-        </div>
-        <h3>VIEW ALL ACCESSORIES</h3>
-        <div class="all-accessories">
-          {#each categories as category}
-            <Accessories {category} />
-          {/each}
-        </div>
+        {#if showMyAccessories}
+          <h3>MY ACCESSSORIES</h3>
+          <div class="my-accessories">
+            {#each accessories as [name, token, equipped]}
+              <AccessoryCardToken
+                {name}
+                tokenId={token}
+                isEquipped={equipped}
+                isSlotEquipped={isSlotEquipped(name)}
+                on:mouseEnterCard={handleMouseEnter}
+                on:mouseExitCard={handleMouseExit}
+                on:clickCard={handleClick}
+              />
+            {/each}
+          </div>
+        {:else}
+          <h3>ALL ACCESSORIES</h3>
+          <div class="all-accessories">
+            {#each categories as category}
+              <Accessories {category} on:mouseEnterCard={handleMouseEnter} on:mouseExitCard={handleMouseExit} />
+            {/each}
+          </div>
+        {/if}
       </div>
       <div class="avatar-preview">
         <AvatarComponentsSvg />
@@ -185,5 +199,9 @@
     margin-bottom: 20px;
     row-gap: 20px;
     column-gap: 20px;
+  }
+
+  button {
+    margin-top: 20px;
   }
 </style>

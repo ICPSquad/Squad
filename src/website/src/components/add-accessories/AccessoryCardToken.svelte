@@ -1,6 +1,5 @@
 <script>
   import { createEventDispatcher } from "svelte";
-
   let dispatch = createEventDispatcher();
 
   export let name;
@@ -29,7 +28,6 @@
   };
 
   const handleClick = () => {
-    console.log(name, tokenId);
     dispatch("clickCard", { name, tokenId, isEquipped });
   };
 </script>

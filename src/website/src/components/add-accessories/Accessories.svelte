@@ -4,6 +4,18 @@
   import ListAccessories from "@components/add-accessories/ListAccessories.svelte";
   export let category = "";
   let open = false;
+  import { createEventDispatcher } from "svelte";
+  let dispatch = createEventDispatcher();
+
+  const handleMouseEnter = (e) => {
+    let { name, isEquipped } = e.detail;
+    dispatch("mouseEnterCard", { name, isEquipped });
+  };
+
+  const handleMouseExit = (e) => {
+    let { name, isEquipped } = e.detail;
+    dispatch("mouseExitCard", { name, isEquipped });
+  };
 </script>
 
 <div class="accessories">
@@ -12,7 +24,7 @@
     <Carat rotate={open ? -90 : 90} />
   </div>
   {#if open}
-    <ListAccessories {category} />
+    <ListAccessories {category} on:mouseEnterCard={handleMouseEnter} on:mouseExitCard={handleMouseExit} />
   {/if}
 </div>
 
