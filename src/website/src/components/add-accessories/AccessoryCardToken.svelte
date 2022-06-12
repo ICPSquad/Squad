@@ -6,6 +6,19 @@
   export let name;
   export let tokenId;
   export let isEquipped;
+  export let isSlotEquipped;
+
+  $: stateToText = () => {
+    if (isEquipped) {
+      return "Remove from avatar";
+    } else {
+      if (isSlotEquipped) {
+        return "Slot is equipped";
+      } else {
+        return "Add to avatar";
+      }
+    }
+  };
 
   const handleMouseEnter = () => {
     dispatch("mouseEnterCard", { name, tokenId, isEquipped });
@@ -25,7 +38,7 @@
   <div class="image">
     <img src={`https://po6n2-uiaaa-aaaaj-qaiua-cai.raw.ic0.app/tokenid=${tokenId}`} alt={`${name}`} />
     <div class="hover">
-      <button on:click={handleClick} class="button legend-link">{isEquipped ? "Remove from avatar" : "Add to avatar"}</button>
+      <button on:click={handleClick} class="button legend-link">{stateToText()}</button>
     </div>
   </div>
   <h3>{name}</h3>

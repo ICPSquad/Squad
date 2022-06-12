@@ -282,6 +282,10 @@
     .Magic-hood-85 {
       transform: translate(0px, -15px);
     }
+
+    .Miss-body .Lab-glasses-77 {
+      transform: translate(0px, 30px);
+    }
   </style>
   {#if avatarComponents.body}
     <style>

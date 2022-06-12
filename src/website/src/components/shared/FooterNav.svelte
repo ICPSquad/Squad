@@ -28,18 +28,13 @@
           url: "/accessories",
         },
         {
-          label: "Documentation",
-          url: "/about#roadmap",
-          external: true,
-        },
-        {
           label: "Blog",
           url: "https://www.dfinitycommunity.com/tag/icpsquad/",
           external: true,
         },
         {
-          label: "Roadmap",
-          url: "",
+          label: "Documentation",
+          url: "https://dsquad.gitbook.io/docs/",
           external: true,
         },
       ],

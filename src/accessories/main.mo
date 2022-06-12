@@ -460,6 +460,21 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
+    public shared ({ caller }) func burn_accessory(tokenIndex : TokenIndex) : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Items.burn(tokenIndex);
+        _Ext.burn(tokenIndex);
+        _Entrepot.burn(tokenIndex);
+        // Report burning events to CAP.
+        let event : IndefiniteEvent = {
+            operation = "burn";
+            details = [("token", #Text(Ext.TokenIdentifier.encode(cid,tokenIndex))), ("from", #Text(Principal.toText(caller)))];
+            caller = caller;
+        };
+        ignore(_Cap.registerEvent(event));
+    };
+
     public query func get_name(index : TokenIndex) : async ?Text {
         _Items.getName(index);
     };

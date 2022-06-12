@@ -20,17 +20,15 @@
 
   let colors: AvatarColors;
   let components: AvatarComponents;
-  let hover_components: AvatarComponents;
-  let accessories: Array<[string, TokenIdentifier]> = [];
+  let accessories: Array<[string, TokenIdentifier, boolean]> = [];
   let tokenId: string | undefined;
-  $: {
-    hover_components = components;
-  }
   let hover: boolean = false;
+  $: hover_components = hover ? hover_components : { ...components };
 
   avatar.subscribe((data) => {
     if (!data.rendering || !data.tokenIdentifier) return;
     let result = renderingToColorsAndComponents(data.rendering);
+
     tokenId = data.tokenIdentifier;
     colors = result[0];
     components = result[1];
@@ -44,10 +42,9 @@
   setInterval(() => {
     updateAvatar();
     updateInventory();
-  }, 10000);
+  }, 3000);
 
   function handleMouseEnter(e) {
-    console.log("Enter");
     hover = true;
     let name = e.detail.name;
     let isEquipped = e.detail.isEquipped;
@@ -57,19 +54,24 @@
   }
 
   function handleMouseExit(e) {
-    console.log("Exit");
-    hover = false;
     let isEquipped = e.detail.isEquipped;
     if (isEquipped) return;
     let name = e.detail.name;
     let slot = nameToSlotAccessory(name);
     hover_components[slot] = undefined;
+    hover = false;
   }
 
   async function handleClick(e) {
     let isEquipped = e.detail.isEquipped;
     let accessoryId = e.detail.tokenId;
-    let confirm_message = isEquipped ? "Are you sure you want to unequip this accessory?" : "Are you sure you want to equip this accessory?";
+    let name = e.detail.name;
+    if (isSlotEquipped(name) && !isEquipped) {
+      return;
+    }
+    let confirm_message = isEquipped
+      ? "Are you sure you want to unequip this accessory?\nThe wear value will be decreased by one and your avatar will be modified."
+      : "Are you sure you want to equip this accessory?\nThe wear value will be decreased by one and your avatar will be modified.";
     if (!confirm(confirm_message)) return;
     let result;
     if (isEquipped) {
@@ -88,6 +90,14 @@
         components[nameToSlotAccessory(e.detail.name)] = e.detail.name;
       }
     }
+  }
+
+  function isSlotEquipped(name: string): boolean {
+    let slot = nameToSlotAccessory(name);
+    if (components[slot]) {
+      return true;
+    }
+    return false;
   }
 </script>
 
@@ -114,8 +124,16 @@
       <div id="avatar-components">
         <h3>MY ACCESSSORIES</h3>
         <div class="my-accessories">
-          {#each accessories as [name, token]}
-            <AccessoryCardToken {name} tokenId={token} isEquipped={isEquipped(name, components)} on:mouseEnterCard={handleMouseEnter} on:mouseExitCard={handleMouseExit} on:clickCard={handleClick} />
+          {#each accessories as [name, token, equipped]}
+            <AccessoryCardToken
+              {name}
+              tokenId={token}
+              isEquipped={equipped}
+              isSlotEquipped={isSlotEquipped(name)}
+              on:mouseEnterCard={handleMouseEnter}
+              on:mouseExitCard={handleMouseExit}
+              on:clickCard={handleClick}
+            />
           {/each}
         </div>
         <h3>VIEW ALL ACCESSORIES</h3>

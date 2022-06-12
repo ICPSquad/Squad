@@ -34,12 +34,12 @@ export function getMaterials(): Array<[string, TokenIdentifier]> {
   Returns a list of accessories [Name, TokenIdentifier] from the inventory
 */
 
-export function getAccessories(inventory: Inventory): Array<[string, TokenIdentifier]> {
+export function getAccessories(inventory: Inventory): Array<[string, TokenIdentifier, boolean]> {
   var accessories = [];
   let keys = Object.keys(inventory);
   keys.forEach((key) => {
     if (inventory[key].Accessory) {
-      accessories.push([inventory[key].Accessory.name.toLowerCase(), inventory[key].Accessory.tokenIdentifier]);
+      accessories.push([inventory[key].Accessory.name.toLowerCase(), inventory[key].Accessory.tokenIdentifier, inventory[key].Accessory.equipped]);
     }
   });
   return accessories;
@@ -49,7 +49,6 @@ export type RecipeAnswer = { ok: string[] } | { err: string[] };
 
 /* Get the name of an item (material or accessory) */
 function itemToName(item: ItemInventory): string {
-  console.log("Item", item);
   //@ts-ignore
   if (item.Material) {
     //@ts-ignore
@@ -65,14 +64,11 @@ function itemToName(item: ItemInventory): string {
 
 export function checkRecipe(recipe: Recipe): RecipeAnswer {
   let materials = getMaterials();
-  console.log("My materials", materials);
   let missingMaterials = [];
   let tokens = [];
   for (let i = 0; i < recipe.length; i++) {
     const name_material = recipe[i];
-    console.log("Looking for", name_material, "in", i);
     const potential_material = materials.find(([name, tokenIdentifier]) => name_material === name);
-    console.log("Potential material", potential_material, "in", i);
     if (!potential_material) {
       missingMaterials.push(name_material);
     } else {
@@ -90,7 +86,7 @@ export function checkRecipe(recipe: Recipe): RecipeAnswer {
 export async function updateInventory(): Promise<void> {
   const { accessoriesActor } = get(actors);
   if (!accessoriesActor) {
-    throw new Error("No accessories actor");
+    return;
   }
   const result = await accessoriesActor.getInventory();
   if ("ok" in result) {
