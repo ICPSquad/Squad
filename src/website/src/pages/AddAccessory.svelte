@@ -10,14 +10,17 @@
   import { avatar, updateAvatar } from "../store/avatar";
   import { user } from "../store/user";
   import { getAccessories, inventory, updateInventory } from "../store/inventory";
-  import { plugConnection } from "@utils/connection";
   import RenderAvatar from "@src/components/render/RenderAvatar.svelte";
   import AvatarComponentsSvg from "@src/components/AvatarComponentsSvg.svelte";
   import { renderingToColorsAndComponents } from "@utils/avatar";
   import { nameToSlotAccessory } from "@utils/list";
   import { removeAccessory, wearAccessory } from "@utils/accessories";
+  import ConnectButton from "@src/components/shared/ConnectButton.svelte";
 
   const categories = ["hat", "face", "eyes", "body", "misc"];
+
+  let error: boolean = false;
+  let error_message = "";
 
   let showMyAccessories: boolean = true;
   let colors: AvatarColors;
@@ -42,8 +45,8 @@
   });
 
   setInterval(() => {
-    updateAvatar();
-    updateInventory();
+    tryUpdateAvatar();
+    tryUpdateInventory();
   }, 3000);
 
   function handleMouseEnter(e) {
@@ -106,6 +109,24 @@
   function toggleMyAccessories() {
     showMyAccessories = !showMyAccessories;
   }
+
+  async function tryUpdateAvatar() {
+    try {
+      await updateAvatar();
+    } catch (e) {
+      error = true;
+      error_message = "Avatar not found. Make sure you are connecting with the right wallet.";
+    }
+  }
+
+  async function tryUpdateInventory() {
+    try {
+      await updateInventory();
+    } catch (e) {
+      error = true;
+      error_message = "Error when fetching your inventory. Make sure you are connecting with the right wallet.";
+    }
+  }
 </script>
 
 <Header />
@@ -115,9 +136,11 @@
 <main class="container">
   {#if !$user.loggedIn}
     <p>Please connect a wallet to continue</p>
-    <button on:click={() => plugConnection()}>Plug wallet</button>
-  {:else if colors === null || components === null}
-    <p>Please wait</p>
+    <ConnectButton />
+  {:else if error}
+    <p>An errorr occured 😵‍💫</p>
+    <p>{error_message}</p>
+    <a href="https://discord.gg/CZ9JgnaySu" target="_blank"><button> Support </button> </a>
   {:else if colors && components}
     <div class="layout-grid">
       <div class="avatar-preview">

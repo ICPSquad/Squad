@@ -43,7 +43,7 @@
   };
 
   function handleSubmit() {
-    state = "waiting-wallet-connection";
+    state = "waiting-actor-creation";
   }
 </script>
 

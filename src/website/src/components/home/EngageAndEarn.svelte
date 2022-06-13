@@ -9,8 +9,8 @@
 
     <img src="/assets/engage-and-earn.png" alt="ICP Squad Avatars circling around Dfinity logo" />
 
-    <Link to="/create-avatar">
-      <button> Create Avatar → </button>
+    <Link to="/mission">
+      <button class="button">Learn → </button>
     </Link>
   </div>
 </section>
@@ -33,5 +33,11 @@
   img {
     width: 600px;
     margin: 20px 0 60px;
+  }
+
+  .button {
+    max-width: 600px;
+    background-color: $yellow;
+    color: $black;
   }
 </style>

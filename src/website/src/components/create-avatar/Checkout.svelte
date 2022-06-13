@@ -3,12 +3,13 @@
   import type { State } from "@src/components/create-avatar/types";
   import { plugConnection } from "@src/utils/connection";
   import { user } from "@src/store/user";
+  import { actors } from "@src/store/actor";
   import { get } from "svelte/store";
   import { mintRequestAvatar } from "@utils/mint";
   import { createInvoice } from "@utils/invoice";
   import { payInvoice } from "@utils/payment";
   import Spinner from "./Spinner.svelte";
-  import Link from "@src/components/shared/LinkButton.svelte";
+  import ConnectButton from "../shared/ConnectButton.svelte";
   import type { AvatarComponents } from "@src/types/avatar.d";
   import type { AvatarColors } from "@src/types/color.d";
 
@@ -22,9 +23,8 @@
   let error_message: string | undefined;
   let token_identifier: string | undefined;
 
-  async function handleConnectPlug() {
-    await plugConnection();
-    setState("waiting-invoice");
+  $: if ($actors.invoiceActor) {
+    state = "waiting-invoice";
   }
 
   $: if (state === "waiting-invoice") {
@@ -100,9 +100,9 @@
 
 <div class="checkout">
   <h3>Mint your avatar</h3>
-  {#if state === "waiting-wallet-connection"}
+  {#if !$user.loggedIn}
     <p>Please connect a wallet to continue</p>
-    <button on:click={() => handleConnectPlug()}>Plug wallet</button>
+    <ConnectButton />
     <div class="back" on:click={() => setState("creating-avatar")}>← Back</div>
   {:else if state === "waiting-invoice"}
     <Spinner message="Please wait..." />

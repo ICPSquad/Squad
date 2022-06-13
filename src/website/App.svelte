@@ -12,6 +12,7 @@
   import CreateAccessory from "@src/pages/CreateAccessory.svelte";
   import Leaderboard from "@src/pages/Leaderboard.svelte";
   import AddAccessory from "@src/pages/AddAccessory.svelte";
+  import Profile from "@src/pages/Profile.svelte";
 </script>
 
 <Router>
@@ -27,4 +28,5 @@
   <Route path="mission"><Mission /></Route>
   <Route path="add-accessory"><AddAccessory /></Route>
   <Route path="leaderboard"><Leaderboard /></Route>
+  <Route path="profile"><Profile /></Route>
 </Router>

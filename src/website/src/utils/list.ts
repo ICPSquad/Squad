@@ -426,12 +426,6 @@ export const components = [
     name: "yakuza-suit",
     layers: [15, 30],
   },
-  {
-    category: "accessory",
-    type: "body",
-    name: "super-suit",
-    layers: [40],
-  },
 
   {
     category: "accessory",

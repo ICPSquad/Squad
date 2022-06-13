@@ -52,6 +52,8 @@
     "vite": "^2.5.7"
   },
   "dependencies": {
+    "@connect2ic/core": "^0.0.9",
+    "@connect2ic/svelte": "^0.0.9",
     "@dfinity/agent": "^0.10.1",
     "@dfinity/auth-client": "^0.10.1",
     "@emailjs/browser": "^3.6.2",

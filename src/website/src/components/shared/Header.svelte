@@ -1,16 +1,16 @@
-<script lang="ts">
+<script>
   import { Link } from "svelte-routing";
   import Logo from "@icons/Logo.svelte";
   import MenuIcon from "@icons/Menu.svelte";
   import { user } from "@src/store/user";
-  import { plugConnection } from "@utils/connection";
   import Discord from "@icons/Discord.svelte";
   import Twitter from "@icons/Twitter.svelte";
   import Cross from "@src/icons/Cross.svelte";
   import Menu from "./Menu.svelte";
   import LinkButton from "./LinkButton.svelte";
-
-  let menuOpen: boolean = false;
+  import ConnectDialog from "./ConnectDialog.svelte";
+  import { dialog } from "@src/store/dialog";
+  let menuOpen = false;
 
   const closeMenu = () => {
     menuOpen = false;
@@ -27,26 +27,19 @@
   <div class="right">
     {#if !menuOpen}
       <div class="hide-on-mobile">
-        <a
-          class="social-icon discord"
-          href="https://discord.gg/SqtQ3UJR"
-          target="_blank"
-        >
+        <a class="social-icon discord" href="https://discord.gg/SqtQ3UJR" target="_blank">
           <Discord width={20} />
         </a>
-        <a
-          class="social-icon"
-          href="https://twitter.com/ICPSquadNFT"
-          target="_blank"
-        >
+        <a class="social-icon" href="https://twitter.com/ICPSquadNFT" target="_blank">
           <Twitter width={20} />
         </a>
         {#if $user.loggedIn}
-          <LinkButton to="/dashboard">
-            <button> Dashboard </button>
+          <LinkButton to="/profile">
+            <button> Profile </button>
           </LinkButton>
         {:else}
-          <button on:click={plugConnection}> Connect your wallet </button>
+          <button on:click={() => $dialog.open()}> Connect </button>
+          <ConnectDialog />
         {/if}
       </div>
     {/if}

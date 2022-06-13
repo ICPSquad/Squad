@@ -164,7 +164,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
     };
 
-    public shared ({ caller }) func my_completed_missions() : async [(Nat, Time.Time)] {
+    public query ({ caller }) func my_completed_missions() : async [(Nat, Time.Time)] {
         _Monitor.collectMetrics();
         return _Mission.myCompletedMissions(caller);
     };

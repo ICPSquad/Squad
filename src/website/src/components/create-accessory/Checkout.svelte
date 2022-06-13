@@ -2,6 +2,7 @@
   import { Link } from "svelte-routing";
   import type { Invoice__1 as Invoice } from "@canisters/invoice/invoice.did.d";
   import Spinner from "../shared/Spinner.svelte";
+  import ConnectButton from "../shared/ConnectButton.svelte";
   import type { State } from "@src/components/create-accessory/types";
   import { plugConnection } from "@src/utils/connection";
   import { inventory, checkRecipe } from "@src/store/inventory";
@@ -114,8 +115,7 @@
   <h3>Mint an accessory</h3>
   {#if state === "waiting-wallet-connection"}
     <p>Please connect a wallet to continue</p>
-    <button on:click={() => handleConnectPlug()}>Plug wallet</button>
-    <!-- <button on:click={() => handleConnectStoic()}>Stoic wallet</button> -->
+    <ConnectButton />
     <div class="back" on:click={() => setState("creating-accessory")}>← Back</div>
   {:else if state === "waiting-inventory" || state === "waiting-invoice"}
     <Spinner message={"Please wait..."} />
