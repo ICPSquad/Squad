@@ -126,10 +126,7 @@
       </g>
     </g>
     <g transform="matrix(0.720342,0,0,0.720342,23.1337,330.63)">
-      <text x="77.471px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">
-        RARIT
-        <tspan x="216.021px " y="439.84px ">Y</tspan>
-      </text>
+      <text x="77.471px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">RARITY</text>
     </g>
 
     <g transform="matrix(0.911866,0,0,0.911866,252.534,309.097)">
@@ -148,10 +145,7 @@
     </g>
 
     <g transform="matrix(0.720342,0,0,0.720342,520.614,330.63)">
-      <text x="124.102px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">
-        SL
-        <tspan x="173.882px 217.217px " y="439.84px 439.84px ">OT</tspan>
-      </text>
+      <text x="124.102px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">SLOT</text>
     </g>
     <g transform="matrix(1,0,0,1,-7.69409,0)">
       <path
@@ -160,9 +154,7 @@
       />
     </g>
     <g transform="matrix(1,0,0,1,120.441,145.046)">
-      <text x="77.471px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">
-        <tspan x="112.457px 150.461px " y="439.84px 439.84px ">ASSASSIN CAP</tspan>
-      </text>
+      <text x="90.471px" y="439.84px" style="font-family: 'Futura-Medium', 'Futura', sans-serif; font-weight: 500; font-size: 50px; fill: white">ASSASSIN CAPE</text>
     </g>
     <path
       id="border"

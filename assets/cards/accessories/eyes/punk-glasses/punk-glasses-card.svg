@@ -94,8 +94,7 @@
             <circle cx="655.032" cy="692.441" r="13.365" style="fill: rgb(6, 46, 66)" />
         </g>
         <g transform="matrix(0.720342,0,0,0.720342,520.614,330.63)">
-            <text x="124.102px" y="439.84px" style="font-family:'Futura-Medium', 'Futura', sans-serif;font-weight:500;font-size:50px;fill:white;">SL<tspan x="173.882px 217.217px " y="439.84px 439.84px ">OT</tspan>
-            </text>
+            <text x="124.102px" y="439.84px" style="font-family:'Futura-Medium', 'Futura', sans-serif;font-weight:500;font-size:50px;fill:white;">SLOT</text>
         </g>
         <g transform="matrix(1,0,0,1,-7.69409,0)">
             <path d="M82.194,602.738L733.196,602.258C733.979,602.258 734.615,601.621 734.614,600.838C734.614,600.055 733.977,599.42 733.194,599.42L82.192,599.9C81.409,599.901 80.773,600.537 80.774,601.321C80.775,602.104 81.411,602.739 82.194,602.738Z" style="fill:white;"/>
