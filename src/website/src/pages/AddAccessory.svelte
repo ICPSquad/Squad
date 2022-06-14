@@ -4,6 +4,8 @@
   import Footer from "@src/components/shared/Footer.svelte";
   import Accessories from "@components/add-accessories/Accessories.svelte";
   import AccessoryCardToken from "@src/components/add-accessories/AccessoryCardToken.svelte";
+  import Spinner from "../components/shared/Spinner.svelte";
+
   import type { AvatarColors } from "@src/types/color";
   import type { AvatarComponents } from "@src/types/avatar";
   import type { TokenIdentifier } from "@canisters/avatar/avatar.did.d";
@@ -15,12 +17,45 @@
   import { renderingToColorsAndComponents } from "@utils/avatar";
   import { nameToSlotAccessory } from "@utils/list";
   import { removeAccessory, wearAccessory } from "@utils/accessories";
+  import Toast from "@src/components/shared/Toast.svelte";
   import ConnectButton from "@src/components/shared/ConnectButton.svelte";
 
   const categories = ["hat", "face", "eyes", "body", "misc"];
 
-  let error: boolean = false;
-  let error_message = "";
+  // Toast component
+  let message = "";
+  let state: "error" | "success" | "neutral" | "waiting" = "neutral";
+
+  function setSuccess(text: string, timeout?: number): void {
+    message = text;
+    state = "success";
+    if (timeout) {
+      setTimeout(() => {
+        message = "";
+        state = "neutral";
+      }, timeout);
+    }
+  }
+
+  function setError(text: string, timeout?: number): void {
+    state = "error";
+    message = text;
+    if (timeout) {
+      setTimeout(() => {
+        message = "";
+      }, timeout);
+    }
+  }
+
+  function setMessage(text: string, timeout?: number): void {
+    message = text;
+    state = "neutral";
+    if (timeout) {
+      setTimeout(() => {
+        message = "";
+      }, timeout);
+    }
+  }
 
   let showMyAccessories: boolean = true;
   let colors: AvatarColors;
@@ -80,16 +115,17 @@
       : "Are you sure you want to equip this accessory?\nThe wear value will be decreased by one and your avatar will be modified.";
     if (!confirm(confirm_message)) return;
     let result;
+    state = "waiting";
     if (isEquipped) {
       result = await removeAccessory(accessoryId, tokenId);
     } else {
       result = await wearAccessory(accessoryId, tokenId);
     }
     if ("err" in result) {
-      alert(result.err);
+      setError(result.err, 5000);
       return;
     } else {
-      alert("Success! Your avatar has been successfully updated.");
+      setSuccess("Success! Your avatar has been updated.", 3000);
       if (isEquipped) {
         components[nameToSlotAccessory(e.detail.name)] = undefined;
       } else {
@@ -114,8 +150,7 @@
     try {
       await updateAvatar();
     } catch (e) {
-      error = true;
-      error_message = "Avatar not found. Make sure you are connecting with the right wallet.";
+      setError("Error: " + e, 5000);
     }
   }
 
@@ -123,8 +158,7 @@
     try {
       await updateInventory();
     } catch (e) {
-      error = true;
-      error_message = "Error when fetching your inventory. Make sure you are connecting with the right wallet.";
+      setError("Error: " + e, 5000);
     }
   }
 </script>
@@ -137,10 +171,11 @@
   {#if !$user.loggedIn}
     <p>Please connect a wallet to continue</p>
     <ConnectButton />
-  {:else if error}
+  {:else if state === "error"}
     <p>An errorr occured 😵‍💫</p>
-    <p>{error_message}</p>
     <a href="https://discord.gg/CZ9JgnaySu" target="_blank"><button> Support </button> </a>
+  {:else if state === "waiting"}
+    <Spinner message={"Please wait..."} />
   {:else if colors && components}
     <div class="layout-grid">
       <div class="avatar-preview">
@@ -186,8 +221,8 @@
     </div>
   {/if}
 </main>
-
 <Footer />
+<Toast {message} {state} />
 
 <style lang="scss">
   @use "./src/website/src/styles" as *;

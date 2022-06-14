@@ -7,7 +7,7 @@
   export let avatarColors: AvatarColors;
   $: components = getSortedComponents(avatarComponents);
 
-  // List of hats that will trigger the hat version for the hairstylew when they are equipped.
+  // List of hats that will trigger the hat version for the hairstyle when they are equipped.
   let hats = ["helicap", "marshall-hat", "mortaboard-hat", "shinobi-hat"];
 </script>
 

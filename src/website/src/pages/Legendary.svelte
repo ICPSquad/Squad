@@ -54,6 +54,14 @@
           label: "Twitter",
           url: "https://twitter.com/ThuillierSbast3",
         },
+        {
+          label: "Distrikt",
+          url: "https://az5sd-cqaaa-aaaae-aaarq-cai.ic0.app/u/Seb",
+        },
+        {
+          label: "seb.icp.page",
+          url: "https://seb.icp.page",
+        },
       ],
     },
     {
@@ -142,6 +150,10 @@
           label: "Twitter",
           url: "https://twitter.com/AndrewSel",
         },
+        {
+          label: "Github",
+          url: "https://github.com/andrewsel",
+        },
       ],
     },
     {
@@ -161,6 +173,10 @@
           label: "Twitter",
           url: "https://twitter.com/kylpeacock",
         },
+        {
+          label: "Github",
+          url: "https://github.com/krpeacock",
+        },
       ],
     },
     {
@@ -168,7 +184,12 @@
       name: "Paul Liu",
       role: "Technical lead",
       categorie: "Dfinity foundation",
-      links: [],
+      links: [
+        {
+          label: "Github",
+          url: "https://github.com/ninegua",
+        },
+      ],
     },
 
     {

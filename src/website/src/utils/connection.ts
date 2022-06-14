@@ -9,6 +9,11 @@ import { StoicIdentity } from "ic-stoic-identity";
 import { actors } from "@src/store/actor";
 import { user } from "@src/store/user";
 import { Actor, HttpAgent } from "@dfinity/agent";
+import type { ICPSquadNFT as Avatar } from "@canisters/avatar/avatar.did.d";
+import type { ICPSquadNFT as Accessories } from "@canisters/accessories/accessories.did.d";
+import type { Invoice } from "@canisters/invoice/invoice.did.d";
+import type { _SERVICE as Ledger } from "@canisters/ledger/ledger.did.d";
+import type { _SERVICE as Hub } from "@canisters/hub/hub.did.d";
 
 export async function plugConnection(): Promise<void> {
   const result = await window.ic.plug.requestConnect({
@@ -52,30 +57,33 @@ export async function stoicConnexion(): Promise<void> {
         identity = await StoicIdentity.connect();
       }
       try {
-        await identity.sign("a");
         const principal = identity.getPrincipal();
-        const avatarActor = Actor.createActor(idlFactoryAvatar, {
-          agent: new HttpAgent({ identity }),
+        console.log("principal", principal);
+        let agent = new HttpAgent({
+          identity: identity,
+          host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
+        });
+        const avatarActor = Actor.createActor<Avatar>(idlFactoryAvatar, {
+          agent,
           canisterId: avatarID,
         });
-        const accessoriesActor = Actor.createActor(idlFactoryAccessories, {
-          agent: new HttpAgent({ identity }),
+        const accessoriesActor = Actor.createActor<Accessories>(idlFactoryAccessories, {
+          agent,
           canisterId: accessoriesID,
         });
-        const invoiceActor = Actor.createActor(idlFactoryInvoice, {
-          agent: new HttpAgent({ identity }),
+        const invoiceActor = Actor.createActor<Invoice>(idlFactoryInvoice, {
+          agent,
           canisterId: invoiceID,
         });
-        const ledgerActor = Actor.createActor(idlFactoryLedger, {
-          agent: new HttpAgent({ identity }),
+        const ledgerActor = Actor.createActor<Ledger>(idlFactoryLedger, {
+          agent,
           canisterId: ledgerID,
         });
-        const hubActor = Actor.createActor(idlFactoryHub, {
-          agent: new HttpAgent({ identity }),
+        const hubActor = Actor.createActor<Hub>(idlFactoryHub, {
+          agent,
           canisterId: hubID,
         });
         user.update((u) => ({ ...u, wallet: "stoic", loggedIn: true, principal }));
-        //@ts-ignore
         actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor, hubActor: hubActor }));
       } catch (e) {
         alert("Error logging in with stoic, please ensure cookies are enabled.");
