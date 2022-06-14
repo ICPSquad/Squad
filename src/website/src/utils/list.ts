@@ -405,7 +405,7 @@ export const components = [
   {
     category: "accessory",
     type: "body",
-    name: "assassin-cap",
+    name: "assassin-cape",
     layers: [21, 22, 23, 85, 86],
   },
   {
@@ -442,7 +442,7 @@ export const components = [
   {
     category: "accessory",
     type: "body",
-    name: "magic-cap",
+    name: "magic-cape",
     layers: [9, 22, 85],
   },
   {

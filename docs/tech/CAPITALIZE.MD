@@ -6,7 +6,7 @@ A bad decision was made and the items have all been name with a capital letter a
 
 ## Avatar (canister)
 
-In the avatar all accessories (associated to their asset) are referenced with only small letters ("assassin-cap").
+In the avatar all accessories (associated to their asset) are referenced with only small letters ("assassin-cape").
 
 ```
 wearAccessory() <- expect small letters

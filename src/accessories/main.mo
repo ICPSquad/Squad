@@ -287,6 +287,12 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     public query func get_recipes() : async [(Text, Recipe)] {
         _Items.getRecipes();
     };
+
+    public shared ({ caller }) func delete_item(name : Text) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Items.deleteItem(name);
+    };
       
     public shared({caller}) func wear_accessory(
         accessory : TokenIdentifier, 

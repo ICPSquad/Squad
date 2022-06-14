@@ -552,6 +552,32 @@ module {
             }));
         };
 
+        public func deleteItem(name : Text) : Result<(), Text> {
+            //Verify that the item doesn't exist live
+            for(item in _items.vals()){
+                if(_itemToName(item) == name){
+                    return #err("Item still exists, please burn it first");
+                };
+            };
+            switch(_templates.get(name)){
+                case(null){
+                    return #err("Item not found in _templates");
+                };
+                case(? item){
+                    switch(_recipes.get(name)){
+                        case(null){
+                            return #err("Item not found in _recipes");
+                        };
+                        case(? recipe){
+                            _recipes.delete(name);
+                            _templates.delete(name);
+                            return #ok();
+                        };
+                    };
+                };
+            };
+        };
+
 
         ////////////////
         // HELPERS /////

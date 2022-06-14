@@ -178,14 +178,14 @@
       transform: scale(0.9) translate(43px, 150px);
     }
 
-    .Business-body .Magic-cap-21 {
+    .Business-body .Magic-cape-21 {
       transform: scale(1.2) translate(-65px, -185px);
     }
-    .Business-body .Magic-cap-84 {
+    .Business-body .Magic-cape-84 {
       transform: translate(0px, -20px);
     }
 
-    .Miss-body .Magic-cap-21 {
+    .Miss-body .Magic-cape-21 {
       transform: scale(1.1) translate(-35.5px, -35px);
     }
 
@@ -224,37 +224,37 @@
       transform: scale(1.05) translate(-18px, -10px);
     }
 
-    .Magic-cap-9,
-    .Magic-cap-85 {
+    .Magic-cape-9,
+    .Magic-cape-85 {
       visibility: hidden;
     }
 
-    .Miss-body .Magic-cap-22 {
+    .Miss-body .Magic-cape-22 {
       transform: scale(0.82) translate(90px, 254px);
     }
 
-    .Miss-body .Magic-cap-85,
-    .Punk-body .Magic-cap-85 {
+    .Miss-body .Magic-cape-85,
+    .Punk-body .Magic-cape-85 {
       transform: translate(0px, 30px);
     }
 
-    .Punk-body .Magic-cap-22 {
+    .Punk-body .Magic-cape-22 {
       transform: scale(0.92) translate(35px, 160px);
     }
 
-    .Business-body .Assassin-cap-21 {
+    .Business-body .Assassin-cape-21 {
       transform: translate(0, -10px);
     }
 
-    .Punk-body .Assassin-cap-21,
-    .Punk-body .Assassin-cap-23,
-    .Punk-body .Assassin-cap-86 {
+    .Punk-body .Assassin-cape-21,
+    .Punk-body .Assassin-cape-23,
+    .Punk-body .Assassin-cape-86 {
       transform: scale(0.85) translate(70px, 150px);
     }
 
-    .Miss-body .Assassin-cap-21,
-    .Miss-body .Assassin-cap-23,
-    .Miss-body .Assassin-cap-86 {
+    .Miss-body .Assassin-cape-21,
+    .Miss-body .Assassin-cape-23,
+    .Miss-body .Assassin-cape-86 {
       transform: scale(0.73) translate(150px, 320px);
     }
 
@@ -320,25 +320,25 @@
       }
     </style>
   {/if}
-  {#if avatarComponents.hat === "magic-hood" && avatarComponents.body === "magic-cap"}
+  {#if avatarComponents.hat === "magic-hood" && avatarComponents.body === "magic-cape"}
     <style>
       .Magic-hood-85,
       .Magic-hood-9 {
         visibility: hidden;
       }
-      .Magic-cap-85 {
+      .Magic-cape-85 {
         visibility: visible;
       }
     </style>
   {/if}
-  {#if avatarComponents.hat === "magic-hood" && avatarComponents.body !== "magic-cap"}
+  {#if avatarComponents.hat === "magic-hood" && avatarComponents.body !== "magic-cape"}
     <style>
       .Ears {
         visibility: hidden;
       }
     </style>
   {/if}
-  {#if avatarComponents.body === "assassin-cap"}
+  {#if avatarComponents.body === "assassin-cape"}
     {#if avatarComponents.hat === "assassin-hood"}
       <style>
         .Assassin-hood-85,
@@ -348,9 +348,9 @@
       </style>
     {:else}
       <style>
-        .Assassin-cap-9,
-        .Assassin-cap-22,
-        .Assassin-cap-85 {
+        .Assassin-cape-9,
+        .Assassin-cape-22,
+        .Assassin-cape-85 {
           visibility: hidden;
         }
       </style>

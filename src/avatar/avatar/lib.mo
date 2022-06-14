@@ -574,20 +574,20 @@ module {
             if(potential_hat == "magic-hood" or potential_hat == "assassin-hood"){
                 style #= ".Hair {visibility: hidden;}";
             };
-            // Deal with magic-cap & magic-hood
-            if(potential_hat == "magic-hood" and potential_body == "magic-cap"){
+            // Deal with magic-cape & magic-hood
+            if(potential_hat == "magic-hood" and potential_body == "magic-cape"){
                 style #= ".Magic-hood-85,.Magic-hood-9 {visibility: hidden;}";
-                style #= ".Magic-cap-85 {visibility: visible;}";
+                style #= ".Magic-cape-85 {visibility: visible;}";
             };
-            if(potential_hat == "assassin-hood" and potential_body != "magic-cap"){
+            if(potential_hat == "assassin-hood" and potential_body != "magic-cape"){
                 style #= ".Ears {visibility: hidden;}";
             };
-            // Deal with assassin-cap & assassin-hood
-            if(potential_body == "assassin-cap"){
+            // Deal with assassin-cape & assassin-hood
+            if(potential_body == "assassin-cape"){
                 if(potential_hat == "assassin-hood"){
                     style #= ".Assassin-hood-85,.Assassin-hood-9 {visibility: hidden;}";
                 } else {
-                    style #= ".Assassin-cap-9, .Assassin-cap-22, .Assassin-cap-85 {visibility: hidden;}";
+                    style #= ".Assassin-cape-9, .Assassin-cape-22, .Assassin-cape-85 {visibility: hidden;}";
                 }
             };
             // Add clippath for astro helmet expect with the hair-13
