@@ -222,6 +222,20 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         };
     };
 
+    public shared ({ caller }) func delete_component(
+        name : Text
+    ) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Avatar.deleteComponent(name);
+    };
+
+    public shared ({ caller }) func get_components() : async [(Text, Avatar.Component)]{
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return _Avatar.getComponents();
+    };
+
     public shared ({caller}) func changeStyle(
         style : Text 
     ) : async () {

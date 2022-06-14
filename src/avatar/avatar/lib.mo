@@ -91,6 +91,24 @@ module {
             #ok;
         };
 
+        public func deleteComponent(
+            name : Text
+        ) : Result.Result<(), Text> {
+            switch(_components.get(name)){
+                case(null){
+                    return #err("Component not found");
+                };
+                case(? component){
+                    _components.delete(name);
+                    return #ok;
+                };
+            };
+        };
+
+        public func getComponents() : [(Text, Component)] {
+            return Iter.toArray(_components.entries());
+        };
+
         public func changeCSS(style : Text) : () {
             css_style := style;
         };
