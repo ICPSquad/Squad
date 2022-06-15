@@ -4,13 +4,16 @@
   import Join from "@components/shared/Join.svelte";
   import Newsletter from "@components/shared/Newsletter.svelte";
   import Categories from "@src/components/mission/Categories.svelte";
+  import Toast from "@src/components/shared/Toast.svelte";
+  import { dialog } from "../store/dialog";
   import { hubActor } from "@src/api/actor";
   import type { Mission } from "@canisters/hub/hub.did.d";
   import { user } from "@src/store/user";
+  import { setMessage } from "@src/store/toast";
   import { onDestroy } from "svelte";
   import { actors } from "@src/store/actor";
-  import { plugConnection } from "@utils/connection";
   import MissionSelection from "@src/components/mission/MissionSelection.svelte";
+  import ConnectDialog from "@src/components/shared/ConnectDialog.svelte";
   let missions: Mission[] | [] = [];
   let completed: BigInt[] = [];
 
@@ -31,35 +34,39 @@
     completed = new_completed;
   });
 
-  async function validateMission(e) {
+  const validateMission = async (e) => {
     let id = e.detail;
     if (!$user.loggedIn) {
-      plugConnection();
+      setMessage("You must be logged in to validate a mission", "error", 3000);
       return;
     }
     if (confirm("Do you want to validate this mission?")) {
+      setMessage("Validating mission...", "waiting");
       try {
         let result = await $actors.hubActor.verify_mission(id);
         console.log(result);
         if ("ok" in result) {
           if (result.ok) {
-            alert("Your mission has been validated! You will receive the reward shortly.");
+            completed.push(id);
+            setMessage("The mission has been validated. Your reward will be sent shortly.", "success", 3000);
           } else {
-            alert("This mission cannot be validated. Make sure you have completed the task.");
+            setMessage("This mission cannot be validated. Make sure you have completed the task.", "error", 5000);
           }
         } else {
-          alert(result.err);
+          alert("Critical error : " + result.err + "\nPlease report this issue.");
+          setMessage(result.err, "error", 5000);
         }
       } catch (e) {
         alert(e.message);
       }
     }
-  }
+  };
 
   onDestroy(() => {});
 
   getMission();
 
+  // Category selection
   let categoryShowing: string = "general";
   const setCategoryShowing = (category: string) => {
     categoryShowing = category;
@@ -71,7 +78,8 @@
   <h1>Mission</h1>
 </div>
 {#if !$user.loggedIn}
-  <button class="secondary" on:click={() => plugConnection()}> CONNECT WALLET TO VALIDATE MISSIONS </button>
+  <button class="secondary" on:click={() => $dialog.open()}> CONNECT WALLET TO VALIDATE MISSIONS </button>
+  <ConnectDialog />
 {/if}
 <main class="container">
   <div class="layout-grid">
@@ -86,6 +94,7 @@
 <Join />
 <Newsletter />
 <Footer />
+<Toast />
 
 <style lang="scss">
   @use "../styles" as *;
@@ -120,7 +129,7 @@
     grid-column: span 3;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-gap: 10px;
+    grid-gap: 20px;
     grid-auto-flow: dense;
   }
 

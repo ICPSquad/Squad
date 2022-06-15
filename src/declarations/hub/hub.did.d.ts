@@ -28,11 +28,12 @@ export type CanisterMetricsData = { 'hourly' : Array<HourlyMetricsData> } |
   { 'daily' : Array<DailyMetricsData> };
 export interface CreateMission {
   'title' : string,
+  'tags' : Array<string>,
   'description' : string,
-  'rewards' : Array<Reward>,
   'restricted' : [] | [Array<Principal>],
   'url_icon' : string,
   'validation' : MissionValidation,
+  'points' : bigint,
 }
 export interface CustomValidation {
   'args' : Array<number>,
@@ -85,7 +86,6 @@ export interface ICPSquadHub {
   'cron_style_score' : ActorMethod<[], undefined>,
   'delete_job' : ActorMethod<[bigint], undefined>,
   'delete_mission' : ActorMethod<[bigint], Result_1>,
-  'fix' : ActorMethod<[], undefined>,
   'getCanisterLog' : ActorMethod<
     [[] | [CanisterLogRequest]],
     [] | [CanisterLogResponse],
@@ -113,7 +113,6 @@ export interface ICPSquadHub {
   'get_round' : ActorMethod<[], [] | [Round]>,
   'is_admin' : ActorMethod<[Principal], boolean>,
   'my_completed_missions' : ActorMethod<[], Array<[bigint, Time]>>,
-  'reset_score' : ActorMethod<[], undefined>,
   'set_job_status' : ActorMethod<[boolean], undefined>,
   'start_mission' : ActorMethod<[bigint], Result_1>,
   'start_round' : ActorMethod<[], Result__1>,
@@ -154,15 +153,15 @@ export interface Mission {
   'id' : bigint,
   'status' : MissionStatus,
   'title' : string,
-  'creator' : Principal,
+  'tags' : Array<string>,
   'description' : string,
   'created_at' : Time,
-  'rewards' : Array<Reward>,
   'restricted' : [] | [Array<Principal>],
   'url_icon' : string,
   'ended_at' : [] | [Time],
   'validation' : MissionValidation,
   'started_at' : [] | [Time],
+  'points' : bigint,
 }
 export type MissionStatus = { 'Ended' : null } |
   { 'Running' : null } |
@@ -190,7 +189,6 @@ export type Result__1 = { 'ok' : bigint } |
   { 'err' : string };
 export type Result__1_1 = { 'ok' : null } |
   { 'err' : string };
-export type Reward = { 'Points' : bigint };
 export interface Round {
   'id' : bigint,
   'leaderboard' : [] | [Leaderboard],

@@ -22,7 +22,7 @@
         <div class="left">
           {category}
         </div>
-        <Carat color={categoryShowing == category ? "#40b1f5" : "#E5E5E5"} />
+        <Carat color={categoryShowing == category ? "#f8b13a" : "#E5E5E5"} />
       </button>
     {/each}
   </div>
@@ -31,7 +31,7 @@
       <div class="left">
         {categoryShowing}
       </div>
-      <Carat rotate={listExpanded ? -90 : 90} color={"#E5E5E5"} />
+      <Carat rotate={listExpanded ? -90 : 90} color={"#f8b13a"} />
     </button>
     {#if listExpanded}
       {#each categories as category}
@@ -63,7 +63,7 @@
     margin-bottom: 1px;
     &.selected {
       background-color: $darkgrey;
-      color: $blue;
+      color: $yellow;
     }
   }
 

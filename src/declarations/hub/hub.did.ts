@@ -1,5 +1,4 @@
 export const idlFactory = ({ IDL }) => {
-  const Reward = IDL.Variant({ 'Points' : IDL.Nat });
   const CustomValidation = IDL.Record({
     'args' : IDL.Vec(IDL.Nat8),
     'method_name' : IDL.Text,
@@ -17,11 +16,12 @@ export const idlFactory = ({ IDL }) => {
   });
   const CreateMission = IDL.Record({
     'title' : IDL.Text,
+    'tags' : IDL.Vec(IDL.Text),
     'description' : IDL.Text,
-    'rewards' : IDL.Vec(Reward),
     'restricted' : IDL.Opt(IDL.Vec(IDL.Principal)),
     'url_icon' : IDL.Text,
     'validation' : MissionValidation,
+    'points' : IDL.Nat,
   });
   const Result_2 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text });
   const Result__1_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
@@ -141,15 +141,15 @@ export const idlFactory = ({ IDL }) => {
     'id' : IDL.Nat,
     'status' : MissionStatus,
     'title' : IDL.Text,
-    'creator' : IDL.Principal,
+    'tags' : IDL.Vec(IDL.Text),
     'description' : IDL.Text,
     'created_at' : Time,
-    'rewards' : IDL.Vec(Reward),
     'restricted' : IDL.Opt(IDL.Vec(IDL.Principal)),
     'url_icon' : IDL.Text,
     'ended_at' : IDL.Opt(Time),
     'validation' : MissionValidation,
     'started_at' : IDL.Opt(Time),
+    'points' : IDL.Nat,
   });
   const Leaderboard = IDL.Vec(
     IDL.Tuple(
@@ -180,7 +180,6 @@ export const idlFactory = ({ IDL }) => {
     'cron_style_score' : IDL.Func([], [], []),
     'delete_job' : IDL.Func([IDL.Nat], [], []),
     'delete_mission' : IDL.Func([IDL.Nat], [Result_1], []),
-    'fix' : IDL.Func([], [], []),
     'getCanisterLog' : IDL.Func(
         [IDL.Opt(CanisterLogRequest)],
         [IDL.Opt(CanisterLogResponse)],
@@ -215,9 +214,8 @@ export const idlFactory = ({ IDL }) => {
     'my_completed_missions' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Nat, Time))],
-        [],
+        ['query'],
       ),
-    'reset_score' : IDL.Func([], [], []),
     'set_job_status' : IDL.Func([IDL.Bool], [], []),
     'start_mission' : IDL.Func([IDL.Nat], [Result_1], []),
     'start_round' : IDL.Func([], [Result__1], []),

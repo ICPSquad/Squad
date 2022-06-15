@@ -4,6 +4,5 @@ import "./src/styles/global.scss";
 const app = new App({
   target: document.getElementById("root"),
 });
-export default app;
 
-console.log(process.env.NODE_ENV);
+export default app;

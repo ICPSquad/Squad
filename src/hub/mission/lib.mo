@@ -93,7 +93,7 @@ module {
                 validation = mission.validation;
                 status = #Pending;
                 points = mission.points;
-                tags = mission.tags;
+                tags = Array.append<Text>(mission.tags, "pending");
             };
             missions.put(id, mission_complete);
             next_mission_id := next_mission_id + 1;
@@ -143,7 +143,7 @@ module {
                         restricted = mission.restricted;
                         validation = mission.validation;
                         points = mission.points;
-                        tags = mission.tags;
+                        tags = Array.append<Text>(mission.tags, ["ended"]);
                         status = #Ended;
                     };
                     _Logs.logMessage("Mission stopped : " # Nat.toText(id));
@@ -179,7 +179,6 @@ module {
                 };
             };
         };
-
 
         /* 
             Delete a mission by id 
@@ -431,7 +430,7 @@ module {
             Returns a boolean indicating if the caller has minted at least one branded Cronic accessory.
             Might takes a long time to resolve. Wen Promise.all in Motoko ?
         */
-        func _mission1(caller : Principal) : async Bool {
+        func _mission0(caller : Principal) : async Bool {
             let a = await _Cap.numberMint(caller, ?"Cronic-eyepatch");
             if(a >= 1){
                 return true;
@@ -451,7 +450,7 @@ module {
             return false;
         };
 
-        func _mission2(caller : Principal) : async Bool {
+        func _mission1(caller : Principal) : async Bool {
             let a = await _Cap.numberMint(caller, ?"Punk-mask");
             if(a >= 1){
                 return true;
@@ -461,25 +460,6 @@ module {
                 return true;
             };
             return false;
-        };
-
-        /* 
-            Validate the participation in the Motoko Bootcamp 
-            Returns a boolean indicating if the caller has participated in the bootcamp.
-        */
-        let graduates : [Principal] = [
-            Principal.fromText("udmjf-fyc6j-f7dnl-dw5bh-hh4wg-ln7iy-36pgp-mjocm-my4vc-r2irg-2ae")
-        ];
-        func _mission3(caller : Principal) : async Bool {
-            _Logs.logMessage("Checking if " # Principal.toText(caller) # " has participated in the bootcamp");
-            switch(Array.find<Principal>(graduates, func(x) { Principal.equal(x, caller)})){
-                case(null){
-                    return false;
-                };
-                case(? p){
-                    return true;
-                };
-            };
         };
 
         func _mission4(caller : Principal) : async Bool {
@@ -544,15 +524,8 @@ module {
             Associate a mission Id with the function that will process to the verification.
         */
         let handlers : [(Nat, (caller : Principal) -> async Bool)] = [
+            (0, _mission0),
             (1, _mission1),
-            (2, _mission2),
-            (3, _mission3),
-            (4, _mission4),
-            (5, _mission5),
-            (6, _mission6),
-            // (7, _mission7),
-            (8, _mission8),
-            // (10, _mission10)
         ];
 
     

@@ -1,26 +1,12 @@
 <script lang="ts">
-  import { fade } from "svelte/transition";
   import { fly } from "svelte/transition";
-  export let message = "";
-  export let state: "error" | "success" | "waiting" | "neutral" = "neutral";
-
-  function stateToClass(): string {
-    switch (state) {
-      case "error":
-        return "toast error";
-      case "success":
-        return "toast success";
-      case "waiting":
-        return "toast waiting";
-      case "neutral":
-        return "toast neutral";
-    }
-  }
+  import { setMessage, toast } from "@src/store/toast";
 </script>
 
-{#if message}
-  <div transition:fly={{ y: 200, opacity: 1 }} class={stateToClass()}>
-    {message}
+{#if $toast.message}
+  <div transition:fly={{ y: 200, opacity: 1 }} class={"toast " + $toast.state}>
+    {$toast.message}
+    <div class="cross" on:click={() => setMessage("", "info")}>x</div>
   </div>
 {/if}
 
@@ -44,6 +30,15 @@
     border-top-right-radius: 32px;
   }
 
+  .cross {
+    position: absolute;
+    font-size: x-large;
+    top: 0;
+    right: -10;
+    padding: 10px;
+    cursor: pointer;
+  }
+
   .error {
     background-color: $pink;
     color: $white;
@@ -55,12 +50,25 @@
   }
 
   .neutral {
-    background-color: $verydarkgrey;
+    background-color: $grey;
     color: $white;
   }
 
   .waiting {
-    background-color: $verydarkgrey;
+    background-color: $grey;
     color: $white;
+    animation: pulse 3s linear infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.5;
+    }
   }
 </style>

@@ -41,6 +41,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const TokenIndex = IDL.Nat32;
   const Result__1_1 = IDL.Variant({ 'ok' : TokenIdentifier, 'err' : IDL.Text });
+  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const AccountIdentifier__1 = IDL.Text;
   const SubAccount__1 = IDL.Vec(IDL.Nat8);
   const Time = IDL.Int;
@@ -231,7 +232,6 @@ export const idlFactory = ({ IDL }) => {
     'err' : CommonError__2,
   });
   const Result_4 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError__1 });
-  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const SubAccount__2 = IDL.Vec(IDL.Nat8);
   const Disbursement = IDL.Tuple(
     TokenIndex__1,
@@ -305,6 +305,7 @@ export const idlFactory = ({ IDL }) => {
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
     'bearer' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
+    'burn_accessory' : IDL.Func([TokenIndex], [], []),
     'collectCanisterMetrics' : IDL.Func([], [], []),
     'confirmed_burned_accessory' : IDL.Func([TokenIndex], [], []),
     'create_accessory' : IDL.Func([IDL.Text, IDL.Nat], [Result__1_1], []),
@@ -312,6 +313,7 @@ export const idlFactory = ({ IDL }) => {
     'cron_disbursements' : IDL.Func([], [], []),
     'cron_events' : IDL.Func([], [], []),
     'cron_settlements' : IDL.Func([], [], []),
+    'delete_item' : IDL.Func([IDL.Text], [Result], []),
     'details' : IDL.Func([TokenIdentifier], [DetailsResponse], ['query']),
     'disbursement_pending_count' : IDL.Func([], [IDL.Nat], ['query']),
     'disbursement_queue_size' : IDL.Func([], [IDL.Nat], ['query']),

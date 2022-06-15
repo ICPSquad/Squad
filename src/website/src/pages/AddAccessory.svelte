@@ -18,44 +18,11 @@
   import { nameToSlotAccessory } from "@utils/list";
   import { removeAccessory, wearAccessory } from "@utils/accessories";
   import Toast from "@src/components/shared/Toast.svelte";
+  import { setMessage } from "@src/store/toast";
   import ConnectButton from "@src/components/shared/ConnectButton.svelte";
 
   const categories = ["hat", "face", "eyes", "body", "misc"];
-
-  // Toast component
-  let message = "";
-  let state: "error" | "success" | "neutral" | "waiting" = "neutral";
-
-  function setSuccess(text: string, timeout?: number): void {
-    message = text;
-    state = "success";
-    if (timeout) {
-      setTimeout(() => {
-        message = "";
-        state = "neutral";
-      }, timeout);
-    }
-  }
-
-  function setError(text: string, timeout?: number): void {
-    state = "error";
-    message = text;
-    if (timeout) {
-      setTimeout(() => {
-        message = "";
-      }, timeout);
-    }
-  }
-
-  function setMessage(text: string, timeout?: number): void {
-    message = text;
-    state = "neutral";
-    if (timeout) {
-      setTimeout(() => {
-        message = "";
-      }, timeout);
-    }
-  }
+  let state: "idle" | "waiting" = "idle";
 
   let showMyAccessories: boolean = true;
   let colors: AvatarColors;
@@ -121,11 +88,12 @@
     } else {
       result = await wearAccessory(accessoryId, tokenId);
     }
+    state = "idle";
     if ("err" in result) {
-      setError(result.err, 5000);
+      setMessage(result.err, "error", 3000);
       return;
     } else {
-      setSuccess("Success! Your avatar has been updated.", 3000);
+      setMessage("Success! Your avatar has been updated.", "success", 3000);
       if (isEquipped) {
         components[nameToSlotAccessory(e.detail.name)] = undefined;
       } else {
@@ -150,7 +118,7 @@
     try {
       await updateAvatar();
     } catch (e) {
-      setError("Error: " + e, 5000);
+      setMessage("Error: " + e, "error", 5000);
     }
   }
 
@@ -158,7 +126,7 @@
     try {
       await updateInventory();
     } catch (e) {
-      setError("Error: " + e, 5000);
+      setMessage("Error: " + e, "error", 5000);
     }
   }
 </script>
@@ -171,9 +139,6 @@
   {#if !$user.loggedIn}
     <p>Please connect a wallet to continue</p>
     <ConnectButton />
-  {:else if state === "error"}
-    <p>An errorr occured 😵‍💫</p>
-    <a href="https://discord.gg/CZ9JgnaySu" target="_blank"><button> Support </button> </a>
   {:else if state === "waiting"}
     <Spinner message={"Please wait..."} />
   {:else if colors && components}
@@ -222,7 +187,7 @@
   {/if}
 </main>
 <Footer />
-<Toast {message} {state} />
+<Toast />
 
 <style lang="scss">
   @use "./src/website/src/styles" as *;

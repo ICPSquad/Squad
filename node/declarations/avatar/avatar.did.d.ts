@@ -115,6 +115,7 @@ export interface ICPSquadNFT {
   'cron_events' : ActorMethod<[], undefined>,
   'cron_scores' : ActorMethod<[], undefined>,
   'delete_admin' : ActorMethod<[Principal], undefined>,
+  'delete_component' : ActorMethod<[string], Result>,
   'delete_file' : ActorMethod<[string], Result>,
   'details' : ActorMethod<[TokenIdentifier], Result_5>,
   'draw' : ActorMethod<[TokenIdentifier], Result>,
@@ -134,6 +135,7 @@ export interface ICPSquadNFT {
     [],
     [[] | [TokenIdentifier], [] | [AvatarRendering]],
   >,
+  'get_components' : ActorMethod<[], Array<[string, Component]>>,
   'get_infos_holders' : ActorMethod<
     [],
     Array<
@@ -160,6 +162,7 @@ export interface ICPSquadNFT {
   'modify_user' : ActorMethod<[UserData], Result>,
   'registerComponent' : ActorMethod<[string, Component], Result>,
   'removeAccessory' : ActorMethod<[TokenIdentifier, string, Principal], Result>,
+  'removeAccessory_fix' : ActorMethod<[TokenIdentifier, string], Result>,
   'report_burned_accessory' : ActorMethod<
     [string, TokenIdentifier, TokenIndex],
     undefined,

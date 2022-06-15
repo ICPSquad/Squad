@@ -170,6 +170,16 @@ export const idlFactory = ({ IDL }) => {
     'account_identifier' : IDL.Opt(IDL.Text),
     'discord' : IDL.Opt(IDL.Text),
   });
+  const ComponentCategory = IDL.Variant({
+    'Avatar' : IDL.Null,
+    'Accessory' : IDL.Null,
+    'Other' : IDL.Null,
+  });
+  const Component = IDL.Record({
+    'name' : IDL.Text,
+    'layers' : IDL.Vec(IDL.Nat),
+    'category' : ComponentCategory,
+  });
   const Name__2 = IDL.Text;
   const StyleScore = IDL.Nat;
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
@@ -218,16 +228,6 @@ export const idlFactory = ({ IDL }) => {
     'profile' : IDL.Text,
   });
   const MintResult = IDL.Variant({ 'ok' : TokenIdentifier, 'err' : IDL.Text });
-  const ComponentCategory = IDL.Variant({
-    'Avatar' : IDL.Null,
-    'Accessory' : IDL.Null,
-    'Other' : IDL.Null,
-  });
-  const Component = IDL.Record({
-    'name' : IDL.Text,
-    'layers' : IDL.Vec(IDL.Nat),
-    'category' : ComponentCategory,
-  });
   const Result_3 = IDL.Variant({
     'ok' : IDL.Vec(TokenIndex),
     'err' : CommonError,
@@ -299,6 +299,7 @@ export const idlFactory = ({ IDL }) => {
     'cron_events' : IDL.Func([], [], []),
     'cron_scores' : IDL.Func([], [], []),
     'delete_admin' : IDL.Func([IDL.Principal], [], []),
+    'delete_component' : IDL.Func([IDL.Text], [Result], []),
     'delete_file' : IDL.Func([IDL.Text], [Result], []),
     'details' : IDL.Func([TokenIdentifier], [Result_5], ['query']),
     'draw' : IDL.Func([TokenIdentifier], [Result], []),
@@ -332,6 +333,11 @@ export const idlFactory = ({ IDL }) => {
         [],
         [IDL.Opt(TokenIdentifier), IDL.Opt(AvatarRendering)],
         ['query'],
+      ),
+    'get_components' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, Component))],
+        [],
       ),
     'get_infos_holders' : IDL.Func(
         [],
@@ -375,6 +381,7 @@ export const idlFactory = ({ IDL }) => {
         [Result],
         [],
       ),
+    'removeAccessory_fix' : IDL.Func([TokenIdentifier, IDL.Text], [Result], []),
     'report_burned_accessory' : IDL.Func(
         [IDL.Text, TokenIdentifier, TokenIndex],
         [],

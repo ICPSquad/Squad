@@ -159,6 +159,12 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         return _Mission.startMission(id);
     };
 
+    public shared ({ caller }) func stop_mission(id : Nat) : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return _Mission.stopMission(id);
+    };
+
     public shared ({ caller }) func verify_mission(id : Nat) : async Result.Result<Bool, Text> {
         _Monitor.collectMetrics();
         return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
@@ -177,6 +183,12 @@ shared ({ caller = creator }) actor class ICPSquadHub(
 
     public query func get_missions() : async [Mission] {
         return _Mission.getMissions();
+    };
+
+    public shared ({ caller }) func manually_add_winners(id : Nat, principals : [Principal]) : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return _Mission.manuallyAddWinners(id, principals);
     };
 
     ////////////////////
