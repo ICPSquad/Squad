@@ -178,4 +178,22 @@
       font-size: 150px;
     }
   }
+
+  @media (max-width: 800px) {
+    .season {
+      --offset: 0px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      img,
+      .question-mark {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        margin-left: 0;
+        margin-bottom: 40px;
+      }
+    }
+  }
 </style>
