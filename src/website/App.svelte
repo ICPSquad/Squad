@@ -13,6 +13,7 @@
   import Leaderboard from "@src/pages/Leaderboard.svelte";
   import AddAccessory from "@src/pages/AddAccessory.svelte";
   import Profile from "@src/pages/Profile.svelte";
+  import Roadmap from "@src/pages/Roadmap.svelte";
 </script>
 
 <Router>
@@ -29,4 +30,5 @@
   <Route path="add-accessory"><AddAccessory /></Route>
   <Route path="leaderboard"><Leaderboard /></Route>
   <Route path="profile"><Profile /></Route>
+  <Route path="roadmap"><Roadmap /></Route>
 </Router>
