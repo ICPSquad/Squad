@@ -1,6 +1,7 @@
 <script lang="ts">
   import Header from "@components/shared/Header.svelte";
   import Footer from "@components/shared/Footer.svelte";
+  import Link from "@src/components/shared/LinkButton.svelte";
   import Join from "@components/shared/Join.svelte";
   import Newsletter from "@components/shared/Newsletter.svelte";
 
@@ -12,23 +13,23 @@
   const accessories: AccessoriesCategory[] = [
     {
       categoryName: "Hat",
-      items: ["assassin-hood", "astro-helmet", "helicap", "magic-hood", "marshall-hat", "mortaboard-hat", "ninja-headband", "shinobi-hat"],
+      items: ["shinobi-hat", "helicap", "assassin-hood", "astro-helmet", "ninja-headband", "marshall-hat", "magic-hood", "mortaboard-hat"],
     },
     {
       categoryName: "Eyes",
-      items: ["cronic-eyepatch", "dfinity-eyemask", "lab-glasses", "monocle", "punk-glasses", "sunglasses"],
+      items: ["monocle", "lab-glasses", "sunglasses", "dfinity-eyemask", "punk-glasses", "cronic-eyepatch"],
     },
     {
       categoryName: "Face",
-      items: ["boring-mask", "evil-mask", "gas-mask", "juggalo-facemask", "kitsune-mask", "facemask", "oni-face-mask", "punk-mask"],
+      items: ["boring-mask", "juggalo-facemask", "oni-face-mask", "facemask", "gas-mask", "kitsune-mask", "evil-mask", "punk-mask"],
     },
     {
       categoryName: "Body",
-      items: ["assassin-cap", "astro-suit", "bootcamp-soldier", "cronic-tshirt", "devil-jacket", "helicap-tshirt", "lab-coat", "magic-cap", "shinobi-suit", "street-jacket", "yakuza-suit"],
+      items: ["helicap-tshirt", "assassin-cape", "lab-coat", "shinobi-suit", "yakuza-suit", "devil-jacket", "street-jacket", "magic-cape", "astro-suit", "cronic-tshirt", "bootcamp-soldier"],
     },
     {
       categoryName: "Misc",
-      items: ["cronic-hypnose", "cronic-wallpaper", "snowfall", "sunrise"],
+      items: ["snowfall", "sunrise", "cronic-hypnose", "cronic-wallpaper"],
     },
   ];
 </script>
@@ -47,6 +48,11 @@
   <p>
     You can also trade both accessories and materials through the <a href="https://entrepot.app/marketplace/icpsquad2" target="_blank">Entrepot marketplace</a>.
   </p>
+  <div class="action">
+    <Link to="/create-accessory">
+      <button> Create </button>
+    </Link>
+  </div>
 
   <h2>AVAILABLE ACCESSORIES</h2>
   <div class="grid">
@@ -117,5 +123,13 @@
     h3 {
       grid-column: span 2;
     }
+  }
+
+  .action {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    margin: 40px auto;
   }
 </style>
