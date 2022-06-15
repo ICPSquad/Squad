@@ -77,6 +77,10 @@
           url: "/about-us",
         },
         {
+          label: "Roadmap",
+          url: "/roadmap",
+        },
+        {
           label: "Partners",
           url: "/partners",
         },
@@ -98,10 +102,19 @@
       <div class="items">
         {#each itemGroup.items as item}
           {#if item.external}
-            <a class="item" style="text-align: {textAlignCenter ? 'center' : 'left'}" href={item.url} target={item.external ? "_blank" : ""}>{item.label} </a>
+            <a
+              class="item"
+              style="text-align: {textAlignCenter ? 'center' : 'left'}"
+              href={item.url}
+              target={item.external ? "_blank" : ""}
+              >{item.label}
+            </a>
           {:else}
             <Link on:click={closeMenu} to={item.url}>
-              <div class="item" style="text-align: {textAlignCenter ? 'center' : 'left'}">
+              <div
+                class="item"
+                style="text-align: {textAlignCenter ? 'center' : 'left'}"
+              >
                 {item.label}
               </div>
             </Link>
