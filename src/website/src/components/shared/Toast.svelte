@@ -58,6 +58,7 @@
     background-color: $verydarkgrey;
     color: $white;
   }
+
   .waiting {
     background-color: $verydarkgrey;
     color: $white;

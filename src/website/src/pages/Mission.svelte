@@ -3,14 +3,14 @@
   import Footer from "@components/shared/Footer.svelte";
   import Join from "@components/shared/Join.svelte";
   import Newsletter from "@components/shared/Newsletter.svelte";
-  import MissionCard from "@components/mission/MissionCard.svelte";
+  import Categories from "@src/components/mission/Categories.svelte";
   import { hubActor } from "@src/api/actor";
   import type { Mission } from "@canisters/hub/hub.did.d";
-  import { getRewardToString } from "@utils/missions";
   import { user } from "@src/store/user";
   import { onDestroy } from "svelte";
   import { actors } from "@src/store/actor";
   import { plugConnection } from "@utils/connection";
+  import MissionSelection from "@src/components/mission/MissionSelection.svelte";
   let missions: Mission[] | [] = [];
   let completed: BigInt[] = [];
 
@@ -59,6 +59,11 @@
   onDestroy(() => {});
 
   getMission();
+
+  let categoryShowing: string = "general";
+  const setCategoryShowing = (category: string) => {
+    categoryShowing = category;
+  };
 </script>
 
 <Header />
@@ -68,11 +73,16 @@
 {#if !$user.loggedIn}
   <button class="secondary" on:click={() => plugConnection()}> CONNECT WALLET TO VALIDATE MISSIONS </button>
 {/if}
-<div class="mission-container">
-  {#each missions as mission}
-    <MissionCard title={mission.title} description={mission.description} reward={getRewardToString(mission)} id={mission.id} {completed} on:validateMission={validateMission} />
-  {/each}
-</div>
+<main class="container">
+  <div class="layout-grid">
+    <div class="categories">
+      <Categories {categoryShowing} {setCategoryShowing} />
+    </div>
+    <div class="missions">
+      <MissionSelection {categoryShowing} {missions} {completed} on:validateMission={validateMission} />
+    </div>
+  </div>
+</main>
 <Join />
 <Newsletter />
 <Footer />
@@ -81,14 +91,37 @@
   @use "../styles" as *;
 
   h1 {
-    --page-feature-color: #{$green};
+    --page-feature-color: #{$yellow};
   }
 
-  .mission-container {
+  .layout-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: 20px;
-    margin: 60px 60px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-gap: 40px;
+  }
+
+  @media (max-width: 960px) {
+    .layout-grid {
+      grid-template-columns: 3fr 3fr 4fr;
+      grid-gap: 10px;
+      grid-auto-flow: dense;
+    }
+    .categories {
+      grid-column: span 2;
+    }
+    .item-selection {
+      grid-column: span 2;
+    }
+    .accessory-details {
+      grid-row: span 2;
+    }
+  }
+  .missions {
+    grid-column: span 3;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 10px;
+    grid-auto-flow: dense;
   }
 
   button {

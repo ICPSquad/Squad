@@ -9,7 +9,6 @@ module {
 
     public type Mission = {
         id : Nat;
-        creator : Principal;
         title : Text;
         description : Text;
         url_icon : Text;
@@ -19,7 +18,8 @@ module {
         restricted : ?[Principal];
         validation : MissionValidation;
         status : MissionStatus;
-        rewards : [Reward];
+        points : Nat;
+        tags : [Text];
     };  
 
     public type CreateMission = {
@@ -28,13 +28,14 @@ module {
         url_icon : Text;
         restricted : ?[Principal];
         validation : MissionValidation;
-        rewards : [Reward];
+        points : Nat;
+        tags : [Text];
     };
 
     public type MissionValidation = {
         #Automatic : AutomaticValidation;
-        #Manual : ManualValidation;
         #Custom : CustomValidation;
+        #Manual : ManualValidation;
         #Internal;
     };
 
@@ -76,10 +77,6 @@ module {
         #Ended;
     };
 
-    public type Reward = {
-        #Points : Nat;
-    };
-
     public type Dependencies = {
         _Admins : Admins.Admins;
         _Logs : Canistergeek.Logger;
@@ -89,7 +86,7 @@ module {
     public type UpgradeData = {
         next_mission_id : Nat;
         missions : [(Nat, Mission)];
-        winners : [(Nat, [Principal])];
+        winners : [(Nat, [Principal])]; 
         completedMissions : [(Principal, [(Nat, Time.Time)])];
     };
 
@@ -111,14 +108,7 @@ module {
         /* Delete a mission by id */
         delete_mission : (id : Nat) -> Result.Result<(), Text>;
 
-
+        /* End a mission by id */
         end_mission : (id : Nat, winners : ?[Principal]) -> Result.Result<(), Text>;
-
-        get_active_missions : () -> [Mission];
-
-        get_past_missions : () -> [Mission];
-
-        get_pending_mission : () -> [Mission];
-
     };
 };

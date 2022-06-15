@@ -169,11 +169,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         return _Mission.myCompletedMissions(caller);
     };
 
-    public shared ({ caller }) func fix() : async () {
-        _Monitor.collectMetrics();
-        return _Mission.fix();
-    };
-
     public shared ({ caller }) func delete_mission(id : Nat) : async Result.Result<(), Text> {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
@@ -182,13 +177,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
 
     public query func get_missions() : async [Mission] {
         return _Mission.getMissions();
-    };
-
-    public shared ({ caller }) func reset_score() : async () {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Mission.resetScore();
-        _Logs.logMessage("Reset score by " # Principal.toText(caller));
     };
 
     ////////////////////

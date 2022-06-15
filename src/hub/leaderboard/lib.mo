@@ -277,13 +277,13 @@ module {
                 switch(tokenIdentifier){
                     case(null) {
                         let style_score = null;
-                        let engagement_score = _Mission.getEngagementScore(p, round.start_date, Time.now());
+                        let engagement_score = _Mission.getMissionScore(p, round.start_date, Time.now());
                         let total_score = _getTotalScore(style_score, ?engagement_score);
                         buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
                     };
                     case(? token) {
                         let style_score = _Style.getScore(token, round.start_date, Time.now());
-                        let engagement_score =  _Mission.getEngagementScore(p, round.start_date, Time.now());
+                        let engagement_score =  _Mission.getMissionScore(p, round.start_date, Time.now());
                         let total_score = _getTotalScore(style_score, ?engagement_score);
                         buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
                     };

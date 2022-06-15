@@ -21,7 +21,6 @@ module {
     public type UpgradeData = Types.UpgradeData;
     public type Mission = Types.Mission;
     public type CreateMission = Types.CreateMission;
-    public type Reward = Types.Reward;
 
     public class Center(dependencies : Types.Dependencies) {
  
@@ -37,15 +36,15 @@ module {
         let true_encoded : [Nat8] = [68, 73, 68, 76, 0 , 1, 126, 1];
 
         var next_mission_id : Nat = 0;
+
         let missions : TrieMap.TrieMap<Nat, Mission> = TrieMap.TrieMap<Nat, Mission>(Nat.equal, Hash.hash);
         let winners : TrieMap.TrieMap<Nat, [Principal]> = TrieMap.TrieMap<Nat, [Principal]>(Nat.equal, Hash.hash);
-        let scores : TrieMap.TrieMap<Principal,Nat> = TrieMap.TrieMap<Principal,Nat>(Principal.equal, Principal.hash);
+        let completedMissions : TrieMap.TrieMap<Principal, [(Nat, Time.Time)]> = TrieMap.TrieMap<Principal, [(Nat, Time.Time)]>(Principal.equal, Principal.hash);
 
         /* 
             Keep track for each user of it's completed mission by keeping a record of the time they completed it.  
             Also used to compute the scores for a specific round.
         */
-        let completedMissions : TrieMap.TrieMap<Principal, [(Nat, Time.Time)]> = TrieMap.TrieMap<Principal, [(Nat, Time.Time)]>(Principal.equal, Principal.hash);
 
         public func preupgrade() : UpgradeData {
             return({
@@ -64,8 +63,8 @@ module {
                     for((id, mission) in ud.missions.vals()){
                         missions.put(id, mission);
                     };
-                    for((id, list) in ud.winners.vals()){
-                        winners.put(id, list);
+                    for((id, p_winners) in ud.winners.vals()){
+                        winners.put(id, p_winners);
                     };
                     for((principal, completed) in ud.completedMissions.vals()){
                         completedMissions.put(principal, completed);
@@ -93,7 +92,8 @@ module {
                 restricted = mission.restricted;
                 validation = mission.validation;
                 status = #Pending;
-                rewards = mission.rewards;
+                points = mission.points;
+                tags = mission.tags;
             };
             missions.put(id, mission_complete);
             next_mission_id := next_mission_id + 1;
@@ -103,13 +103,11 @@ module {
         public func startMission(id : Nat) : Result.Result<(), Text> {
             switch(missions.get(id)){
                 case(null) {
-                    _Logs.logMessage("Mission not found for id : " # Nat.toText(id));
                     return #err("Mission not found for id :" # Nat.toText(id));
                 };
                 case(? mission){
                     let new_mission = {
                         id = mission.id;
-                        creator = mission.creator;
                         title = mission.title;
                         description = mission.description;
                         url_icon = mission.url_icon;
@@ -118,10 +116,37 @@ module {
                         ended_at = null;
                         restricted = mission.restricted;
                         validation = mission.validation;
+                        points = mission.points;
+                        tags = mission.tags;
                         status = #Running;
-                        rewards = mission.rewards;
                     };
-                    _Logs.logMessage("Mission started : " # Nat.toText(id));
+                    missions.put(id, new_mission);
+                    return #ok();
+                };
+            };
+        };
+
+        public func stopMission(id : Nat) : Result.Result<(), Text> {
+            switch(missions.get(id)){
+                case(null){
+                    return #err("Mission not found for id :" # Nat.toText(id));
+                };
+                case(? mission) {
+                    let new_mission = {
+                        id = mission.id;
+                        title = mission.title;
+                        description = mission.description;
+                        url_icon = mission.url_icon;
+                        created_at = mission.created_at;
+                        started_at = mission.started_at;
+                        ended_at = ?Time.now();
+                        restricted = mission.restricted;
+                        validation = mission.validation;
+                        points = mission.points;
+                        tags = mission.tags;
+                        status = #Ended;
+                    };
+                    _Logs.logMessage("Mission stopped : " # Nat.toText(id));
                     missions.put(id, new_mission);
                     return #ok();
                 };
@@ -131,29 +156,22 @@ module {
         public func verifyMission(id : Nat, caller : Principal, args : Blob) : async Result.Result<Bool, Text> {
             switch(missions.get(id)){
                 case(null){
-                    _Logs.logMessage("Mission not found for id : " # Nat.toText(id));
                     return #err("Mission not found for id :" # Nat.toText(id));
                 };
                 case(? mission){
                     if(mission.status != #Running){
-                        _Logs.logMessage("Mission not running for id : " # Nat.toText(id));
                         return #err("Mission not running for id :" # Nat.toText(id));
                     };
                     switch(await _validate(mission, caller, args)){
                         case(#err(e)) {
-                            _Logs.logMessage("verifyMission :: ERR :: " # e);
                             return #err(e);
                         };
                         case(#ok(bool)){
                             if(bool){
-                                if(_isWinner(id, caller)){
+                                if(_hasCompletedMission(id, caller)){
                                     return #err("You have already verified this mission");
                                 };
-                                _addToWinner(id, caller);
-                                _addToCompletedMission(id, caller);
-                                for(reward in mission.rewards.vals()){
-                                    _distributeReward(caller,reward);
-                                };
+                                _afterVerification(id, caller);
                             };
                             return #ok(bool);
                         };
@@ -162,10 +180,17 @@ module {
             };
         };
 
+
+        /* 
+            Delete a mission by id 
+            Cannot delete a mission that has already been completed by at least one user. Otherwise the score won't be computed.
+        */
         public func deleteMission(id : Nat) : Result.Result<(), Text> {
+            if(_isThereAWinner(id)){
+                return #err("Cannot delete a mission that has registered winners.");
+            };
             switch(missions.get(id)){
                 case(null) {
-                    _Logs.logMessage("Mission not found for id : " # Nat.toText(id));
                     return #err("Mission not found for id : " # Nat.toText(id));
                 };
                 case(? mission){
@@ -175,8 +200,7 @@ module {
             };
         };
 
-
-        public func getEngagementScore(p : Principal, start : Time.Time, end : Time.Time) : Nat {
+        public func getMissionScore(p : Principal, start : Time.Time, end : Time.Time) : Nat {
             switch(completedMissions.get(p)){
                 case(null) return 0;
                 case(? completed){
@@ -191,19 +215,13 @@ module {
             };
         };
 
-        public func resetScore() : () {
-            for((principal, _) in scores.entries()){
-                scores.put(principal, 0);
-            };
-        };
-
-        public func fix() : () {
-            winners.delete(3);
-        };
-
         public func getMissions() : [Mission] {
             return Iter.toArray(missions.vals());
         };
+
+        // public func getRunningMission() : [Mission] {
+        //     return Array.filter<Mission>(Iter.toArray(missions.vals(), func (x : Mission) {x.status == #Running}));
+        // };
 
         public func myCompletedMissions(caller : Principal) : [(Nat, Time.Time)] {
             switch(completedMissions.get(caller)){
@@ -213,6 +231,31 @@ module {
                 };
             };
         };
+
+
+        /* 
+            Manually add a list of winners for mission that are externally validated.
+         */
+
+         public func manuallyAddWinners(id : Nat, p_winners : [Principal]) : Result.Result<(), Text> {
+            switch(missions.get(id)){
+                case(null) {
+                    return #err("Mission not found for id : " # Nat.toText(id));
+                };
+                case(? mission){
+                    switch(mission.validation){
+                        //TODO : Add support for external moderators responsible for a specific mission
+                        case(#Manual(mods)){
+                            winners.put(id, p_winners);
+                            return #ok();
+                        };
+                        case(_) {
+                            return #err("Mission is not eligible for manual validation");
+                        };
+                    };
+                };
+            };
+         };
 
         //////////////
         // Helpers //
@@ -252,10 +295,14 @@ module {
                             return #err("No list of winners found for this mission");
                         };
                         case(? list){
-                            if(_isWinner(mission.id, caller)){
-                                return #ok(true);
-                            } else {
-                                return #ok(false);
+                            switch(Array.find<Principal>(list, func(x : Principal) {x == caller})){
+                                case(null) {
+                                    return #ok(false);
+                                };
+                                case(? _){
+                                    completedMissions.put(caller, [(mission.id, Time.now())]);
+                                    return #ok(true);
+                                };
                             };
                         };
                     };
@@ -276,27 +323,71 @@ module {
             };
         };
 
+        /* 
+            Returns a boolean indicating if the principal is among the winners of a mission.
+         */
         func _isWinner(id : Nat, p : Principal) : Bool {
             switch(winners.get(id)){
-                case(null){
-                    return false;
-                };
-                case(? winners){
-                    return(Option.isSome(Array.find<Principal>(winners,func(x) { p == x })))
+                case(null) return false;
+                case(? list){
+                    switch(Array.find<Principal>(list, func(x : Principal) {x == p})){
+                        case(null) return false;
+                        case(? some) return true;
+                    };
                 };
             };
-           
         };  
+        
+        /* 
+            Returns a boolean indicatinf if the principal has already completed a mission. Not the same as previous method if the mission is manually provided a list of winners, the user still need to validate his participation.
+         */
+        func _hasCompletedMission(id : Nat, p : Principal) : Bool {
+            switch(completedMissions.get(p)){
+                case(null) return false;
+                case(? completed){
+                    for((mission_id, time) in completed.vals()){
+                        if(mission_id == id){
+                            return true;
+                        };
+                    };
+                    return false;
+                };
+            };
+        };
 
-        func _addToWinner(id : Nat, p : Principal) : () {
+        /* 
+           Performs the necessary action after a user has completed a mission.
+           If the mission is a manual one, we only need to add it into the list of completed mission of the user, his principal is already among the list of winners.
+           Otherwise we need to perform both actions.
+         */
+        func _afterVerification(id : Nat, p : Principal) : () {
+            switch(missions.get(id)){
+                case(null) {
+                    return;
+                };
+                case(? mission){
+                    switch(mission.validation){
+                        // In the case of a manual validation, we only need to add the mission to the list of completed missions.
+                        case(#Manual(mods)){
+                            _addToCompletedMission(id, p);
+                        };
+                        // Otherwise we need to add the mission to the list of completed missions & add the user to the list of winners.
+                        case(_) {
+                            _addToWinners(id, p);
+                            _addToCompletedMission(id, p);
+                        };
+                    };
+                };
+            };
+        };
+
+        func _addToWinners(id : Nat, p : Principal) : () {
             switch(winners.get(id)){
                 case(null){
-                    let list = [p];
-                    winners.put(id, list);
+                    winners.put(id, [p]);
                 };
                 case(? list){
-                    let new_list = Array.append<Principal>(list, [p]);
-                    winners.put(id, new_list);
+                    winners.put(id, Array.append<Principal>(list, [p]));
                 };
             };
         };
@@ -307,58 +398,31 @@ module {
                     completedMissions.put(p, [(id, Time.now())]);
                 };
                 case(? list){
-                    let new_list = Array.append<(Nat, Time.Time)>(list, [(id, Time.now())]);
-                    completedMissions.put(p, new_list);
+                    completedMissions.put(p, Array.append<(Nat, Time.Time)>(list, [(id, Time.now())]));
                 };
             };
-        };
+        };  
 
-        func _distributeReward(p : Principal, reward : Reward) : () {
-            switch(reward){
-                case(#Points(points)){
-                    _addPoints(p, points);
-                };
-                case _ {
-                    assert(false);
-                };
-            };
-        };
-
-        func _addPoints(p : Principal, points : Nat) : () {
-            switch(scores.get(p)){
-                case(null) {
-                    scores.put(p, points);
-                };
-                case(? score){
-                    scores.put(p, score + points);
+        func _isThereAWinner(id : Nat) : Bool {
+            switch(winners.get(id)){
+                case(null) return false;
+                case(? list){
+                    if(list.size() > 0){
+                        return true;
+                    };
+                    return false;
                 };
             };
         };
 
         func _scoreMission(id : Nat) : Nat {
-            switch(missions.get(id)) {
-                case(null) {
-                    _Logs.logMessage("Mission not found for id : " # Nat.toText(id));
-                    return 0;
-                };
+            switch(missions.get(id)){
+                case(null) return 0;
                 case(? mission){
-                    _getPointRewardFromMission(mission);
+                    mission.points;
                 };
             };
         };
-
-        func _getPointRewardFromMission(mission : Mission) : Nat {
-            for(reward in mission.rewards.vals()){
-                switch(reward){
-                    case(#Points(points)){
-                        return points;
-                    };
-                    case _ {};
-                }
-            };
-            return 0;
-        };
-
 
         //////////////
         // Handler //
