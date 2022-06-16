@@ -132,7 +132,34 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     let _Cap = Cap.Factory({
         cid_bucket_accessory = Principal.fromText("qfevy-hqaaa-aaaaj-qanda-cai");
         cid_bucket_avatar = Principal.fromText("ffu6n-ciaaa-aaaaj-qaotq-cai");
+        cid_router = Principal.fromText("lj532-6iaaa-aaaah-qcc7a-cai");
+        _Logs;
     });
+
+    public shared ({ caller }) func update_user_interacted_collections(user : Principal) : async Result.Result<Nat, Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.updateUserInteractedCollections(user);
+    };
+
+    public func get_number_operations(
+        user : Principal,
+        operations : [Text],
+        cids_buckets : ?[Principal]
+    ) : async Nat {
+        _Monitor.collectMetrics();
+        await _Cap.numberOperations(user, operations, cids_buckets);
+    };
+
+    public func get_stats_sales(
+        user : Principal,
+        cids_buckets : ?[Principal],
+        time_start : ?Time.Time,
+        time_end : ?Time.Time,
+    ) : async Result.Result<(Nat, Nat), Text> {
+        _Monitor.collectMetrics();
+        await _Cap.statsSales(user, cids_buckets, time_start, time_end);
+    };
 
     ////////////////
     // Mission ////
@@ -180,11 +207,18 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Monitor.collectMetrics();
         return _Mission.deleteMission(id);
     };
-
+    
+    /* 
+        Query the list of all missions.
+     */
     public query func get_missions() : async [Mission] {
         return _Mission.getMissions();
     };
 
+    /* 
+        Upload a list of winners for the mission with the specified id.
+        @auth : admin
+     */
     public shared ({ caller }) func manually_add_winners(id : Nat, principals : [Principal]) : async Result.Result<(), Text> {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
@@ -296,10 +330,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         return _Jobs.getJobs();  
     };
 
-    system func heartbeat() : async () {
-        await _Jobs.doJobs();
-    };
-
     /////////////
     // Cronic //
     ///////////
@@ -364,5 +394,9 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Mission.postupgrade(_MissionUD);
         _MissionUD := null;
         _Logs.logMessage("Postupgrade hub");
+    };
+
+    system func heartbeat() : async () {
+        await _Jobs.doJobs();
     };
 };

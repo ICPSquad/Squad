@@ -93,7 +93,7 @@ module {
                 validation = mission.validation;
                 status = #Pending;
                 points = mission.points;
-                tags = Array.append<Text>(mission.tags, "pending");
+                tags = Array.append<Text>(mission.tags, ["pending"]);
             };
             missions.put(id, mission_complete);
             next_mission_id := next_mission_id + 1;

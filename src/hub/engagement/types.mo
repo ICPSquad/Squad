@@ -1,3 +1,7 @@
+import Canistergeek "mo:canistergeek/canistergeek";
+
+import Collection "../collection";
+
 module {
     public type DetailValue = {
         #I64 : Int64;
@@ -29,7 +33,7 @@ module {
         user : Principal;
         witness : Bool;
     };   
-
+    public type GetTransactionsArg = { page : ?Nat32; witness : Bool };
     public type Witness = { certificate : [Nat8]; tree : [Nat8] };
 
     public type GetTransactionsResponseBorrowed = {
@@ -38,13 +42,41 @@ module {
         witness : ?Witness;
     };
 
+    public type Bucket = actor {
+        get_user_transactions : shared query GetUserTransactionArg -> async GetTransactionsResponseBorrowed;
+        get_transactions : shared query GetTransactionsArg -> async GetTransactionsResponseBorrowed;
+    };
+
+    public type GetTokenContractRootBucketArg = {
+        witness : Bool;
+        canister : Principal;
+    };
+    public type GetTokenContractRootBucketResponse = {
+        witness : ?Witness;
+        canister : ?Principal;
+    };
+
+    public type GetUserRootBucketsArg = { user : Principal; witness : Bool };
+    public type GetUserRootBucketsResponse = {
+        witness : ?Witness;
+        contracts : [Principal];
+    };
+
+    public type Router = actor {
+        get_token_contract_root_bucket : shared GetTokenContractRootBucketArg -> async GetTokenContractRootBucketResponse;
+        get_user_root_buckets : shared GetUserRootBucketsArg -> async GetUserRootBucketsResponse;
+    };
+
     public type Dependencies = {
         cid_bucket_accessory : Principal;
         cid_bucket_avatar : Principal;
+        cid_router : Principal;
+        _Logs : Canistergeek.Logger;
     };
 
-    public type Bucket = actor {
-        get_user_transactions : shared query GetUserTransactionArg -> async GetTransactionsResponseBorrowed;
+    public type UpgradeData = {
+        cids : [(Collection.Collection, Principal)];
+        cid_interacted_collections : [(Principal, [Principal])];
     };
 
     public type Interface = {
