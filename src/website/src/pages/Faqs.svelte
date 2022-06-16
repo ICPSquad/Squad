@@ -4,7 +4,7 @@
   import Faq from "@src/components/faqs/Faq.svelte";
   const faqs = [
     {
-      category: "ICP SQUAD NFT",
+      category: "GENERAL",
       articles: [
         {
           title: "What is dSquad ?",

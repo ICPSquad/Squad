@@ -10,7 +10,7 @@
     {
       svg: "Dukakis.svg",
       name: "Dukakis Tejada",
-      role: "Role Name",
+      role: "Founder",
       links: [
         {
           label: "Twitter",
@@ -25,7 +25,7 @@
     {
       svg: "Isaac.svg",
       name: "Isaac Valadez",
-      role: "Role name",
+      role: "Cofounder & CEO",
       links: [
         {
           label: "Twitter",
@@ -44,11 +44,41 @@
     {
       svg: "Seb.svg",
       name: "Seb Thuillier",
-      role: "Lead developer",
+      role: "Cofounder & CTO",
       links: [
         {
           label: "Twitter",
           url: "https://twitter.com/ThuillierSbast3",
+        },
+        {
+          label: "Distrikt",
+          url: "https://az5sd-cqaaa-aaaae-aaarq-cai.ic0.app/u/Seb",
+        },
+        {
+          label: "seb.icp.page",
+          url: "https://seb.icp.page",
+        },
+      ],
+    },
+    {
+      svg: "Arun.svg",
+      name: "Arun Nair",
+      role: "Chief artist",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/_arunarts",
+        },
+      ],
+    },
+    {
+      svg: "Andrew.svg",
+      name: "Andrew Sellen",
+      role: "Frontend developer",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/_arunarts",
         },
       ],
     },
@@ -60,7 +90,7 @@
   <h1>About Us</h1>
 </div>
 <div class="container skinny">
-  <p>dSquad is the first Engage-to-Earn NFT game that rewards you with NFTs and tokens for engaging with Internet Computer dapps.</p>
+  <p><span class="bolt"> dSquad </span> is the first Engage-to-Earn NFT game that rewards you with NFTs and tokens for engaging with Internet Computer dapps.</p>
   <div class="boxes">
     <div class="box">
       <h3>FOR COLLECTORS</h3>
@@ -77,19 +107,16 @@
       </LinkButton>
     </div>
   </div>
-  <h3>LONG TERM VISION</h3>
+  <h2>OUR TEAM</h2>
+  <p>We are a team of early passionate about the Internet Computer and the NFTs.</p>
   <p>
-    This is still a long way ahead but eventually, we would like to turn dSquad into an open internet service run by a DAO using the SNS which will gamify & unify the entire Internet Computer
-    ecosystem, and provide an incentive tool any project can use to drive engagement for their dapps.
+    This project started as a community <a href="https://www.dfinitycommunity.com/icp-squad-engage-to-earn-nft-game/" target="_blank"> initiative </a> on the blog platform and quickly turned into its own
+    project with a dedicated team.
   </p>
-  <p>
-    This means that eventually, dSquad will become a collaborative digital art platform where projects can distribute branded virtual merchandise that has utility for their dapp. This will give
-    developers the ability to quickly attract new users from the community.
-  </p>
-  <p>For users, it means the Internet Computer will be a blockchain where anyone can easily start earning rewards just by using dapps built on it.</p>
+  <p />
 </div>
 <div class="container team">
-  <h2>OUR TEAM</h2>
+  <h2>MEMBERS</h2>
   <div class="grid">
     {#each legendaries as legendary}
       <LegendaryAvatar {legendary} />
@@ -177,5 +204,10 @@
       grid-template-columns: 1fr 1fr;
       grid-gap: 20px;
     }
+  }
+
+  .bolt {
+    font-size: 2em;
+    font-weight: bold;
   }
 </style>

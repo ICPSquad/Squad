@@ -13,10 +13,7 @@
   <h1>Contact</h1>
 </div>
 <div class="container skinny">
-  <p>
-    Before contacting us, please check if the answer to your question is in our
-    Frequently Asked Questions (FAQs)
-  </p>
+  <p>Before contacting us, please check if the answer to your question is in our Frequently Asked Questions (FAQs)</p>
 
   <Link to="/faqs">
     <button class="faqs">FAQs →</button>
@@ -24,14 +21,9 @@
 
   <p>If you still need assistance, please contact us on our Discord.</p>
 
-  <a href="https://discord.gg/SqtQ3UJR" target="_blank" class="button secondary"
-    >JOIN ICP SQUAD DISCORD</a
-  >
+  <a href="https://discord.gg/SqtQ3UJR" target="_blank" class="button secondary">JOIN DSQUAD DISCORD</a>
   <h3>Partnership Enquiries</h3>
-  <p>
-    We can incentivize our users to join your community, follow your social
-    media accounts, and regularly engage with your platform.
-  </p>
+  <p>We can incentivize our users to join your community, follow your social media accounts, and regularly engage with your platform.</p>
   <Link to="/partners">
     <button class="partners">GET IN TOUCH ABOUT PARTNERING →</button>
   </Link>

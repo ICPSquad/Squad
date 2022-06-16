@@ -15,7 +15,7 @@
 
 <section>
   <div class="container above-grid">
-    <h2>JOIN ICP SQUAD</h2>
+    <h2>JOIN THE SQUAD</h2>
     <p>
       <!-- To do: replace number with actual -->
       Join {number ? number : "∞"} community members today.

@@ -1,58 +1,7 @@
 <script lang="ts">
   import Header from "@components/shared/Header.svelte";
   import Footer from "@components/shared/Footer.svelte";
-  import Join from "@components/shared/Join.svelte";
-  import Newsletter from "@components/shared/Newsletter.svelte";
-  import LegendaryAvatar from "@src/components/shared/LegendaryAvatar.svelte";
   import PartnershipsForm from "@src/components/partnerships/PartnershipsForm.svelte";
-  import Link from "@src/components/shared/LinkButton.svelte";
-  const legendaries = [
-    {
-      svg: "Dukakis.svg",
-      name: "Dukakis Tejada",
-      role: "Role Name",
-      links: [
-        {
-          label: "Twitter",
-          url: "https://twitter.com/DukakisTejada",
-        },
-        {
-          label: "Distrikt",
-          url: "https://az5sd-cqaaa-aaaae-aaarq-cai.ic0.app/u/dukakistejada",
-        },
-      ],
-    },
-    {
-      svg: "Isaac.svg",
-      name: "Isaac Valadez",
-      role: "Role name",
-      links: [
-        {
-          label: "Twitter",
-          url: "https://twitter.com/IsaacValadez55",
-        },
-        {
-          label: "Distrikt",
-          url: "https://t.co/ttN8iOHnns",
-        },
-        {
-          label: "isaac.icp.page",
-          url: "https://isaac.icp.page",
-        },
-      ],
-    },
-    {
-      svg: "Seb.svg",
-      name: "Seb Thuillier",
-      role: "Lead developer",
-      links: [
-        {
-          label: "Twitter",
-          url: "https://twitter.com/ThuillierSbast3",
-        },
-      ],
-    },
-  ];
 </script>
 
 <Header />
