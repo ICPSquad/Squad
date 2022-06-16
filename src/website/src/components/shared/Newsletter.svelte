@@ -18,9 +18,7 @@
 <section>
   <div class="container">
     <h2>GET THE LATEST UPDATES</h2>
-    <p>
-      Subscribe to our newsletter to be the first to know about all things ICP Squad NFT, the Internet Computer,new opportunities to earn NFTs, ICP and other prizes and take part in community events.
-    </p>
+    <p>Subscribe to our newsletter to be the first to know about all things dSquad, the Internet Computer,new opportunities to earn NFTs, ICP and other prizes and take part in community events.</p>
 
     <div class="form-container">
       <input bind:value={email} id="email" type="email" required placeholder="Email address" />

@@ -66,54 +66,19 @@
   {:else}
     <form on:submit|preventDefault={handleSubmit}>
       <label for="project-name">Project Name</label>
-      <input
-        bind:value={templateParams.projectName}
-        id="project-name"
-        type="text"
-        placeholder="Project Name"
-        required
-      />
+      <input bind:value={templateParams.projectName} id="project-name" type="text" placeholder="Project Name" required />
       <label for="your-name">Your Name</label>
-      <input
-        bind:value={templateParams.yourName}
-        id="your-name"
-        type="text"
-        placeholder="Your Name"
-        required
-      />
+      <input bind:value={templateParams.yourName} id="your-name" type="text" placeholder="Your Name" required />
       <label for="email">Email Address</label>
-      <input
-        bind:value={templateParams.emailAddress}
-        id="email"
-        type="email"
-        placeholder="Email address"
-        required
-      />
-      <label for="interests">Interest</label>
-      <Checkbox
-        bind:checked={templateParams.interest.integratingProject}
-        label="Integrating with our project"
-      />
-      <Checkbox
-        bind:checked={templateParams.interest.hostingMission}
-        label="Hosting a mission"
-      />
-      <Checkbox
-        bind:checked={templateParams.interest.airdroppingAssets}
-        label="Airdropping assets to our holders"
-      />
-      <Checkbox
-        bind:checked={templateParams.interest.brandedAccessories}
-        label="Branded Accessories (digital merchandise)"
-      />
+      <input bind:value={templateParams.emailAddress} id="email" type="email" placeholder="Email address" required />
+      <label for="interests">Interest(s)</label>
+      <Checkbox bind:checked={templateParams.interest.hostingMission} label="Hosting a mission (Let our Squad discover your platform)" />
+      <Checkbox bind:checked={templateParams.interest.integratingProject} label="Integrating with our project (Ongoing activity boost)" />
+      <Checkbox bind:checked={templateParams.interest.brandedAccessories} label="Branded Accessories (Digital merchandise)" />
+      <Checkbox bind:checked={templateParams.interest.airdroppingAssets} label="Airdropping assets to our holders (Contest)" />
 
       <label for="additional">Additional Inforomation (Optional)</label>
-      <textarea
-        bind:value={templateParams.additionalInfo}
-        id="additional"
-        rows="4"
-        placeholder="Additional information"
-      />
+      <textarea bind:value={templateParams.additionalInfo} id="additional" rows="4" placeholder="Additional information" />
 
       <button type="submit"> SUBMIT → </button>
     </form>

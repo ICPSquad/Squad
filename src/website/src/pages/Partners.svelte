@@ -60,55 +60,35 @@
   <h1>Partners</h1>
 </div>
 <div class="container skinny">
-  <p>
-    We can incentivize our users to join your community, follow your social
-    media accounts, and regularly engage with your platform.
-  </p>
+  <p>We can incentivize our users to join your community, follow your social media accounts, and regularly engage with your platform.</p>
   <div class="boxes">
     <div class="box">
       <h3>GROW YOUR COMMUNITY</h3>
-      <p>
-        We can create custom missions and rewards that incentivise squad members
-        to try our and join your community.
-      </p>
+      <p>We can create custom missions to rewards & incentivise Squad members to try our and join your community.</p>
     </div>
     <div class="box">
-      <h3>BOOST IN-DAPP ACTIVITY</h3>
-      <p>
-        We integrate our NFT-based reward system with your platform and
-        incentivise use of your application on an ongoing basis, hence driving
-        engagement for your dapp.
-      </p>
+      <h3>BOOST ACTIVITY</h3>
+      <p>We integrate our NFT-based reward system with your platform and incentivise use of your application on an ongoing basis, hence driving engagement for your dapp.</p>
     </div>
   </div>
-  <a href="#partner-form" class="button partner-cta"
-    >GET IN TOUCH ABOUT PARTNERING →</a
-  >
+  <a href="#partner-form" class="button partner-cta">GET IN TOUCH ABOUT PARTNERING →</a>
 </div>
 <div class="current-partners">
   <div class="container skinny">
     <h3>CURRENT PARTNERS</h3>
     <div class="partner-logos">
-      <img
-        class="partner-logo"
-        src="/assets/partners/dfinity.png"
-        alt="Dfinity Logo"
-      />
-      <img
-        class="partner-logo"
-        src="/assets/partners/gigaverse.png"
-        alt="Gigaverse Labs Logo"
-      />
-      <img
-        class="partner-logo"
-        src="/assets/partners/toniq.png"
-        alt="Toniq Labs Logo"
-      />
-      <img
-        class="partner-logo dscvr"
-        src="/assets/partners/dscvr.png"
-        alt="Dscvr Logo"
-      />
+      <a href="https://dfinity.org/" target="_blank">
+        <img class="partner-logo" src="/assets/partners/dfinity.png" alt="Dfinity Logo" />
+      </a>
+      <a href="https://twitter.com/GigaverseLabs" target="_blank">
+        <img class="partner-logo" src="/assets/partners/gigaverse.png" alt="Gigaverse Labs Logo" />
+      </a>
+      <a href="https://twitter.com/toniqlabs" target="_blank">
+        <img class="partner-logo" src="/assets/partners/toniq.png" alt="Toniq Labs Logo" />
+      </a>
+      <a href="https://twitter.com/DscvrO" target="_blank">
+        <img class="partner-logo dscvr" src="/assets/partners/dscvr.png" alt="DSCVR Logo" />
+      </a>
     </div>
   </div>
 </div>

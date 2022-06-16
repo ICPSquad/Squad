@@ -1,6 +1,6 @@
-# ICP Squad 🫂
+# dSquad 🫂
 
-This repository contains all the code for the ICP Squad project. <br/> It contains 5 canisters that are all deployed on the Internet Computer. <br/> It also contains the assets that compose the collection, some audits that have been perfomed and scripts to help with deployments, testing and configuration.
+This repository contains all the code for the dSquad project. <br/> It contains 5 canisters that are all deployed on the Internet Computer. <br/> It also contains the assets that compose the collection, some audits that have been perfomed and scripts to help with deployments, testing and configuration.
 
 <img src="assets/others/main-board.jpeg" width="700px">
  

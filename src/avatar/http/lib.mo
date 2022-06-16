@@ -74,7 +74,7 @@ module {
             let avatar_stats = state._Avatar.getStats();
           {
             body = Text.encodeUtf8(
-                "ICP Squad Season #0 : the incredible Internet Computer community.\n"
+                "dSquad Season #0 : the incredible Internet Computer community.\n"
                 # "---\n"
                 # "Cycle Balance: " # Nat.toText(Cycles.balance() / 1_000_000_000_000) # "T\n"
                 # "Admins  : " # Text.join(" /", Array.map<Principal,Text>(state._Admins.getAdmins(), Principal.toText).vals()) # "\n"

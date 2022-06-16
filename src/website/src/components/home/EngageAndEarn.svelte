@@ -7,7 +7,7 @@
     <h2>ENGAGE & EARN</h2>
     <p>Engage with Internet Computer applications and win prizes for exploring this vibrant ecosystem.</p>
 
-    <img src="/assets/engage-and-earn.png" alt="ICP Squad Avatars circling around Dfinity logo" />
+    <img src="/assets/engage-and-earn.png" alt="dSquad Avatars circling around Dfinity logo" />
 
     <Link to="/mission">
       <button class="button">Learn → </button>

@@ -34,7 +34,7 @@ module {
         let _Items = dependencies._Items;
         let _Logs = dependencies._Logs;
 
-        let HTML_BLOCK_START = "<!DOCTYPE html><html lang='en'><head><style>img{ width: 300px;height : 300px; padding : 10px 10px 10px 10px;}div{ margin : 25px 25px 25px 25px;}</style><meta charset='UTF-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>ICP Squad</title></head><body>";
+        let HTML_BLOCK_START = "<!DOCTYPE html><html lang='en'><head><style>img{ width: 300px;height : 300px; padding : 10px 10px 10px 10px;}div{ margin : 25px 25px 25px 25px;}</style><meta charset='UTF-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>dSquad</title></head><body>";
         let HTML_BLOCK_END = "</body></html>";
         let SRC_IC = "https://" # Principal.toText(dependencies.cid) # ".raw.ic0.app/tokenIndex/";
         let SRC_LOCAL = "http://" # Principal.toText(dependencies.cid) # ".localhost:8000/tokenIndex/";
@@ -114,7 +114,7 @@ module {
         func _httpIndex() : Types.Response {
           {
             body = Text.encodeUtf8(
-                "ICP Squad Season #0 : the incredible Internet Computer community (Accessories).\n"
+                "dSquad Season #0 : the incredible Internet Computer community (Accessories).\n"
                 # "---\n"
                 # "Cycle Balance: " # Nat.toText(Cycles.balance() / 1_000_000_000_000) # "T\n"
                 # "Admins  : " # Text.join(" /", Array.map<Principal,Text>(dependencies._Admins.getAdmins(), Principal.toText).vals()) # "\n"

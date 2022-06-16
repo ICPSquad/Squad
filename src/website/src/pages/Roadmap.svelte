@@ -11,24 +11,16 @@
 </div>
 <div class="container skinny">
   <p>
-    This is still a long way ahead, we will have to work hard to get there but
-    eventually we would like to turn the game into an open internet service run
-    by a DAO (Decentralised Autonomous Organisation) using the SNS which will
-    gamify & unify the entire Internet Computer ecosystem, and provide an
-    incentive tool any project can use to drive engagement for their dApps.
+    This is still a long way ahead, we will have to work hard to get there but eventually we would like to turn the game into an open internet service run by a DAO (Decentralised Autonomous
+    Organisation) using the SNS which will gamify & unify the entire Internet Computer ecosystem, and provide an incentive tool any project can use to drive engagement for their dApps.
   </p>
   <p>
-    This means that eventually, ICP Squad NFT will become a collaborative
-    digital art platform where projects can distribute branded virtual
-    merchandise that has utility for their dApp. This will give developers the
-    ability to quickly attract new users from the community.
+    This means that eventually, dSquad will become a collaborative digital art platform where projects can distribute branded virtual merchandise that has utility for their dApp. This will give
+    developers the ability to quickly attract new users from the community.
   </p>
-  <p>
-    For users, it simply means the Internet Computer will be a blockchain where
-    anyone can easily start earning rewards just by using dApps built on it.
-  </p>
+  <p>For users, it simply means the Internet Computer will be a blockchain where anyone can easily start earning rewards just by using dApps built on it.</p>
   <div class="season">
-    <img class="s0" src="/avatars/pink-woman-2.png" alt="ICP Squad Avatar" />
+    <img class="s0" src="/avatars/pink-woman-2.png" alt="dSquad Avatar" />
     <div class="text">
       <h2>Season 0 (current)</h2>
       <div>
@@ -37,40 +29,32 @@
             Basics MVP features ✅
             <ul>
               <li class="done">Avatar & accessories minting</li>
-              <li class="done">
-                Dynamic artwork & avatar / accessory layering
-              </li>
+              <li class="done">Dynamic artwork & avatar / accessory layering</li>
               <li class="done">Leaderboard and missions</li>
               <li class="done">Accessory burning & rewards</li>
             </ul>
           </li>
           <li>Early economy stabilisation and experimentation (Ongoing).</li>
           <li>Activity tracking & missions with partners (Ongoing).</li>
-          <li>ICP Squad Neuron rewards (Ongoing).</li>
+          <li>dSquad Neuron rewards (Ongoing).</li>
           <li>Legendary accessory auctions (Ongoing).</li>
         </ul>
       </div>
     </div>
   </div>
   <div class="season">
-    <img class="s1" src="/avatars/purple-man-2.png" alt="ICP Squad Avatar" />
+    <img class="s1" src="/avatars/purple-man-2.png" alt="dSquad Avatar" />
     <div class="text">
       <h2>Season 1</h2>
       <div>
         <ul>
           <li>Artwork refresh & supplemental artwork improvement.</li>
-          <li>
-            Properties and multi-level character minting opened & applied to
-            leaderboard.
-          </li>
+          <li>Properties and multi-level character minting opened & applied to leaderboard.</li>
           <li>More advanced economy, gameplay features, & integrations.</li>
           <li>More advanced accessories bonus and properties.</li>
           <li>
-            Advanced features for reactive art released (Artwork which changes
-            based on external ecosystem and user states (like a hat which shows
-            the icon of whatever social media website you posted on within the
-            last 30 minutes, or a background that switches scenes depending on
-            the time in your timezone).
+            Advanced features for reactive art released (Artwork which changes based on external ecosystem and user states (like a hat which shows the icon of whatever social media website you posted
+            on within the last 30 minutes, or a background that switches scenes depending on the time in your timezone).
           </li>
           <li>Events (Bootcamp, real world meetup & contests).</li>
           <li>Open activity tracking integrations via SDK.</li>
@@ -86,24 +70,14 @@
       <h2>Season 2+</h2>
       <div>
         <ul>
-          <li>
-            Introduction of a completely new artwork & theme by a new artist.
-          </li>
+          <li>Introduction of a completely new artwork & theme by a new artist.</li>
           <li>Advanced mission types</li>
           <li>Open mission integrations via SDK.</li>
           <li>Work implementing DAO starts.</li>
-          <li>
-            Transition to a 100% permissionless (though community managed) Open
-            Internet Service for dApp gamification and digital merchandise by
-            any builder in the ecosystem.
-          </li>
+          <li>Transition to a 100% permissionless (though community managed) Open Internet Service for dApp gamification and digital merchandise by any builder in the ecosystem.</li>
           <li>Transition to a 100% community owned DAO & token airdrop.</li>
           <li>Accessories lending/borrowing activated.</li>
-          <li>
-            Roadmap opened up to the community, with new features, artwork and
-            season-wide goals introduced every season, planning for a new season
-            starting every 6 months.
-          </li>
+          <li>Roadmap opened up to the community, with new features, artwork and season-wide goals introduced every season, planning for a new season starting every 6 months.</li>
         </ul>
       </div>
     </div>

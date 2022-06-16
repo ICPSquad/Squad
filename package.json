@@ -1,7 +1,7 @@
 {
-  "name": "icp_squad",
+  "name": "dsquad",
   "version": "0.2.0",
-  "description": "ICP Squad Canisters",
+  "description": "dSquad Canisters",
   "keywords": [
     "Internet Computer",
     "Motoko",

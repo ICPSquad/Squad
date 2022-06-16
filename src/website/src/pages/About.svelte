@@ -60,27 +60,18 @@
   <h1>About Us</h1>
 </div>
 <div class="container skinny">
-  <p>
-    ICP Squad is the first Engage-to-Earn NFT game that rewards you with NFTs
-    and tokens for engaging with Internet Computer dapps.
-  </p>
+  <p>dSquad is the first Engage-to-Earn NFT game that rewards you with NFTs and tokens for engaging with Internet Computer dapps.</p>
   <div class="boxes">
     <div class="box">
       <h3>FOR COLLECTORS</h3>
-      <p>
-        Start by minting your own ICP Squad avatar NFT, then get rewarded with
-        NFTs, ICP and other prizes as you explore the Internet Computer.
-      </p>
+      <p>Start by minting your own dSquad avatar NFT, then get rewarded with NFTs, ICP and other prizes as you explore the Internet Computer.</p>
       <LinkButton to="/create-avatar">
         <button class="create">Create Avatar →</button>
       </LinkButton>
     </div>
     <div class="box">
       <h3>FOR IC DAPPS</h3>
-      <p>
-        We can incentivize our users to join your community, follow your social
-        media accounts, and regularly engage with your platform.
-      </p>
+      <p>We can incentivize our users to join your community, follow your social media accounts, and regularly engage with your platform.</p>
       <LinkButton to="/partners">
         <button class="partnerships">More about partnerships →</button>
       </LinkButton>
@@ -88,21 +79,14 @@
   </div>
   <h3>LONG TERM VISION</h3>
   <p>
-    This is still a long way ahead but eventually, we would like to turn ICP
-    Squad NFT into an open internet service run by a DAO using the SNS which
-    will gamify & unify the entire Internet Computer ecosystem, and provide an
-    incentive tool any project can use to drive engagement for their dapps.
+    This is still a long way ahead but eventually, we would like to turn dSquad into an open internet service run by a DAO using the SNS which will gamify & unify the entire Internet Computer
+    ecosystem, and provide an incentive tool any project can use to drive engagement for their dapps.
   </p>
   <p>
-    This means that eventually, ICP Squad NFT will become a collaborative
-    digital art platform where projects can distribute branded virtual
-    merchandise that has utility for their dapp. This will give developers the
-    ability to quickly attract new users from the community.
+    This means that eventually, dSquad will become a collaborative digital art platform where projects can distribute branded virtual merchandise that has utility for their dapp. This will give
+    developers the ability to quickly attract new users from the community.
   </p>
-  <p>
-    For users, it means the Internet Computer will be a blockchain where anyone
-    can easily start earning rewards just by using dapps built on it.
-  </p>
+  <p>For users, it means the Internet Computer will be a blockchain where anyone can easily start earning rewards just by using dapps built on it.</p>
 </div>
 <div class="container team">
   <h2>OUR TEAM</h2>

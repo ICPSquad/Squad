@@ -25,21 +25,11 @@
 
 <div class="wall-container">
   {#if visible}
-    <div
-      class="wall"
-      in:fade={{ duration: fadeSeconds * 1000 }}
-      out:fade={{ duration: fadeSeconds * 1000 }}
-    >
+    <div class="wall" in:fade={{ duration: fadeSeconds * 1000 }} out:fade={{ duration: fadeSeconds * 1000 }}>
       {#each sets as set, index}
         {#if setShowing === index}
           {#each set as image, imageIndex}
-            <img
-              class={imageIndex === 1 || imageIndex === 2
-                ? "hide-on-mobile"
-                : ""}
-              src="/assets/join-wall/set{image}.png"
-              alt="ICP Squad Avatars"
-            />
+            <img class={imageIndex === 1 || imageIndex === 2 ? "hide-on-mobile" : ""} src="/assets/join-wall/set{image}.png" alt="dSquad Avatars" />
           {/each}
         {/if}
       {/each}

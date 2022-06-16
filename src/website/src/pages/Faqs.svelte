@@ -7,9 +7,8 @@
       category: "ICP SQUAD NFT",
       articles: [
         {
-          title: "What is ICP Squad NFT?",
-          content:
-            "<p>ICP Squad NFT is the first Engage-to-Earn NFT game that rewards you with NFTs and tokens for engaging with Internet Computer dapps.</p>",
+          title: "What is dSquad ?",
+          content: "<p>dSquad is the first Engage-to-Earn NFT game that rewards you with NFTs and tokens for engaging with Internet Computer dapps.</p>",
         },
         {
           title: "What is Engage-to-Earn?",
@@ -19,11 +18,11 @@
         {
           title: "How will Engage-to-Earn work?",
           content:
-            "<p>ICP Squad NFTs are Avatar characters that can wear accessories (which are also NFTs), and just by owning a character you’ll have a chance to win an airdropped reward when you take actions Internet Computer (IC)-based dapps. Engage with IC-based dapps -> Collect NFT rewards and/or ICPs -> Trade/HODL -> Repeat.</p>",
+            "<p>dSquad NFTs are Avatar characters that can wear accessories (which are also NFTs), and just by owning a character you’ll have a chance to win an airdropped reward when you take actions Internet Computer (IC)-based dapps. Engage with IC-based dapps -> Collect NFT rewards and/or ICPs -> Trade/HODL -> Repeat.</p>",
         },
         {
           title: "How will you support the community?",
-          content: `<p>ICP Squad is a contributor-run community with aspirations to eventually convert into a DAO. We want this project to be community-led from the very beginning. You can learn more about Dfinity Community
+          content: `<p>dSquad is a contributor-run community with aspirations to eventually convert into a DAO. We want this project to be community-led from the very beginning. You can learn more about Dfinity Community
                 <a target="_blank" href="https://drive.google.com/file/d/1yFqCSBOjr2sCmOtdsqTLxiZRp1iIDZMY/view?usp=sharing">here</a>.</p>`,
         },
         {
@@ -39,7 +38,7 @@
       ],
     },
     {
-      category: "MY ICP SQUAD NFT AVATAR",
+      category: "MY DSQUAD NFT AVATAR",
       articles: [
         {
           title: "What is an NFT?",
@@ -48,34 +47,31 @@
         },
         {
           title: "Will I be getting any accessory with my avatar?",
-          content:
-            "<p>Current orders will only receive their avatar once it’s customized, accessories and elements was only an incentive during the pre-order process.</p>",
+          content: "<p>Current orders will only receive their avatar once it’s customized, accessories and elements was only an incentive during the pre-order process.</p>",
         },
         {
-          title: "Can I sell my ICP Squad NFT Avatar?",
-          content:
-            "<p>We will allow the sale of avatars once season 1 is over.</p>",
+          title: "Can I sell my avatar?",
+          content: "<p>For the moment avatar are mintable on our website for a fee of 1 ICP. We will allow the sale of avatars once season 0 is over and minting has been closed.</p>",
         },
         {
-          title: "Can I sell my ICP Squad NFT accessories?",
+          title: "Can I sell my accessories?",
           content: `<p>You can currently sell the accessories you collect via
               <a href="https://entrepot.app/marketplace/icpsquad2">Entrepot</a>. We will list them on other NFT marketplaces in the future.</p>`,
         },
         {
-          title:
-            "Why can't I properly convert the SVG to other formats like JPG?",
+          title: "Why can't I properly convert the SVG to other formats like JPG?",
           content:
             "<p>The SVG file has all of the artwork. A lot of online converters had issues with the CSS rules which are part of the images, and we are trying to figure out some kind of workaround. Those who have a vector editor on their computer (like Inkscape) should be able to export any resolution PNG from the downloaded SVG file. An easier route may be to open the SVG image in a browser, make it fullscreen, and then take a screenshot. </p>",
         },
       ],
     },
     {
-      category: "HOW TO BUY AN ICP SQUAD NFT",
+      category: "HOW TO BUY A DSQUAD NFT",
       articles: [
         {
-          title: "What’s the process to buy ICP Squad NFT?",
-          content: `<p>For a step by step process on how to order and customize your ICP Squad NFT avatar, please visit
-              <a href="https://www.dfinitycommunity.com/step-by-step-guide-on-how-to-mint-your-icp-squad-nft-avatar/">this</a> link.</p>`,
+          title: "What’s the process to buy dSquad NFT?",
+          content: `<p>For a step by step process on how to order and customize your dSquad avatar, please visit
+              <a href="https://dsquad.gitbook.io/docs/create/avatar">this</a> link.</p>`,
         },
       ],
     },
@@ -85,7 +81,7 @@
         {
           title: "How will the gameplay work?",
           content: `<p>For the latest updates on our gameplay, please check
-              <a href="https://www.dfinitycommunity.com/icp-squad-the-fun-is-just-beginning/">this</a> article.</p>`,
+              <a href="https://dsquad.gitbook.io/docs/">this</a> article.</p>`,
         },
       ],
     },
