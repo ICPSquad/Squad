@@ -217,6 +217,14 @@ module {
             };
         };
 
+        /* 
+            Needed to communicate a list of Principal to the CAP module.
+         */
+        public func getAllPrincipals() : async [Principal] {
+            let infos = await AVATAR_ACTOR.get_infos_holders();
+            return Array.map<(Principal, ?AccountIdentifier, ?Text, ?Text, ?TokenIdentifier), Principal>(infos, func(x) {x.0});
+        };
+
         ////////////////
         // Temporary ///
         ////////////////

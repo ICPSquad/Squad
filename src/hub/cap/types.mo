@@ -3,6 +3,15 @@ import Canistergeek "mo:canistergeek/canistergeek";
 import Collection "../collection";
 
 module {
+
+    public type CapStats = {
+        buy : (Nat, Nat); // (Number of operations, ICP)
+        sell : (Nat, Nat); // (Number of operations, ICP)
+        mint : Nat; // Number of operations
+        collection_involved : Nat // Number of interaction with different collections
+    };
+
+
     public type DetailValue = {
         #I64 : Int64;
         #U64 : Nat64;
@@ -20,6 +29,14 @@ module {
         operation : Text;
         details : [(Text, DetailValue)];
         caller : Principal
+    };
+
+    public type ExtendedEvent = {
+        time : Nat64;
+        operation : Text;
+        details : [(Text, DetailValue)];
+        caller : Principal;
+        collection : Principal;
     };
 
     public type IndefiniteEvent = {
@@ -67,32 +84,28 @@ module {
         get_token_contract_root_bucket : shared GetTokenContractRootBucketArg -> async GetTokenContractRootBucketResponse;
         get_user_root_buckets : shared GetUserRootBucketsArg -> async GetUserRootBucketsResponse;
     };
+    
+    // In our case we only need a subtype of the real type. See : https://github.com/Psychedelic/dab/blob/main/candid/nft.did
+    public type NFT_CANISTER = {
+        name : Text;
+        principal_id : Principal;
+    };
+
+    public type Dab = actor {
+        get_all : shared query () -> async [NFT_CANISTER];
+    };
 
     public type Dependencies = {
         cid_bucket_accessory : Principal;
         cid_bucket_avatar : Principal;
         cid_router : Principal;
-        _Logs : Canistergeek.Logger;
+        cid_dab : Principal;
+        _Logs : Canistergeek.Logger; 
     };
 
     public type UpgradeData = {
         cids : [(Collection.Collection, Principal)];
         cid_interacted_collections : [(Principal, [Principal])];
     };
-
-    public type Interface = {
-        /* 
-            This function takes a caller and an optional name for an accessory and returns the number of time the accessory has been minted.
-            If no name was supplied it returns the total number of minted accessory.
-        */
-        numberMint: (caller : Principal, accessory : ?Text) -> async Nat;
-
-        /* 
-            This function takes a caller and an optional name for an accessory and returns the number of time this accessory has been burned.
-            If no name was supplied it returns the total number of burned accessory.
-        */
-        numberBurn: (caller : Principal, accessory : ?Text) -> async Nat;
-    };
-
 
 };

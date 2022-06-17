@@ -496,7 +496,7 @@ module {
             // Insert transaction into CAP history.
             ignore(_Cap.registerEvent({
                 caller = dependencies.cid;
-                operation = "Sale";
+                operation = "sale";
                 details = [
                     ("to", #Text(transaction.to)),
                     ("from", #Text(transaction.from)),

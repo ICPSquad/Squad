@@ -23,7 +23,7 @@ module {
     public type Collection = Collection.Collection;
 
 
-    public class Factory(dependencies : Types.Dependencies) : Types.Interface {
+    public class Factory(dependencies : Types.Dependencies) {
 
           let DAY_NANO = 24 * 60 * 60 * 1000 * 1000 * 1000;
 
@@ -35,6 +35,8 @@ module {
         let bucket_avatar : Types.Bucket = actor(Principal.toText(dependencies.cid_bucket_avatar));
 
         let cap_router : Types.Router = actor(Principal.toText(dependencies.cid_router));
+        let dab : Types.Dab = actor(Principal.toText(dependencies.cid_dab));
+
         let _Logs = dependencies._Logs;
 
         /* 
@@ -48,16 +50,28 @@ module {
         let cid_interacted_collections : TrieMap.TrieMap<Principal, [Principal]> = TrieMap.TrieMap<Principal,[Principal]>(Principal.equal, Principal.hash);
 
         /* 
-            Daily cached the events for all collections.
+            Daily cached events for all collections.
         */
-        let daily_cached_events : TrieMap.TrieMap<Principal, [Types.Event]> = TrieMap.TrieMap<Principal,[Types.Event]>(Principal.equal, Principal.hash);
+        let daily_cached_events_per_collection : TrieMap.TrieMap<Principal, [Types.Event]> = TrieMap.TrieMap<Principal,[Types.Event]>(Principal.equal, Principal.hash);
+
+        /* 
+            Daily cached events for all users.
+         */
+        let daily_cached_events_per_user : TrieMap.TrieMap<Principal, [Types.ExtendedEvent]> = TrieMap.TrieMap<Principal,[Types.ExtendedEvent]>(Principal.equal, Principal.hash);
 
 
         /* 
-            Daily cached stats for all users.
+            Daily cached stats for all users. 
         */
 
-        // let daily_cached_stats : TrieMap.TrieMap<Principal, [Types.Stat]> = TrieMap.TrieMap<Principal,[Types.Stat]>(Principal.equal, Principal.hash);
+        let daily_cached_stats_per_user : TrieMap.TrieMap<Principal, Types.CapStats> = TrieMap.TrieMap<Principal,Types.CapStats>(Principal.equal, Principal.hash);
+
+
+        /* 
+            All time cached stats for all users.
+        */
+
+        let engagement_stats_per_user : TrieMap.TrieMap<Principal, Types.CapStats> = TrieMap.TrieMap<Principal, Types.CapStats>(Principal.equal, Principal.hash);
 
         public func preupgrade() : UpgradeData {
             return({
@@ -95,14 +109,13 @@ module {
                 try {
                     let daily_events = await getDailyEvents(cid);
                     total_number += daily_events.size();
-                    daily_cached_events.put(cid, daily_events);
+                    daily_cached_events_per_collection.put(cid, daily_events);
                 } catch e {
                     return #err(Error.message(e));
                 };
             };
             return #ok(total_number);
         };
-
 
         func getLatestPage(cid : Principal) : async Nat {
             let bucket : Types.Bucket = actor(Principal.toText(cid));
@@ -113,7 +126,6 @@ module {
 
         func getDailyEvents(cid : Principal) : async [Types.Event] {
             let latest_page = await getLatestPage(cid);
-            _Logs.logMessage("Latest page for : " # Principal.toText(cid) # " is " # Nat.toText(latest_page)); 
             let bucket : Types.Bucket = actor(Principal.toText(cid));
             var r : Buffer.Buffer<Types.Event> = Buffer.Buffer(0);
             var is_over : Bool = false;
@@ -122,7 +134,6 @@ module {
                 // Verify that the page to query is not under 0.
                 let page_to_query = Int.sub(latest_page, count);
                 if(page_to_query < 0){
-                    _Logs.logMessage("Page to query is under 0, skipping.");
                     break l;
                 };
                 let result = await bucket.get_transactions({
@@ -138,6 +149,16 @@ module {
                     let time : Nat = Nat64.toNat(event.time) * 1_000_000;
                     // Only keep the events from the past 24 hours BUT only exit the loop if we encounter an event from before yesterday. If we encounter an event "in the future" we do nothing.
                     if(time > yesterday and time <= now){
+                        let caller = event.caller;
+                        let extended_event = _eventToExtendendEvent(event, cid);
+                        switch(daily_cached_events_per_user.get(caller)){
+                            case(null){
+                                daily_cached_events_per_user.put(caller, [extended_event]);
+                            };
+                            case(? events){
+                                daily_cached_events_per_user.put(caller, Array.append<Types.ExtendedEvent>(events, [extended_event]));
+                            };
+                        };
                         r.add(event);
                     } else if (time < yesterday){
                         is_over := true;
@@ -151,6 +172,70 @@ module {
             };
             return(r.toArray());
         };
+
+
+        /* 
+            Update the daily stats for all users.
+         */
+        public func cronStats () : Result.Result<(), Text> {
+            for((user, events) in daily_cached_events_per_user.entries()){
+                let stats = _getDailyStats(user, events);
+                daily_cached_stats_per_user.put(user, stats);
+            };
+            return #ok(());
+        };
+
+        /* 
+            Returns the stat object from the list of events of the specified user.
+         */
+        func _getDailyStats(user : Principal, events : [Types.ExtendedEvent]) : Types.CapStats {
+            let account_identifier = Text.map(Ext.AccountIdentifier.fromPrincipal(user, null), Prim.charToLower);
+            var number_buy : Nat = 0;
+            var icps_buy : Nat64 = 0;
+            var number_sell : Nat = 0;
+            var icps_sell : Nat64 = 0;
+            var number_mint : Nat = 0;
+            var collections : [Principal] = [];
+            for(event in events.vals()){
+                switch(event.operation){
+                    case("sale"){
+                        collections := _addCollectionToInvolvedCollections(collections, event.collection);
+                        let {to; from; price} = _saleDetails(event);
+                        if(to == account_identifier){
+                            number_sell := number_sell + 1;
+                            icps_sell := icps_sell + price;
+                        } else if (from == account_identifier){
+                            number_buy := number_buy + 1;
+                            icps_buy := icps_buy + price;
+                        } else {
+                            // Do nothing.
+                        };
+                    };
+                    case("mint"){
+                        number_mint := number_mint + 1;
+                        collections := _addCollectionToInvolvedCollections(collections, event.collection);
+                    };
+                    // Operations we don't care about.
+                    case ("transfer") {};
+                    case("burn"){};
+                    case("approve"){};
+                    case("transferFrom"){};
+                    // In case of an unknown operation. For later.
+                    case (x){
+                        _Logs.logMessage("Unknown operation: " # x);
+                    };
+                };
+            };
+            return({
+                buy = (number_buy, Nat64.toNat(icps_buy));
+                sell = (number_sell, Nat64.toNat(icps_sell));
+                mint = number_mint;
+                collection_involved = collections.size();
+            });
+        };
+
+
+        
 
 
         //////////
@@ -379,12 +464,52 @@ module {
             return count;
         };
 
+        /////////////
+        // Admins //
+        ///////////
+
+        public func getAllOperations() : async [(Text, Nat)] {
+            let r = TrieMap.TrieMap<Text,Nat>(Text.equal, Text.hash);
+            for((cid, events) in daily_cached_events_per_collection.entries()){
+                for(event in events.vals()){
+                    let operation = event.operation;
+                    switch(r.get(operation)){
+                        case(null){
+                            r.put(operation, 1);
+                        };
+                        case(? nb){
+                            r.put(operation, nb + 1);
+                        };
+                    };
+                };
+            };
+            return Iter.toArray(r.entries());
+        };
+
+
+        public func registerAllCollections() : async Result.Result<(), Text> {
+            let collections : [Types.NFT_CANISTER] = await dab.get_all();
+            for(collection in collections.vals()){
+                let obj : Collection = {
+                    name = collection.name;
+                    contractId = collection.principal_id;
+                };
+                switch(await registerCollection(obj)){
+                    case(#ok()){};
+                    case(#err(e)){
+                        _Logs.logMessage("No bucket found for : " # Principal.toText(collection.principal_id));
+                    };
+                }
+            };
+            return #ok();
+        };
+
         //////////////
         // Helpers //
         ////////////
 
         /*
-            Returns a boolean indicating if an event is related to an accessory by looking trough the available details and finding the name.  
+            Returns a boolean indicating if an event is related to an accessory by looking over the available details and finding the name.  
         */
         func _isEventAbout(
             name : Text,
@@ -458,6 +583,48 @@ module {
             return false;
         };
 
+        /* 
+            Returns (from, to, icps) from a sale event.
+        
+         */
+        func _saleDetails(
+            event : Types.Event
+        ) : {to : Text; from : Text; price : Nat64} {
+            let details = event.details;
+            var from : Text = "";
+            var to : Text = "";
+            var price : Nat64 = 0;
+            for((key, value) in details.vals()){
+                switch(key){
+                    case("from"){
+                        switch(value){
+                            case(#Text(message)){
+                                from := message;
+                            };
+                            case _ {};
+                        };
+                    };
+                    case("to"){
+                        switch(value){
+                            case(#Text(message)){
+                                to := message;
+                            };
+                            case _ {};
+                        };
+                    };
+                    case("price"){
+                        switch(value){
+                            case(#Nat64(message)){
+                                price := message;
+                            };
+                            case _ {};
+                        };
+                    };
+                };
+            };
+            return ({to; from; price;});
+        };
+
 
         /* 
             This function is an attempt to get the ICP price of a sale. 
@@ -481,7 +648,35 @@ module {
             };
             _Logs.logMessage("Could not find the ICP amount of the sale event : " # Principal.toText(collection));
             return 0;
-        }
+        };
+
+        func _eventToExtendendEvent(
+            event : Types.Event,
+            collection : Principal
+        ) : Types.ExtendedEvent {
+            return({
+                operation = event.operation;
+                time = event.time;
+                details = event.details;
+                caller = event.caller;
+                collection = collection;
+            })
+        };
+
+
+        func _addCollectionToInvolvedCollections(
+            involved_collections : [Principal],
+            collection : Principal
+        ) : [Principal] {
+            switch(Array.find<Principal>(involved_collections, func(x) {Principal.equal(x, collection)})){
+                case(null){
+                    return Array.append<Principal>(involved_collections, [collection]);
+                };
+                case(? _){
+                    return involved_collections;
+                };
+            };
+        };
 
 
     };

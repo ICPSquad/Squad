@@ -136,6 +136,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         cid_bucket_accessory = Principal.fromText("qfevy-hqaaa-aaaaj-qanda-cai");
         cid_bucket_avatar = Principal.fromText("ffu6n-ciaaa-aaaaj-qaotq-cai");
         cid_router = Principal.fromText("lj532-6iaaa-aaaah-qcc7a-cai");
+        cid_dab = Principal.fromText("ctqxp-yyaaa-aaaah-abbda-cai");
         _Logs;
     });
 
@@ -174,6 +175,18 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     ) : async Result.Result<(Nat, Nat), Text> {
         _Monitor.collectMetrics();
         await _Cap.statsSales(user, cids_buckets, time_start, time_end);
+    };
+
+    public shared ({ caller }) func get_all_operations() : async [(Text,Nat)]{
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.getAllOperations();
+    };
+
+    public shared ({ caller }) func register_all_collections () : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.registerAllCollections();
     };
 
     ////////////////
