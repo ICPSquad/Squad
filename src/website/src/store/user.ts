@@ -7,12 +7,8 @@ export const user = writable<userStore>({
   loggedIn: false,
   wallet: undefined,
   principal: Principal.anonymous(),
-  avatarDefaultUrl:
-    "https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?tokenid=jgmq2-sykor-uwiaa-aaaaa-cmaca-uaqca-aabxe-a",
-  avatarUrls: [
-    "https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?tokenid=jgmq2-sykor-uwiaa-aaaaa-cmaca-uaqca-aabxe-a",
-    "https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?tokenid=j7a3m-nikor-uwiaa-aaaaa-cmaca-uaqca-aab6q-q",
-  ],
+  avatarDefaultUrl: undefined,
+  avatarUrls: [],
   username: undefined,
   email: undefined,
   twitter: undefined,
