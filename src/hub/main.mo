@@ -125,16 +125,31 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     });
 
 
-    ///////////
-    // CAP ///
-    /////////
+    /////////////////
+    // Engagement ///
+    ////////////////
 
+    public type Collection = Cap.Collection;
+
+    stable var _CapUD: ?Cap.UpgradeData = null;  
     let _Cap = Cap.Factory({
         cid_bucket_accessory = Principal.fromText("qfevy-hqaaa-aaaaj-qanda-cai");
         cid_bucket_avatar = Principal.fromText("ffu6n-ciaaa-aaaaj-qaotq-cai");
         cid_router = Principal.fromText("lj532-6iaaa-aaaah-qcc7a-cai");
         _Logs;
     });
+
+    public shared ({ caller }) func register_collection (collection : Collection) : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.registerCollection(collection);
+    };
+
+    public shared ({ caller }) func cron_events () : async Result.Result<Nat, Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.cronEvents();
+    };
 
     public shared ({ caller }) func update_user_interacted_collections(user : Principal) : async Result.Result<Nat, Text> {
         assert(_Admins.isAdmin(caller));
@@ -376,6 +391,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _LeaderboardUD := ? _Leaderboard.preupgrade();
         _JobsUD := ? _Jobs.preupgrade();
         _MissionUD := ? _Mission.preupgrade();
+        _CapUD := ? _Cap.preupgrade();
     };
 
     system func postupgrade() {
@@ -393,6 +409,8 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _JobsUD := null;
         _Mission.postupgrade(_MissionUD);
         _MissionUD := null;
+        _Cap.postupgrade(_CapUD);
+        _CapUD := null;
         _Logs.logMessage("Postupgrade hub");
     };
 

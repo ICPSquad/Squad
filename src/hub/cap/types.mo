@@ -45,6 +45,7 @@ module {
     public type Bucket = actor {
         get_user_transactions : shared query GetUserTransactionArg -> async GetTransactionsResponseBorrowed;
         get_transactions : shared query GetTransactionsArg -> async GetTransactionsResponseBorrowed;
+        size : shared query () -> async Nat64;
     };
 
     public type GetTokenContractRootBucketArg = {

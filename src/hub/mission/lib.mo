@@ -4,6 +4,7 @@ import Hash "mo:base/Hash";
 import IC "mo:base/ExperimentalInternetComputer";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
+import Nat32 "mo:base/Nat32";
 import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
@@ -182,7 +183,7 @@ module {
 
         /* 
             Delete a mission by id 
-            Cannot delete a mission that has already been completed by at least one user. Otherwise the score won't be computed.
+            Cannot delete a mission that has already been completed by at least one user. Otherwise the scores won't be computed.
         */
         public func deleteMission(id : Nat) : Result.Result<(), Text> {
             if(_isThereAWinner(id)){
@@ -233,7 +234,7 @@ module {
 
 
         /* 
-            Manually add a list of winners for mission that are externally validated.
+            Manually add a list of winners for missions that are externally validated.
          */
 
          public func manuallyAddWinners(id : Nat, p_winners : [Principal]) : Result.Result<(), Text> {
@@ -338,7 +339,7 @@ module {
         };  
         
         /* 
-            Returns a boolean indicatinf if the principal has already completed a mission. Not the same as previous method if the mission is manually provided a list of winners, the user still need to validate his participation.
+            Returns a boolean indicating if a principal has already completed a mission. Not the same as previous method if the mission is manually provided a list of winners, the user still need to validate his participation.
          */
         func _hasCompletedMission(id : Nat, p : Principal) : Bool {
             switch(completedMissions.get(p)){

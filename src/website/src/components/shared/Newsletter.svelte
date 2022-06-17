@@ -35,7 +35,7 @@
     </div>
   </div>
 </section>
-<Toast {message} />
+<Toast />
 
 <style lang="scss">
   @use "../../styles" as *;

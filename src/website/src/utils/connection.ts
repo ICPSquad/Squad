@@ -5,7 +5,6 @@ import { idlFactory as idlFactoryInvoice } from "@canisters/invoice/invoice.did"
 import { idlFactory as idlFactoryLedger } from "@canisters/ledger/ledger.did";
 import { idlFactory as idlFactoryHub } from "@canisters/hub/hub.did";
 import { StoicIdentity } from "ic-stoic-identity";
-
 import { actors } from "@src/store/actor";
 import { user } from "@src/store/user";
 import { Actor, HttpAgent } from "@dfinity/agent";
@@ -44,6 +43,7 @@ export async function plugConnection(): Promise<void> {
     canisterId: hubID,
     interfaceFactory: idlFactoryHub,
   });
+
   user.update((u) => ({ ...u, wallet: "plug", loggedIn: true, principal }));
   actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor, hubActor: hubActor }));
 }
@@ -83,6 +83,7 @@ export async function stoicConnexion(): Promise<void> {
           agent,
           canisterId: hubID,
         });
+
         user.update((u) => ({ ...u, wallet: "stoic", loggedIn: true, principal }));
         actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor, hubActor: hubActor }));
       } catch (e) {

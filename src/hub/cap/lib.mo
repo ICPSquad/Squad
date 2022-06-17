@@ -1,6 +1,10 @@
 import Array "mo:base/Array";
+import Buffer "mo:base/Buffer";
 import Error "mo:base/Error";
+import Int "mo:base/Int";
 import Iter "mo:base/Iter";
+import Nat "mo:base/Nat";
+import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Prim "mo:prim";
 import Principal "mo:base/Principal";
@@ -16,10 +20,12 @@ import Types "types";
 module {
 
     public type UpgradeData = Types.UpgradeData;
-    type Collection = Collection.Collection;
+    public type Collection = Collection.Collection;
 
 
     public class Factory(dependencies : Types.Dependencies) : Types.Interface {
+
+          let DAY_NANO = 24 * 60 * 60 * 1000 * 1000 * 1000;
 
         //////////////
         /// State ///
@@ -46,6 +52,13 @@ module {
         */
         let daily_cached_events : TrieMap.TrieMap<Principal, [Types.Event]> = TrieMap.TrieMap<Principal,[Types.Event]>(Principal.equal, Principal.hash);
 
+
+        /* 
+            Daily cached stats for all users.
+        */
+
+        // let daily_cached_stats : TrieMap.TrieMap<Principal, [Types.Stat]> = TrieMap.TrieMap<Principal,[Types.Stat]>(Principal.equal, Principal.hash);
+
         public func preupgrade() : UpgradeData {
             return({
                 cids = Iter.toArray(cids.entries());
@@ -67,6 +80,79 @@ module {
             };
         };
 
+        ///////////////////
+        // Daily scores //
+        /////////////////
+
+        /* 
+            Query all the cids and add the event of the day to the daily cache in the canister.
+            @ok : Number of events added to the daily cache.
+            @err : An error message.
+         */
+        public func cronEvents() : async Result.Result<Nat, Text> {
+            var total_number : Nat = 0;
+            for((collection, cid) in cids.entries()){
+                try {
+                    let daily_events = await getDailyEvents(cid);
+                    total_number += daily_events.size();
+                    daily_cached_events.put(cid, daily_events);
+                } catch e {
+                    return #err(Error.message(e));
+                };
+            };
+            return #ok(total_number);
+        };
+
+
+        func getLatestPage(cid : Principal) : async Nat {
+            let bucket : Types.Bucket = actor(Principal.toText(cid));
+            let size = await bucket.size();
+            let latest_page = Nat64.div(size, 64 : Nat64);
+            Nat64.toNat(latest_page);
+        };
+
+        func getDailyEvents(cid : Principal) : async [Types.Event] {
+            let latest_page = await getLatestPage(cid);
+            _Logs.logMessage("Latest page for : " # Principal.toText(cid) # " is " # Nat.toText(latest_page)); 
+            let bucket : Types.Bucket = actor(Principal.toText(cid));
+            var r : Buffer.Buffer<Types.Event> = Buffer.Buffer(0);
+            var is_over : Bool = false;
+            var count : Nat = 0;
+            label l while(not is_over and count < 100){
+                // Verify that the page to query is not under 0.
+                let page_to_query = Int.sub(latest_page, count);
+                if(page_to_query < 0){
+                    _Logs.logMessage("Page to query is under 0, skipping.");
+                    break l;
+                };
+                let result = await bucket.get_transactions({
+                    page = ?Nat32.fromNat(Int.abs(page_to_query));
+                    witness = false;
+                });
+                // Calculate the Time only after the await otherwise we might be too far in the past for some recent events.
+                let now = Time.now();
+                let yesterday = now - DAY_NANO;
+                let events = result.data;
+                for(event in events.vals()){
+                    // Need to convert the types and multiply to convert to nanos.
+                    let time : Nat = Nat64.toNat(event.time) * 1_000_000;
+                    // Only keep the events from the past 24 hours BUT only exit the loop if we encounter an event from before yesterday. If we encounter an event "in the future" we do nothing.
+                    if(time > yesterday and time <= now){
+                        r.add(event);
+                    } else if (time < yesterday){
+                        is_over := true;
+                    };
+                };
+                count := count + 1;
+                // Add a security to stop the loop if the page number is too high or empty.
+                if(events.size() == 0){
+                    is_over := true;
+                };
+            };
+            return(r.toArray());
+        };
+
+
         //////////
         // API //
         ////////
@@ -75,14 +161,23 @@ module {
         public func registerCollection(collection : Collection) : async Result.Result<(), Text> {
             let cid = collection.contractId;
             try {
-                let cid_bucket = await cap_router.get_token_contract_root_bucket(cid);
-                cids.put(collection, cid_bucket);
+                let result = await cap_router.get_token_contract_root_bucket({
+                    canister = cid;
+                    witness = false;
+                });
+                switch(result.canister){
+                    case(? cid_bucket){
+                        cids.put(collection, cid_bucket);
+                    };
+                    case(null){
+                        return #err("No bucket found");
+                    };
+                };
             } catch e {
                 return #err(Error.message(e));
             };
             return #ok();
         };
-
 
         public func updateUserInteractedCollections(user : Principal) : async Result.Result<Nat, Text> {
             try {
@@ -166,7 +261,7 @@ module {
             time_end : ?Time.Time
             ) : async Result.Result<(Nat, Nat), Text> {
             let potential_sale_nomenclature : [Text] = ["sale", "Sale", "Sell", "sell", "SALE", "SELL"];
-            let account_identifier = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+            let account_identifier = Text.map(Ext.AccountIdentifier.fromPrincipal(user, null), Prim.charToLower);
             let cids_to_check : [Principal] = switch(cid_buckets){
                 case(? cids){cids};
                 case(null){
@@ -345,7 +440,7 @@ module {
          */
         func _isSaleFrom(
             event : Types.Event,
-            account : AccountIdentifier
+            account : Ext.AccountIdentifier
         ) : Bool {
             let details = event.details;
             for((key, value) in details.vals()){
@@ -387,5 +482,7 @@ module {
             _Logs.logMessage("Could not find the ICP amount of the sale event : " # Principal.toText(collection));
             return 0;
         }
+
+
     };
 }

@@ -4,7 +4,6 @@ import { StoicIdentity } from "ic-stoic-identity";
 import { ledgerActor } from "@src/api/actor";
 import type { Identity } from "@dfinity/agent";
 import type { TransferArgs, TransferResult } from "@canisters/ledger/ledger.did.d";
-import { accountIdentifierToString } from "./tools/accountIdentifier";
 
 export async function payInvoice(invoice: Invoice, wallet: Wallet): Promise<{ height: number }> {
   const { paid, expiration } = invoice;
@@ -14,10 +13,10 @@ export async function payInvoice(invoice: Invoice, wallet: Wallet): Promise<{ he
   if (expiration < Date.now() * 100_000) {
     throw new Error("This invoice has already been paid");
   }
-  if(wallet === "plug") {
+  if (wallet === "plug") {
     //@ts-ignore
     return await pay_plug(invoice.destination.text, Number(invoice.amount));
-  } else if(wallet === "stoic") {
+  } else if (wallet === "stoic") {
     //@ts-ignore
     return await pay_stoic(invoice.destination.text, Number(invoice.amount));
   } else {
