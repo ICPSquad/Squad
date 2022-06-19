@@ -619,6 +619,19 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Users.getUser(caller);
     };
 
+    /* Get the avatar(s) of the caller */
+    public shared query ({ caller }) func get_avatars() : async [TokenIdentifier] {
+        let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+        switch(_Ext.tokens(account)){
+            case(#err(e)) return [];
+            case(#ok(tokenIds)){
+                let tokenIdentifier = Array.map<TokenIndex, TokenIdentifier>(tokenIds, func(x) { Ext.TokenIdentifier.encode(cid, x) });
+                return tokenIdentifier;
+            };
+        };
+    };
+
+
     /* Replace the user profile of the caller with the new profile */
     public shared ({ caller }) func modify_user(user : UserData) : async Result<(), Text> {
         _Monitor.collectMetrics();

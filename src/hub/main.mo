@@ -361,7 +361,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     /////////////
     // Cronic //
     ///////////
-
+    
     /*  
         Query the latest available style scores from the Avatar canister and update the daily_style_score accordingly.
         @cronic : Every hour.

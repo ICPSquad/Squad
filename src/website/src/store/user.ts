@@ -1,6 +1,5 @@
 import { Principal } from "@dfinity/principal";
 import { writable, get } from "svelte/store";
-import { actors } from "./actor";
 import type { userStore } from "./types/user-store";
 
 export const user = writable<userStore>({
