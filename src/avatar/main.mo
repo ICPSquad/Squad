@@ -631,11 +631,20 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         };
     };
 
-
     /* Replace the user profile of the caller with the new profile */
     public shared ({ caller }) func modify_user(user : UserData) : async Result<(), Text> {
         _Monitor.collectMetrics();
         _Users.modifyUser(caller, user);
+    };
+
+    public shared ({ caller }) func modify_profile(
+        username : ?Text,
+        email : ? Text,
+        discord : ?Text,
+        twitter : ?Text,
+    ) : async Result<(), Text> {
+        _Monitor.collectMetrics();
+        _Users.modifyProfile(caller, username, email, discord, twitter);
     };
 
     public shared ({ caller }) func add_user(p : Principal) : async Result<(), Text> {

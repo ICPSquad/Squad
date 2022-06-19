@@ -135,6 +135,7 @@ export interface ICPSquadNFT {
     [],
     [[] | [TokenIdentifier], [] | [AvatarRendering]],
   >,
+  'get_avatars' : ActorMethod<[], Array<TokenIdentifier>>,
   'get_components' : ActorMethod<[], Array<[string, Component]>>,
   'get_infos_holders' : ActorMethod<
     [],
@@ -159,6 +160,10 @@ export interface ICPSquadNFT {
   'is_admin' : ActorMethod<[Principal], boolean>,
   'metadata' : ActorMethod<[TokenIdentifier], Result_4>,
   'mint' : ActorMethod<[MintInformation, [] | [bigint]], MintResult>,
+  'modify_profile' : ActorMethod<
+    [[] | [string], [] | [string], [] | [string], [] | [string]],
+    Result,
+  >,
   'modify_user' : ActorMethod<[UserData], Result>,
   'registerComponent' : ActorMethod<[string, Component], Result>,
   'removeAccessory' : ActorMethod<[TokenIdentifier, string, Principal], Result>,

@@ -6,6 +6,7 @@ import { idlFactory as idlFactoryLedger } from "@canisters/ledger/ledger.did";
 import { idlFactory as idlFactoryHub } from "@canisters/hub/hub.did";
 import { StoicIdentity } from "ic-stoic-identity";
 import { actors } from "@src/store/actor";
+import { get } from "svelte/store";
 import { user } from "@src/store/user";
 import { Actor, HttpAgent } from "@dfinity/agent";
 import type { ICPSquadNFT as Avatar } from "@canisters/avatar/avatar.did.d";
@@ -35,17 +36,13 @@ export async function plugConnection(): Promise<void> {
     canisterId: invoiceID,
     interfaceFactory: idlFactoryInvoice,
   });
-  const ledgerActor = await window.ic.plug.createActor({
-    canisterId: ledgerID,
-    interfaceFactory: idlFactoryLedger,
-  });
   const hubActor = await window.ic.plug.createActor({
     canisterId: hubID,
     interfaceFactory: idlFactoryHub,
   });
 
   user.update((u) => ({ ...u, wallet: "plug", loggedIn: true, principal }));
-  actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor, hubActor: hubActor }));
+  actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, hubActor: hubActor }));
 }
 
 export async function stoicConnexion(): Promise<void> {
@@ -95,4 +92,16 @@ export async function stoicConnexion(): Promise<void> {
     alert(e);
     return;
   }
+}
+
+export function disconnectWallet(): void {
+  const { wallet: Wallet } = get(user);
+  if (Wallet === "plug") {
+    window.ic.plug.disconnect();
+  }
+  if (Wallet === "stoic") {
+    StoicIdentity.disconnect();
+  }
+  user.update((u) => ({ ...u, wallet: undefined, loggedIn: false, principal: null }));
+  actors.update((a) => ({ ...a, avatarActor: null, accessoriesActor: null, invoiceActor: null, ledgerActor: null, hubActor: null }));
 }

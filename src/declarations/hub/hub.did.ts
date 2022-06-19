@@ -23,9 +23,9 @@ export const idlFactory = ({ IDL }) => {
     'validation' : MissionValidation,
     'points' : IDL.Nat,
   });
-  const Result_2 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text });
+  const Result_1 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text });
   const Result__1_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
-  const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+  const Result_2 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const GetLogMessagesFilter = IDL.Record({
     'analyzeCount' : IDL.Nat32,
     'messageRegex' : IDL.Opt(IDL.Text),
@@ -167,6 +167,14 @@ export const idlFactory = ({ IDL }) => {
     'end_date' : IDL.Opt(Time),
     'start_date' : Time,
   });
+  const Result_3 = IDL.Variant({
+    'ok' : IDL.Tuple(IDL.Nat, IDL.Nat),
+    'err' : IDL.Text,
+  });
+  const Collection = IDL.Record({
+    'name' : IDL.Text,
+    'contractId' : IDL.Principal,
+  });
   const Result__1 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text });
   const Result = IDL.Variant({ 'ok' : IDL.Bool, 'err' : IDL.Text });
   const ICPSquadHub = IDL.Service({
@@ -175,11 +183,12 @@ export const idlFactory = ({ IDL }) => {
     'add_job' : IDL.Func([IDL.Principal, IDL.Text, IDL.Int], [], []),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'collectCanisterMetrics' : IDL.Func([], [], []),
-    'create_mission' : IDL.Func([CreateMission], [Result_2], []),
+    'create_mission' : IDL.Func([CreateMission], [Result_1], []),
+    'cron_events' : IDL.Func([], [Result_1], []),
     'cron_round' : IDL.Func([], [Result__1_1], []),
     'cron_style_score' : IDL.Func([], [], []),
     'delete_job' : IDL.Func([IDL.Nat], [], []),
-    'delete_mission' : IDL.Func([IDL.Nat], [Result_1], []),
+    'delete_mission' : IDL.Func([IDL.Nat], [Result_2], []),
     'getCanisterLog' : IDL.Func(
         [IDL.Opt(CanisterLogRequest)],
         [IDL.Opt(CanisterLogResponse)],
@@ -189,6 +198,11 @@ export const idlFactory = ({ IDL }) => {
         [GetMetricsParameters],
         [IDL.Opt(CanisterMetrics)],
         ['query'],
+      ),
+    'get_all_operations' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat))],
+        [],
       ),
     'get_holders' : IDL.Func(
         [],
@@ -209,17 +223,45 @@ export const idlFactory = ({ IDL }) => {
     'get_jobs' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Nat, Job))], ['query']),
     'get_leaderboard' : IDL.Func([], [IDL.Opt(Leaderboard__1)], ['query']),
     'get_missions' : IDL.Func([], [IDL.Vec(Mission)], ['query']),
+    'get_number_operations' : IDL.Func(
+        [IDL.Principal, IDL.Vec(IDL.Text), IDL.Opt(IDL.Vec(IDL.Principal))],
+        [IDL.Nat],
+        [],
+      ),
     'get_round' : IDL.Func([], [IDL.Opt(Round)], ['query']),
+    'get_stats_sales' : IDL.Func(
+        [
+          IDL.Principal,
+          IDL.Opt(IDL.Vec(IDL.Principal)),
+          IDL.Opt(Time),
+          IDL.Opt(Time),
+        ],
+        [Result_3],
+        [],
+      ),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
+    'manually_add_winners' : IDL.Func(
+        [IDL.Nat, IDL.Vec(IDL.Principal)],
+        [Result_2],
+        [],
+      ),
     'my_completed_missions' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Nat, Time))],
         ['query'],
       ),
+    'register_all_collections' : IDL.Func([], [Result_2], []),
+    'register_collection' : IDL.Func([Collection], [Result_2], []),
     'set_job_status' : IDL.Func([IDL.Bool], [], []),
-    'start_mission' : IDL.Func([IDL.Nat], [Result_1], []),
+    'start_mission' : IDL.Func([IDL.Nat], [Result_2], []),
     'start_round' : IDL.Func([], [Result__1], []),
+    'stop_mission' : IDL.Func([IDL.Nat], [Result_2], []),
     'stop_round' : IDL.Func([], [Result__1], []),
+    'update_user_interacted_collections' : IDL.Func(
+        [IDL.Principal],
+        [Result_1],
+        [],
+      ),
     'verify_mission' : IDL.Func([IDL.Nat], [Result], []),
   });
   return ICPSquadHub;

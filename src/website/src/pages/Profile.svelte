@@ -3,8 +3,13 @@
   import Footer from "@components/shared/Footer.svelte";
   import Join from "@components/shared/Join.svelte";
   import Newsletter from "@components/shared/Newsletter.svelte";
+  import { disconnectWallet } from "@utils/connection";
+  import { onDestroy } from "svelte";
   import { get } from "svelte/store";
+  import { setMessage } from "@src/store/toast";
+  import { actors } from "@src/store/actor";
   import { user } from "@src/store/user";
+
   import LinkButton from "@src/components/shared/LinkButton.svelte";
   import ConnectButton from "@src/components/shared/ConnectButton.svelte";
 
@@ -12,10 +17,30 @@
 
   let userProfile = { ...get(user) };
 
-  const handleSave = () => {
-    // TO DO - SAVE TO CANISTER
+  const unsubcribe = user.subscribe(() => {
+    userProfile = { ...get(user) };
+  });
 
-    user.set({ ...userProfile });
+  const handleSave = async () => {
+    try {
+      setMessage("Updating your profile...", "waiting");
+      const avatarActor = get(actors).avatarActor;
+      console.log("User profile", userProfile);
+      const result = await avatarActor.modify_profile(
+        userProfile.username ? [userProfile.username] : [],
+        userProfile.email ? [userProfile.email] : [],
+        userProfile.discord ? [userProfile.discord] : [],
+        userProfile.twitter ? [userProfile.twitter] : []
+      );
+      if ("ok" in result) {
+        setMessage("Profile updated successfully!", "success", 3000);
+        user.set({ ...userProfile });
+      } else {
+        setMessage(result.err, "error", 3000);
+      }
+    } catch (e) {
+      setMessage(e.message, "error", 3000);
+    }
     editing = false;
   };
 
@@ -24,19 +49,19 @@
     editing = false;
   };
 
-  const disconnectWallet = () => {
-    // TO DO - DISCONNECT WALLET
-  };
-
   const setDefaultAvatar = (avatarDefaultUrl: string) => {
     // TO DO - SAVE TO CANISTER
 
     userProfile = {
       ...userProfile,
-      avatarDefaultUrl,
+      avatarDefault: avatarDefaultUrl,
     };
     user.set({ ...userProfile });
   };
+
+  onDestroy(() => {
+    unsubcribe();
+  });
 </script>
 
 <Header />
@@ -44,29 +69,18 @@
   <h1>Profile</h1>
 </div>
 <div class="container">
-  {#if !$user.loggedIn}
+  {#if !userProfile.loggedIn}
     <div class="not-logged-in">
       <p>Please connect a wallet to continue</p>
       <ConnectButton />
     </div>
   {:else}
     <div class="avatar-col">
-      <img
-        src={userProfile.avatarDefaultUrl}
-        alt="ICP Squad Avatar"
-        class="avatar"
-      />
-      {#if userProfile.avatarUrls.length > 1}
+      <img src={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?&tokenid=${userProfile.avatarDefault}`} alt="ICP Squad Avatar" class="avatar" />
+      {#if userProfile.avatars.length > 1}
         <div class="label">DEFAULT AVATAR</div>
-        {#each userProfile.avatarUrls as url}
-          <img
-            on:click={() => setDefaultAvatar(url)}
-            src={url}
-            alt="ICP Squad Avatar"
-            class="thumbnail {url === userProfile.avatarDefaultUrl
-              ? 'selected'
-              : ''}"
-          />
+        {#each userProfile.avatars as tokenIdentifier}
+          <img on:click={() => setDefaultAvatar(tokenIdentifier)} src={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?&tokenid=${userProfile.avatarDefault}`} alt="ICP Squad Avatar" />
         {/each}
       {/if}
       <LinkButton to="/add-accessory">
@@ -77,12 +91,7 @@
       <div class="field">
         <div class="label">USERNAME</div>
         {#if editing}
-          <input
-            bind:value={userProfile.username}
-            type="text"
-            class="value"
-            placeholder="Username"
-          />
+          <input bind:value={userProfile.username} type="text" class="value" placeholder="Username" />
         {:else if !userProfile.username}
           <div on:click={() => (editing = true)} class="add-button">Add</div>
         {:else}
@@ -92,12 +101,7 @@
       <div class="field">
         <div class="label">EMAIL</div>
         {#if editing}
-          <input
-            bind:value={userProfile.email}
-            type="text"
-            class="value"
-            placeholder="email@email.com"
-          />
+          <input bind:value={userProfile.email} type="text" class="value" placeholder="email@email.com" />
         {:else if !userProfile.email}
           <div on:click={() => (editing = true)} class="add-button">Add</div>
         {:else}
@@ -107,12 +111,7 @@
       <div class="field">
         <div class="label">TWITTER</div>
         {#if editing}
-          <input
-            bind:value={userProfile.twitter}
-            type="text"
-            class="value"
-            placeholder="@twitterhandle"
-          />
+          <input bind:value={userProfile.twitter} type="text" class="value" placeholder="@twitterhandle" />
         {:else if !userProfile.twitter}
           <div on:click={() => (editing = true)} class="add-button">Add</div>
         {:else}
@@ -122,12 +121,7 @@
       <div class="field">
         <div class="label">DISCORD</div>
         {#if editing}
-          <input
-            bind:value={userProfile.discord}
-            type="text"
-            class="value"
-            placeholder="discordusername:XXXX"
-          />
+          <input bind:value={userProfile.discord} type="text" class="value" placeholder="discordusername:XXXX" />
         {:else if !userProfile.discord}
           <div on:click={() => (editing = true)} class="add-button">Add</div>
         {:else}
@@ -137,9 +131,7 @@
       <div class="field">
         <div class="label">WALLET CONNECTED</div>
         <div class="value small">{userProfile.principal}</div>
-        <button on:click={disconnectWallet} class="secondary disconnect"
-          >Disconnect Wallet</button
-        >
+        <button on:click={disconnectWallet} class="secondary disconnect">Disconnect Wallet</button>
       </div>
     </div>
     <div class="button-col">

@@ -155,6 +155,34 @@ module {
             };
         };
 
+        public func modifyProfile(
+            name : ?Text,
+            email : ?Text,
+            discord : ?Text,
+            twitter : ?Text,
+        ) : Result<(), Text> {
+            switch(_users.get(caller)){
+                case(null) return #err("No user profile detected for : " # Principal.toText(caller));
+                case(? user) {
+                    let new_user = {
+                        name = name;
+                        email = email;
+                        discord = discord;
+                        twitter = twitter;
+                        rank = user.rank;
+                        height = user.height;
+                        minted = user.minted;
+                        account_identifier = user.account_identifier;
+                        invoice_id = user.invoice_id;
+                        selected_avatar = user.selected_avatar;
+                    };
+                    _users.put(caller, new_user);
+                    return #ok;
+                };
+            };
+        };
+
+
         public func calculateAccounts() : () {
             for((p, user) in _users.entries()){
                 if(Option.isNull(user.account_identifier)){

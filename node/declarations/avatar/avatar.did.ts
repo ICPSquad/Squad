@@ -334,6 +334,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(TokenIdentifier), IDL.Opt(AvatarRendering)],
         ['query'],
       ),
+    'get_avatars' : IDL.Func([], [IDL.Vec(TokenIdentifier)], ['query']),
     'get_components' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Text, Component))],
@@ -374,6 +375,16 @@ export const idlFactory = ({ IDL }) => {
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'metadata' : IDL.Func([TokenIdentifier], [Result_4], ['query']),
     'mint' : IDL.Func([MintInformation, IDL.Opt(IDL.Nat)], [MintResult], []),
+    'modify_profile' : IDL.Func(
+        [
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+        ],
+        [Result],
+        [],
+      ),
     'modify_user' : IDL.Func([UserData], [Result], []),
     'registerComponent' : IDL.Func([IDL.Text, Component], [Result], []),
     'removeAccessory' : IDL.Func(

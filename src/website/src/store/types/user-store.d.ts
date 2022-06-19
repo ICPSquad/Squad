@@ -6,10 +6,10 @@ export type userStore = {
   loggedIn: boolean;
   principal: Principal;
   wallet: Wallet | undefined;
-  avatarDefaultUrl: string | undefined | null;
-  avatarUrls: string[] | undefined | null;
   username: string | undefined | null;
   email: string | undefined | null;
   twitter: string | undefined | null;
   discord: string | undefined | null;
+  avatarDefault: string | undefined | null;
+  avatars: string[] | undefined | null;
 };

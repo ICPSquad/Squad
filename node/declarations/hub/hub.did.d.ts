@@ -26,6 +26,7 @@ export type CanisterMemoryAggregatedData = Array<bigint>;
 export interface CanisterMetrics { 'data' : CanisterMetricsData }
 export type CanisterMetricsData = { 'hourly' : Array<HourlyMetricsData> } |
   { 'daily' : Array<DailyMetricsData> };
+export interface Collection { 'name' : string, 'contractId' : Principal }
 export interface CreateMission {
   'title' : string,
   'tags' : Array<string>,
@@ -81,11 +82,12 @@ export interface ICPSquadHub {
   'add_job' : ActorMethod<[Principal, string, bigint], undefined>,
   'availableCycles' : ActorMethod<[], bigint>,
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
-  'create_mission' : ActorMethod<[CreateMission], Result_2>,
+  'create_mission' : ActorMethod<[CreateMission], Result_1>,
+  'cron_events' : ActorMethod<[], Result_1>,
   'cron_round' : ActorMethod<[], Result__1_1>,
   'cron_style_score' : ActorMethod<[], undefined>,
   'delete_job' : ActorMethod<[bigint], undefined>,
-  'delete_mission' : ActorMethod<[bigint], Result_1>,
+  'delete_mission' : ActorMethod<[bigint], Result_2>,
   'getCanisterLog' : ActorMethod<
     [[] | [CanisterLogRequest]],
     [] | [CanisterLogResponse],
@@ -94,6 +96,7 @@ export interface ICPSquadHub {
     [GetMetricsParameters],
     [] | [CanisterMetrics],
   >,
+  'get_all_operations' : ActorMethod<[], Array<[string, bigint]>>,
   'get_holders' : ActorMethod<
     [],
     Array<
@@ -110,13 +113,26 @@ export interface ICPSquadHub {
   'get_jobs' : ActorMethod<[], Array<[bigint, Job]>>,
   'get_leaderboard' : ActorMethod<[], [] | [Leaderboard__1]>,
   'get_missions' : ActorMethod<[], Array<Mission>>,
+  'get_number_operations' : ActorMethod<
+    [Principal, Array<string>, [] | [Array<Principal>]],
+    bigint,
+  >,
   'get_round' : ActorMethod<[], [] | [Round]>,
+  'get_stats_sales' : ActorMethod<
+    [Principal, [] | [Array<Principal>], [] | [Time], [] | [Time]],
+    Result_3,
+  >,
   'is_admin' : ActorMethod<[Principal], boolean>,
+  'manually_add_winners' : ActorMethod<[bigint, Array<Principal>], Result_2>,
   'my_completed_missions' : ActorMethod<[], Array<[bigint, Time]>>,
+  'register_all_collections' : ActorMethod<[], Result_2>,
+  'register_collection' : ActorMethod<[Collection], Result_2>,
   'set_job_status' : ActorMethod<[boolean], undefined>,
-  'start_mission' : ActorMethod<[bigint], Result_1>,
+  'start_mission' : ActorMethod<[bigint], Result_2>,
   'start_round' : ActorMethod<[], Result__1>,
+  'stop_mission' : ActorMethod<[bigint], Result_2>,
   'stop_round' : ActorMethod<[], Result__1>,
+  'update_user_interacted_collections' : ActorMethod<[Principal], Result_1>,
   'verify_mission' : ActorMethod<[bigint], Result>,
 }
 export interface Job {
@@ -181,9 +197,11 @@ export interface NumericEntity {
 }
 export type Result = { 'ok' : boolean } |
   { 'err' : string };
-export type Result_1 = { 'ok' : null } |
+export type Result_1 = { 'ok' : bigint } |
   { 'err' : string };
-export type Result_2 = { 'ok' : bigint } |
+export type Result_2 = { 'ok' : null } |
+  { 'err' : string };
+export type Result_3 = { 'ok' : [bigint, bigint] } |
   { 'err' : string };
 export type Result__1 = { 'ok' : bigint } |
   { 'err' : string };
