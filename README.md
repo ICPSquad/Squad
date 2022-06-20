@@ -11,15 +11,12 @@ This repository contains all the code for the dSquad project. <br/> It contains 
 - [x] Integrates [**CanisterGeek**](https://cusyh-iyaaa-aaaah-qcpba-cai.raw.ic0.app/) for **monitoring** and **logs** system.
 - [x] Compatible with **Plug** and **Stoic** wallets.
 - [x] **HTTP** interface for canister informations, asset preview and nft rendering.
-- [x] **Invoice** system for live and open minting in exchange of 1 ICP.
-- [x] Finish the econony and early gameplay planning.
-- [ ] Drainining and restoring state of all canister at any point to allow for backup system.
-- [ ] Mission, gameplay, airdrop and bootcamp integration.
-- [ ] Legendaries accessories and characters integration.
-- [ ] DAO wallet than can hold and distribute tokens and NFTs of multiple standards to the squad.
-- [ ] Integrate covercode.oo for code verification.
-- [ ] Multi-season and collection architecture.
-- [ ] Dynamic algorithm for accessory resizing.
+- [x] **Invoice** system for processing fees & verification of payments.
+- [x] Design of the econony and recipes for accessories with automatic **burning** mechanism.
+- [x] Activity tracking system leveraging DAB & CAP.
+- [x] Gameplay : scores (daily engagement & style) & missions.
+- [x] Leaderboard & reward system.
+- [ ] Integrate covercode for code verification.
 
 ## Getting started and deploying locally
 
@@ -57,35 +54,3 @@ import { fetchIdentity } from "src/node/account";
 let identity = fetchIdentity("admin");
 console.log("My principal is : " + identity.getPrincipal().toString())
 ```
-
-## Checking your balance and making ICP transfer using the ledger
-
-During the deploy process, when the local ledger is set : 100 ICP are automatically minted to your ledger address id. You can check you balance and initate transfer using dfx. <br/>
-
-(Unfortunately there a currently no ways to use Plug or Stoic locally)
-
-- Checking your balance.
-
-```
-export LEDGER_ACC=$(dfx ledger account-id)
-dfx canister call ledger account_balance '(record { account = '$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$LEDGER_ACC'")]) + "}")')' })'
-```
-
-- Make a transfer to an account.
-
-  - Get the textual representation of the AccountIdentifier you wanna send funds to.
-
-    - You can use this tool to convert a principal to an account id : https://k7gat-daaaa-aaaae-qaahq-cai.ic0.app/docs/. <br/>
-    - You can also use the node script called account.ts.
-
-  - Transform the account identifier to a 32-bytes blob.
-
-  ```
-  dfx canister call invoice accountIdentifierToBlob "(variant {"text" = "<YOUR_ACCOUNT>" })"
-  ```
-
-  - Send the update call to the ledger.
-
-  ```
-  dfx canister call ledger transfer '( record { memo = 0; amount = record { e8s = 10_000_000_000 }; fee = record { e8s = 10000 }; to = blob "<YOUR_BLOB>" })'
-  ```
