@@ -138,6 +138,10 @@
           label: "Twitter",
           url: "https://twitter.com/beavskis",
         },
+        {
+          label: "Polychain",
+          url: "https://polychain.capital/",
+        },
       ],
     },
     {
@@ -261,6 +265,90 @@
         {
           label: "Github",
           url: "https://github.com/di-wu",
+        },
+      ],
+    },
+    {
+      svg: "Jorgen.svg",
+      name: "Jorgen",
+      role: "Saga cards",
+      categorie: "Community",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/Jorgenbuilder",
+        },
+        {
+          label: "Github",
+          url: "https://github.com/jorgenbuilder",
+        },
+        {
+          label: "Saga",
+          url: "https://mobile.twitter.com/sagacards",
+        },
+      ],
+    },
+    {
+      svg: "Anthony.svg",
+      name: "Anthony",
+      role: "Aedile",
+      categorie: "Community",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/AnthonyMQ23",
+        },
+        {
+          label: "Github",
+          url: "https://github.com/anthonymq",
+        },
+        {
+          label: "Aedile",
+          url: "https://vqdn4-miaaa-aaaaf-qaawa-cai.ic0.app/",
+        },
+      ],
+    },
+    {
+      svg: "PaulY.svg",
+      name: "Paul Young",
+      role: "Motoko pionner",
+      categorie: "Community",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/py",
+        },
+        {
+          label: "Github",
+          url: "https://github.com/paulyoung",
+        },
+        {
+          label: "Website",
+          url: "https://paulyoung.wordpress.com/",
+        },
+      ],
+    },
+    {
+      svg: "Austin.svg",
+      name: "Austin",
+      role: "Orygin CTO & ICDevs",
+      categorie: "Community",
+      links: [
+        {
+          label: "Twitter",
+          url: "https://twitter.com/afat",
+        },
+        {
+          label: "Github",
+          url: "https://github.com/skilesare",
+        },
+        {
+          label: "Origyn",
+          url: "https://www.origyn.com/",
+        },
+        {
+          label: "ICDevs",
+          url: "https://icdevs.org/",
         },
       ],
     },
