@@ -421,7 +421,7 @@ module {
             };
             var count : Nat = 0;
             for(cid in cids_to_check.vals()){
-                // TODO : When Promise.all. Currently this might take a long time to perfom 😢
+                // When Promise.all. Currently this might take a long time to perfom 😢
                 let bucket : Types.Bucket = actor(Principal.toText(cid));
                 try {
                     let result = await bucket.get_user_transactions({

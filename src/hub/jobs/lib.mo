@@ -99,7 +99,6 @@ module {
         private func _doJob(job : Job) : async () {
             try {
                 ignore(await IC.call(job.canister, job.method_name, Blob.fromArray(candid_encoded_args_null)));
-                // _Logs.log("Job " # job.method_name # " done");
             } catch e {
                 _Logs.logMessage("Error in job: " # job.method_name # " : " # Error.message(e));
                 throw e;

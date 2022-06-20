@@ -250,7 +250,6 @@ module {
             var tokens : Buffer.Buffer<(Ext.TokenIndex, ?Types.Listing, ?Blob)> = Buffer.Buffer(0);
             for ((index, owner) in _registry.entries()) {
                 if (Text.equal(accountId, owner)) {
-                    //TODO : use  Asset module to fill the blob field   
                     tokens.add((index, null, ?Text.encodeUtf8("ICPSquad")));
                 };
             };
