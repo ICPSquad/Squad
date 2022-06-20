@@ -616,6 +616,7 @@ module {
             (15, _mission15),
             (16, _mission16),
             (17, _mission17),
+            // 18 is handled manually
         ];
 
     
