@@ -579,6 +579,26 @@ module {
             return count;
         };
 
+        /* 
+            Returns the cumulative stats of the specified user. Tracking starts from the 20th of June 2022.
+         */
+        // 20th of June 2022
+        let BEGIN_TIME : Time.Time = 1655729084018865799;
+        public func getAllTimeStats(caller : Principal) : CapStats {
+            let dates = _getDatesBetween(BEGIN_TIME, Time.now());
+            var r : Buffer.Buffer<CapStats> = Buffer.Buffer(0);
+            for(date in dates.vals()){
+                switch(stats_daily.get(date, caller)){
+                    case(null){};
+                    case(? stats){
+                        r.add(stats);
+                    };
+                };
+            };
+            let stats = r.toArray();
+            return _getCumulativeStats(stats);
+        };
+
         /////////////
         // Admins //
         ///////////
@@ -762,10 +782,14 @@ module {
                     };
                 };
             };
-            _Logs.logMessage("Could not find the ICP amount of the sale event : " # Principal.toText(collection));
+            _Logs.logMessage("ERR :: Could not find the ICP amount of the sale event : " # Principal.toText(collection));
             return 0;
         };
 
+
+        /* 
+            Returns an extended event from an event and the collection involved.
+         */
         func _eventToExtendendEvent(
             event : Types.Event,
             collection : Principal
@@ -779,7 +803,9 @@ module {
             })
         };
 
-
+        /* 
+            Add a new collection to a list of collections if the collection is not already in the list.
+         */
         func _addCollectionToInvolvedCollections(
             involved_collections : [Principal],
             collection : Principal
@@ -794,7 +820,10 @@ module {
             };
         };
 
-
+        
+        /* 
+            Returns the sum of all engagement scores found for the provided dates and user.
+         */
         func _getSumEngagementScore(dates : [Date], p : Principal) : Nat {
             var sum : Nat = 0;
             for(date in dates.vals()){
@@ -806,6 +835,71 @@ module {
                 };
             };
             return sum;
+        };
+
+        /*
+            Takes T1 & T2 and returns an array of dates between T1 and T2. 
+         */
+        func _getDatesBetween(start : Time.Time, end : Time.Time) : [Date] {
+            if(end < start){
+                assert(false);
+                return [];
+            };
+            var buffer : Buffer.Buffer<Date> = Buffer.Buffer<Date>(0);
+            let date_start = switch(DateModule.Date.toDatePartsISO8601(start)){
+                case(null) {
+                    assert(false);
+                    (0, 0, 0);
+                };
+                case(? date_parts) {
+                    date_parts;
+                };
+            };
+            buffer.add(date_start);
+            let ONE_DAY_NANOS : Nat = 86_400_000_000_000;
+            var next_day = start + ONE_DAY_NANOS;
+            var count = 0;
+            while(next_day <= end and count < 100){
+                let date = switch(DateModule.Date.toDatePartsISO8601(next_day)){
+                    case(null) {
+                        assert(false);
+                        (0, 0, 0);
+                    };
+                    case(? date_parts) {
+                        date_parts;
+                    };
+                };
+                buffer.add(date);
+                next_day += ONE_DAY_NANOS;
+                count += 1;
+            };
+            return buffer.toArray();
+        };
+        
+        /* 
+            Returns the cumulative stats from a list of stats.
+         */
+        func _getCumulativeStats(stats : [CapStats]) : CapStats {
+            var number_buy : Nat = 0;
+            var icps_buy : Nat = 0;
+            var number_sell : Nat = 0;
+            var icps_sell : Nat = 0;
+            var number_mint : Nat = 0;
+            var involved_collections : Nat = 0;
+            for(stat in stats.vals()){
+                number_buy += stat.buy.0;
+                icps_buy += stat.buy.1;
+                number_sell += stat.sell.0;
+                icps_sell += stat.sell.1;
+                number_mint += stat.mint;
+                involved_collections += stat.collection_involved;
+            };
+            return({
+                buy = (number_buy, icps_buy);
+                sell = (number_sell, icps_sell);
+                mint = number_mint;
+                collection_involved = involved_collections;
+            });
         };
     };
 };

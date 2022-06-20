@@ -436,7 +436,7 @@ module {
         /////////////
         /* 
             Returns a boolean indicating if the caller has minted at least one branded Cronic accessory.
-            Might takes a long time to resolve. Wen Promise.all in Motoko ?
+            Might takes a long time to resolve -> Wen Promise.all in Motoko ?
         */
         func _mission0(caller : Principal) : async Bool {
             let a = await _Cap.numberMint(caller, ?"Cronic-eyepatch");
@@ -458,6 +458,9 @@ module {
             return false;
         };
 
+        /* 
+            Returns a boolean indicating if the caller has minted at least one branded ICPunk accessory.
+         */
         func _mission1(caller : Principal) : async Bool {
             let a = await _Cap.numberMint(caller, ?"Punk-mask");
             if(a >= 1){
@@ -470,6 +473,9 @@ module {
             return false;
         };
 
+        /* 
+            Returns a boolean indicating if the caller has minted at least one accessory.
+         */
         func _mission4(caller : Principal) : async Bool {
             let number_mint = await _Cap.numberMint(caller, null);
             if(number_mint >= 1){
@@ -478,6 +484,9 @@ module {
             return false;
         };
 
+        /* 
+            Returns a boolean indicating if the caller has minted at least 3 accessories.
+         */
         func _mission5(caller : Principal) : async Bool {
             let number_mint = await _Cap.numberMint(caller, null);
             if(number_mint >= 3){
@@ -486,6 +495,9 @@ module {
             return false;
         };
 
+        /* 
+            Returns a boolean indicating if the caller has minted at least 10 accessories.
+         */
         func _mission6(caller : Principal) : async Bool {
             let number_mint = await _Cap.numberMint(caller, null);
             if(number_mint >= 10){
@@ -494,6 +506,9 @@ module {
             return false;
         };
 
+        /* 
+            Returns a boolean indicating if the caller has burned at least 1 accessory.
+         */
         func _mission7(caller : Principal) : async Bool {
             let number_burn = await _Cap.numberBurn(caller, null);
             if(number_burn >= 1){
@@ -502,6 +517,9 @@ module {
             return false;
         };
 
+        /* 
+            Returns a boolean indicating if the caller has burned at least 3 accessories.
+         */
         func _mission8(caller : Principal) : async Bool {
             let number_burn = await _Cap.numberBurn(caller, null);
             if(number_burn >= 3){
@@ -510,6 +528,9 @@ module {
             return false;
         };
 
+        /* 
+            Returns a boolean indicating if the caller has burned at least 10 accessories.
+         */
         func _mission9(caller : Principal) : async Bool {
             let number_burn = await _Cap.numberBurn(caller, null);
             if(number_burn >= 10){
@@ -518,6 +539,9 @@ module {
             return false;
         };
 
+        /* 
+            Returns a boolean indicating if the caller has added a name to his avatar.
+         */
         func _mission14(caller : Principal) : async Bool {
             let infos = await AVATAR_ACTOR.get_infos_leaderboard();
             switch(Array.find<(Principal, ?Text, ?Text)>(infos, func(x) {x.0 == caller})){
@@ -535,8 +559,11 @@ module {
                     };
                 };
             };
-        };
+        };  
 
+        /* 
+            Returns a boolean indicating if the caller has interacted with at least 3 different collections.
+         */
         func _mission15(caller : Principal) : async Bool {
             let number_collections = await _Cap.numberCollectionsInteracted(caller);
             if(number_collections >= 3){
@@ -545,6 +572,9 @@ module {
             return false;
         };
 
+        /* 
+            Returns a boolean indicating if the caller has interacted with at least 20 different collections.
+         */
         func _mission16(caller : Principal) : async Bool {
             let number_collections = await _Cap.numberCollectionsInteracted(caller);
             if(number_collections >= 20){
@@ -553,8 +583,18 @@ module {
             return false;
         };
 
+        /* 
+            Returns a boolean indicating if the caller has realized more than 10 transactions with a least 100 ICPs involved.
+         */
         func _mission17(caller : Principal) : async Bool {
-            return false
+            let stats = _Cap.getAllTimeStats(caller);
+            let number_transaction = stats.buy.0 + stats.sell.0;
+            let amount_transaction = stats.buy.1 + stats.sell.1;
+            if(number_transaction >= 10 and amount_transaction >= 10_000_000_000){
+                return true;
+            } else {
+                return false;
+            }
         };
 
 
