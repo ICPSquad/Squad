@@ -46,8 +46,6 @@ npm run local:upload
 During the deploy process, a local identity that you can use within node has been set up inside keys/keys.json. <br/>
 This identity is automatically set up as admin for all the canisters (expect the ledger).
 
-You can import this identity in any typescript file.
-
 ```
 import { fetchIdentity } from "src/node/account";
 
