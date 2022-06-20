@@ -91,10 +91,8 @@ module {
             };
         };
 
-        public func getScore(tokenId : TokenIdentifier, start : Time.Time, end : Time.Time) : ?StyleScore {
-            let dates = _getDatesBetween(start, end);
-            let score = _getSumStyleScore(dates, tokenId);
-            return ?score;
+        public func getScore(tokenId : TokenIdentifier, dates : [Date]) : ?StyleScore {
+            return ?_getSumStyleScore(dates, tokenId);
         };
 
         /////////////////

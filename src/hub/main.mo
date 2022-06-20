@@ -139,6 +139,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         cid_bucket_avatar = Principal.fromText("ffu6n-ciaaa-aaaaj-qaotq-cai");
         cid_router = Principal.fromText("lj532-6iaaa-aaaah-qcc7a-cai");
         cid_dab = Principal.fromText("ctqxp-yyaaa-aaaah-abbda-cai");
+        cid_avatar = cid_avatar;
         _Logs;
     });
 
@@ -185,8 +186,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         await _Cap.registerAllCollections();
     };  
 
-    // Observations
-
     public shared ({ caller }) func get_collections() : async [(Collection, Principal)] {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
@@ -205,18 +204,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Cap.getDailyCachedEventsPerCollection();
     };
 
-    public shared ({ caller }) func get_daily_cached_stats_per_user() : async [(Principal, CapStats)] {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Cap.getDailyCachedStatsPerUser();
-    };
-
-    public shared ({ caller }) func get_engagement_stats_per_user() : async [(Principal, CapStats)] {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Cap.getEngagementStatsPerUser();
-    };
-
     ////////////////
     // Mission ////
     //////////////  
@@ -225,6 +212,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     
     stable var _MissionUD : ?Mission.UpgradeData = null;
     let _Mission = Mission.Center({
+        cid_avatar = cid_avatar;
         _Admins;
         _Logs;
         _Cap;
@@ -427,7 +415,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
      */
 
     public shared ({ caller }) func cron_events () : async Result.Result<Nat, Text> {
-        assert(_Admins.isAdmin(caller) or caller == cid);-
+        assert(_Admins.isAdmin(caller) or caller == cid);
         _Monitor.collectMetrics();
         await _Cap.cronEvents();
     };
@@ -440,14 +428,17 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     public shared ({ caller }) func cron_stats() : async Result.Result<(), Text> {
         assert(_Admins.isAdmin(caller) or caller == cid);
         _Monitor.collectMetrics();
+        _Logs.logMessage("Cron :: Starting querying buckets");
         switch(await cron_events()){
             case(#err(e)){
                 _Logs.logMessage("Cron :: Error while querying events : " # e);
                 return #err(e);
             };
-            case(#ok()) {};
+            case(#ok(nb)) {
+                _Logs.logMessage("Cron :: events (hub)" # "Recorded " # Nat.toText(nb) # " events for today.");
+            };
         };
-        _Cap.cronStats();
+        await _Cap.cronStats();
     };
 
     //////////////

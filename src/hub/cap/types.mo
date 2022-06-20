@@ -1,9 +1,9 @@
 import Canistergeek "mo:canistergeek/canistergeek";
 
 import Collection "../collection";
-
 module {
 
+    public type Date = (Nat, Nat, Nat);
     public type CapStats = {
         buy : (Nat, Nat); // (Number of operations, ICP)
         sell : (Nat, Nat); // (Number of operations, ICP)
@@ -100,12 +100,17 @@ module {
         cid_bucket_avatar : Principal;
         cid_router : Principal;
         cid_dab : Principal;
+        cid_avatar : Principal;
         _Logs : Canistergeek.Logger; 
     };
 
     public type UpgradeData = {
         cids : [(Collection.Collection, Principal)];
         cid_interacted_collections : [(Principal, [Principal])];
+        daily_cached_events_per_collection : [(Principal, [Event])];
+        daily_cached_events_per_user : [(Principal, [ExtendedEvent])];
+        stats_daily : [((Date, Principal), CapStats)];
+        engagement_score_daily : [((Date, Principal), Nat)];
     };
 
 };

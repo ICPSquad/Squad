@@ -10,7 +10,7 @@ import Result "mo:base/Result";
 import Time "mo:base/Time";
 import TrieMap "mo:base/TrieMap";
 
-import Date "mo:canistergeek/dateModule";
+import DateModule "mo:canistergeek/dateModule";
 
 import Types "types";
 module {
@@ -276,18 +276,20 @@ module {
         func _getUpdatedRound(round : Round) : async Round {
             let latest_infos : [(Principal, ?Name, ?TokenIdentifier)]= await AVATAR_ACTOR.get_infos_leaderboard();
             var buffer : Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore)> = Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore)>(0);
+            let end = Time.now();
+            let start = round.start_date;
+            let dates = _getDatesBetween(start, end);
             for((p, name, tokenIdentifier)in latest_infos.vals()){
-                let now = Time.now();
                 switch(tokenIdentifier){
                     case(null) {
                         let style_score = null;
-                        let engagement_score = _Cap.getScore(p, round.start_date, now) + _Mission.getMissionScore(p, round.start_date, now);
+                        let engagement_score = _Cap.getScore(p, dates) + _Mission.getMissionScore(p, start, end);
                         let total_score = _getTotalScore(style_score, engagement_score);
                         buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
                     };
                     case(? token) {
-                        let style_score = _Style.getScore(token, round.start_date, now);
-                        let engagement_score = _Cap.getScore(p, round.start_date, now) + _Mission.getMissionScore(p, round.start_date, now);
+                        let style_score = _Style.getScore(token, dates);
+                        let engagement_score = _Cap.getScore(p, dates) + _Mission.getMissionScore(p, start, end);
                         let total_score = _getTotalScore(style_score, engagement_score);
                         buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
                     };
@@ -304,4 +306,43 @@ module {
             })
         };
     };
+
+        /*
+            Takes T1 & T2 and returns an array of dates between T1 and T2. 
+         */
+        func _getDatesBetween(start : Time.Time, end : Time.Time) : [Date] {
+            if(end < start){
+                assert(false);
+                return [];
+            };
+            var buffer : Buffer.Buffer<Date> = Buffer.Buffer<Date>(0);
+            let date_start = switch(DateModule.Date.toDatePartsISO8601(start)){
+                case(null) {
+                    assert(false);
+                    (0, 0, 0);
+                };
+                case(? date_parts) {
+                    date_parts;
+                };
+            };
+            buffer.add(date_start);
+            let ONE_DAY_NANOS : Nat = 86_400_000_000_000;
+            var next_day = start + ONE_DAY_NANOS;
+            var count = 0;
+            while(next_day <= end and count < 100){
+                let date = switch(DateModule.Date.toDatePartsISO8601(next_day)){
+                    case(null) {
+                        assert(false);
+                        (0, 0, 0);
+                    };
+                    case(? date_parts) {
+                        date_parts;
+                    };
+                };
+                buffer.add(date);
+                next_day += ONE_DAY_NANOS;
+                count += 1;
+            };
+            return buffer.toArray();
+        };
 };

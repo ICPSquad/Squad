@@ -65,6 +65,11 @@ module {
 
         let _Logs = dependencies._Logs;
 
+        let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
+            get_infos_leaderboard : shared () -> async [(Principal, ?Text, ?Text)];
+        };
+        
+
         /* 
             Keep track of the root bucket for all registered collections.
          */
@@ -102,13 +107,13 @@ module {
         };
 
         /* 
-            Daily cached stats for all users. 
+            Daily stats for all users. 
         */
 
-        let daily_cached_stats_per_user : TrieMap.TrieMap<Principal, Types.CapStats> = TrieMap.TrieMap<Principal,Types.CapStats>(Principal.equal, Principal.hash);
+        let stats_daily : TrieMap.TrieMap<(Date, Principal), Types.CapStats> = TrieMap.TrieMap<(Date,Principal),Types.CapStats>(customEqual, customHash);
 
-        public func getDailyCachedStatsPerUser() : [(Principal,Types.CapStats)] {
-            return Iter.toArray(daily_cached_stats_per_user.entries());
+        public func getDailyCachedStatsPerUser() : [((Date,Principal),Types.CapStats)] {
+            return Iter.toArray(stats_daily.entries());
         };
 
         /* 
@@ -121,19 +126,14 @@ module {
             return Iter.toArray(engagement_score_daily.entries());
         };
 
-        /* 
-            All time cached stats for all users.
-        */
-        let engagement_stats_per_user : TrieMap.TrieMap<Principal, Types.CapStats> = TrieMap.TrieMap<Principal, Types.CapStats>(Principal.equal, Principal.hash);
-
-        public func getEngagementStatsPerUser() : [(Principal,Types.CapStats)] {
-            return Iter.toArray(engagement_stats_per_user.entries());
-        };
-
         public func preupgrade() : UpgradeData {
             return({
                 cids = Iter.toArray(cids.entries());
                 cid_interacted_collections = Iter.toArray(cid_interacted_collections.entries());
+                daily_cached_events_per_collection = Iter.toArray(daily_cached_events_per_collection.entries());
+                daily_cached_events_per_user = Iter.toArray(daily_cached_events_per_user.entries());
+                stats_daily = Iter.toArray(stats_daily.entries());
+                engagement_score_daily = Iter.toArray(engagement_score_daily.entries());
             })
         };
 
@@ -146,6 +146,18 @@ module {
                     };
                     for((user, collection) in ud.cid_interacted_collections.vals()){
                         cid_interacted_collections.put(user, collection);
+                    };
+                    for((p, events) in ud.daily_cached_events_per_collection.vals()){
+                        daily_cached_events_per_collection.put(p, events);
+                    };
+                    for((p, extended_events) in ud.daily_cached_events_per_user.vals()){
+                        daily_cached_events_per_user.put(p, extended_events);
+                    };
+                    for(((date, collection), stats) in ud.stats_daily.vals()){
+                        stats_daily.put((date, collection), stats);
+                    };
+                    for(((date, user), score) in ud.engagement_score_daily.vals()){
+                        engagement_score_daily.put((date, user), score);
                     };
                 };
             };
@@ -171,7 +183,6 @@ module {
                     return #err(Error.message(e));
                 };
             };
-            _Logs.logMessage("Cron :: events (hub)" # "Recorded " # Nat.toText(total_number) # " events for today.");
             return #ok(total_number);
         };
 
@@ -240,7 +251,7 @@ module {
         /* 
             Update the daily stats (and engagement scores!) for all users.
          */
-        public func cronStats () : Result.Result<(), Text> {
+        public func cronStats () : async Result.Result<(), Text> {
             let date : Date = switch(DateModule.Date.nowToDatePartsISO8601()){
                 case(null){
                     assert(false); 
@@ -248,11 +259,18 @@ module {
                 };
                 case(? date) {date};
             };
+            let infos = await AVATAR_ACTOR.get_infos_leaderboard();
+            let users = Array.map<(Principal, ?Text, ?Text), Principal>(infos, func(x) {x.0});
             for((user, events) in daily_cached_events_per_user.entries()){
-                let stats = _getDailyStats(user, events);
-                daily_cached_stats_per_user.put(user, stats);
-                let daily_engagement_score = _getDailyEngagementScore(stats);
-                engagement_score_daily.put((date, user), daily_engagement_score);
+                switch(Array.find<Principal>(users, func(x) {x == user})){
+                    case(null){};
+                    case(? user){
+                        let stats = _getDailyStats(user, events);
+                        let daily_engagement_score = _getDailyEngagementScore(stats);
+                        stats_daily.put((date,user), stats);
+                        engagement_score_daily.put((date, user), daily_engagement_score);
+                    };
+                };
             };
             _Logs.logMessage("Cron :: stats (hub)");
             return #ok(());
@@ -336,10 +354,8 @@ module {
         /* 
             Returns the total engagement score of the principal between t1 and t2 by summing the engagement scores of all the days.
          */
-        public func getScore(p : Principal, start : Time.Time, end : Time.Time) : Nat {
-            let dates = _getDatesBetween(start, end);
-            let score = _getSumEngagementScore(dates, p);
-            return score;
+        public func getScore(p : Principal, dates : [Date]) : Nat {
+            return _getSumEngagementScore(dates, p);
         };
 
         public func registerCollection(collection : Collection) : async Result.Result<(), Text> {
@@ -713,12 +729,13 @@ module {
                     };
                     case("price"){
                         switch(value){
-                            case(#Nat64(message)){
+                            case(#U64(message)){
                                 price := message;
                             };
                             case _ {};
                         };
                     };
+                    case _ {};
                 };
             };
             return ({to; from; price;});
@@ -789,45 +806,6 @@ module {
                 };
             };
             return sum;
-        };
-
-        /*
-            Takes T1 & T2 and returns an array of dates between T1 and T2. 
-         */
-        func _getDatesBetween(start : Time.Time, end : Time.Time) : [Date] {
-            if(end < start){
-                assert(false);
-                return [];
-            };
-            var buffer : Buffer.Buffer<Date> = Buffer.Buffer<Date>(0);
-            let date_start = switch(DateModule.Date.toDatePartsISO8601(start)){
-                case(null) {
-                    assert(false);
-                    (0, 0, 0);
-                };
-                case(? date_parts) {
-                    date_parts;
-                };
-            };
-            buffer.add(date_start);
-            let ONE_DAY_NANOS : Nat = 86_400_000_000_000;
-            var next_day = start + ONE_DAY_NANOS;
-            var count = 0;
-            while(next_day <= end and count < 100){
-                let date = switch(DateModule.Date.toDatePartsISO8601(next_day)){
-                    case(null) {
-                        assert(false);
-                        (0, 0, 0);
-                    };
-                    case(? date_parts) {
-                        date_parts;
-                    };
-                };
-                buffer.add(date);
-                next_day += ONE_DAY_NANOS;
-                count += 1;
-            };
-            return buffer.toArray();
         };
     };
 };

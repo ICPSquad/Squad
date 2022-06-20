@@ -23,6 +23,9 @@ module {
     public type Mission = Types.Mission;
     public type CreateMission = Types.CreateMission;
 
+    type Name = Text;
+    type TokenIdentifier = Text;
+
     public class Center(dependencies : Types.Dependencies) {
  
         ////////////
@@ -32,6 +35,10 @@ module {
         let _Admins = dependencies._Admins;
         let _Logs = dependencies._Logs;
         let _Cap = dependencies._Cap;
+
+        let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
+            get_infos_leaderboard : shared () -> async [(Principal, ?Name, ?TokenIdentifier)];
+        };
 
         let false_encoded : [Nat8] =  [68, 73, 68, 76, 0 , 1, 126, 0]; 
         let true_encoded : [Nat8] = [68, 73, 68, 76, 0 , 1, 126, 1];
@@ -481,52 +488,94 @@ module {
 
         func _mission6(caller : Principal) : async Bool {
             let number_mint = await _Cap.numberMint(caller, null);
-            if(number_mint >= 1){
+            if(number_mint >= 10){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission7(caller : Principal) : async Bool {
+            let number_burn = await _Cap.numberBurn(caller, null);
+            if(number_burn >= 1){
                 return true;
             };
             return false;
         };
 
         func _mission8(caller : Principal) : async Bool {
-            let a = await _Cap.numberMint(caller, ?"Astro-helmet");
-            let b = await _Cap.numberMint(caller, ?"Astro-suit");
-            if(a >= 1 and b >= 1){
+            let number_burn = await _Cap.numberBurn(caller, null);
+            if(number_burn >= 3){
                 return true;
             };
             return false;
         };
 
-        // func _mission6(caller : Principal) : async Bool {
-        //     let number_burn = await _Cap.numberBurn(caller, null);
-        //     if(number_burn >= 1){
-        //         return true;
-        //     };
-        //     return false;
-        // };
+        func _mission9(caller : Principal) : async Bool {
+            let number_burn = await _Cap.numberBurn(caller, null);
+            if(number_burn >= 10){
+                return true;
+            };
+            return false;
+        };
 
-        // func _mission7(caller : Principal) : async Bool {
-        //     let number_burn = await _Cap.numberBurn(caller, null);
-        //     if(number_burn >= 3){
-        //         return true;
-        //     };
-        //     return false;
-        // };
+        func _mission14(caller : Principal) : async Bool {
+            let infos = await AVATAR_ACTOR.get_infos_leaderboard();
+            switch(Array.find<(Principal, ?Text, ?Text)>(infos, func(x) {x.0 == caller})){
+                case(null){
+                    return false;
+                };
+                case(? x){
+                    switch(x.1){
+                        case(null){
+                            return false;
+                        };
+                        case(? name){
+                            return true;
+                        };
+                    };
+                };
+            };
+        };
 
-        // func _mission8(caller : Principal) : async Bool {
-        //     let number_burn = await _Cap.numberBurn(caller, null);
-        //     if(number_burn >= 10){
-        //         return true;
-        //     };
-        //     return false;
-        // };
+        func _mission15(caller : Principal) : async Bool {
+            let number_collections = await _Cap.numberCollectionsInteracted(caller);
+            if(number_collections >= 3){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission16(caller : Principal) : async Bool {
+            let number_collections = await _Cap.numberCollectionsInteracted(caller);
+            if(number_collections >= 20){
+                return true;
+            };
+            return false;
+        };
+
+        func _mission17(caller : Principal) : async Bool {
+            return false
+        };
 
 
         /*
-            Associate a mission Id with the function that will process to the verification.
+            Associate a mission Id with the function that will process the verification.
         */
         let handlers : [(Nat, (caller : Principal) -> async Bool)] = [
             (0, _mission0),
             (1, _mission1),
+            // 2 is handled manually
+            (4, _mission4),
+            (5, _mission5),
+            (6, _mission6),
+            (7, _mission7),
+            (8, _mission8),
+            (9, _mission9),
+            // 10 - 13 have been deleted
+            (14, _mission14),
+            (15, _mission15),
+            (16, _mission16),
+            (17, _mission17),
         ];
 
     

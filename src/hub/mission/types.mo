@@ -78,6 +78,7 @@ module {
     };
 
     public type Dependencies = {
+        cid_avatar : Principal;
         _Admins : Admins.Admins;
         _Logs : Canistergeek.Logger;
         _Cap : Cap.Factory;
