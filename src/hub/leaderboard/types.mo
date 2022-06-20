@@ -3,6 +3,7 @@ import Time "mo:base/Time";
 import Canistergeek "mo:canistergeek/canistergeek";
 import Date "mo:canistergeek/dateModule";
 
+import Cap "../cap";
 import Mission "../mission";
 import Style "../style";
 module {
@@ -34,6 +35,7 @@ module {
         _Logs : Canistergeek.Logger;
         _Style : Style.Factory;
         _Mission : Mission.Center;
+        _Cap : Cap.Factory;
     };
 
 };

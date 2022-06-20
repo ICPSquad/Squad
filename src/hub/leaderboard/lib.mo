@@ -64,6 +64,7 @@ module {
         let _Logs = dependencies._Logs;
         let _Style = dependencies._Style;
         let _Mission = dependencies._Mission;
+        let _Cap = dependencies._Cap;
 
 
         public func preupgrade() : UpgradeData {
@@ -261,38 +262,33 @@ module {
         // UTILITIES ///
         ////////////////
 
-        func _getTotalScore(style : ?StyleScore, engage : ?EngagementScore) : Nat {
-            var total = 0;
+        func _getTotalScore(style : ?StyleScore, engage : Nat) : Nat {
+            var total = 0 + engage;
             switch(style) {
                 case(null) {};
                 case(? value) {
                     total := total + value;
                 };
             };
-            switch(engage){
-                case(null) {};
-                case(? value) {
-                    total := total + value;
-                };
-            };
-            total;   
+            total;
         };
         
         func _getUpdatedRound(round : Round) : async Round {
             let latest_infos : [(Principal, ?Name, ?TokenIdentifier)]= await AVATAR_ACTOR.get_infos_leaderboard();
             var buffer : Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore)> = Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore)>(0);
             for((p, name, tokenIdentifier)in latest_infos.vals()){
+                let now = Time.now();
                 switch(tokenIdentifier){
                     case(null) {
                         let style_score = null;
-                        let engagement_score = _Mission.getMissionScore(p, round.start_date, Time.now());
-                        let total_score = _getTotalScore(style_score, ?engagement_score);
+                        let engagement_score = _Cap.getScore(p, round.start_date, now) + _Mission.getMissionScore(p, round.start_date, now);
+                        let total_score = _getTotalScore(style_score, engagement_score);
                         buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
                     };
                     case(? token) {
-                        let style_score = _Style.getScore(token, round.start_date, Time.now());
-                        let engagement_score =  _Mission.getMissionScore(p, round.start_date, Time.now());
-                        let total_score = _getTotalScore(style_score, ?engagement_score);
+                        let style_score = _Style.getScore(token, round.start_date, now);
+                        let engagement_score = _Cap.getScore(p, round.start_date, now) + _Mission.getMissionScore(p, round.start_date, now);
+                        let total_score = _getTotalScore(style_score, engagement_score);
                         buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
                     };
                 };

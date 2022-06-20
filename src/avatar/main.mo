@@ -612,6 +612,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         cid = cid;
         _Logs = _Logs;
         _Ext = _Ext;
+        _Avatar;
     });
 
     /* Get the user profile of the caller */
@@ -642,9 +643,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         email : ? Text,
         discord : ?Text,
         twitter : ?Text,
+        default_avatar : TokenIdentifier
     ) : async Result<(), Text> {
         _Monitor.collectMetrics();
-        _Users.modifyProfile(caller, username, email, discord, twitter);
+        _Users.modifyProfile(username, email, discord, twitter, default_avatar, caller);
     };
 
     public shared ({ caller }) func add_user(p : Principal) : async Result<(), Text> {

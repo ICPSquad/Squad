@@ -54,6 +54,7 @@ module {
         };
 
         let _Ext = dependencies._Ext;
+        let _Avatar = dependencies._Avatar;
         
         ////////////
         // API ////
@@ -160,10 +161,19 @@ module {
             email : ?Text,
             discord : ?Text,
             twitter : ?Text,
+            default_avatar : TokenIdentifier,
+            caller : Principal
         ) : Result<(), Text> {
             switch(_users.get(caller)){
                 case(null) return #err("No user profile detected for : " # Principal.toText(caller));
                 case(? user) {
+                    switch(_verifyDefaultAvatar(default_avatar, caller)){
+                        case(#err(e)){
+                            return #err(e);
+                        };
+                        case(#ok()){};
+                    };
+
                     let new_user = {
                         name = name;
                         email = email;
@@ -174,7 +184,7 @@ module {
                         minted = user.minted;
                         account_identifier = user.account_identifier;
                         invoice_id = user.invoice_id;
-                        selected_avatar = user.selected_avatar;
+                        selected_avatar = ?default_avatar;
                     };
                     _users.put(caller, new_user);
                     return #ok;
@@ -464,6 +474,37 @@ module {
                 };
             };
         };
- 
+
+        func _verifyDefaultAvatar(
+            token : TokenIdentifier,
+            caller : Principal, 
+            ) : Result<(), Text> {
+                // Verify that the caller own the token
+                let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+                switch(_Ext.bearer(token)){
+                    case(#err(_)) return #err("The token is not owned by the caller");
+                    case(#ok(owner)){
+                        if(owner != account) {
+                            return #err("The token is not owned by the caller");
+                        };
+                    };
+                };
+                // Verify that the token is an avatar and NOT a legendary
+                switch(_Avatar.getAvatar(token)){
+                    case(null){
+                        return #err("No avatar found for this tokenIdentifier : " # token);
+                    };
+                    case(? avatar){
+                        switch(avatar.level){
+                            case(#Legendary){
+                                return #err("This token is a legendary avatar and cannot be used as a default avatar");
+                            };
+                            case(_){
+                                return #ok;
+                            };
+                        };
+                    };
+                };
+            };
     };
 };

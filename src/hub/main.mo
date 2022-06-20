@@ -130,6 +130,8 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     ////////////////
 
     public type Collection = Cap.Collection;
+    public type Event = Cap.Event;
+    public type CapStats = Cap.CapStats;
 
     stable var _CapUD: ?Cap.UpgradeData = null;  
     let _Cap = Cap.Factory({
@@ -144,12 +146,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         await _Cap.registerCollection(collection);
-    };
-
-    public shared ({ caller }) func cron_events () : async Result.Result<Nat, Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Cap.cronEvents();
     };
 
     public shared ({ caller }) func update_user_interacted_collections(user : Principal) : async Result.Result<Nat, Text> {
@@ -187,6 +183,38 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         await _Cap.registerAllCollections();
+    };  
+
+    // Observations
+
+    public shared ({ caller }) func get_collections() : async [(Collection, Principal)] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Cap.getCollections();
+    };
+
+    public shared ({ caller }) func get_interacted_collections() : async [(Principal, [Principal])] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Cap.getInteractedCollections();
+    };
+
+    public shared ({ caller }) func get_daily_cached_events_per_collection() : async [(Principal, [Event])] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Cap.getDailyCachedEventsPerCollection();
+    };
+
+    public shared ({ caller }) func get_daily_cached_stats_per_user() : async [(Principal, CapStats)] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Cap.getDailyCachedStatsPerUser();
+    };
+
+    public shared ({ caller }) func get_engagement_stats_per_user() : async [(Principal, CapStats)] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Cap.getEngagementStatsPerUser();
     };
 
     ////////////////
@@ -267,6 +295,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Logs = _Logs;
         _Style = _Style;
         _Mission = _Mission;
+        _Cap = _Cap;
     });
 
     public shared ({ caller }) func start_round() : async Result<Nat, Text> {
@@ -389,6 +418,36 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                 return #ok();
             };
         };
+    };
+
+
+    /* 
+        Query all the buckets from all the registered collections on the IC and cache the event of the last 24 hours.
+        Not cronic, it can be called manually.
+     */
+
+    public shared ({ caller }) func cron_events () : async Result.Result<Nat, Text> {
+        assert(_Admins.isAdmin(caller) or caller == cid);-
+        _Monitor.collectMetrics();
+        await _Cap.cronEvents();
+    };
+
+    /* 
+        Query all the buckets from all the registered collections on the IC and cache the event of the last 24 hours.
+        THEN calculate the stats
+        @cronic : Every 12 hours.
+     */
+    public shared ({ caller }) func cron_stats() : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller) or caller == cid);
+        _Monitor.collectMetrics();
+        switch(await cron_events()){
+            case(#err(e)){
+                _Logs.logMessage("Cron :: Error while querying events : " # e);
+                return #err(e);
+            };
+            case(#ok()) {};
+        };
+        _Cap.cronStats();
     };
 
     //////////////

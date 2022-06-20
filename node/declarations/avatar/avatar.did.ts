@@ -381,6 +381,7 @@ export const idlFactory = ({ IDL }) => {
           IDL.Opt(IDL.Text),
           IDL.Opt(IDL.Text),
           IDL.Opt(IDL.Text),
+          TokenIdentifier,
         ],
         [Result],
         [],

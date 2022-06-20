@@ -23,15 +23,17 @@
 
   const handleSave = async () => {
     try {
-      setMessage("Updating your profile...", "waiting");
+      setMessage("Updating your informations...", "waiting");
+      const avatarDefault = userProfile.avatarDefault;
       const avatarActor = get(actors).avatarActor;
-      console.log("User profile", userProfile);
       const result = await avatarActor.modify_profile(
         userProfile.username ? [userProfile.username] : [],
         userProfile.email ? [userProfile.email] : [],
         userProfile.discord ? [userProfile.discord] : [],
-        userProfile.twitter ? [userProfile.twitter] : []
+        userProfile.twitter ? [userProfile.twitter] : [],
+        avatarDefault
       );
+
       if ("ok" in result) {
         setMessage("Profile updated successfully!", "success", 3000);
         user.set({ ...userProfile });
@@ -49,12 +51,10 @@
     editing = false;
   };
 
-  const setDefaultAvatar = (avatarDefaultUrl: string) => {
-    // TO DO - SAVE TO CANISTER
-
+  const setDefaultAvatar = (tokenIdentifier: string) => {
     userProfile = {
       ...userProfile,
-      avatarDefault: avatarDefaultUrl,
+      avatarDefault: tokenIdentifier,
     };
     user.set({ ...userProfile });
   };
@@ -77,12 +77,6 @@
   {:else}
     <div class="avatar-col">
       <img src={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?&tokenid=${userProfile.avatarDefault}`} alt="ICP Squad Avatar" class="avatar" />
-      {#if userProfile.avatars.length > 1}
-        <div class="label">DEFAULT AVATAR</div>
-        {#each userProfile.avatars as tokenIdentifier}
-          <img on:click={() => setDefaultAvatar(tokenIdentifier)} src={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?&tokenid=${userProfile.avatarDefault}`} alt="ICP Squad Avatar" />
-        {/each}
-      {/if}
       <LinkButton to="/add-accessory">
         <button class="secondary"> MINT & ADD ACCESSORIES </button>
       </LinkButton>
@@ -128,6 +122,19 @@
           <div class="value">{userProfile.discord}</div>
         {/if}
       </div>
+      {#if userProfile.avatars.length > 1 && editing}
+        <div class="label">DEFAULT AVATAR</div>
+        <div class="list-avatars">
+          {#each userProfile.avatars as tokenIdentifier}
+            <img
+              on:click={() => setDefaultAvatar(tokenIdentifier)}
+              src={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?&tokenid=${tokenIdentifier}`}
+              alt="ICP Squad Avatar"
+              class={tokenIdentifier === userProfile.avatarDefault ? "selected" : ""}
+            />
+          {/each}
+        </div>
+      {/if}
       <div class="field">
         <div class="label">WALLET CONNECTED</div>
         <div class="value small">{userProfile.principal}</div>
@@ -151,9 +158,32 @@
 <style lang="scss">
   @use "../styles" as *;
 
-  h1,
+  h1 {
+    --page-feature-color: #{$yellow};
+  }
+
   button {
     --page-feature-color: #{$yellow};
+    color: $black;
+    margin-bottom: 20px;
+    &.secondary {
+      color: $white;
+    }
+    &.disconnect {
+      margin-top: 20px;
+    }
+  }
+
+  .list-avatars {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    img {
+      width: 200px;
+      height: 200px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
   }
 
   img {
@@ -188,18 +218,6 @@
     color: $darkgrey;
   }
 
-  button {
-    background-color: var(--page-feature-color);
-    color: $black;
-    margin-bottom: 20px;
-    &.secondary {
-      color: $white;
-    }
-    &.disconnect {
-      margin-top: 20px;
-    }
-  }
-
   input {
     background-color: transparent;
     border-color: $white;
@@ -220,10 +238,7 @@
     grid-column: span 3;
   }
 
-  img.thumbnail {
-    width: 60px;
-    margin: 0 10px 20px 0;
-    display: inline-block;
+  img {
     &.selected {
       border: 2px solid $green;
     }

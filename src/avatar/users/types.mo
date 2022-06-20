@@ -2,6 +2,7 @@ import Result "mo:base/Result";
 
 import Canistergeek "mo:canistergeek/canistergeek";
 
+import Avatar "../avatar";
 import ExtModule "../ext";
 module {
     public type Result<A,B> = Result.Result<A,B>;
@@ -27,6 +28,7 @@ module {
         cid : Principal;
         _Logs : Canistergeek.Logger;
         _Ext : ExtModule.Factory;
+        _Avatar : Avatar.Factory;
     };
 
     public type UpgradeData = {

@@ -161,7 +161,13 @@ export interface ICPSquadNFT {
   'metadata' : ActorMethod<[TokenIdentifier], Result_4>,
   'mint' : ActorMethod<[MintInformation, [] | [bigint]], MintResult>,
   'modify_profile' : ActorMethod<
-    [[] | [string], [] | [string], [] | [string], [] | [string]],
+    [
+      [] | [string],
+      [] | [string],
+      [] | [string],
+      [] | [string],
+      TokenIdentifier,
+    ],
     Result,
   >,
   'modify_user' : ActorMethod<[UserData], Result>,

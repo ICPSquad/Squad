@@ -1,6 +1,7 @@
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
 import Error "mo:base/Error";
+import Hash "mo:base/Hash";
 import Int "mo:base/Int";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
@@ -13,6 +14,7 @@ import Text "mo:base/Text";
 import Time "mo:base/Time";
 import TrieMap "mo:base/TrieMap";
 
+import DateModule "mo:canistergeek/dateModule";
 import Ext "mo:ext/Ext";
 
 import Collection "../collection";
@@ -20,12 +22,36 @@ import Types "types";
 module {
 
     public type UpgradeData = Types.UpgradeData;
+    public type Event = Types.Event;
+    public type CapStats = Types.CapStats;
     public type Collection = Collection.Collection;
+
+    type Date = (Nat,Nat,Nat);
+
+    /////////////////
+    // Utilities ///
+    ///////////////
+
+    func _dateEqual(date1: Date, date2: Date) : Bool {
+        return date1.0 == date2.0 and date1.1 == date2.1 and date1.2 == date2.2;
+    };
+
+    func _dateHash(date: Date) : Hash.Hash {
+        return Int.hash(date.0 * 100 + date.1 * 10 + date.2);
+    };
+
+    public func customEqual(a : (Date, Principal), b : (Date, Principal)) : Bool {
+        return _dateEqual(a.0, b.0) and Principal.equal(a.1, b.1);
+    };
+
+    public func customHash(a : (Date, Principal)) : Hash.Hash {
+        return _dateHash(a.0) ^ Principal.hash(a.1);
+    };
 
 
     public class Factory(dependencies : Types.Dependencies) {
 
-          let DAY_NANO = 24 * 60 * 60 * 1000 * 1000 * 1000;
+        let DAY_NANO = 24 * 60 * 60 * 1000 * 1000 * 1000;
 
         //////////////
         /// State ///
@@ -44,21 +70,36 @@ module {
          */
         let cids : TrieMap.TrieMap<Collection, Principal> = TrieMap.TrieMap<Collection,Principal>(Collection.equal, Collection.hash);
 
+        public func getCollections() : [(Collection, Principal)] {
+            return Iter.toArray(cids.entries());
+        };
+
         /* 
             Keep track of the cids of the collection the user has interacted with.
         */
         let cid_interacted_collections : TrieMap.TrieMap<Principal, [Principal]> = TrieMap.TrieMap<Principal,[Principal]>(Principal.equal, Principal.hash);
+
+        public func getInteractedCollections() : [(Principal,[Principal])] {
+            return Iter.toArray(cid_interacted_collections.entries());
+        };
 
         /* 
             Daily cached events for all collections.
         */
         let daily_cached_events_per_collection : TrieMap.TrieMap<Principal, [Types.Event]> = TrieMap.TrieMap<Principal,[Types.Event]>(Principal.equal, Principal.hash);
 
+        public func getDailyCachedEventsPerCollection() : [(Principal,[Types.Event])] {
+            return Iter.toArray(daily_cached_events_per_collection.entries());
+        };
+
         /* 
             Daily cached events for all users.
          */
         let daily_cached_events_per_user : TrieMap.TrieMap<Principal, [Types.ExtendedEvent]> = TrieMap.TrieMap<Principal,[Types.ExtendedEvent]>(Principal.equal, Principal.hash);
 
+        public func getDailyCachedEventsPerUser() : [(Principal,[Types.ExtendedEvent])] {
+            return Iter.toArray(daily_cached_events_per_user.entries());
+        };
 
         /* 
             Daily cached stats for all users. 
@@ -66,12 +107,28 @@ module {
 
         let daily_cached_stats_per_user : TrieMap.TrieMap<Principal, Types.CapStats> = TrieMap.TrieMap<Principal,Types.CapStats>(Principal.equal, Principal.hash);
 
+        public func getDailyCachedStatsPerUser() : [(Principal,Types.CapStats)] {
+            return Iter.toArray(daily_cached_stats_per_user.entries());
+        };
+
+        /* 
+            Daily engagement score for all users. 
+        */
+
+        let engagement_score_daily : TrieMap.TrieMap<(Date, Principal), Nat> = TrieMap.TrieMap<(Date,Principal), Nat>(customEqual, customHash);
+
+        public func getDailyEngagementScore() : [((Date,Principal),Nat)] {
+            return Iter.toArray(engagement_score_daily.entries());
+        };
 
         /* 
             All time cached stats for all users.
         */
-
         let engagement_stats_per_user : TrieMap.TrieMap<Principal, Types.CapStats> = TrieMap.TrieMap<Principal, Types.CapStats>(Principal.equal, Principal.hash);
+
+        public func getEngagementStatsPerUser() : [(Principal,Types.CapStats)] {
+            return Iter.toArray(engagement_stats_per_user.entries());
+        };
 
         public func preupgrade() : UpgradeData {
             return({
@@ -114,6 +171,7 @@ module {
                     return #err(Error.message(e));
                 };
             };
+            _Logs.logMessage("Cron :: events (hub)" # "Recorded " # Nat.toText(total_number) # " events for today.");
             return #ok(total_number);
         };
 
@@ -130,7 +188,7 @@ module {
             var r : Buffer.Buffer<Types.Event> = Buffer.Buffer(0);
             var is_over : Bool = false;
             var count : Nat = 0;
-            label l while(not is_over and count < 100){
+            label l while(not is_over){
                 // Verify that the page to query is not under 0.
                 let page_to_query = Int.sub(latest_page, count);
                 if(page_to_query < 0){
@@ -165,9 +223,14 @@ module {
                     };
                 };
                 count := count + 1;
-                // Add a security to stop the loop if the page number is too high or empty.
+                // If we have reached the last page of the bucket, we are done.
                 if(events.size() == 0){
                     is_over := true;
+                };
+                // Add a security to stop the loop if the page number is too high (ie too many events in one day for one collection).
+                if(count > 100){
+                    is_over := true;
+                    _Logs.logMessage("ERROR :: getDailyEvents :: " # Principal.toText(cid) # " :: " # "Too many pages to be queried.");
                 };
             };
             return(r.toArray());
@@ -175,18 +238,28 @@ module {
 
 
         /* 
-            Update the daily stats for all users.
+            Update the daily stats (and engagement scores!) for all users.
          */
         public func cronStats () : Result.Result<(), Text> {
+            let date : Date = switch(DateModule.Date.nowToDatePartsISO8601()){
+                case(null){
+                    assert(false); 
+                    (0,0,0);
+                };
+                case(? date) {date};
+            };
             for((user, events) in daily_cached_events_per_user.entries()){
                 let stats = _getDailyStats(user, events);
                 daily_cached_stats_per_user.put(user, stats);
+                let daily_engagement_score = _getDailyEngagementScore(stats);
+                engagement_score_daily.put((date, user), daily_engagement_score);
             };
+            _Logs.logMessage("Cron :: stats (hub)");
             return #ok(());
         };
 
         /* 
-            Returns the stat object from the list of events of the specified user.
+            Returns the stats object from the list of events of the specified user.
          */
         func _getDailyStats(user : Principal, events : [Types.ExtendedEvent]) : Types.CapStats {
             let account_identifier = Text.map(Ext.AccountIdentifier.fromPrincipal(user, null), Prim.charToLower);
@@ -234,14 +307,40 @@ module {
             });
         };
 
-
-        
-
+        /* 
+            Returns an engagement score based from the daily collected stat.
+            ⚠️ This is a very simple engagement score and should be improved with more data.
+            If there is one buy (at least) with more than 1 ICP the user is considered engaged and the score is 1.
+            If there is one sale (at least) with more than 1 ICP the user is considered engaged and the score is 1.
+            If there is one mint (at least) the user is considered engaged and the score is 1.
+            Otherwise the score is 0.
+        */
+        func _getDailyEngagementScore(stat : Types.CapStats) : Nat {
+            // Check mint
+            if(stat.mint > 0) {
+                return 1;
+            };
+            if(stat.buy.0 > 0 and stat.buy.1 >= 100_000_000) {
+                return 1;
+            };
+            if(stat.sell.0 > 0 and stat.sell.1 >= 100_000_000) {
+                return 1;
+            };
+            return 0;
+        };
 
         //////////
         // API //
         ////////
 
+        /* 
+            Returns the total engagement score of the principal between t1 and t2 by summing the engagement scores of all the days.
+         */
+        public func getScore(p : Principal, start : Time.Time, end : Time.Time) : Nat {
+            let dates = _getDatesBetween(start, end);
+            let score = _getSumEngagementScore(dates, p);
+            return score;
+        };
 
         public func registerCollection(collection : Collection) : async Result.Result<(), Text> {
             let cid = collection.contractId;
@@ -679,5 +778,56 @@ module {
         };
 
 
+        func _getSumEngagementScore(dates : [Date], p : Principal) : Nat {
+            var sum : Nat = 0;
+            for(date in dates.vals()){
+                switch(engagement_score_daily.get(date, p)){
+                    case(null) {};
+                    case(? score) {
+                        sum += score;
+                    };
+                };
+            };
+            return sum;
+        };
+
+        /*
+            Takes T1 & T2 and returns an array of dates between T1 and T2. 
+         */
+        func _getDatesBetween(start : Time.Time, end : Time.Time) : [Date] {
+            if(end < start){
+                assert(false);
+                return [];
+            };
+            var buffer : Buffer.Buffer<Date> = Buffer.Buffer<Date>(0);
+            let date_start = switch(DateModule.Date.toDatePartsISO8601(start)){
+                case(null) {
+                    assert(false);
+                    (0, 0, 0);
+                };
+                case(? date_parts) {
+                    date_parts;
+                };
+            };
+            buffer.add(date_start);
+            let ONE_DAY_NANOS : Nat = 86_400_000_000_000;
+            var next_day = start + ONE_DAY_NANOS;
+            var count = 0;
+            while(next_day <= end and count < 100){
+                let date = switch(DateModule.Date.toDatePartsISO8601(next_day)){
+                    case(null) {
+                        assert(false);
+                        (0, 0, 0);
+                    };
+                    case(? date_parts) {
+                        date_parts;
+                    };
+                };
+                buffer.add(date);
+                next_day += ONE_DAY_NANOS;
+                count += 1;
+            };
+            return buffer.toArray();
+        };
     };
-}
+};
