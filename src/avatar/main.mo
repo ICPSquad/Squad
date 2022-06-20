@@ -412,14 +412,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         };
     };
 
-    public shared ({ caller }) func removeAccessory_fix(
-        tokenId : TokenIdentifier,
-        name : Text,
-    ) : async Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        _Avatar.removeAccessory(tokenId, name);
-    };
-
     public shared ({ caller }) func set_default_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
         _Monitor.collectMetrics();
         _Users.setDefaultAvatar(caller, tokenId);
