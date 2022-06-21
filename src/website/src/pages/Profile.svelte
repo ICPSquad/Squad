@@ -24,14 +24,13 @@
   const handleSave = async () => {
     try {
       setMessage("Updating your informations...", "waiting");
-      const avatarDefault = userProfile.avatarDefault;
       const avatarActor = get(actors).avatarActor;
       const result = await avatarActor.modify_profile(
         userProfile.username ? [userProfile.username] : [],
         userProfile.email ? [userProfile.email] : [],
         userProfile.discord ? [userProfile.discord] : [],
         userProfile.twitter ? [userProfile.twitter] : [],
-        avatarDefault
+        userProfile.avatarDefault
       );
 
       if ("ok" in result) {

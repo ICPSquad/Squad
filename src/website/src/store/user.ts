@@ -1,3 +1,4 @@
+import type { User, UserData } from "@canisters/avatar/avatar.did.d";
 import { Principal } from "@dfinity/principal";
 import { writable, get } from "svelte/store";
 import { actors } from "./actor";
@@ -23,21 +24,18 @@ actors.subscribe(async ({ avatarActor }) => {
         console.log("avatars", avatars);
         console.log("infos", infos);
         if (infos.length > 0) {
-          // @ts-ignore
-          const username = infos[0].name.length > 0 ? infos[0].name[0] : null;
-          // @ts-ignore
-          const email = infos[0].email.length > 0 ? infos[0].email[0] : null;
-          // @ts-ignore
-          const twitter = infos[0].twitter.length > 0 ? infos[0].twitter[0] : null;
-          // @ts-ignore
-          const discord = infos[0].discord.length > 0 ? infos[0].discord[0] : null;
-          // @ts-ignore
-          const avatarDefault = infos[0].selected_avatar.length > 0 ? infos[0].selected_avatar : null;
-          user.update((u) => ({ ...u, loggedIn: true, username, email, twitter, discord, avatarDefault }));
+          let data = infos[0] as UserData;
+
+          const username = data.name.length > 0 ? data.name[0] : null;
+          const email = data.email.length > 0 ? data.email[0] : null;
+          const twitter = data.twitter.length > 0 ? data.twitter[0] : null;
+          const discord = data.discord.length > 0 ? data.discord[0] : null;
+          const selected_avatar = data.selected_avatar.length > 0 ? data.selected_avatar[0] : null;
+
+          user.update((u) => ({ ...u, loggedIn: true, username, email, twitter, discord, avatarDefault: selected_avatar }));
         }
         if (avatars.length > 0) {
-          //@ts-ignore
-          user.update((u) => ({ ...u, avatars }));
+          user.update((u) => ({ ...u, avatars: avatars as string[] }));
         }
       })
       .catch((err) => {
