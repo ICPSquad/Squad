@@ -429,6 +429,12 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         }
     };
 
+    public shared ({ caller }) func inspect_avatar(tokenId : TokenIdentifier) : async ?Avatar.Avatar {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return _Avatar.getAvatar(tokenId);
+    };
+
     public shared query ({ caller }) func check_avatar_infos(p : Principal) : async (?TokenIdentifier, ?AvatarRendering) {
         assert(_Admins.isAdmin(caller));
         switch(_Users.getDefaultAvatar(p)){

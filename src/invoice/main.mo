@@ -132,7 +132,7 @@ shared ({ caller = creator }) actor class Invoice(
   stable var invoiceCounter : Nat = 0;
   let invoices : HashMap.HashMap<Nat, Invoice> = HashMap.fromIter(Iter.fromArray(entries), entries.size(), Nat.equal, Hash.hash);
   entries := [];
-  let MAX_INVOICES = 30_000;
+  let MAX_INVOICES = 40_000;
 // #endregion
 
 /**

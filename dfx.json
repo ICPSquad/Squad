@@ -21,7 +21,7 @@
       "candid": "src/ledger/ledger.public.did",
       "wasm": "src/ledger/ledger.wasm"
     },
-    "website-test": {
+    "website": {
       "frontend": {
         "entrypoint": "./src/website/dit/index.html"
       },
