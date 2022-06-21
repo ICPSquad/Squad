@@ -27,10 +27,10 @@
   <div class="right">
     {#if !menuOpen}
       <div class="hide-on-mobile">
-        <a class="social-icon discord" href="https://discord.gg/SqtQ3UJR" target="_blank">
+        <a class="social-icon discord" href="https://discord.gg/9DjDzf38WR" target="_blank">
           <Discord width={20} />
         </a>
-        <a class="social-icon" href="https://twitter.com/ICPSquadNFT" target="_blank">
+        <a class="social-icon" href="https://twitter.com/dSquadNFT" target="_blank">
           <Twitter width={20} />
         </a>
         {#if $user.loggedIn}

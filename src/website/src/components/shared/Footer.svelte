@@ -4,6 +4,7 @@
   import Discord from "@icons/Discord.svelte";
   import Twitter from "@icons/Twitter.svelte";
   import FooterNav from "./FooterNav.svelte";
+  import Badge from "@icons/Badge.svelte";
 </script>
 
 <footer>
@@ -24,6 +25,11 @@
   <div class="sub-nav">
     <div class="container">
       © {new Date().getFullYear()} Dfinity community
+      <div class="badge">
+        <a href="https://dfinity.org/" target="_blank">
+          <Badge />
+        </a>
+      </div>
       <Link to="/privacy">
         <div class="privacy">Privacy Policy</div>
       </Link>
@@ -60,6 +66,7 @@
     .container {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       .privacy {
         color: $white;
       }

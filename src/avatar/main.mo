@@ -630,12 +630,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         };
     };
 
-    /* Replace the user profile of the caller with the new profile */
-    public shared ({ caller }) func modify_user(user : UserData) : async Result<(), Text> {
-        _Monitor.collectMetrics();
-        _Users.modifyUser(caller, user);
-    };
 
+    /* 
+        Modfy the profile of the caller depending on the given parameters.
+     */
     public shared ({ caller }) func modify_profile(
         username : ?Text,
         email : ? Text,
@@ -647,6 +645,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Users.modifyProfile(username, email, discord, twitter, default_avatar, caller);
     };
 
+
+    /* 
+        Register a new user for the given principal.
+        @auth : admin
+     */
     public shared ({ caller }) func add_user(p : Principal) : async Result<(), Text> {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
