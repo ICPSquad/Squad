@@ -291,6 +291,12 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Items.getItems();
     };
 
+    public shared ({ caller }) func fix_items() : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Items.fixItems();
+    };
+
     public query func get_templates() : async [(Text, Template)] {
         _Items.getTemplates();
     };
@@ -341,7 +347,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         accessory : TokenIdentifier,
         avatar : TokenIdentifier 
         ) : async Result.Result<(), Text> {
-        // assert(false);
         _Monitor.collectMetrics();
         switch(_Ext.isOwner(caller, accessory)){
             case(#err(e)) {

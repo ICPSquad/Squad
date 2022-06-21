@@ -972,5 +972,6 @@ module {
                 style = avatar.style;
             })
         };
+
     };
 };

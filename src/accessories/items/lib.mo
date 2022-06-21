@@ -235,8 +235,8 @@ module {
             let index = switch(Ext.TokenIdentifier.decode(accessory)){
                 case(#ok(p, i)) {
                     if(p != dependencies.cid){
-                    _Logs.logMessage("Error when decoding the tokenIdentifier : " # accessory # "the canister id is " # Principal.toText(p));
-                    return #err("Error when decoding the tokenIdentifier : " # accessory);
+                        _Logs.logMessage("Error when decoding the tokenIdentifier : " # accessory # "the canister id is " # Principal.toText(p));
+                        return #err("Error when decoding the tokenIdentifier : " # accessory);
                     };
                     i;
                 };
@@ -448,6 +448,57 @@ module {
             index : TokenIndex
         ) : () {
             _items.delete(index);
+        };
+
+        public func fixItems() : () {
+            for((index, item) in _items.entries()){
+                let name = _itemToName(item);
+                if(name == "Dfinity-face-mask"){
+                    switch(item){
+                        case(#Accessory(properties)){
+                            let new_item = {
+                                name = "Facemask";
+                                wear = properties.wear;
+                                equipped = properties.equipped;
+                            };
+                            _items.put(index, #Accessory(new_item));
+                        };
+                        case(_) {
+                            assert(false);
+                        };
+                    };
+                };
+                if(name == "Matrix-glasses"){
+                    switch(item){
+                        case(#Accessory(properties)){
+                            let new_item = {
+                                name = "Sunglasses";
+                                wear = properties.wear;
+                                equipped = properties.equipped;
+                            };
+                            _items.put(index, #Accessory(new_item));
+                        };
+                        case(_) {
+                            assert(false);
+                        };
+                    };
+                };
+                if(name == "Oni-half-mask"){
+                    switch(item){
+                        case(#Accessory(properties)){
+                            let new_item = {
+                                name = "Oni-face-mask";
+                                wear = properties.wear;
+                                equipped = properties.equipped;
+                            };
+                            _items.put(index, #Accessory(new_item));
+                        };
+                        case(_) {
+                            assert(false);
+                        };
+                    };
+                };
+            };
         };
 
         /* 
