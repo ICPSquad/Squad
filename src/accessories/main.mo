@@ -280,6 +280,17 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         }
     };
 
+    /* 
+        Returns a list of all the items.
+        @return : [(Name, [TokenIndex])]
+        @auth : admin
+    */
+    public query ({ caller }) func get_items() : async [(Text, [TokenIndex])] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Items.getItems();
+    };
+
     public query func get_templates() : async [(Text, Template)] {
         _Items.getTemplates();
     };

@@ -77,7 +77,7 @@ const recipes = {
   "marshall-hat": ["cloth", "cloth", "cloth", "cloth", "cloth", "cloth", "wood", "wood", "wood", "wood", "wood", "wood", "glass", "glass", "glass", "metal", "metal", "metal", "circuit"],
   "mortaboard-hat": [],
   "ninja-headband": ["cloth", "cloth", "cloth", "cloth", "cloth", "cloth", "cloth", "cloth", "cloth", "cloth", "wood", "wood", "wood", "wood", "wood", "wood", "metal", "circuit", "circuit"],
-  "boring-mask": ["cloth", "cloth", "cloth", "cloth"],
+  "boring-mask": ["cloth", "cloth", "cloth", "cloth", "metal", "metal", "metal", "metal"],
   "juggalo-facemask": ["cloth", "cloth", "cloth", "cloth", "wood", "wood", "wood", "wood", "wood", "wood", "wood", "wood", "glass", "metal", "metal", "metal", "metal"],
   "oni-face-mask": ["wood", "wood", "wood", "wood", "wood", "wood", "wood", "wood", "glass", "glass", "glass", "glass", "metal", "metal", "metal", "metal", "circuit"],
   facemask: ["cloth", "cloth", "wood", "wood", "wood", "wood", "wood", "wood", "wood", "wood", "wood", "glass", "glass", "metal", "metal", "metal", "metal", "metal", "circuit"],
