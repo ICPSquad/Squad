@@ -44,7 +44,7 @@
 
   <img class="accessories-diagram" src="/assets/accessories-diagram.png" alt="How materials can be turned into accessories" />
 
-  <p>Materials can be earn during missions or are given out as prizes via the monthly airdrops.</p>
+  <p>Materials can be earned during missions or are given out as prizes via the monthly airdrops.</p>
   <p>
     You can also trade both accessories and materials through the <a href="https://entrepot.app/marketplace/icpsquad2" target="_blank">Entrepot marketplace</a>.
   </p>
