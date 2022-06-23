@@ -353,6 +353,36 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         };
     };
 
+    public shared ({ caller }) func mint_legendary(
+        name : Text,
+        recipient : Principal
+    ) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        switch(_Ext.mint({ to = #principal(caller); metadata = null; })){
+            case(#err(#Other(e))) return #err(e);
+            case(#err(#InvalidToken(e))) return #err(e);
+            case(#ok(index)){
+                let tokenId = Ext.TokenIdentifier.encode(cid, index);
+                switch(_Avatar.createLegendary(name, tokenId)){
+                    case(#ok) {
+                        _Logs.logMessage("TASK :: Created legendary : " # name # " with identifier : " # Principal.toText(caller));
+                        let receiver = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+                        ignore(_Cap.registerEvent({
+                            operation = "mint";
+                            details = [("token", #Text(tokenId)), ("to", #Text(receiver))];
+                            caller = caller;
+                        }));
+                        return #ok;
+                    };
+                    case(#err(e)){
+                        return #err(e);
+                    };
+                };
+            };
+        };
+    };
+
     public shared ({caller}) func wearAccessory(
         tokenId : TokenIdentifier,
         name : Text,

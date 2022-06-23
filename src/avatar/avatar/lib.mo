@@ -722,7 +722,7 @@ module {
             };
         };
 
-        /* Returns a boolean indicating if the component is an accessory)^m/+pm/
+        /* Returns a boolean indicating if the component is an accessory)
         
           */        
         func _isAccessory(name : Text) : Bool {

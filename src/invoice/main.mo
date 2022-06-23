@@ -205,7 +205,7 @@ shared ({ caller = creator }) actor class Invoice(
             }    
           };
         };
-         _Logs.logMessage("Created invoice : " # Nat.toText(id) # " by " # Principal.toText(caller) # " for amount : " # Nat.toText(invoice.amount));
+         _Logs.logMessage("INVOICE :: Created  : " # Nat.toText(id) # " by " # Principal.toText(caller) # " for amount : " # Nat.toText(invoice.amount));
         invoices.put(id, invoice);
         return (#ok({invoice}));
       };
@@ -396,8 +396,8 @@ public shared ({ caller }) func verify_invoice_avatar(args : T.VerifyInvoiceArgs
                 case(#AlreadyVerified(_)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
                 case(#Paid paidResult) {
                   let replaced = invoices.replace(invoice.id, paidResult.invoice);
-                  _Logs.logMessage("Invoice verified for id " # Nat.toText(invoice.id));
-                  _Logs.logMessage("Funds transfered  : " # Nat.toText(invoice.amount));
+                  _Logs.logMessage("INVOICE ::  Verified for id " # Nat.toText(invoice.id));
+                  _Logs.logMessage("INVOICE :: Funds transfered  : " # Nat.toText(invoice.amount));
                   return #ok(#Paid { invoice = paidResult.invoice });
                 };
               };
@@ -434,8 +434,8 @@ public shared ({ caller }) func verify_invoice_accessory(args : T.VerifyInvoiceA
                 case(#AlreadyVerified(_)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
                 case(#Paid paidResult) {
                   let replaced = invoices.replace(invoice.id, paidResult.invoice);
-                  _Logs.logMessage("Invoice verified for id " # Nat.toText(invoice.id));
-                  _Logs.logMessage("Funds transfered  : " # Nat.toText(invoice.amount));
+                  _Logs.logMessage("INVOICE ::  Verified for id " # Nat.toText(invoice.id));
+                  _Logs.logMessage("INVOICE :: Funds transfered  : " # Nat.toText(invoice.amount));
                   return #ok(#Paid { invoice = paidResult.invoice });
                 };
               };
