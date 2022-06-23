@@ -63,14 +63,14 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     public shared ({ caller }) func add_admin(p : Principal) : async () {
         _Admins.addAdmin(p, caller);
         _Monitor.collectMetrics();
-        _Logs.logMessage("Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
+        _Logs.logMessage("CONFIG :: Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
     };
 
     public shared ({ caller }) func remove_admin(p : Principal) : async () {
         assert(caller == master);
         _Monitor.collectMetrics();
         _Admins.removeAdmin(p, caller);
-        _Logs.logMessage("Removed admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
+        _Logs.logMessage("CONFIG :: Removed admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
     };
 
     //////////////
@@ -270,11 +270,11 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Monitor.collectMetrics();
         switch(_Items.addTemplate(name, template)){
             case(#ok(msg)) {
-                _Logs.logMessage("Template added for : " # name # " by " # Principal.toText(caller) );
+                _Logs.logMessage("CONFIG :: Template added for : " # name # " by " # Principal.toText(caller) );
                 return #ok(msg);
             };
             case(#err((msg))) {
-                _Logs.logMessage("Failed to add template: " # name # ": " #msg);
+                _Logs.logMessage("CONFIG :: Failed to add template: " # name # ": " #msg);
                 return #err((msg));
             };
         }
@@ -318,26 +318,26 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Monitor.collectMetrics();
         switch(_Ext.isOwner(caller, accessory)){
             case(#err(e)) {
-                _Logs.logMessage("Caller : " # Principal.toText(caller) # "trying to wear accessory : " # accessory # " but is not owner");
+                _Logs.logMessage("ERR :: Caller : " # Principal.toText(caller) # "trying to wear accessory : " # accessory # " but is not owner");
                 return #err(e);
             };
             case(#ok()){};
         };
         let index = switch(Ext.TokenIdentifier.decode(accessory)){
             case(#err(e)){ 
-                _Logs.logMessage("Error during decode of tokenIdentifier : " # accessory # ". Detail : " # e);
+                _Logs.logMessage("ERR :: Failed to decode tokenIdentifier : " # accessory # ". Detail : " # e);
                 return #err(e);
             };
             case(#ok(p, index)){
                 if(p != cid){
-                    _Logs.logMessage("Error when decoding the tokenIdentifier : " # accessory # "the canister id is " # Principal.toText(p));
+                    _Logs.logMessage("ERR :: Failed to decode tokenIdentifier : " # accessory # "the canister id is " # Principal.toText(p));
                     return #err("Error when decoding the tokenIdentifier : " # accessory);
                 };
                 index;
             };
         };
         if(_Entrepot.isLocked(index)){
-            _Logs.logMessage("Trying to equip this accessory when locked (Entrepot) : " # accessory);
+            _Logs.logMessage("ERR :: Try to this accessory when locked (Entrepot) : " # accessory);
             return #err("Trying to equip this accessory when locked (Entrepot) : " # accessory);
         };
         await _Items.wearAccessory(accessory, avatar, caller);
@@ -350,26 +350,26 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Monitor.collectMetrics();
         switch(_Ext.isOwner(caller, accessory)){
             case(#err(e)) {
-                _Logs.logMessage("Caller : " # Principal.toText(caller) # "trying to remove accessory : " # accessory # " but is not owner");
+                _Logs.logMessage("ERR :: Caller : " # Principal.toText(caller) # "trying to remove accessory : " # accessory # " but is not owner");
                 return #err(e);
             };
             case(#ok()){};
         };
         let index = switch(Ext.TokenIdentifier.decode(accessory)){
             case(#err(e)){
-                _Logs.logMessage("Error during decode of tokenIdentifier : " # accessory # ". Detail : " # e);
+                _Logs.logMessage("ERR :: Failed to decode tokenIdentifier : " # accessory # ". Detail : " # e);
                 return #err(e);
             };
             case(#ok(p, index)){
                 if(p != cid){
-                    _Logs.logMessage("Error when decoding the tokenIdentifier : " # accessory # "the canister id is " # Principal.toText(p));
+                    _Logs.logMessage("ERR :: Failed to decode tokenIdentifier : " # accessory # "the canister id is " # Principal.toText(p));
                     return #err("Error when decoding the tokenIdentifier : " # accessory);
                 };
                 index;
             };
         };
         if(_Entrepot.isLocked(index)){
-            _Logs.logMessage("(IMPOSSIBLE) Trying to dequip this accessory when locked (Entrepot) : " # accessory);
+            _Logs.logMessage("CRITICAL :: Trying to dequip this accessory when locked (Entrepot) : " # accessory);
             return #err("Trying to equip this accessory when locked (Entrepot) : " # accessory);
         };
         await _Items.removeAccessory(accessory, avatar, caller)
@@ -387,7 +387,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         switch(await _Invoice.verifyInvoice(invoice_id, caller)){
             case(#ok){};
             case(#err) {
-                _Logs.logMessage("Error during invoice verification for invoice : " # Nat.toText(invoice_id) # " by " # Principal.toText(caller));
+                _Logs.logMessage("ERR :  Failed to verify invoice : " # Nat.toText(invoice_id) # " by " # Principal.toText(caller));
                 return #err("Error during invoice verification");
             };
         };
@@ -449,7 +449,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
                             caller = caller;
                         };
                         ignore(_Cap.registerEvent(event));
-                        _Logs.logMessage("Accessory created : " # name # " by " # Principal.toText(caller) # "with identifier " # tokenIdentifier);
+                        _Logs.logMessage("EVENT :: Accessory created : " # name # " by " # Principal.toText(caller) # "with identifier " # tokenIdentifier);
                         return #ok(tokenIdentifier);
                       };
                   };

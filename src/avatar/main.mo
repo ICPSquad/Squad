@@ -60,14 +60,14 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     public shared ({ caller }) func add_admin(p : Principal) : async () {
         _Admins.addAdmin(p, caller);
         _Monitor.collectMetrics();
-        _Logs.logMessage("Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
+        _Logs.logMessage("CONFIG :: Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
     };
 
     public shared ({ caller }) func delete_admin(p : Principal) : async () {
         assert(caller == master);
         _Monitor.collectMetrics();
         _Admins.removeAdmin(p, caller);
-        _Logs.logMessage("Removed admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
+        _Logs.logMessage("CONFIG :: Removed admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
     };
 
     //////////////
@@ -155,11 +155,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Monitor.collectMetrics();
         switch(_Assets.uploadFinalize(contentType,meta,filePath)){
             case(#ok(())){
-                _Logs.logMessage("Uploaded file: " # filePath);
+                _Logs.logMessage("TASK :: Uploaded file: " # filePath);
                 return #ok(());
             };
             case(#err(message)){
-                _Logs.logMessage("Failed to upload file: " # filePath);
+                _Logs.logMessage("ERR :: Failed to upload file: " # filePath);
                 return #err(message);
             };
         }
@@ -212,11 +212,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Monitor.collectMetrics();
         switch(_Avatar.addComponent(name, component)){
             case(#ok(())){
-                _Logs.logMessage("Added component: " # name);
+                _Logs.logMessage("TASK :: Added component: " # name);
                 return #ok(());
             };
             case(#err(message)){
-                _Logs.logMessage("Failed to add component: " # name);
+                _Logs.logMessage("ERR :: Failed to add component: " # name);
                 return #err(message);
             };
         };
@@ -242,7 +242,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         _Avatar.changeCSS(style);
-        _Logs.logMessage("Changed CSS");
+        _Logs.logMessage("CONFIG :: Changed CSS");
     };
    
     public shared ({caller}) func draw(
@@ -265,11 +265,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Monitor.collectMetrics();
         switch(_Avatar.createLegendary(name, token)){
             case(#err(_)){
-                _Logs.logMessage("Failed to associate legendary : " # name # " with token: " # token);
+                _Logs.logMessage("ERR :: Failed to associate legendary : " # name # " with token: " # token);
                 return #err("Failed to associate legendary : " # name # " with token : " # token);
             };
             case(#ok(_)){
-                _Logs.logMessage("Associated legendary : " # name # " with token : " # token);
+                _Logs.logMessage("TASK :: Associated legendary : " # name # " with token : " # token);
                 return #ok;
             };
         };
@@ -282,7 +282,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Monitor.collectMetrics();
         let index = switch(Ext.TokenIdentifier.decode(token)){
             case(#err(_)) {
-                _Logs.logMessage("Failed to decode token: " # token);
+                _Logs.logMessage("ERR :: Failed to decode token: " # token);
                 return #err("Failed to decode token: " # token);
             };
             case(#ok(p, index)) {
@@ -295,7 +295,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
                     caller = caller;
                 };
                 ignore(_Cap.registerEvent(event));
-                _Logs.logMessage("Burned avatar: " # token # " by : " # Principal.toText(caller));
+                _Logs.logMessage("TASK :: Burned avatar: " # token # " by : " # Principal.toText(caller));
                 return #ok;
             };
         }
@@ -332,10 +332,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
             case(#err(#InvalidToken(e))) return #err(e);
             case(#ok(index)){
                 let tokenId = Ext.TokenIdentifier.encode(cid, index);
-                _Logs.logMessage("Minted token: " # tokenId);
                 switch(_Avatar.createAvatar(info, tokenId)){
                     case(#ok) {
-                        _Logs.logMessage("Created avatar: " # tokenId # "by " # Principal.toText(caller));
+                        _Logs.logMessage("TASK :: Created avatar: " # tokenId # "by " # Principal.toText(caller));
                         let receiver = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
                         ignore(_Cap.registerEvent({
                             operation = "mint";
@@ -346,7 +345,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
                         return #ok(tokenId);
                     };
                     case(#err(e)){
-                        _Logs.logMessage("Error during avatar creation for token: " # tokenId);
+                        _Logs.logMessage("ERR :: Avatar creation failed for token: " # tokenId);
                         return #err(e);
                     };
                 };
@@ -368,14 +367,13 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
             case(#ok(n)){
                 switch(n){
                     case(0){
-                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(p) # " doesnt own : " # tokenId);
+                        _Logs.logMessage("ERR :: " # " Caller :  " #Principal.toText(p) # " doesnt own : " # tokenId);
                         return #err("Caller :  " #Principal.toText(caller) # " doesn't own : " # tokenId);
                     };
                     case(1){
                         _Avatar.wearAccessory(tokenId, name);
                     };
                     case _ {
-                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(p) # " doesnt own : " # tokenId);
                         return #err("Unexpected value for balance : " # Nat.toText(n));
                     }
                 };
@@ -397,14 +395,13 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
             case(#ok(n)){
                 switch(n){
                     case(0){
-                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(p) # " doesnt own : " # tokenId);
+                        _Logs.logMessage("ERR :: " # " Caller :  " #Principal.toText(p) # " doesnt own : " # tokenId);
                         return #err("Caller :  " #Principal.toText(p) # " doesn't own : " # tokenId);
                     };
                     case(1){
                         _Avatar.removeAccessory(tokenId, name)
                     };
                     case _ {
-                        _Logs.logMessage("Main/wearAccessory/502." # " Caller :  " #Principal.toText(p) # " doesnt own : " # tokenId);
                         return #err("Unexpected value for balance : " # Nat.toText(n));
                     }
                 };
@@ -463,10 +460,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         // Reduce capitalilisation of name
         switch(_Avatar.removeAccessory(avatar, Text.map(name, Prim.charToLower))){
             case(#err(_)){
-                _Logs.logMessage("CRITICAL ERROR : " # "Accessory " # name # " not removed from avatar " # avatar);
+                _Logs.logMessage("CRITICAL :: " # "Accessory " # name # " not removed from avatar " # avatar);
             };
             case(#ok){
-                _Logs.logMessage("Accessory " # name # " removed from avatar " # avatar);
+                _Logs.logMessage("TASK :: Accessory " # name # " removed from avatar " # avatar);
             };
         };
         // Send a notification to the accessory canister
@@ -760,7 +757,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
         _Scores.calculateStyleScores();
-        _Logs.logMessage("Cron :: Style scores");
+        _Logs.logMessage("CRON :: Update style scores");
     };
 
 
@@ -772,7 +769,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
         _Users.cronDefaultAvatar();
-        _Logs.logMessage("Cron :: Default avatar");
+        _Logs.logMessage("CRON :: Update default avatar");
     };
 
     /////////////
@@ -780,7 +777,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     /////////////
 
     system func preupgrade() {
-        _Logs.logMessage("Preupgrade avatar");
+        _Logs.logMessage("PREUPGRADE :: avatar");
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
@@ -811,7 +808,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _UsersUD := null;
         _Cap.postupgrade(_CapUD);
         _CapUD := null;
-        _Logs.logMessage("Postupgrade avatar");
+        _Logs.logMessage("POSTUPGRADE :: avatar");
     };
 
 };

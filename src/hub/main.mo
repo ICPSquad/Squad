@@ -66,7 +66,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     public shared ({caller}) func add_admin(p : Principal) : async () {
         _Admins.addAdmin(p, caller);
         _Monitor.collectMetrics();
-        _Logs.logMessage("Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
+        _Logs.logMessage("CONFIG :: Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
     };
 
     //////////////
@@ -395,7 +395,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                 return #err(e);
             };
             case(#ok(id)){
-                _Logs.logMessage("Round started : " # Nat.toText(id));
+                _Logs.logMessage("EVENT :: Round started : " # Nat.toText(id));
                 return #ok(id);
             };
         };
@@ -415,7 +415,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                 return #err(e);
             };
             case(#ok(id)) {
-                _Logs.logMessage("Round stopped : " # Nat.toText(id));
+                _Logs.logMessage("EVENT :: Round stopped : " # Nat.toText(id));
                 return #ok(id);
             };
         };
@@ -466,7 +466,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     ) : async () {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        _Logs.logMessage("Added job for canister " # Principal.toText(canister) # " with method " # method # " and interval " # Int.toText(interval));
+        _Logs.logMessage("CONFIG :: Added job for canister " # Principal.toText(canister) # " with method " # method # " and interval " # Int.toText(interval));
         _Jobs.addJob(canister, method, interval);
     };
 
@@ -480,7 +480,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     ) : async () {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        _Logs.logMessage("Deleted job " # Nat.toText(id));
+        _Logs.logMessage("CONFIG :: Deleted job " # Nat.toText(id));
         _Jobs.deleteJob(id);
     };
 
@@ -503,9 +503,9 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         if(bool) {
-            _Logs.logMessage("Starting job");
+            _Logs.logMessage("CONFIG :: Starting jobs");
         } else {
-            _Logs.logMessage("Stopping job");
+            _Logs.logMessage("CONFIG :: Stopping jobs");
         };
         _Jobs.setJobStatus(bool);
     };
@@ -522,7 +522,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         assert(_Admins.isAdmin(caller) or caller == cid);
         _Monitor.collectMetrics();
         await _Style.updateScores();
-        _Logs.logMessage("Cron :: Style scores (hub)");
+        _Logs.logMessage("CRON :: Style scores (hub)");
     };
 
     /*  
@@ -537,7 +537,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                 return #err(e);
             };
             case(#ok()) {
-                _Logs.logMessage("Cron :: round updated");
+                _Logs.logMessage("CRON :: round updated");
                 return #ok();
             };
         };
@@ -562,14 +562,14 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     public shared ({ caller }) func cron_stats() : async Result.Result<(), Text> {
         assert(_Admins.isAdmin(caller) or caller == cid);
         _Monitor.collectMetrics();
-        _Logs.logMessage("Cron :: Starting querying buckets");
+        _Logs.logMessage("CRON :: Starting querying buckets");
         switch(await cron_events()){
             case(#err(e)){
-                _Logs.logMessage("Cron :: Error while querying events : " # e);
+                _Logs.logMessage("ERR :: Error while querying events : " # e);
                 return #err(e);
             };
             case(#ok(nb)) {
-                _Logs.logMessage("Cron :: events (hub)" # "Recorded " # Nat.toText(nb) # " events for today.");
+                _Logs.logMessage("CRON :: events (hub)" # ".Recorded " # Nat.toText(nb) # " events for today.");
             };
         };
         await _Cap.cronStats();
@@ -580,7 +580,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     ////////////
 
     system func preupgrade() {
-        _Logs.logMessage("Preupgrade hub");
+        _Logs.logMessage("PREUPGRADE :: Hub");
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
@@ -608,7 +608,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _MissionUD := null;
         _Cap.postupgrade(_CapUD);
         _CapUD := null;
-        _Logs.logMessage("Postupgrade hub");
+        _Logs.logMessage("POSTUPGRADE :: hub");
     };
 
     system func heartbeat() : async () {
