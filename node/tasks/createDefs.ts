@@ -1,5 +1,5 @@
 import Papa from "papaparse";
-import { createReadStream, writeFileSync, appendFileSync, readFileSync, mkdirSync, existsSync } from "fs";
+import { writeFileSync, appendFileSync, readFileSync, mkdirSync, existsSync } from "fs";
 
 console.log("Creating the definitons for all components");
 
@@ -13,12 +13,11 @@ const csv_parsed = Papa.parse(csv_string, {
   delimiter: ",",
 });
 
-
 function createDefs() {
   if (!existsSync(PATH)) mkdirSync(DIR, { recursive: true });
   if (!existsSync(PATH)) writeFileSync(PATH, "", { flag: "wx" });
 
-  writeFileSync(PATH, "<svg version=" + '"1.1"' + " xmlns=" + '"http://www.w3.org/2000/svg"' +" viewBox=" + '"0 0 800 800"'  +" class=" + '"h-0"' + ">");
+  writeFileSync(PATH, "<svg version=" + '"1.1"' + " xmlns=" + '"http://www.w3.org/2000/svg"' + " viewBox=" + '"0 0 800 800"' + " class=" + '"h-0"' + ">");
   appendFileSync(PATH, "<defs>");
   //@ts-ignore
   let length = csv_parsed.data.length;
@@ -43,4 +42,3 @@ function createDefs() {
 createDefs();
 
 console.log("Done");
-

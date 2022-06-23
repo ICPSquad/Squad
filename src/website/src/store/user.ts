@@ -21,8 +21,6 @@ actors.subscribe(async ({ avatarActor }) => {
     let promises = [avatarActor.get_user(), avatarActor.get_avatars()];
     Promise.all(promises)
       .then(([infos, avatars]) => {
-        console.log("avatars", avatars);
-        console.log("infos", infos);
         if (infos.length > 0) {
           let data = infos[0] as UserData;
 

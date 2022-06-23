@@ -432,8 +432,6 @@
       return legendary.categorie === category;
     });
   }
-
-  console.log(filterByCategory("Team", legendaries));
 </script>
 
 <Header />

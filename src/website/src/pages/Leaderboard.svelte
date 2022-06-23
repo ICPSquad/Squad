@@ -17,7 +17,6 @@
 
   async function getLeaderboard() {
     let data = await hub_actor.get_leaderboard();
-    console.log(data);
     if (data.length > 0) {
       leaderboard = data[0];
     } else {

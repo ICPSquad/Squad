@@ -612,23 +612,17 @@ export type RecipeAnswer = { ok: string[] } | { err: string[] };
  */
 export function createMintTokensFromInventoryAndRecipe(recipe: Recipe, inventory: Inventory): RecipeAnswer {
   let tmp_copy_inventory = { ...inventory };
-  console.log("Inventory", tmp_copy_inventory);
   let missing_materials: string[] = [];
   let mint_tokens: string[] = [];
   for (let material of recipe) {
-    console.log("Loop");
     let material_token_id = nameToTokenIdentifier(material, tmp_copy_inventory);
-    console.log("Material token id", material_token_id);
     if (!material_token_id) {
-      console.log("We have a *** missing material ***", material);
       missing_materials.push(material);
     } else {
-      console.log("We have a *** mint token ***", material_token_id);
       mint_tokens.push(material_token_id);
       filterInventory(material_token_id, tmp_copy_inventory);
     }
   }
-  console.log("Missing materials", missing_materials);
   if (missing_materials.length > 0) {
     return { err: missing_materials };
   } else {
@@ -641,7 +635,6 @@ function nameToTokenIdentifier(name: string, inventory: Inventory): string | nul
   let keys = Object.keys(inventory);
   keys.forEach((key) => {
     if (itemToName(inventory[key]) === name) {
-      console.log("Found", key);
       return itemToTokenIdentifier(inventory[key]);
     }
   });
@@ -649,7 +642,6 @@ function nameToTokenIdentifier(name: string, inventory: Inventory): string | nul
 }
 
 function itemToName(item: ItemInventory): string {
-  console.log("Item", item);
   //@ts-ignore
   if (item.Material) {
     //@ts-ignore
@@ -664,11 +656,8 @@ function itemToName(item: ItemInventory): string {
 }
 
 function itemToTokenIdentifier(item: ItemInventory): string {
-  console.log("ItemToTokenId", item);
   //@ts-ignore
   if (item.Material) {
-    //@ts-ignore
-    console.log("We are returning the name of the material", item.Material.name);
     //@ts-ignore
     return item.Material.tokenIdentifier;
   }

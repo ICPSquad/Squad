@@ -55,7 +55,6 @@ export async function stoicConnexion(): Promise<void> {
       }
       try {
         const principal = identity.getPrincipal();
-        console.log("principal", principal);
         let agent = new HttpAgent({
           identity: identity,
           host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
@@ -104,4 +103,62 @@ export function disconnectWallet(): void {
   }
   user.update((u) => ({ ...u, wallet: undefined, loggedIn: false, principal: null }));
   actors.update((a) => ({ ...a, avatarActor: null, accessoriesActor: null, invoiceActor: null, ledgerActor: null, hubActor: null }));
+}
+
+export async function persistConnexion(): Promise<void> {
+  const promises = [window.ic.plug.isConnected(), StoicIdentity.load()];
+  const [plugConnected, stoicConnected] = await Promise.all(promises);
+  if (plugConnected) {
+    // Initialize and stores the actor
+    const principal = await window.ic.plug.getPrincipal();
+    const avatarActor = await window.ic.plug.createActor({
+      canisterId: avatarID,
+      interfaceFactory: idlFactoryAvatar,
+    });
+    const accessoriesActor = await window.ic.plug.createActor({
+      canisterId: accessoriesID,
+      interfaceFactory: idlFactoryAccessories,
+    });
+    const invoiceActor = await window.ic.plug.createActor({
+      canisterId: invoiceID,
+      interfaceFactory: idlFactoryInvoice,
+    });
+    const hubActor = await window.ic.plug.createActor({
+      canisterId: hubID,
+      interfaceFactory: idlFactoryHub,
+    });
+
+    user.update((u) => ({ ...u, wallet: "plug", loggedIn: true, principal }));
+    actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, hubActor: hubActor }));
+  } else if (stoicConnected) {
+    const principal = stoicConnected.getPrincipal();
+    let agent = new HttpAgent({
+      identity: stoicConnected,
+      host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
+    });
+    const avatarActor = Actor.createActor<Avatar>(idlFactoryAvatar, {
+      agent,
+      canisterId: avatarID,
+    });
+    const accessoriesActor = Actor.createActor<Accessories>(idlFactoryAccessories, {
+      agent,
+      canisterId: accessoriesID,
+    });
+    const invoiceActor = Actor.createActor<Invoice>(idlFactoryInvoice, {
+      agent,
+      canisterId: invoiceID,
+    });
+    const ledgerActor = Actor.createActor<Ledger>(idlFactoryLedger, {
+      agent,
+      canisterId: ledgerID,
+    });
+    const hubActor = Actor.createActor<Hub>(idlFactoryHub, {
+      agent,
+      canisterId: hubID,
+    });
+    user.update((u) => ({ ...u, wallet: "stoic", loggedIn: true, principal }));
+    actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor, hubActor: hubActor }));
+  } else {
+    return;
+  }
 }

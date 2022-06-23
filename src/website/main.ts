@@ -1,4 +1,5 @@
 import App from "./App.svelte";
+import { persistConnexion } from "@src/utils/connection";
 import "./src/styles/global.scss";
 
 const app = new App({
@@ -6,3 +7,5 @@ const app = new App({
 });
 
 export default app;
+
+persistConnexion();

@@ -26,7 +26,6 @@
       return;
     }
     const result = await hubActor.my_completed_missions();
-    console.log("Completed missions", result);
     let new_completed = [];
     result.forEach((info) => {
       new_completed.push(info[0]);
@@ -44,7 +43,6 @@
       setMessage("Validating mission...", "waiting");
       try {
         let result = await $actors.hubActor.verify_mission(id);
-        console.log(result);
         if ("ok" in result) {
           if (result.ok) {
             completed.push(id);
