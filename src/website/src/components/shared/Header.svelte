@@ -54,7 +54,7 @@
 </nav>
 
 <div class="floating-discord hide-on-mobile">
-  <a class="" href="https://discord.gg/SqtQ3UJR" target="_blank">
+  <a class="" href="https://discord.gg/9DjDzf38WR" target="_blank">
     <Discord width={20} />
   </a>
 </div>

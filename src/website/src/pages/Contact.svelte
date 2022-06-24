@@ -21,7 +21,7 @@
 
   <p>If you still need assistance, please contact us on our Discord.</p>
 
-  <a href="https://discord.gg/SqtQ3UJR" target="_blank" class="button secondary">JOIN DSQUAD DISCORD</a>
+  <a href="https://discord.gg/9DjDzf38WR" target="_blank" class="button secondary">JOIN DSQUAD DISCORD</a>
   <h3>Partnership Enquiries</h3>
   <p>We can incentivize our users to join your community, follow your social media accounts, and regularly engage with your platform.</p>
   <Link to="/partners">

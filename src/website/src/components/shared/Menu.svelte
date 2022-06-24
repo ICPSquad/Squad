@@ -17,7 +17,7 @@
     <FooterNav textAlignCenter {closeMenu} />
     <button on:click={disconnectWallet} class="secondary"> Disconnect Wallet </button>
     <div class="social-icons">
-      <a class="discord" href="https://discord.gg/SqtQ3UJR" target="_blank">
+      <a class="discord" href="https://discord.gg/9DjDzf38WR" target="_blank">
         <Discord width={40} />
       </a>
       <a href="https://twitter.com/ICPSquadNFT" target="_blank">

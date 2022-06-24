@@ -11,7 +11,7 @@
   import Checkout from "@src/components/create-avatar/Checkout.svelte";
   import type { State } from "@src/components/create-avatar/types";
   // Include accessories : (default is false, only include for testing purposes)
-  let includeAccessories = true;
+  let includeAccessories = false;
 
   // Category showing
   let categoryShowing = "profile";

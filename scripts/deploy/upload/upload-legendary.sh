@@ -11,7 +11,7 @@ OLDIFS=$IFS
 IFS=','
 {
 	read # skip headers
-	while read Name minted role
+	while read Name minted 
 	do  
         file="assets/legendaries/characters/$Name.svg"
         tag_1="legendary"

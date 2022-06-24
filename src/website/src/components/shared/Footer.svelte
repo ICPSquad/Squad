@@ -12,7 +12,7 @@
     <div class="top">
       <Logo />
       <div class="social">
-        <a class="discord" href="https://discord.gg/SqtQ3UJR" target="_blank">
+        <a class="discord" href="https://discord.gg/9DjDzf38WR" target="_blank">
           <Discord />
         </a>
         <a href="https://twitter.com/ICPSquadNFT" target="_blank">
