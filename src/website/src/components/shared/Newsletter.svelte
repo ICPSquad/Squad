@@ -5,8 +5,6 @@
 
   let email = "";
 
-  let message = "";
-
   const handleSubmit = () => {
     message = "You are subscribed!";
     setTimeout(function () {
@@ -24,19 +22,19 @@
       <input bind:value={email} id="email" type="email" required placeholder="Email address" />
       <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
       <div style="position: absolute; left: -5000px;" aria-hidden="true">
-        <input type="text" name="b_d59b2a8b54b8dfa11092aa237_ade621c380" tabindex="-1" value="">
+        <input type="text" name="b_d59b2a8b54b8dfa11092aa237_ade621c380" tabindex="-1" value="" />
       </div>
-      <input type="submit" value="Subscribe" name="subscribe" class="button">
-    </div>
+      <input type="submit" value="Subscribe" name="subscribe" class="button" />
+    </form>
+  </div>
 
-    <div class="social-icons">
-      <a class="discord" href="https://discord.gg/9DjDzf38WR" target="_blank">
-        <Discord width={40} />
-      </a>
-      <a href="https://twitter.com/ICPSquadNFT" target="_blank">
-        <Twitter width={40} />
-      </a>
-    </div>
+  <div class="social-icons">
+    <a class="discord" href="https://discord.gg/9DjDzf38WR" target="_blank">
+      <Discord width={40} />
+    </a>
+    <a href="https://twitter.com/ICPSquadNFT" target="_blank">
+      <Twitter width={40} />
+    </a>
   </div>
 </section>
 <Toast />

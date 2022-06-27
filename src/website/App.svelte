@@ -14,7 +14,6 @@
   import AddAccessory from "@src/pages/AddAccessory.svelte";
   import Profile from "@src/pages/Profile.svelte";
   import Roadmap from "@src/pages/Roadmap.svelte";
-  import Render from "@src/pages/Render.svelte";
 </script>
 
 <Router>
@@ -32,5 +31,4 @@
   <Route path="leaderboard"><Leaderboard /></Route>
   <Route path="profile"><Profile /></Route>
   <Route path="roadmap"><Roadmap /></Route>
-  <Route path="render"><Render /></Route>
 </Router>

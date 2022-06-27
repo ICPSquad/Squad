@@ -67,6 +67,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 30px 20px;
       .privacy {
         color: $white;
       }

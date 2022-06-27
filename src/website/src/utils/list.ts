@@ -75,61 +75,7 @@ export const components = [
   {
     category: "avatar",
     type: "mouth",
-    name: "business-uninterested-mouth",
-    layers: [45],
-  },
-  {
-    category: "avatar",
-    type: "mouth",
-    name: "miss-annoyed-mouth",
-    layers: [45],
-  },
-  {
-    category: "avatar",
-    type: "mouth",
-    name: "miss-confident-mouth",
-    layers: [45],
-  },
-  {
-    category: "avatar",
-    type: "mouth",
-    name: "miss-disgusted-mouth",
-    layers: [45],
-  },
-  {
-    category: "avatar",
-    type: "mouth",
-    name: "miss-mouth",
-    layers: [45],
-  },
-  {
-    category: "avatar",
-    type: "mouth",
-    name: "miss-scheming-mouth",
-    layers: [45],
-  },
-  {
-    category: "avatar",
-    type: "mouth",
-    name: "miss-surprised-mouth",
-    layers: [45],
-  },
-  {
-    category: "avatar",
-    type: "mouth",
-    name: "miss-surprised-mouth",
-    layers: [45],
-  },
-  {
-    category: "avatar",
-    type: "mouth",
     name: "punk-annoyed-mouth",
-    layers: [45],
-  },
-  {
-    category: "avatar",
-    type: "mouth",
-    name: "punk-confident-mouth",
     layers: [45],
   },
   {
@@ -154,6 +100,36 @@ export const components = [
     category: "avatar",
     type: "mouth",
     name: "punk-mouth",
+    layers: [45],
+  },
+  {
+    category: "avatar",
+    type: "mouth",
+    name: "miss-annoyed-mouth",
+    layers: [45],
+  },
+  {
+    category: "avatar",
+    type: "mouth",
+    name: "miss-disgusted-mouth",
+    layers: [45],
+  },
+  {
+    category: "avatar",
+    type: "mouth",
+    name: "miss-mouth",
+    layers: [45],
+  },
+  {
+    category: "avatar",
+    type: "mouth",
+    name: "miss-scheming-mouth",
+    layers: [45],
+  },
+  {
+    category: "avatar",
+    type: "mouth",
+    name: "miss-surprised-mouth",
     layers: [45],
   },
   {
