@@ -7,21 +7,21 @@
   const handleSubmit = () => {
     console.log(templateParams);
 
-    // emailjs
-    //   .send(
-    //     "<YOUR_SERVICE_ID>",
-    //     "<YOUR_TEMPLATE_ID>",
-    //     templateParams,
-    //     "<YOUR_PUBLIC_KEY>"
-    //   )
-    //   .then(
-    //     (response) => {
-    //       formSubmitted = true;
-    //     },
-    //     (err) => {
-    //       console.log("FAILED...", err);
-    //     }
-    //   );
+    emailjs
+      .send(
+        "service_77ki0jv",
+        "template_o8m0n65",
+        templateParams,
+        "user_gExhHHDDkYwDETmorUTmI"
+      )
+      .then(
+        (response) => {
+          formSubmitted = true;
+        },
+        (err) => {
+          console.log("FAILED...", err);
+        }
+      );
 
     formSubmitted = true;
   };
