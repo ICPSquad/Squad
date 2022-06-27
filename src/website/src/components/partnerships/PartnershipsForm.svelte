@@ -5,6 +5,8 @@
   let formSubmitted = false;
 
   const handleSubmit = () => {
+    let sendingTemplate = convertInterestsToEmailjsTemplate(templateParams);
+
     emailjs.send("service_77ki0jv", "template_o8m0n65", sendingTemplate, "user_gExhHHDDkYwDETmorUTmI").then(
       (response) => {
         formSubmitted = true;
