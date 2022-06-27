@@ -5,23 +5,16 @@
   let formSubmitted = false;
 
   const handleSubmit = () => {
-    console.log(templateParams);
+    let sendingTemplate = convertInterestsToEmailjsTemplate(templateParams);
 
-    emailjs
-      .send(
-        "service_77ki0jv",
-        "template_o8m0n65",
-        templateParams,
-        "user_gExhHHDDkYwDETmorUTmI"
-      )
-      .then(
-        (response) => {
-          formSubmitted = true;
-        },
-        (err) => {
-          console.log("FAILED...", err);
-        }
-      );
+    emailjs.send("service_77ki0jv", "template_o8m0n65", sendingTemplate, "user_gExhHHDDkYwDETmorUTmI").then(
+      (response) => {
+        formSubmitted = true;
+      },
+      (err) => {
+        console.log("FAILED...", err);
+      }
+    );
 
     formSubmitted = true;
   };
@@ -57,6 +50,22 @@
   const toggleChecked = (item: keyof InterestOptions) => {
     templateParams.interest[item] = !templateParams.interest[item];
   };
+
+  function convertInterestsToEmailjsTemplate(template: EmailTemplateProps) {
+    var interests = [];
+    for (var key in template.interest) {
+      if (template.interest[key]) {
+        interests.push(key);
+      }
+    }
+    return {
+      projectName: template.projectName,
+      yourName: template.yourName,
+      emailAddress: template.emailAddress,
+      interests: interests,
+      additionalInfo: template.additionalInfo,
+    };
+  }
 </script>
 
 <div class="container">

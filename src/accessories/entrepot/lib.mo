@@ -553,7 +553,7 @@ module {
         // Return completed transactions.
         public func readTransactions () : [Types.EntrepotTransaction] {
             // Convert new types to old types.
-            let new = Array.map<(Nat, Types.Transaction), Types.EntrepotTransaction>(Iter.toArray(transactions.entries()), func ((k, v)) {
+            var r = Array.map<(Nat, Types.Transaction), Types.EntrepotTransaction>(Iter.toArray(transactions.entries()), func ((k, v)) {
                 {
                     buyer   = v.to;
                     price   = v.price;
@@ -566,7 +566,7 @@ module {
                 }
             });
             // Add the old transactions.
-            Array.append<EntrepotTransaction>(new, oldTransactions);
+            return(Array.append<EntrepotTransaction>(new, oldTransactions));
         };
 
         public func readTransactionsNew () : [(Nat,Transaction)] {
