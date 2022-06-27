@@ -122,6 +122,9 @@
       ><button> Share </button>
     </a>
     <button on:click={() => handleDownload()}> Download </button>
+    <LinkButton to="/profile">
+      <button> View Profile </button>
+    </LinkButton>
   {:else if state === "error"}
     <p>An errorr occured 😵‍💫</p>
     <p>{error_message}</p>
