@@ -23,7 +23,7 @@
 
   const handleSave = async () => {
     try {
-      setMessage("Updating your informations...", "waiting");
+      setMessage("Updating your information...", "waiting");
       const avatarActor = get(actors).avatarActor;
       const result = await avatarActor.modify_profile(
         userProfile.username ? [userProfile.username] : [],
