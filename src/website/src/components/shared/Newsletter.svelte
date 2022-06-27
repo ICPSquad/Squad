@@ -20,9 +20,13 @@
     <h2>GET THE LATEST UPDATES</h2>
     <p>Subscribe to our newsletter to be the first to know about all things dSquad, the Internet Computer,new opportunities to earn NFTs, ICP and other prizes and take part in community events.</p>
 
-    <div class="form-container">
+    <form action="https://isaacvaladez.us14.list-manage.com/subscribe/post?u=d59b2a8b54b8dfa11092aa237&amp;id=ade621c380" method="post" class="form-container" target="_blank" novalidate>
       <input bind:value={email} id="email" type="email" required placeholder="Email address" />
-      <button on:click={handleSubmit}> Subscribe </button>
+      <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+      <div style="position: absolute; left: -5000px;" aria-hidden="true">
+        <input type="text" name="b_d59b2a8b54b8dfa11092aa237_ade621c380" tabindex="-1" value="">
+      </div>
+      <input type="submit" value="Subscribe" name="subscribe" class="button">
     </div>
 
     <div class="social-icons">
@@ -52,7 +56,7 @@
     width: 100%;
     max-width: 500px;
     margin: 40px 0;
-    input {
+    #email {
       border: 1px solid $grey;
       width: 100%;
       text-align: center;
@@ -65,7 +69,7 @@
       box-shadow: none;
       outline: none;
     }
-    button {
+    .button {
       border-top-left-radius: 0;
       border-top-right-radius: 0;
       background-color: $blue;
