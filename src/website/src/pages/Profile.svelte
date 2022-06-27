@@ -137,7 +137,7 @@
       <div class="field">
         <div class="label">WALLET CONNECTED</div>
         <div class="value small">{userProfile.principal}</div>
-        <button on:click={disconnectWallet} class="secondary disconnect">Disconnect Wallet</button>
+        <button on:click={disconnectWallet} class="secondary disconnect">Sign out </button>
       </div>
     </div>
     <div class="button-col">

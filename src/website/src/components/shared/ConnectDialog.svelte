@@ -24,6 +24,7 @@
 {#if $dialog.isOpen}
   <div class="dialog-styles dark" on:click={close}>
     <div class="dialog-container">
+      <h3>Connect a wallet</h3>
       <div>
         <button on:click={() => plugConnection()} class={`button-styles`}>
           <img class="img-styles" src={`assets/plugLight.svg`} alt="Plug Logo" />
@@ -43,6 +44,11 @@
 {/if}
 
 <style>
+  h3 {
+    text-align: center;
+    margin: 10px 0;
+  }
+
   .dialog-styles span {
     font-family: -apple-system, BlinkMacSystemFont, "Arial", "Helvetica Neue", sans-serif;
   }

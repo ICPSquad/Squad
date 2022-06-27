@@ -6,7 +6,6 @@
   export let closeMenu;
 
   const disconnectWallet = () => {
-    console.log("Disconnect wallet");
     // To do - disconnect wallet
     closeMenu();
   };
@@ -15,7 +14,7 @@
 <div class="menu-container">
   <div class="container menu-nav-container">
     <FooterNav textAlignCenter {closeMenu} />
-    <button on:click={disconnectWallet} class="secondary"> Disconnect Wallet </button>
+    <button on:click={disconnectWallet} class="secondary"> Sign out </button>
     <div class="social-icons">
       <a class="discord" href="https://discord.gg/9DjDzf38WR" target="_blank">
         <Discord width={40} />

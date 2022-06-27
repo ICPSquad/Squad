@@ -5,8 +5,6 @@
   let formSubmitted = false;
 
   const handleSubmit = () => {
-    let sendingTemplate = convertInterestsToEmailjsTemplate(templateParams);
-
     emailjs.send("service_77ki0jv", "template_o8m0n65", sendingTemplate, "user_gExhHHDDkYwDETmorUTmI").then(
       (response) => {
         formSubmitted = true;
@@ -15,7 +13,6 @@
         console.log("FAILED...", err);
       }
     );
-
     formSubmitted = true;
   };
 
@@ -52,17 +49,17 @@
   };
 
   function convertInterestsToEmailjsTemplate(template: EmailTemplateProps) {
-    var interests = [];
+    var interests = "";
     for (var key in template.interest) {
       if (template.interest[key]) {
-        interests.push(key);
+        interests += key + ", ";
       }
     }
     return {
       projectName: template.projectName,
       yourName: template.yourName,
       emailAddress: template.emailAddress,
-      interests: interests,
+      interest: interests,
       additionalInfo: template.additionalInfo,
     };
   }

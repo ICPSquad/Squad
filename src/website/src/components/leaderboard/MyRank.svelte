@@ -27,7 +27,7 @@
     <div class="points">{Number(leaderboard[my_index][5])}</div>
   </div>
 {:else}
-  <button class="secondary" on:click={() => plugConnection()}> CONNECT WALLET TO SEE YOUR RANK </button>
+  <button class="secondary" on:click={() => plugConnection()}> SIGN IN TO SEE YOUR RANK </button>
 {/if}
 
 <style lang="scss">

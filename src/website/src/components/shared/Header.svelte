@@ -38,7 +38,7 @@
             <button> Profile </button>
           </LinkButton>
         {:else}
-          <button on:click={() => $dialog.open()}> Connect </button>
+          <button on:click={() => $dialog.open()}> Sign in </button>
           <ConnectDialog />
         {/if}
       </div>
