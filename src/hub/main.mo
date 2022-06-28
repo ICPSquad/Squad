@@ -537,7 +537,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                 return #err(e);
             };
             case(#ok()) {
-                _Logs.logMessage("CRON :: round updated");
+                _Logs.logMessage("CRON :: round");
                 return #ok();
             };
         };
@@ -562,14 +562,14 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     public shared ({ caller }) func cron_stats() : async Result.Result<(), Text> {
         assert(_Admins.isAdmin(caller) or caller == cid);
         _Monitor.collectMetrics();
-        _Logs.logMessage("CRON :: Starting querying buckets");
+        _Logs.logMessage("CRON :: Querying events");
         switch(await cron_events()){
             case(#err(e)){
-                _Logs.logMessage("ERR :: Error while querying events : " # e);
+                _Logs.logMessage("CRON :: ERR :: Error while querying events : " # e);
                 return #err(e);
             };
             case(#ok(nb)) {
-                _Logs.logMessage("CRON :: events (hub)" # ".Recorded " # Nat.toText(nb) # " events for today.");
+                _Logs.logMessage("CRON :: " # "recorded " # Nat.toText(nb) # " events.");
             };
         };
         await _Cap.cronStats();

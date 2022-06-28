@@ -23,7 +23,7 @@
         <img src={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/tokenid=${leaderboard[my_index][2]}`} alt="Avatar" />
       </a>
     </div>
-    <div class="name">{leaderboard[my_index][1].length > 0 ? leaderboard[my_index] : leaderboard[my_index][0].toText()}</div>
+    <div class="name">{leaderboard[my_index][1].length > 0 ? leaderboard[my_index][1] : leaderboard[my_index][0].toText()}</div>
     <div class="points">{Number(leaderboard[my_index][5])}</div>
   </div>
 {:else}

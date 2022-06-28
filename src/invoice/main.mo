@@ -597,4 +597,4 @@ public func accountIdentifierToBlob (accountIdentifier : AccountIdentifier) : as
   };
 // #endregion
 
-}
+};
