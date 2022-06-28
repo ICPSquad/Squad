@@ -42,7 +42,7 @@ shared ({ caller = creator }) actor class Invoice(
     public shared ({caller}) func add_admin(p : Principal) : async () {
         _Admins.addAdmin(p, caller);
         _Monitor.collectMetrics();
-        _Logs.logMessage("Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
+        _Logs.logMessage("CONFIG :: Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
     };
 
     //////////////
@@ -205,7 +205,7 @@ shared ({ caller = creator }) actor class Invoice(
             }    
           };
         };
-         _Logs.logMessage("INVOICE :: Created  : " # Nat.toText(id) # " by " # Principal.toText(caller) # " for amount : " # Nat.toText(invoice.amount));
+         _Logs.logMessage("INVOICE :: TASK :: Created  : " # Nat.toText(id) # " by " # Principal.toText(caller) # " for amount : " # Nat.toText(invoice.amount));
         invoices.put(id, invoice);
         return (#ok({invoice}));
       };
@@ -377,27 +377,48 @@ public shared ({ caller }) func verify_invoice_avatar(args : T.VerifyInvoiceArgs
   let canisterId = Principal.fromActor(this);
 
   switch(invoice){
-    case(null) return #err({ message = ?"Invoice not found"; kind = #NotFound });
+    case(null) {
+      _Logs.logMessage("INVOICE :: ERR :: Invoice not found : " # Nat.toText(args.id));
+      return #err({ message = ?"Invoice not found"; kind = #NotFound });
+    };
     case(? invoice){
-      if(Option.isSome(invoice.verifiedAtTime)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
-      if(invoice.creator != user) return #err({ message = ?"You do not have permission to verify this invoice"; kind = #NotAuthorized });
+      if(Option.isSome(invoice.verifiedAtTime)) {
+        _Logs.logMessage("INVOICE :: ERR :: Already verified : " # Nat.toText(invoice.id));
+        return #err({ message = ?"Invoice already verified"; kind = #Expired });
+      };
+      if(invoice.creator != user) {
+        _Logs.logMessage("INVOICE :: ERR :: Not creator : " # Nat.toText(invoice.id));
+        return #err({ message = ?"You do not have permission to verify this invoice"; kind = #NotAuthorized });
+      };
       switch(invoice.details){
-        case(null) return #err({ message = ?"Invoice has no details"; kind = #Other });
+        case(null) {
+          _Logs.logMessage("INVOICE :: ERR :: No details : " # Nat.toText(invoice.id));
+          return #err({ message = ?"Invoice has no details"; kind = #Other });
+        };
         case(? details) {
-          if(details.description != "avatar") return #err({ message = ?"Invoice is not for avatar"; kind = #Other });
+          if(details.description != "avatar")  {
+            _Logs.logMessage("INVOICE :: ERR :: Not corresponding to an avatar : " # Nat.toText(invoice.id));
+            return #err({ message = ?"Invoice is not for avatar"; kind = #Other });
+          };
         };
       };
       switch(invoice.token.symbol){
         case ("ICP"){
           switch (await _Ledger.verifyInvoice({ invoice ; caller; canisterId })){
-            case(#err(_)) return #err({ message = ?"Issue when calling the ledger canister"; kind = #Other});
+            case(#err(_)) {
+              _Logs.logMessage("INVOICE :: ERR :: Issue when calling the ledger canister : " # Nat.toText(invoice.id));
+              return #err({ message = ?"Issue when calling the ledger canister"; kind = #Other});
+            };
             case(#ok (value)){
               switch(value) {
-                case(#AlreadyVerified(_)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
+                case(#AlreadyVerified(_)) {
+                  _Logs.logMessage("INVOICE :: ERR :: Already verified : " # Nat.toText(invoice.id));
+                  return #err({ message = ?"Invoice already verified"; kind = #Expired });
+                };
                 case(#Paid paidResult) {
                   let replaced = invoices.replace(invoice.id, paidResult.invoice);
-                  _Logs.logMessage("INVOICE ::  Verified for id " # Nat.toText(invoice.id));
-                  _Logs.logMessage("INVOICE :: Funds transfered  : " # Nat.toText(invoice.amount));
+                  _Logs.logMessage("INVOICE :: TASK ::  Verified for id " # Nat.toText(invoice.id));
+                  _Logs.logMessage("INVOICE :: TASK :: Funds transfered  : " # Nat.toText(invoice.amount));
                   return #ok(#Paid { invoice = paidResult.invoice });
                 };
               };
@@ -416,26 +437,44 @@ public shared ({ caller }) func verify_invoice_accessory(args : T.VerifyInvoiceA
   let canisterId = Principal.fromActor(this);
 
   switch(invoice){
-    case(null) return #err({ message = ?"Invoice not found"; kind = #NotFound });
+    case(null) {
+      _Logs.logMessage("INVOICE :: ERR :: Invoice not found : " # Nat.toText(args.id));
+      return #err({ message = ?"Invoice not found"; kind = #NotFound });
+    };
     case(? invoice){
-      if(Option.isSome(invoice.verifiedAtTime)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
+      if(Option.isSome(invoice.verifiedAtTime)) {
+        _Logs.logMessage("INVOICE :: ERR :: Already verified : " # Nat.toText(invoice.id));
+        return #err({ message = ?"Invoice already verified"; kind = #Expired });
+      };
       switch(invoice.details){
-        case(null) return #err({ message = ?"Invoice has no details"; kind = #Other });
+        case(null) {
+          _Logs.logMessage("INVOICE :: ERR :: No details : " # Nat.toText(invoice.id));
+          return #err({ message = ?"Invoice has no details"; kind = #Other });
+        };
         case(? details) {
-          if(details.description != "accessory") return #err({ message = ?"Invoice is not for avatar"; kind = #Other });
+          if(details.description != "accessory")  {
+            _Logs.logMessage("INVOICE :: ERR :: Not corresponding to an accessory : " # Nat.toText(invoice.id));
+            return #err({ message = ?"Invoice is not for accessory"; kind = #Other });
+          };
         };
       };
       switch(invoice.token.symbol){
         case ("ICP"){
           switch (await _Ledger.verifyInvoice({ invoice ; caller; canisterId })){
-            case(#err(_)) return #err({ message = ?"Issue when calling the ledger canister"; kind = #Other});
+            case(#err(_)) {
+              _Logs.logMessage("INVOICE :: ERR :: Issue when calling the ledger canister : " # Nat.toText(invoice.id));
+              return #err({ message = ?"Issue when calling the ledger canister"; kind = #Other});
+            };
             case(#ok (value)){
               switch(value) {
-                case(#AlreadyVerified(_)) return #err({ message = ?"Invoice already verified"; kind = #Expired });
+                case(#AlreadyVerified(_)){
+                  _Logs.logMessage("INVOICE :: ERR :: Already verified : " # Nat.toText(invoice.id));
+                  return #err({ message = ?"Invoice already verified"; kind = #Expired });
+                };
                 case(#Paid paidResult) {
                   let replaced = invoices.replace(invoice.id, paidResult.invoice);
-                  _Logs.logMessage("INVOICE ::  Verified for id " # Nat.toText(invoice.id));
-                  _Logs.logMessage("INVOICE :: Funds transfered  : " # Nat.toText(invoice.amount));
+                  _Logs.logMessage("INVOICE :: TASK :: Verified for id " # Nat.toText(invoice.id));
+                  _Logs.logMessage("INVOICE :: TASK :: Funds transfered  : " # Nat.toText(invoice.amount));
                   return #ok(#Paid { invoice = paidResult.invoice });
                 };
               };
@@ -558,7 +597,4 @@ public func accountIdentifierToBlob (accountIdentifier : AccountIdentifier) : as
   };
 // #endregion
 
-public func hello() : async Text {
-  return("Hello from the canister");
-} 
 }
