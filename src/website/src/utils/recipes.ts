@@ -30,7 +30,7 @@ const recipes = {
     "circuit",
     "dfinity-stone",
   ],
-  helicap: ["cloth", "cloth", "cloth", "cloth", "wood", "wood", "wood", "wood", "circuit", "metal"],
+  helicap: ["cloth", "cloth", "cloth", "cloth", "wood", "wood", "wood", "wood", "metal", "circuit"],
   "magic-hood": [
     "cloth",
     "cloth",
@@ -173,7 +173,7 @@ const recipes = {
     "dfinity-stone",
   ],
   "punk-mask": ["cloth", "cloth", "cloth", "cloth", "metal", "metal", "metal", "metal", "punk-essence", "punk-essence", "punk-essence"],
-  "cronic-eyepatch": ["glass", "metal", "metal", "metal", "cronic-essence", "cronic-essence"],
+  "cronic-eyepatch": ["glass", "glass", "glass", "metal", "cronic-essence", "cronic-essence"],
   "dfinity-eyemask": [
     "cloth",
     "cloth",
@@ -199,7 +199,7 @@ const recipes = {
   ],
   "lab-glasses": ["cloth", "cloth", "cloth", "cloth", "glass", "glass", "glass"],
   monocle: ["glass", "glass", "glass", "metal"],
-  "punk-glasses": ["cloth", "cloth", "cloth", "cloth", "glass", "glass", "glass", "metal", "circuit", "punk-essence", "punk-essence", "punk-essence"],
+  "punk-glasses": ["cloth", "cloth", "cloth", "cloth", "glass", "metal", "metal", "metal", "circuit", "punk-essence", "punk-essence", "punk-essence"],
   sunglasses: ["cloth", "cloth", "cloth", "cloth", "glass", "metal", "metal", "metal", "circuit"],
   "assassin-cape": ["cloth", "cloth", "wood", "wood", "wood", "wood", "wood", "wood", "glass", "metal", "metal", "metal", "metal", "metal", "metal"],
   "astro-suit": [
