@@ -566,7 +566,7 @@ module {
                 }
             });
             // Add the old transactions.
-            return(Array.append<EntrepotTransaction>(new, oldTransactions));
+            return(Array.append<EntrepotTransaction>(r, oldTransactions));
         };
 
         public func readTransactionsNew () : [(Nat,Transaction)] {

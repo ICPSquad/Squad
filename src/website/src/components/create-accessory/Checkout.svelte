@@ -127,7 +127,7 @@
   {:else if state === "error"}
     <p>An error occured 😵‍💫</p>
     <p>{error_message}</p>
-    <button> <a href="https://discord.gg/CZ9JgnaySu" target="_blank"> Support </a> </button>
+    <a href="https://discord.gg/CZ9JgnaySu" target="_blank"><button> Support </button> </a>
     <div class="back" on:click={() => setState("creating-accessory")}>← Back</div>
   {:else if state === "accessory-minted"}
     <p>Congratulation : your accessory has been successfully minted !</p>

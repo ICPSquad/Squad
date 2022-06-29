@@ -402,15 +402,20 @@ shared({ caller = creator }) actor class ICPSquadNFT(
             let material_used = switch(Array.find<(TokenIndex,Text)>(materials_available, func(x) {
                 x.1 == material
             })){
-                case(null) return #err("Not enough : " # material);
+                case(null) {
+                    _Logs.logMessage("ERR :: Caller : " # Principal.toText(caller) # " trying to create accessory : " # name # " but does not have the material : " # material);
+                    _Logs.logMessage("materials_available :" # debug_show(materials_available));
+                    _Logs.logMessage("materials_used :" # debug_show(materials_used.toArray()));
+                    return #err("Error during accessory creation : " # material);
+                };
                 case(?x){ x };
             };
             // Add the tokenIndex to the actually used materials and remove it from the list of available materials to avoid reusing.
             materials_used.add(material_used.0);
-            materials_available := Array.filter<(TokenIndex,Text)>(materials, func(x) { x.0 == material_used.0 });
+            materials_available := Array.filter<(TokenIndex,Text)>(materials_available, func(x) { x.0 != material_used.0 });
         };
-        // Remove the materials from every database (they are burned).
-        for(tokenIndex  in materials_used.toArray().vals()){
+        // Remove the materials from every database (ie they are burned).
+        for(tokenIndex in materials_used.toArray().vals()){
             // Save the name to be report event to CAP.
             let name = Option.get(_Items.getName(tokenIndex), "Unknown");
             _Items.burn(tokenIndex);
@@ -540,10 +545,23 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Items.getInventory(caller);
     };
 
+    public query func checkInventory(p : Principal) : async Result<Inventory, Text> {
+        _Items.getInventory(p);
+    };
+
     public shared ({ caller }) func get_accessories_holders() : async [(AccountIdentifier, Nat)] {
         _Monitor.collectMetrics();
         _Items.getHolders();
     };  
+
+    public query func get_materials(p : Principal, available : Bool) : async [(TokenIndex, Text)] {
+        let materials = _Items.getMaterials(p);
+        if(available){
+            return(Array.filter<(TokenIndex, Text)>(materials, func(x) {not _Entrepot.isLocked(x.0)}))
+        } else {
+            return(materials);
+        };
+    };
 
 
     //////////

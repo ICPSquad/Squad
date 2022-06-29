@@ -4,6 +4,7 @@ import Cycles     "mo:base/ExperimentalCycles";
 import Hash       "mo:base/Hash";
 import HashMap    "mo:base/HashMap";
 import Iter       "mo:base/Iter";
+import List      "mo:base/List";
 import Nat        "mo:base/Nat";
 import Nat64      "mo:base/Nat64";
 import Option     "mo:base/Option";
@@ -133,6 +134,8 @@ shared ({ caller = creator }) actor class Invoice(
   let invoices : HashMap.HashMap<Nat, Invoice> = HashMap.fromIter(Iter.fromArray(entries), entries.size(), Nat.equal, Hash.hash);
   entries := [];
   let MAX_INVOICES = 40_000;
+  // To periodically run checks on the received address and check their balance. To make sure we don't loose track of money.
+  var receivers : List.List<AccountIdentifier> = List.nil<AccountIdentifier>();
 // #endregion
 
 /**
@@ -171,6 +174,8 @@ shared ({ caller = creator }) actor class Invoice(
       };
       case (#ok result) {
         let destination : AccountIdentifier = result.accountIdentifier;
+        // Add address to the list of addresses to check.
+        receivers := List.push<AccountIdentifier>(destination, receivers);
         let invoice : Invoice = switch(category){
           case(#AvatarMint){
             {
@@ -293,6 +298,7 @@ shared ({ caller = creator }) actor class Invoice(
 
 // #region Get Invoice
   public shared query ({caller}) func get_invoice (args : T.GetInvoiceArgs) : async T.GetInvoiceResult {
+    assert(_Admins.isAdmin(caller));
     let invoice = invoices.get(args.id);
     switch invoice {
       case null {
@@ -302,34 +308,6 @@ shared ({ caller = creator }) actor class Invoice(
         });
       };
       case (?i) {
-        if (i.creator == caller) {
-          return #ok({invoice = i});
-        };
-        // If additional permissions are provided
-        switch (i.permissions) {
-          case (null) {
-            return #err({
-              message = ?"You do not have permission to view this invoice";
-              kind = #NotAuthorized;
-            });
-          };
-          case (?permissions) {
-            let hasPermission = Array.find<Principal>(
-              permissions.canGet,
-              func (x : Principal) : Bool {
-                return x == caller;
-              }
-            );
-            if (Option.isSome(hasPermission)) {
-              return #ok({invoice = i});
-            } else {
-              return #err({
-                message = ?"You do not have permission to view this invoice";
-                kind = #NotAuthorized;
-              });
-            };
-          };
-        };
         #ok({invoice = i});
       };
     };
@@ -590,6 +568,28 @@ public func accountIdentifierToBlob (accountIdentifier : AccountIdentifier) : as
     });
   };
 // #endregion
+
+// public func cron_payments() : async () {
+//   if(List.size(receivers) == 0) {
+//     return;
+//   };
+//   // Keep track of completed and failed jobs.
+//   var completed   : List.List<AccountIdentifier> = null;
+//   var failed      : List.List<AccountIdentifier> = null;
+
+//   let (account, remaining) = List.pop(receivers);
+//   receivers := remaining;
+//   label queue while(Option.isSome(account)) ignore do ? {
+//     switch(account){
+//       case(#)
+//     }
+//   };
+
+
+
+// };  
+
+
 
 // #region Upgrade Hooks
   system func preupgrade() {
