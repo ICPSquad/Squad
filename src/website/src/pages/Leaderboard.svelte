@@ -150,6 +150,8 @@
 
   .header-rank {
     grid-column: span 3;
+    font-size: large;
+    font-weight: bold;
   }
 
   .name {
@@ -177,6 +179,8 @@
   .points,
   .header-points {
     text-align: right;
+    font-size: large;
+    font-weight: bold;
   }
 
   .pagination {
@@ -187,6 +191,7 @@
     width: 100%;
     margin: 20px auto;
     display: flex;
+    flex-wrap: wrap;
     flex-direction: row;
     justify-content: center;
   }

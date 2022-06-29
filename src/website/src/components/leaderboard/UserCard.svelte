@@ -4,7 +4,6 @@
   export let rank: Number = 0;
   export let tokenIdentifier: TokenIdentifier = "";
 
-  $: console.log(tokenIdentifier);
   export let name: String | undefined;
   export let style_score: Number = 0;
   export let engagement_score: Number = 0;
@@ -84,14 +83,6 @@
 
   .pagination {
     margin-top: 20px;
-  }
-
-  .my-rank {
-    width: 100%;
-    margin: 20px auto;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
   }
 
   .details {
