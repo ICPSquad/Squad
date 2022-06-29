@@ -206,12 +206,15 @@
   .list-avatars {
     display: flex;
     flex-direction: row;
+
     justify-content: space-between;
     img {
       width: 200px;
       height: 200px;
+      margin: 20px 10px;
       border-radius: 10px;
-      margin: 20px 0;
+      cursor: pointer;
+      z-index: 10;
     }
   }
 
