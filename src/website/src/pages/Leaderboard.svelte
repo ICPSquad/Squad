@@ -15,6 +15,26 @@
   $: paginatedLeaderboard = leaderboard ? paginate({ items: leaderboard, pageSize, currentPage }) : [];
   let hub_actor = hubActor();
 
+  $: realRanks = createRealRanks(leaderboard);
+
+  function createRealRanks(leaderboard: Leaderboard): Number[] {
+    if (!leaderboard) return [];
+    console.log(leaderboard);
+    let realRank = [];
+    let rank = 1;
+    let lastScore = Number(leaderboard[0][5]);
+    for (let i = 0; i < leaderboard.length; i++) {
+      if (Number(leaderboard[i][5]) != lastScore) {
+        rank++;
+        realRank.push(rank);
+      } else {
+        realRank.push(rank);
+      }
+      lastScore = Number(leaderboard[i][5]);
+    }
+    return realRank;
+  }
+
   async function getLeaderboard() {
     let data = await hub_actor.get_leaderboard();
     if (data.length > 0) {
@@ -55,7 +75,7 @@
   {#if leaderboard}
     {#each paginatedLeaderboard as info, i}
       <UserCard
-        rank={(currentPage - 1) * 100 + (i + 1)}
+        rank={realRanks[i]}
         tokenIdentifier={info[2]}
         name={info[1].length > 0 ? info[1] : info[0].toText()}
         total_score={Number(info[5])}
