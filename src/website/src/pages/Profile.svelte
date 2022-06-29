@@ -58,6 +58,34 @@
     user.set({ ...userProfile });
   };
 
+  const handleDownload = async () => {
+    fetch(`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?&tokenid=${userProfile.avatarDefault}`).then((result) => {
+      result.blob().then((blob) => {
+        var image = new Image();
+        image.width = 800;
+        image.height = 800;
+        var url = window.URL.createObjectURL(blob);
+        var canvas = document.getElementById("c") as HTMLCanvasElement;
+        canvas.width = 800;
+        canvas.height = 800;
+        canvas.style.display = "none";
+        image.onload = function () {
+          canvas.getContext("2d").drawImage(image, 0, 0);
+          var uri = canvas.toDataURL("image/png").replace("image/png", "octet/stream");
+          var a = document.createElement("a");
+          a.style.display = "none";
+          document.body.appendChild(a);
+          a.href = uri;
+          a.download = "dSquad_avatar.png";
+          a.click();
+          window.URL.revokeObjectURL(uri);
+          document.body.removeChild(a);
+        };
+        image.src = url;
+      });
+    });
+  };
+
   onDestroy(() => {
     unsubcribe();
   });
@@ -79,6 +107,8 @@
       <LinkButton to="/add-accessory">
         <button class="secondary"> MINT & ADD ACCESSORIES </button>
       </LinkButton>
+      <button class="seconday" on:click={handleDownload}> Download </button>
+      <canvas id="c" />
     </div>
     <div class="user-details-col">
       <div class="field">
