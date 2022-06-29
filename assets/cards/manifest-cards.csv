@@ -10,7 +10,7 @@ Material,Cronic-essence
 Accessory,Assassin-cape,body,Cloth/Cloth/Wood/Wood/Wood/Wood/Wood/Wood/Glass/Metal/Metal/Metal/Metal/Metal/Metal
 Accessory,Astro-suit,body,Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Glass/Glass/Glass/Glass/Glass/Metal/Metal/Metal/Metal/Metal/Circuit/Circuit/Circuit/Circuit/Circuit/Dfinity-stone
 Accessory,Bootcamp-soldier,body,Null
-Accessory,Cronic-tshirt,body,Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Wood/Wood/Cronic-essence
+Accessory,Cronic-tshirt,body,Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Wood/Wood/Cronic-essence/Cronic-essence
 Accessory,Devil-jacket,body,Cloth/Cloth/Wood/Wood/Wood/Wood/Wood/Wood/Glass/Glass/Glass/Glass/Glass/Glass/Metal/Metal/Metal/Metal/Metal/Metal/Circuit/Circuit
 Accessory,Helicap-tshirt,body,Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Wood/Wood
 Accessory,Lab-coat,body,Cloth/Cloth/Cloth/Cloth/Wood/Wood/Wood/Wood/Wood/Wood/Wood/Wood/Glass/Glass/Metal/Circuit/Circuit
@@ -31,6 +31,7 @@ Accessory,Facemask,face,Cloth/Cloth/Wood/Wood/Wood/Wood/Wood/Wood/Wood/Wood/Wood
 Accessory,Gas-mask,face,Cloth/Cloth/Cloth/Wood/Wood/Wood/Wood/Wood/Wood/Glass/Glass/Glass/Glass/Glass/Glass/Metal/Metal/Circuit/Circuit/Circuit
 Accessory,Kitsune-mask,face,Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Wood/Wood/Wood/Wood/Wood/Wood/Glass/Glass/Glass/Metal/Metal/Metal/Circuit/Circuit/Circuit
 Accessory,Evil-mask,face,Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Wood/Wood/Wood/Wood/Wood/Glass/Glass/Glass/Glass/Glass/Metal/Metal/Metal/Metal/Metal/Metal/Circuit/Circuit/Circuit/Circuit/Dfinity-stone
+Accessory,Punk-mask,face,Cloth/Cloth/Cloth/Cloth/Metal/Metal/Metal/Metal/Punk-essence/Punk-essence/Punk-essence
 Accessory,Assassin-hood,hat,Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Wood/Wood/Wood/Glass/Metal/Metal/Metal
 Accessory,Astro-helmet,hat,Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Cloth/Wood/Wood/Wood/Wood/Wood/Glass/Glass/Glass/Metal/Metal/Metal/Circuit/Circuit/Circuit/Dfinity-stone
 Accessory,Helicap,hat,Cloth/Cloth/Cloth/Cloth/Wood/Wood/Wood/Wood/Metal/Circuit

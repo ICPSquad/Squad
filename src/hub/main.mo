@@ -566,7 +566,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         switch(await cron_events()){
             case(#err(e)){
                 _Logs.logMessage("CRON :: ERR :: Error while querying events : " # e);
-                return #err(e);
+                return #err(e);“
             };
             case(#ok(nb)) {
                 _Logs.logMessage("CRON :: " # "recorded " # Nat.toText(nb) # " events.");

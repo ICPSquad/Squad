@@ -81,6 +81,12 @@ export const components = [
   {
     category: "avatar",
     type: "mouth",
+    name: "punk-confident-mouth",
+    layers: [45],
+  },
+  {
+    category: "avatar",
+    type: "mouth",
     name: "punk-crying-mouth",
     layers: [45],
   },
