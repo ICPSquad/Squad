@@ -1,4 +1,4 @@
-<style>
+ <style>
     .Punk-body .Punk-crying-eyes {
       clip-path: url(#Punk-head_svg__a);
     }
@@ -140,14 +140,14 @@
       transform: scale(0.9) translate(43px, 150px);
     }
 
-    .Business-body .Magic-cap-21 {
+    .Business-body .Magic-cape-21 {
       transform: scale(1.2) translate(-65px, -185px);
     }
-    .Business-body .Magic-cap-84 {
+    .Business-body .Magic-cape-84 {
       transform: translate(0px, -20px);
     }
 
-    .Miss-body .Magic-cap-21 {
+    .Miss-body .Magic-cape-21 {
       transform: scale(1.1) translate(-35.5px, -35px);
     }
 
@@ -186,37 +186,37 @@
       transform: scale(1.05) translate(-18px, -10px);
     }
 
-    .Magic-cap-9,
-    .Magic-cap-85 {
+    .Magic-cape-9,
+    .Magic-cape-85 {
       visibility: hidden;
     }
 
-    .Miss-body .Magic-cap-22 {
+    .Miss-body .Magic-cape-22 {
       transform: scale(0.82) translate(90px, 254px);
     }
 
-    .Miss-body .Magic-cap-85,
-    .Punk-body .Magic-cap-85 {
+    .Miss-body .Magic-cape-85,
+    .Punk-body .Magic-cape-85 {
       transform: translate(0px, 30px);
     }
 
-    .Punk-body .Magic-cap-22 {
+    .Punk-body .Magic-cape-22 {
       transform: scale(0.92) translate(35px, 160px);
     }
 
-    .Business-body .Assassin-cap-21 {
+    .Business-body .Assassin-cape-21 {
       transform: translate(0, -10px);
     }
 
-    .Punk-body .Assassin-cap-21,
-    .Punk-body .Assassin-cap-23,
-    .Punk-body .Assassin-cap-86 {
+    .Punk-body .Assassin-cape-21,
+    .Punk-body .Assassin-cape-23,
+    .Punk-body .Assassin-cape-86 {
       transform: scale(0.85) translate(70px, 150px);
     }
 
-    .Miss-body .Assassin-cap-21,
-    .Miss-body .Assassin-cap-23,
-    .Miss-body .Assassin-cap-86 {
+    .Miss-body .Assassin-cape-21,
+    .Miss-body .Assassin-cape-23,
+    .Miss-body .Assassin-cape-86 {
       transform: scale(0.73) translate(150px, 320px);
     }
 
@@ -244,7 +244,23 @@
     .Magic-hood-85 {
       transform: translate(0px, -15px);
     }
+
     .Miss-body .Lab-glasses-76 {
       transform: translate(0px, 30px);
+    }
+
+    .Business-body .Astro-suit-85,
+    .Business-body .Astro-suit-8 {
+      transform: translate(0px, -12px);
+    }
+
+    .Miss-body .Astro-suit-85,
+    .Miss-body .Astro-suit-8 {
+      transform: scale(0.82) translate(85px, 180px);
+    }
+
+    .Punk-body .Astro-suit-85,
+    .Punk-body .Astro-suit-8 {
+      transform: scale(0.9) translate(50px, 100px);
     }
   </style>

@@ -288,6 +288,21 @@
     .Miss-body .Lab-glasses-76 {
       transform: translate(0px, 30px);
     }
+
+    .Business-body .Astro-suit-85,
+    .Business-body .Astro-suit-8 {
+      transform: translate(0px, -12px);
+    }
+
+    .Miss-body .Astro-suit-85,
+    .Miss-body .Astro-suit-8 {
+      transform: scale(0.82) translate(85px, 180px);
+    }
+
+    .Punk-body .Astro-suit-85,
+    .Punk-body .Astro-suit-8 {
+      transform: scale(0.9) translate(50px, 100px);
+    }
   </style>
   {#if avatarComponents.body}
     <style>
