@@ -431,7 +431,7 @@ export const components = [
     category: "accessory",
     type: "body",
     name: "astro-suit",
-    layers: [85],
+    layers: [8, 85],
   },
   {
     category: "accessory",
