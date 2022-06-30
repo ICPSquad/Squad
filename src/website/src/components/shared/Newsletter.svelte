@@ -27,15 +27,6 @@
       <input type="submit" value="Subscribe" name="subscribe" class="button" />
     </form>
   </div>
-
-  <div class="social-icons">
-    <a class="discord" href="https://discord.gg/9DjDzf38WR" target="_blank">
-      <Discord width={40} />
-    </a>
-    <a href="https://twitter.com/ICPSquadNFT" target="_blank">
-      <Twitter width={40} />
-    </a>
-  </div>
 </section>
 <Toast />
 

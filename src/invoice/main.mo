@@ -25,6 +25,7 @@ shared ({ caller = creator }) actor class Invoice(
   ledger_cid : Principal, 
   avatar_cid : Principal,
   accessory_cid : Principal,
+  hub_cid : Principal,
   override_fee_avatar_e8s : ?Nat,
   override_fee_accessory_e8s : ?Nat
 ) = this {
@@ -134,8 +135,9 @@ shared ({ caller = creator }) actor class Invoice(
   let invoices : HashMap.HashMap<Nat, Invoice> = HashMap.fromIter(Iter.fromArray(entries), entries.size(), Nat.equal, Hash.hash);
   entries := [];
   let MAX_INVOICES = 40_000;
-  // To periodically run checks on the received address and check their balance. To make sure we don't loose track of money.
-  var receivers : List.List<AccountIdentifier> = List.nil<AccountIdentifier>();
+  // To make sure we don't loose track of money. 
+  stable var invoices_to_check : List.List<(Principal, Nat)> = List.nil<(Principal, Nat)>();
+  stable var invoices_to_transfer : List.List<(Principal, Nat, Nat)> = List.nil<(Principal, Nat, Nat)>();
 // #endregion
 
 /**
@@ -175,7 +177,7 @@ shared ({ caller = creator }) actor class Invoice(
       case (#ok result) {
         let destination : AccountIdentifier = result.accountIdentifier;
         // Add address to the list of addresses to check.
-        receivers := List.push<AccountIdentifier>(destination, receivers);
+        invoices_to_check := List.push<(Principal, Nat)>((caller, id), invoices_to_check);
         let invoice : Invoice = switch(category){
           case(#AvatarMint){
             {
@@ -569,25 +571,117 @@ public func accountIdentifierToBlob (accountIdentifier : AccountIdentifier) : as
   };
 // #endregion
 
-// public func cron_payments() : async () {
-//   if(List.size(receivers) == 0) {
-//     return;
-//   };
-//   // Keep track of completed and failed jobs.
-//   var completed   : List.List<AccountIdentifier> = null;
-//   var failed      : List.List<AccountIdentifier> = null;
+public shared ({ caller }) func cron_balance() : async () {
+  assert(caller == hub_cid or _Admins.isAdmin(caller));
+  if(List.size(invoices_to_check) == 0) {
+    return;
+  };
+  // Keep track of completed and failed jobs.
+  var empty   : List.List<(Principal, Nat)> = null;
+  var completed : List.List<(Principal, Nat, Nat)> = null;
+  var failed      : List.List<(Principal, Nat)> = null;
 
-//   let (account, remaining) = List.pop(receivers);
-//   receivers := remaining;
-//   label queue while(Option.isSome(account)) ignore do ? {
-//     switch(account){
-//       case(#)
-//     }
-//   };
+  let (tmp, remaining) = List.pop(invoices_to_check);
+  var info = tmp;
+  invoices_to_check := remaining;
+  label queue while(Option.isSome(info)) ignore do ? {
+    let account = U.getICPAccountIdentifier({ principal = Principal.fromActor(this); subaccount = U.generateInvoiceSubaccount({ caller = info!.0; id = info!.1; });});
+    let accountIdentifier : Text = Hex.encode(Blob.toArray(account));
+    try {
+      switch(await _Ledger.balance({ account = accountIdentifier })){
+        case(#ok(success)){
+          if(success.balance == 0){
+            empty := List.push<(Principal, Nat)>((info!.0, info!.1), empty);
+          } else {
+            _Logs.logMessage("INVOICE :: VERIF :: Account is not empty for invoice : " # Nat.toText(info!.1));
+            completed := List.push<(Principal, Nat, Nat)>((info!.0, info!.1, success.balance), completed);
+          };
+        };
+        case(#err(e)) switch(e.kind){
+          case(#InvalidToken){
+            _Logs.logMessage("INVOICE :: VERIF :: Invalid token for invoice : " # Nat.toText(info!.1));
+            failed := List.push<(Principal, Nat)>((info!.0, info!.1), failed);
+          };
+          case(#InvalidAccount){
+            _Logs.logMessage("INVOICE :: VERIF :: Invalid account for invoice : " # Nat.toText(info!.1));
+            failed := List.push<(Principal, Nat)>((info!.0, info!.1), failed);
+          };
+          case(#NotFound){
+            _Logs.logMessage("INVOICE :: VERIF :: Account not found for invoice : " # Nat.toText(info!.1));
+            failed := List.push<(Principal, Nat)>((info!.0, info!.1), failed);
+          };
+          case(_) {
+            _Logs.logMessage("INVOICE :: VERIF :: Unknown error for invoice : " # Nat.toText(info!.1));
+            failed := List.push<(Principal, Nat)>((info!.0, info!.1), failed);
+          };
+        };
+      };
+    } catch e {
+      _Logs.logMessage("INVOICE :: VERIF :: Error when calling the ledger canister : " # Nat.toText(info!.1));
+      failed := List.push<(Principal, Nat)>((info!.0, info!.1), failed);
+    };
+    let (tmp, remaining) = List.pop(invoices_to_check);
+    info := tmp;
+    invoices_to_check := remaining;
+  };
+  // Put the failed check back in the queue and the non 0 balance into invoices_to_transfer.
+  invoices_to_check := failed;
+  invoices_to_transfer := completed;
+};
 
+  public shared ({ caller }) func cron_transfer() : async () {
+    assert(caller == hub_cid or _Admins.isAdmin(caller));
+    if(List.size(invoices_to_transfer) == 0) {
+      return;
+    };
+    // Keep track of completed and failed jobs.
+    var completed : List.List<(Principal, Nat, Nat)> = null;
+    var failed      : List.List<(Principal, Nat, Nat)> = null;
 
-
-// };  
+    let (tmp, remaining) = List.pop(invoices_to_transfer);
+    var info = tmp;
+    invoices_to_transfer := remaining;
+    label queue while(Option.isSome(info)) ignore do ? {
+      let subaccount = U.generateInvoiceSubaccount({
+          caller = info!.0;
+          id = info!.1;
+      });
+      try {
+        switch(await _Ledger.transfer({
+          memo = 0;
+          fee = {
+            e8s = 10000;
+          };
+          amount = {
+            // Total amount, minus the fee
+            e8s = Nat64.sub(Nat64.fromNat(info!.2), 10000);
+          };
+          from_subaccount = ?subaccount;
+          to = U.getDefaultAccount({
+              canisterId = Principal.fromActor(this);
+              // Hardcoded to easily check the balance and transfer funds (on a weekly basic)
+              principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae");
+          });
+          created_at_time = null;
+        })){
+          case(#ok(_)){
+            completed := List.push<(Principal, Nat, Nat)>((info!.0, info!.1, info!.2), completed);
+          };
+          case(#err(e)){
+            failed := List.push<(Principal, Nat, Nat)>((info!.0, info!.1, info!.2), failed);
+          };
+        }
+      } catch e {
+        _Logs.logMessage("INVOICE :: VERIF :: Error when calling the ledger canister : " # Nat.toText(info!.1));
+        failed := List.push<(Principal, Nat, Nat)>((info!.0, info!.1, info!.2), failed);
+      };
+      let (tmp, remaining) = List.pop(invoices_to_transfer);
+      info := tmp;
+      invoices_to_transfer := remaining;
+    };
+    // Put the failed check back in the queue.
+    invoices_to_transfer := failed;
+  };
 
 
 
