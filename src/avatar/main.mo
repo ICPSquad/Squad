@@ -640,6 +640,47 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Avatar;
     });
 
+    public shared ({ caller }) func create_profile(
+        username : ?Text,
+        email : ?Text,
+        discord : ?Text,
+        twitter : ?Text,
+        default_avatar : TokenIdentifier,
+    ) : async Result<(), Text> {
+        _Monitor.collectMetrics();
+        let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+        let request = {
+            user = #address(account);
+            token = default_avatar;
+        };
+        // Verify that the caller has not already a registered profile
+        switch(_Users.getUser(caller)){
+            case(null){};
+            case(? some){
+                return #err("Caller : " # Principal.toText(caller) # " already has a profile");
+            };
+        };
+        // Verify that the caller is the owner of the avatar
+        switch(_Ext.balance(request)){
+            case(#err(e)){
+                 return #err("Error trying to access EXT balance : " # default_avatar);
+            };
+            case(#ok(n)){
+                switch(n){
+                    case(0){
+                        return #err("Caller :  " #Principal.toText(caller) # " doesn't own : " # default_avatar);
+                    };
+                    case(1){};
+                    case _ {
+                        return #err("Unexpected value for balance : " # Nat.toText(n));
+                    }
+                };
+            };
+        };
+        // Create the profile
+        _Users.createUser(caller, username, email, discord, twitter, default_avatar);
+    };
+
     /* Get the user profile of the caller */
     public shared query ({ caller }) func get_user() : async ?UserData {
         _Users.getUser(caller);

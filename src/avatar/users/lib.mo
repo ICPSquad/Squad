@@ -130,6 +130,37 @@ module {
             _users.get(caller);
         };
 
+        public func createUser(
+            caller : Principal,
+            username : ?Text,
+            email : ?Text,
+            discord : ?Text,
+            twitter : ?Text,
+            default_avatar : TokenIdentifier
+        ) : Result<(), Text> {
+            switch(_users.get(caller)){
+                case(null) {
+                    let new_user = {
+                        name = username;
+                        email = email;
+                        discord = discord;
+                        twitter = twitter;
+                        rank = ?Nat64.fromNat(_users.size());
+                        height = null;
+                        minted = true;
+                        account_identifier = ?Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+                        invoice_id = null;
+                        selected_avatar = ?default_avatar;
+                    };
+                    _users.put(caller, new_user);
+                    return #ok;
+                };
+                case(? user){
+                    return #err("User is already registered : " #Principal.toText(caller));
+                };
+            };
+        };
+
         public func getDefaultAvatar(
             caller : Principal
         ) : ?TokenIdentifier {
