@@ -35,6 +35,11 @@ actors.subscribe(async ({ avatarActor }) => {
         if (avatars.length > 0) {
           user.update((u) => ({ ...u, avatars: avatars as string[] }));
         }
+        if (infos.length == 0 && avatars.length > 0) {
+          const selected_avatar = avatars[0];
+          //@ts-ignore
+          user.update((u) => ({ ...u, loggedIn: true, avatarDefault: selected_avatar }));
+        }
       })
       .catch((err) => {
         console.error(err);
