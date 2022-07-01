@@ -408,9 +408,45 @@ public shared ({ caller }) func verify_invoice_avatar(args : T.VerifyInvoiceArgs
       switch(invoice.token.symbol){
         case ("ICP"){
           switch (await _Ledger.verifyInvoice({ invoice ; caller; canisterId })){
-            case(#err(_)) {
-              _Logs.logMessage("INVOICE :: ERR :: Issue when calling the ledger canister : " # Nat.toText(invoice.id));
-              return #err({ message = ?"Issue when calling the ledger canister"; kind = #Other});
+            case(#err(e)) {
+              switch(e.kind){
+                case(#InvalidInvoiceId){
+                  _Logs.logMessage("INVOICE :: ERR :: Invalid invoice id : " # Nat.toText(invoice.id));
+                  return #err({ message = ?"Invalid invoice id"; kind = #InvalidInvoiceId });
+                };
+                case(#NotFound){
+                  _Logs.logMessage("INVOICE :: ERR :: Invoice not found : " # Nat.toText(invoice.id));
+                  return #err({ message = ?"Invoice not found"; kind = #NotFound });
+                };
+                case(#NotYetPaid){
+                  _Logs.logMessage("INVOICE :: ERR :: Not yet paid : " # Nat.toText(invoice.id));
+                  return #err({ message = ?"Invoice not yet paid"; kind = #NotYetPaid });
+                };
+                case(#NotAuthorized){
+                  _Logs.logMessage("INVOICE :: ERR :: Not authorized : " # Nat.toText(invoice.id));
+                  return #err({ message = ?"You do not have permission to verify this invoice"; kind = #NotAuthorized });
+                };
+                case(#Expired){
+                  _Logs.logMessage("INVOICE :: ERR :: Expired : " # Nat.toText(invoice.id));
+                  return #err({ message = ?"Invoice expired"; kind = #Expired });
+                };
+                case(#TransferError){
+                  _Logs.logMessage("INVOICE :: ERR :: Transfer error : " # Nat.toText(invoice.id));
+                  return #err({ message = ?"Transfer error"; kind = #TransferError });
+                };
+                case(#InvalidToken){
+                  _Logs.logMessage("INVOICE :: ERR :: Invalid token : " # Nat.toText(invoice.id));
+                  return #err({ message = ?"Invalid token"; kind = #InvalidToken });
+                };
+                case(#InvalidAccount){
+                  _Logs.logMessage("INVOICE :: ERR :: Invalid account : " # Nat.toText(invoice.id));
+                  return #err({ message = ?"Invalid account"; kind = #InvalidAccount });
+                };
+                case(#Other){
+                  _Logs.logMessage("INVOICE :: ERR :: Other : " # Nat.toText(invoice.id));
+                  return #err({ message = ?"Other"; kind = #Other });
+                };
+              };
             };
             case(#ok (value)){
               switch(value) {
