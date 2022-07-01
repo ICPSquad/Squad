@@ -814,6 +814,15 @@ public shared ({ caller }) func cron_balance() : async () {
 // #region Upgrade Hooks
   system func preupgrade() {
     entries := Iter.toArray(invoices.entries());
+    _LogsUD := ? _Logs.preupgrade();
+    _AdminsUD := ? _Admins.preupgrade();
+  };
+
+  system func postupgrade(){
+    _Logs.postupgrade(_LogsUD);
+    _LogsUD := null;
+    _Admins.postupgrade(_AdminsUD);
+    _AdminsUD := null;
   };
 // #endregion
 
