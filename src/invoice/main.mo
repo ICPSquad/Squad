@@ -273,7 +273,7 @@ shared ({ caller = creator }) actor class Invoice(
   };
 
 // #region Get Destination Account Identifier
-  func getDestinationAccountIdentifier (args : T.GetDestinationAccountIdentifierArgs) : T.GetDestinationAccountIdentifierResult {
+func getDestinationAccountIdentifier (args : T.GetDestinationAccountIdentifierArgs) : T.GetDestinationAccountIdentifierResult {
     let token = args.token;
     switch (token.symbol) {
       case "ICP" {
@@ -296,6 +296,29 @@ shared ({ caller = creator }) actor class Invoice(
     };
   };
 // #endregion
+// #region Get Destination Account Identifier (public)
+public func getDestinationAccountIdentifierPublic (args : T.GetDestinationAccountIdentifierArgs) : async T.GetDestinationAccountIdentifierResult {
+    let token = args.token;
+    switch (token.symbol) {
+      case "ICP" {
+        let canisterId = Principal.fromActor(this);
+
+        let account = U.getICPAccountIdentifier({
+          principal = canisterId;
+          subaccount = U.generateInvoiceSubaccount({
+            caller = args.caller;
+            id = args.invoiceId;
+          });
+        });
+        let hexEncoded = Hex.encode(Blob.toArray(account));
+        let result : AccountIdentifier = #text(hexEncoded);
+        #ok({accountIdentifier = result});
+      };
+      case _ {
+        errInvalidToken;
+      };
+    };
+  };
 // #endregion
 
 // #region Get Invoice
@@ -536,6 +559,71 @@ public shared ({ caller }) func verify_invoice_accessory(args : T.VerifyInvoiceA
   };
 // #endregion
 
+public shared ({ caller }) func transfer_back_invoice(invoiceId : Nat) : async (){
+  assert(_Admins.isAdmin(caller));
+  switch(invoices.get(invoiceId)){
+    case(null){
+      return;
+    };
+    case(? invoice){
+      let destinationResult : T.GetDestinationAccountIdentifierResult = getDestinationAccountIdentifier({
+        token = { symbol = "ICP" };
+        invoiceId;
+        caller = invoice.creator;
+      });
+      switch(destinationResult){
+        case(#ok result){
+          let destination : AccountIdentifier = result.accountIdentifier;
+          let account = U.accountIdentifierToText({
+            accountIdentifier = destination;
+            canisterId = ?Principal.fromActor(this);
+          });
+          switch(account){
+            case(#err(e)){
+              return;
+            };
+            case(#ok(result)){
+            switch(await _Ledger.balance({ account = result })){
+              case(#ok(success)){
+                if(success.balance > 0){
+                  let subaccount = U.generateInvoiceSubaccount({
+                    caller = invoice.creator;
+                    id = invoiceId;
+                  });
+                  switch(await _Ledger.transfer({ memo = 0;
+                    fee = {
+                      e8s = 10000;
+                    };
+                    amount = {
+                      // Total amount, minus the fee
+                      e8s = Nat64.sub(Nat64.fromNat(invoice.amount), 10000);
+                    };
+                    from_subaccount = ?subaccount;
+                    to = U.getDefaultAccount({
+                      canisterId = Principal.fromActor(this);
+                      // Hardcoded to easily check the balance and transfer funds (on a weekly basic)
+                      principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae");
+                    });
+                    created_at_time = null;
+                  })){
+                    case(#ok(_)){
+                      return;
+                    };
+                    case(#err(_)){
+                      return;
+                    };
+                  }
+                };
+              };
+          };
+            };
+          };
+        };
+      };
+    };
+  };
+};
+
 // #region get_account_identifier
   /*
     * Get Caller Identifier
@@ -627,6 +715,7 @@ public shared ({ caller }) func cron_balance() : async () {
   // Put the failed check back in the queue and the non 0 balance into invoices_to_transfer.
   invoices_to_check := failed;
   invoices_to_transfer := completed;
+  _Logs.logMessage("CRON :: INVOICE :: VERIF :: BALANCE :: " # "Non 0 : " # Nat.toText(List.size(completed)) # "Failed : " # Nat.toText(List.size(failed)) # "Empty : " # Nat.toText(List.size(empty)));
 };
 
   public shared ({ caller }) func cron_transfer() : async () {
@@ -681,6 +770,7 @@ public shared ({ caller }) func cron_balance() : async () {
     };
     // Put the failed check back in the queue.
     invoices_to_transfer := failed;
+    _Logs.logMessage("CRON :: INVOICE :: VERIF :: TRANSFER :: " # "Completed : " # Nat.toText(List.size(completed)) # "Failed : " # Nat.toText(List.size(failed)));
   };
 
 
