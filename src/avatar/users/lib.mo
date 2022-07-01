@@ -196,7 +196,29 @@ module {
             caller : Principal
         ) : Result<(), Text> {
             switch(_users.get(caller)){
-                case(null) return #err("No user profile detected for : " # Principal.toText(caller));
+                case(null) {
+                    switch(_verifyDefaultAvatar(default_avatar, caller)){
+                        case(#err(e)){
+                            return #err(e);
+                        };
+                        case(#ok()){};
+                    };
+                    let new_user = {
+                        name = name;
+                        email = email;
+                        discord = discord;
+                        twitter = twitter;
+                        rank = ?Nat64.fromNat(_users.size());
+                        height = null;
+                        minted = true;
+                        account_identifier = ?Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+                        invoice_id = null;
+                        selected_avatar = ?default_avatar;
+                    };
+                    _users.put(caller, new_user);
+                    return #ok;
+
+                };
                 case(? user) {
                     switch(_verifyDefaultAvatar(default_avatar, caller)){
                         case(#err(e)){

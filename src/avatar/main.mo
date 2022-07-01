@@ -447,7 +447,16 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     public shared query ({ caller }) func get_avatar_infos() : async (?TokenIdentifier, ?AvatarRendering) {
         switch(_Users.getDefaultAvatar(caller)){
             case(null){
-                return(null, null);
+                let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+                switch(_Ext.defaultToken(account)){
+                    case(null){
+                        return (null, null);
+                    };  
+                    case(? tokenIdentifier){
+                        let rendering = _Avatar.getAvatarRendering(tokenIdentifier);
+                        return (?tokenIdentifier, rendering);
+                    };
+                };
             };
             case(? tokenId){
                 let avatar_rendering = _Avatar.getAvatarRendering(tokenId);
@@ -640,6 +649,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Avatar;
     });
 
+    /* 
+        Create a profile for the user in case it doesn't exist.
+        Should only be used by people who bought their avatar on the market or transfered it to another wallet.
+     */
     public shared ({ caller }) func create_profile(
         username : ?Text,
         email : ?Text,

@@ -15,8 +15,6 @@ actors.subscribe(async ({ avatarActor }) => {
     if (result[0].length > 0 && result[1].length > 0) {
       //@ts-ignore
       avatar.update((a) => ({ ...a, rendering: result[1][0], tokenIdentifier: result[0][0] }));
-    } else {
-      throw new Error("No avatar found");
     }
   }
 });
