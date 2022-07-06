@@ -37,7 +37,6 @@
   };
 
   const handlePayment = async () => {
-    console.log("handlinPayment");
     setState("waiting-payment-processing");
     if (!invoice) {
       throw new Error("Invoice is not defined");
@@ -48,7 +47,6 @@
     }
     try {
       const result = await payInvoice(invoice, Wallet);
-      console.log("Payment result", result);
       if (result.height > 0) {
         setState("waiting-mint");
       } else {

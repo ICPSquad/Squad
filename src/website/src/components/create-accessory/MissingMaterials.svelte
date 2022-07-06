@@ -6,7 +6,6 @@
   $: missingObject = missingArrayToObject(missing_materials);
 
   function missingArrayToObject(missing: string[]): any {
-    console.log("missing", missing);
     let missingObject = {};
     missing.forEach((ingredient) => {
       missingObject[ingredient] = missingObject[ingredient] ? missingObject[ingredient] + 1 : 1;

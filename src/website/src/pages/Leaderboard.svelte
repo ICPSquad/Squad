@@ -19,7 +19,6 @@
 
   function createRealRanks(leaderboard: Leaderboard): Number[] {
     if (!leaderboard) return [];
-    console.log(leaderboard);
     let realRank = [];
     let rank = 1;
     let lastScore = Number(leaderboard[0][5]);
@@ -83,7 +82,7 @@
         engagement_score={Number(info[4])}
       />
     {/each}
-    <DarkPaginationNav class="pagination" totalItems={leaderboard.length} {pageSize} {currentPage} limit={1} showStepOptions={true} on:setPage={(e) => (currentPage = e.detail.page)} />
+    <DarkPaginationNav totalItems={leaderboard.length} {pageSize} {currentPage} limit={1} showStepOptions={true} on:setPage={(e) => (currentPage = e.detail.page)} />
   {/if}
 </div>
 <Footer />

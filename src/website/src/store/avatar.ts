@@ -12,7 +12,6 @@ actors.subscribe(async ({ avatarActor }) => {
   const { principal: principal } = get(user);
   if (avatarActor && principal) {
     const result = await avatarActor.get_avatar_infos();
-    console.log("Get avatar infos", result);
     if (result[0].length > 0 && result[1].length > 0) {
       //@ts-ignore
       avatar.update((a) => ({ ...a, rendering: result[1][0], tokenIdentifier: result[0][0] }));
