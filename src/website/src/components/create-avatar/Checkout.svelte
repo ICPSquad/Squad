@@ -37,6 +37,7 @@
   };
 
   const handlePayment = async () => {
+    console.log("handlinPayment");
     setState("waiting-payment-processing");
     if (!invoice) {
       throw new Error("Invoice is not defined");
@@ -47,6 +48,7 @@
     }
     try {
       const result = await payInvoice(invoice, Wallet);
+      console.log("Payment result", result);
       if (result.height > 0) {
         setState("waiting-mint");
       } else {
@@ -54,6 +56,7 @@
         error_message = "Payment failed";
       }
     } catch (error) {
+      console.error(error);
       setState("error");
       error_message = "Payment was rejected.";
     }
@@ -122,9 +125,6 @@
       ><button> Share </button>
     </a>
     <button on:click={() => handleDownload()}> Download </button>
-    <LinkButton to="/profile">
-      <button> View Profile </button>
-    </LinkButton>
   {:else if state === "error"}
     <p>An errorr occured 😵‍💫</p>
     <p>{error_message}</p>

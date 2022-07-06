@@ -2,8 +2,9 @@ import type { AccountIdentifier, Invoice__1 as Invoice } from "@canisters/invoic
 import type { Wallet } from "@src/types/wallet";
 import { StoicIdentity } from "ic-stoic-identity";
 import { ledgerActor } from "@src/api/actor";
-import type { Identity } from "@dfinity/agent";
+import type { _SERVICE as Ledger } from "@canisters/ledger/ledger.did.d";
 import type { TransferArgs, TransferResult } from "@canisters/ledger/ledger.did.d";
+import type { ActorSubclass } from "@dfinity/agent";
 
 export async function payInvoice(invoice: Invoice, wallet: Wallet): Promise<{ height: number }> {
   const { paid, expiration } = invoice;
@@ -45,20 +46,6 @@ async function pay_plug(
 }
 
 async function pay_stoic(address: string, amount: number): Promise<{ height: number }> {
-  let identity: Identity;
-  try {
-    StoicIdentity.load().then(async (object) => {
-      if (object) {
-        identity = object;
-      } else {
-        identity = await StoicIdentity.create();
-      }
-    });
-  } catch (e) {
-    throw new Error("Failed to load identity using Stoic");
-  }
-
-  const ledger = ledgerActor(identity);
   const agrs: TransferArgs = {
     to: Array.from(new Uint8Array(Buffer.from(address, "hex"))),
     amount: { e8s: BigInt(amount) },
@@ -67,17 +54,21 @@ async function pay_stoic(address: string, amount: number): Promise<{ height: num
     from_subaccount: [],
     created_at_time: [],
   };
-  try {
+  let height: number;
+  let identity = await StoicIdentity.load();
+  if (identity !== false) {
+    let ledger = ledgerActor(identity);
     const result: TransferResult = await ledger.transfer(agrs);
-    if (result.hasOwnProperty("Ok")) {
-      return {
-        //@ts-ignore
-        height: result.Ok.toNumber(),
-      };
-    } else {
-      throw new Error("Transfer failed");
+    if ("Ok" in result) {
+      height = Number(result.Ok);
     }
-  } catch {
-    throw new Error("Transfer failed");
+  } else {
+    identity = await StoicIdentity.connect();
+    let ledger = ledgerActor(identity);
+    const result: TransferResult = await ledger.transfer(agrs);
+    if ("Ok" in result) {
+      height = Number(result.Ok);
+    }
   }
+  return { height: height };
 }
