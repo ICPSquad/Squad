@@ -51,6 +51,11 @@ let additions = [
     , repo = "https://github.com/aviate-labs/rand.mo"
     , version = "v0.2.2"
     , dependencies = ["base", "encoding", "io"]
+    },
+    { name = "modsdk"
+    , repo = "https://github.com/modclub-app/sdk"
+    , version = "0.1.1"
+    , dependencies = ["base"] : List Text
     }
     ] : List Package
 in upstream # additions
