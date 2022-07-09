@@ -629,6 +629,25 @@ module {
             };
         };
 
+        public func getAvatarEquipped(tokenId : TokenIdentifier) : ?TokenIdentifier {
+            let index = switch(Ext.TokenIdentifier.decode(tokenId)){
+                case(#ok(p, index)){
+                    index
+                };
+                case(#err(e)){
+                    return null;
+                };
+            };
+            switch(_items.get(index)){
+                case(? #Accessory(item)){
+                    return item.equipped;
+                };
+                case(_) {
+                    return null;
+                };
+            };
+        };
+
 
         ////////////////
         // HELPERS /////

@@ -19,12 +19,31 @@
   $: style_score = my_index > -1 ? Number(leaderboard[my_index][3]) : 0;
   $: engagement_score = my_index > -1 ? Number(leaderboard[my_index][4]) : 0;
 
+  $: realRanks = createRealRanks(leaderboard);
+
+  function createRealRanks(leaderboard: Leaderboard): Number[] {
+    if (!leaderboard) return [];
+    let realRank = [];
+    let rank = 1;
+    let lastScore = Number(leaderboard[0][5]);
+    for (let i = 0; i < leaderboard.length; i++) {
+      if (Number(leaderboard[i][5]) != lastScore) {
+        rank++;
+        realRank.push(rank);
+      } else {
+        realRank.push(rank);
+      }
+      lastScore = Number(leaderboard[i][5]);
+    }
+    return realRank;
+  }
+
   let open: Boolean = false;
 </script>
 
 {#if $user.loggedIn && my_index > -1}
   <div class="grid-row">
-    <div class="rank">{my_index + 1}</div>
+    <div class="rank">{realRanks[my_index]}</div>
     <div class="avatar">
       <a href={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?type=thumbnail&tokenid=${leaderboard[my_index][2]}`} target="_blank">
         <img src={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/tokenid=${leaderboard[my_index][2]}`} alt="Avatar" />

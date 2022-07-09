@@ -506,6 +506,13 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Items.getName(index);
     };
 
+    /* 
+        Returns the optional avatar on which the provided accessory is equipped.
+    */
+    public query func get_avatar_equipped(tokenId : TokenIdentifier) : async ?TokenIdentifier {
+        _Items.getAvatarEquipped(tokenId);
+    };
+
 
     public shared ({ caller }) func confirmed_burned_accessory(
         index : TokenIndex
@@ -516,7 +523,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     };
 
     public shared ({ caller }) func update_accessories() : async () {
-        assert(_Admins.isAdmin(caller));
+        assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
         let (burned, decreased, not_found ) = _Items.updateAll();
         // Report all burned accessories to CAP
@@ -548,6 +555,8 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     public query func checkInventory(p : Principal) : async Result<Inventory, Text> {
         _Items.getInventory(p);
     };
+
+    let DAY_NANO_RAW = 86400000000 * 1000;
 
     public shared ({ caller }) func get_accessories_holders() : async [(AccountIdentifier, Nat)] {
         _Monitor.collectMetrics();
