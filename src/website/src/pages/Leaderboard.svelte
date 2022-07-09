@@ -52,15 +52,15 @@
 <div class="container skinny">
   <div class="stats-container">
     <div>
-      <div class="stat">20 June 22</div>
+      <div class="stat">9 July 22</div>
       <div class="label">START DATE</div>
     </div>
     <div>
-      <div class="stat">30 July 22</div>
+      <div class="stat">31 July 22</div>
       <div class="label">END DATE</div>
     </div>
     <div>
-      <div class="stat">86 ICP</div>
+      <div class="stat">5000 ICP</div>
       <div class="label">ESTIMATED REWARDS</div>
     </div>
   </div>
