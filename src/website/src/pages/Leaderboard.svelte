@@ -74,7 +74,7 @@
   {#if leaderboard}
     {#each paginatedLeaderboard as info, i}
       <UserCard
-        rank={realRanks[i]}
+        rank={realRanks[pageSize * (currentPage - 1) + i]}
         tokenIdentifier={info[2]}
         name={info[1].length > 0 ? info[1] : info[0].toText()}
         total_score={Number(info[5])}
