@@ -321,7 +321,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
                 switch(await _Invoice.verifyInvoice(id, caller)){
                     case(#ok){};
                     case(#err) {
-                        _Logs.logMessage("Error during invoice verification for invoice : " # Nat.toText(id) # " by " # Principal.toText(caller));
                         return #err("Error during invoice verification");
                     };
                 };

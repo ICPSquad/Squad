@@ -202,7 +202,7 @@ module {
                                 // 🎯 Commit point for the state of the canister.
                                 switch(await AVATAR_ACTOR.wearAccessory(avatar, Text.map(item.name, Prim.charToLower), caller)){
                                     case(#ok(())) {
-                                        _Logs.logMessage("Accessory " # accessory # " equipped on " # avatar);
+                                        _Logs.logMessage("TASK :: Accessory " # accessory # " equipped on " # avatar);
                                         _items.put(index, _createAccessoryEquippedOn(item, ?avatar));
                                         return #ok;
                                     };
