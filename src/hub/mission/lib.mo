@@ -510,7 +510,7 @@ module {
             Returns a boolean indicating if the caller has burned at least 1 accessory.
          */
         func _mission7(caller : Principal) : async Bool {
-            let number_burn = await _Cap.numberBurn(caller, null);
+            let number_burn = await _Cap.numberBurnAccessory(caller, null);
             if(number_burn >= 1){
                 return true;
             };
@@ -521,7 +521,7 @@ module {
             Returns a boolean indicating if the caller has burned at least 3 accessories.
          */
         func _mission8(caller : Principal) : async Bool {
-            let number_burn = await _Cap.numberBurn(caller, null);
+            let number_burn = await _Cap.numberBurnAccessory(caller, null);
             if(number_burn >= 3){
                 return true;
             };
@@ -532,7 +532,7 @@ module {
             Returns a boolean indicating if the caller has burned at least 10 accessories.
          */
         func _mission9(caller : Principal) : async Bool {
-            let number_burn = await _Cap.numberBurn(caller, null);
+            let number_burn = await _Cap.numberBurnAccessory(caller, null);
             if(number_burn >= 10){
                 return true;
             };

@@ -103,7 +103,7 @@
     </div>
   {:else if !userProfile.avatarDefault}
     <div class="not-logged-in">
-      <p class="secondary">No avatar detected. Please create your avatar first.</p>
+      <p>No avatar detected. Please create your avatar first.</p>
       <LinkButton to="/create-avatar">
         <button> Create </button>
       </LinkButton>

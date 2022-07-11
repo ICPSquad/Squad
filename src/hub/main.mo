@@ -269,6 +269,12 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Cap.getDailyCachedEventsPerCollection();
     };
 
+    public shared ({ caller }) func get_number_burn(p : Principal) : async Nat {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.numberBurnAccessory(p, null);
+    };
+
     ////////////////
     // MISSION ////
     //////////////  
@@ -566,7 +572,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         switch(await cron_events()){
             case(#err(e)){
                 _Logs.logMessage("CRON :: ERR :: Error while querying events : " # e);
-                return #err(e);“
+                return #err(e);
             };
             case(#ok(nb)) {
                 _Logs.logMessage("CRON :: " # "recorded " # Nat.toText(nb) # " events.");

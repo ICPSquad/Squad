@@ -579,6 +579,41 @@ module {
             return count;
         };
 
+        public func numberBurnAccessory(caller : Principal, name : ?Text) : async Nat {
+            // Query the list of events for this user from the CAP bucket.
+            let result = await bucket_accessory.get_user_transactions({
+                page = null;
+                user = caller;
+                witness = false;
+            });
+            let events = result.data;
+            // Count the number of burn events (corresponding to the eventual accessories or to all).
+            var count : Nat = 0;
+            switch(name){
+                case(null) {
+                    // Count all the burn events.
+                    for(event in events.vals()){
+                        if(event.operation == "burn"){
+                            if(_isEventAccessory(event)){
+                                count += 1;
+                            };
+                        };
+                    };
+                };
+                case(? name){
+                    // Count only the burn events corresponding to the given name.
+                     for(event in events.vals()){
+                        if(event.operation == "burn"){
+                            if(_isEventAbout(name, event)){
+                                count += 1;
+                            };
+                        };
+                    };
+                };
+            };
+            return count;
+        };
+
         /* 
             Returns the cumulative stats of the specified user. Tracking starts from the 20th of June 2022.
          */
@@ -900,6 +935,35 @@ module {
                 mint = number_mint;
                 collection_involved = involved_collections;
             });
+        };
+
+        /* 
+            Returns a boolean indicating if the event is related to an accessory.
+         */
+        func _isEventAccessory(event : Event) : Bool {
+            let details = event.details;
+            let potential_materials_name : [Text] = ["Cloth", "Wood", "Glass", "Circuit", "Metal", "Dfinity-stone", "Cronic-essence", "Punk-essence"];
+            for((key, value) in details.vals()){
+                switch(key){
+                    case("name"){
+                        switch(value){
+                            case(#Text(title)){
+                                switch(Array.find<Text>(potential_materials_name, func(x) {x == title})){
+                                    case(null){
+                                        return true
+                                    };
+                                    case(? _){
+                                        return false;
+                                    };
+                                };
+                            };
+                            case _ {};
+                        };
+                    };
+                    case _ {};
+                };
+            };
+            return false;
         };
     };
 };
