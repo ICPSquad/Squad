@@ -101,6 +101,13 @@
       <p>Please connect a wallet to continue</p>
       <ConnectButton />
     </div>
+  {:else if !userProfile.avatarDefault}
+    <div class="not-logged-in">
+      <p class="secondary">No avatar detected. Please create your avatar first.</p>
+      <LinkButton to="/create-avatar">
+        <button> Create </button>
+      </LinkButton>
+    </div>
   {:else}
     <div class="avatar-col">
       <img src={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?&tokenid=${userProfile.avatarDefault}`} alt="ICP Squad Avatar" class="avatar" />

@@ -51,7 +51,7 @@
         setState("waiting-mint");
       } else {
         setState("error");
-        error_message = "Payment failed";
+        error_message = "The payment was not successful. Make sure you have enough funds in your wallet.\n\nYou need to have at least 1.0001 ICP to pay for the avatar & the transfer fee.";
       }
     } catch (error) {
       console.error(error);
