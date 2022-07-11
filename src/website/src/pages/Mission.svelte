@@ -83,6 +83,7 @@
   <div class="layout-grid">
     <div class="categories">
       <Categories {categoryShowing} {setCategoryShowing} />
+      <a href="https://dsquad.gitbook.io/docs/engage/missions" target="_blank"> <button class="secondary"> Read documentation </button> </a>
     </div>
     <div class="missions">
       <MissionSelection {categoryShowing} {missions} {completed} on:validateMission={validateMission} />
