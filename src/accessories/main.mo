@@ -757,6 +757,36 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     // };
 
     //////////////
+    // FIX //////
+    /////////////
+
+    public shared ({ caller }) func fix_transfer(
+        token : TokenIdentifier,
+        owner : Principal,
+        receiver : AccountIdentifier,
+    ) : async Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        let request : Ext.Core.TransferRequest = {
+            from = #principal(owner);
+            to = #address(receiver);
+            token;
+            amount = 1;
+            memo = Blob.fromArray([0]);
+            notify = false;
+            subaccount = null;
+        };
+        switch(_Ext.transfer(owner, request)){
+            case(#ok(_)){
+                return #ok();
+            };
+            case(#err(_)){
+                return #err("Failed to transfer");
+            };
+        };
+    };
+
+    //////////////
     // UPGRADE //
     /////////////
 
