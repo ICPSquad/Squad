@@ -81,6 +81,13 @@
     margin-bottom: 5px;
   }
 
+  @media (max-width: 768px) {
+    .grid-row {
+      grid-template-columns: 40px 60px 1fr 40px;
+      font-size: small;
+    }
+  }
+
   .header-rank {
     grid-column: span 3;
   }

@@ -4,7 +4,6 @@
   import { user } from "@src/store/user";
   import { actors } from "@src/store/actor";
   import { get } from "svelte/store";
-  import LinkButton from "../shared/LinkButton.svelte";
   import { mintRequestAvatar } from "@utils/mint";
   import { createInvoice } from "@utils/invoice";
   import { payInvoice } from "@utils/payment";

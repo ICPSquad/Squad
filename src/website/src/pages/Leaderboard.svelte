@@ -107,6 +107,16 @@
       margin-bottom: 0;
     }
   }
+  @media (max-width: 768px) {
+    .stats-container {
+      padding: 20px;
+      font-size: 10px;
+    }
+
+    .stat {
+      font-size: 18px !important;
+    }
+  }
 
   button {
     max-width: 100%;

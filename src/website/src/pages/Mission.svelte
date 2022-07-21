@@ -132,6 +132,12 @@
     grid-auto-flow: dense;
   }
 
+  @media (max-width: 960px) {
+    .missions {
+      grid-template-columns: 1fr;
+    }
+  }
+
   button {
     margin: 20px auto;
   }

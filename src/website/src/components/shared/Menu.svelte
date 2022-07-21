@@ -2,19 +2,27 @@
   import Discord from "@src/icons/Discord.svelte";
   import Twitter from "@src/icons/Twitter.svelte";
   import FooterNav from "./FooterNav.svelte";
-
+  import { user } from "@src/store/user";
+  import { disconnectWallet } from "@utils/connection";
+  import ConnectButton from "@src/components/shared/ConnectButton.svelte";
   export let closeMenu;
 
-  const disconnectWallet = () => {
-    // To do - disconnect wallet
+  const disconnect = () => {
     closeMenu();
+    disconnectWallet();
   };
 </script>
 
 <div class="menu-container">
   <div class="container menu-nav-container">
+    <div class="connexion">
+      {#if !$user.loggedIn}
+        <ConnectButton />
+      {:else}
+        <button on:click={disconnect}> Sign out </button>
+      {/if}
+    </div>
     <FooterNav textAlignCenter {closeMenu} />
-    <button on:click={disconnectWallet} class="secondary"> Sign out </button>
     <div class="social-icons">
       <a class="discord" href="https://discord.gg/9DjDzf38WR" target="_blank">
         <Discord width={40} />
@@ -42,6 +50,13 @@
     background-color: $black;
     opacity: 1;
     z-index: 10;
+  }
+
+  .connexion {
+    margin: 35px auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
   }
 
   .menu-nav-container {

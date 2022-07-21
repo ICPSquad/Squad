@@ -25,7 +25,7 @@
   <div class="sub-nav">
     <div class="container">
       © {new Date().getFullYear()} Dfinity community
-      <div class="badge">
+      <div class="badge hide-on-mobile">
         <a href="https://dfinity.org/" target="_blank">
           <Badge />
         </a>
@@ -71,6 +71,12 @@
       .privacy {
         color: $white;
       }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hide-on-mobile {
+      display: none;
     }
   }
 </style>
