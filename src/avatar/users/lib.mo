@@ -283,6 +283,22 @@ module {
             };
             return buffer.toArray();
         };
+
+        public func getInfosAccounts() :  [(Principal, AccountIdentifier)] {
+            var buffer : Buffer.Buffer<(Principal, AccountIdentifier)> = Buffer.Buffer<(Principal, AccountIdentifier)>(0);
+            for((p, user) in _users.entries()) {
+                switch(user.account_identifier){
+                    case(null){
+                        let account = Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
+                        buffer.add((p, account));
+                    };
+                    case(? account){
+                        buffer.add((p, account));
+                    };
+                };
+            };
+            return buffer.toArray();  
+        };
         
         /* 
             Returns an array of (Principal, AccountIdentifier, Twitter, Discord, Avatar tokenIdentifier)  

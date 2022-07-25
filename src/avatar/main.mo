@@ -763,6 +763,12 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Users.getInfosLeaderboard();
     };
 
+    public shared query ({ caller }) func get_infos_accounts() : async [(Principal, AccountIdentifier)] {
+        assert(_Admins.isAdmin(caller) or caller == cid_hub);
+        _Monitor.collectMetrics();
+        _Users.getInfosAccounts();
+    };
+
     public shared query ({ caller }) func get_infos_holders() : async [(Principal, ?AccountIdentifier, ?Text, ?Text, ?TokenIdentifier)] {
         assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();

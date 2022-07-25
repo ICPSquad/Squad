@@ -256,7 +256,7 @@ module {
             let users = Array.map<(Principal, ?Text, ?Text), Principal>(infos, func(x) {x.0});
             let events = _getAllEventsExtendedDay();
             for(p in users.vals()){
-                let event_specific_to_user = _filterEventsByPrincipal(p, events);
+                let event_specific_to_user = _filterEventsByUser(p, ?, events);
                 daily_cached_events_per_user.put(p, event_specific_to_user);
             };
             _Logs.logMessage("CRON :: DAILY EVENTS FOR USERS (Hub)");
@@ -360,13 +360,12 @@ module {
         /* 
             Filter a list of events to only keep events that are relevant to the specified principal.
         */
-        func _filterEventsByPrincipal(p : Principal, events : [Types.ExtendedEvent]) : [Types.ExtendedEvent] {
+        func _filterEventsByUser(p : Principal, account : Ext.AccountIdentifier,  events : [Types.ExtendedEvent]) : [Types.ExtendedEvent] {
             let r : Buffer.Buffer<Types.ExtendedEvent> = Buffer.Buffer<Types.ExtendedEvent>(0);
-            let account_identifier = Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
             for(event in events.vals()){
                 if(event.caller == p){
                     r.add(event);
-                } else if (_isEventRelatedToAccount(account_identifier, event)){
+                } else if (_isEventRelatedToAccount(account, event)){
                     r.add(event);
                 };
             };
