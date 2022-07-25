@@ -247,7 +247,21 @@ module {
             };
             return(r.toArray());
         };
-
+    
+        /* 
+            Fill the daily events for each user by assigning events to users.
+        */
+        public func cronUsers() : async Result.Result<(), Text> {
+            let infos = await AVATAR_ACTOR.get_infos_leaderboard();
+            let users = Array.map<(Principal, ?Text, ?Text), Principal>(infos, func(x) {x.0});
+            let events = _getAllEventsExtendedDay();
+            for(p in users.vals()){
+                let event_specific_to_user = _filterEventsByPrincipal(p, events);
+                daily_cached_events_per_user.put(p, event_specific_to_user);
+            };
+            _Logs.logMessage("CRON :: DAILY EVENTS FOR USERS (Hub)");
+            return #ok();
+        };
 
         /* 
             Update the daily events, stats and engagement scores! for all users.
@@ -260,20 +274,15 @@ module {
                 };
                 case(? date) {date};
             };
-            // Get the latest list of users.
-            let infos = await AVATAR_ACTOR.get_infos_leaderboard();
-            let users = Array.map<(Principal, ?Text, ?Text), Principal>(infos, func(x) {x.0});
-            let events = _getAllEventsExtendedDay();
             
-            for (p in users.vals()){
-                let event_specific_to_user = _filterEventsByPrincipal(p, events);
-                let stats = _getDailyStats(p, event_specific_to_user);
+            for ((p, events) in daily_cached_events_per_user.entries()){
+                let stats = _getDailyStats(p, events);
                 let daily_engagement_score = _getDailyEngagementScore(stats);
                 stats_daily.put((date,p), stats);
                 engagement_score_daily.put((date, p), daily_engagement_score);
             };
 
-            _Logs.logMessage("CRON :: USER EVENTS -> STATS -> ENGAGEMENT SCORE (Hub)");
+            _Logs.logMessage("CRON :: STATS & ENGAGEMENT SCORE (Hub)");
             return #ok(());
         };
 

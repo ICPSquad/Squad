@@ -572,6 +572,15 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Monitor.collectMetrics();
         await _Cap.cronEvents();
     };
+    
+    /* 
+        Assign events to users.
+    */
+    public shared ({ caller }) func cron_users() : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller) or caller == cid);
+        _Monitor.collectMetrics();
+        await _Cap.cronUsers();
+    };
 
     /* 
         Query all the buckets from all the registered collections on the IC and cache the event of the last 24 hours.
@@ -591,6 +600,15 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                 _Logs.logMessage("CRON :: " # "recorded " # Nat.toText(nb) # " events.");
             };
         };
+        await _Cap.cronStats();
+    };
+
+    /* 
+        TESTING PURPOSE : only calculate the stats.
+    */
+    public shared ({ caller }) func cron_stats_alone() : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
         await _Cap.cronStats();
     };
 
