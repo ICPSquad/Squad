@@ -24,6 +24,7 @@ module {
     public type UpgradeData = Types.UpgradeData;
     public type Event = Types.Event;
     public type CapStats = Types.CapStats;
+    public type Activity = Types.Activity;
     public type Collection = Collection.Collection;
 
     type Date = (Nat,Nat,Nat);
@@ -126,6 +127,12 @@ module {
             return Iter.toArray(engagement_score_daily.entries());
         };
 
+        /* 
+            Tracking of activity for all users.
+        */
+
+        let tracking_activity_daily : TrieMap.TrieMap<(Date, Principal), Activity> = TrieMap.TrieMap<(Date,Principal), Activity>(customEqual, customHash);
+
         public func preupgrade() : UpgradeData {
             return({
                 cids = Iter.toArray(cids.entries());
@@ -134,6 +141,7 @@ module {
                 daily_cached_events_per_user = Iter.toArray(daily_cached_events_per_user.entries());
                 stats_daily = Iter.toArray(stats_daily.entries());
                 engagement_score_daily = Iter.toArray(engagement_score_daily.entries());
+                tracking_activity_daily = Iter.toArray(tracking_activity_daily.entries());
             })
         };
 
@@ -158,6 +166,9 @@ module {
                     };
                     for(((date, user), score) in ud.engagement_score_daily.vals()){
                         engagement_score_daily.put((date, user), score);
+                    };
+                    for(((date, user), activity) in ud.tracking_activity_daily.vals()){
+                        tracking_activity_daily.put((date, user), activity);
                     };
                 };
             };
@@ -218,16 +229,6 @@ module {
                     let time : Nat = Nat64.toNat(event.time) * 1_000_000;
                     // Only keep the events from the past 24 hours BUT only exit the loop if we encounter an event from before yesterday. If we encounter an event "in the future" we do nothing.
                     if(time > yesterday and time <= now){
-                        // let caller = event.caller;
-                        // let extended_event = _eventToExtendendEvent(event, cid);
-                        // switch(daily_cached_events_per_user.get(caller)){
-                        //     case(null){
-                        //         daily_cached_events_per_user.put(caller, [extended_event]);
-                        //     };
-                        //     case(? events){
-                        //         daily_cached_events_per_user.put(caller, Array.append<Types.ExtendedEvent>(events, [extended_event]));
-                        //     };
-                        // };
                         r.add(event);
                     } else if (time < yesterday){
                         is_over := true;
@@ -272,18 +273,6 @@ module {
                 engagement_score_daily.put((date, p), daily_engagement_score);
             };
 
-            // let event_specific_to_user = await _updateDailyEvents(users);
-            // for((user, events) in daily_cached_events_per_user.entries()){
-            //     switch(Array.find<Principal>(users, func(x) {x == user})){
-            //         case(null){};
-            //         case(? user){
-            //             let stats = _getDailyStats(user, events);
-            //             let daily_engagement_score = _getDailyEngagementScore(stats);
-            //             stats_daily.put((date,user), stats);
-            //             engagement_score_daily.put((date, user), daily_engagement_score);
-            //         };
-            //     };
-            // };
             _Logs.logMessage("CRON :: USER EVENTS -> STATS -> ENGAGEMENT SCORE (Hub)");
             return #ok(());
         };

@@ -8,9 +8,18 @@ module {
         buy : (Nat, Nat); // (Number of operations, ICP)
         sell : (Nat, Nat); // (Number of operations, ICP)
         mint : Nat; // Number of operations
-        collection_involved : Nat // Number of interaction with different collections
+        collection_involved : Nat; // Number of interaction with different collections
     };
 
+    public type Activity = {
+        buy : (Nat, Nat); // (Number of operations, ICP)
+        sell : (Nat, Nat); // (Number of operations, ICP)
+        mint : Nat; // Number of operations
+        burn : Nat; // Number of operations
+        accessory_burned : Nat; // Number of operations
+        accessory_minted : Nat; // Number of operations
+        collection_involved : Nat; // Number of interaction with different collections
+    };
 
     public type DetailValue = {
         #I64 : Int64;
@@ -104,6 +113,7 @@ module {
         _Logs : Canistergeek.Logger; 
     };
 
+
     public type UpgradeData = {
         cids : [(Collection.Collection, Principal)];
         cid_interacted_collections : [(Principal, [Principal])];
@@ -111,6 +121,7 @@ module {
         daily_cached_events_per_user : [(Principal, [ExtendedEvent])];
         stats_daily : [((Date, Principal), CapStats)];
         engagement_score_daily : [((Date, Principal), Nat)];
+        tracking_activity_daily : [((Date, Principal), Activity)];  
     };
 
 };

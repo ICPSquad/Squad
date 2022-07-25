@@ -148,7 +148,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     // CAP ///
     //////////
 
-    stable var _CapUD: ?Cap.UpgradeData = null;  
+    stable var _CapUD : ? Cap.UpgradeData = null;
     let _Cap = Cap.Factory({
         cid_bucket_accessory = Principal.fromText("qfevy-hqaaa-aaaaj-qanda-cai");
         cid_bucket_avatar = Principal.fromText("ffu6n-ciaaa-aaaaj-qaotq-cai");
@@ -556,7 +556,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
                 return #err(e);
             };
             case(#ok()) {
-                _Logs.logMessage("CRON :: round");
+                _Logs.logMessage("CRON :: Round");
                 return #ok();
             };
         };
@@ -581,10 +581,10 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     public shared ({ caller }) func cron_stats() : async Result.Result<(), Text> {
         assert(_Admins.isAdmin(caller) or caller == cid);
         _Monitor.collectMetrics();
-        _Logs.logMessage("CRON :: Querying events");
+        _Logs.logMessage("CRON :: querying events");
         switch(await cron_events()){
             case(#err(e)){
-                _Logs.logMessage("CRON :: ERR :: Error while querying events : " # e);
+                _Logs.logMessage("CRON :: ERR :: error while querying events : " # e);
                 return #err(e);
             };
             case(#ok(nb)) {

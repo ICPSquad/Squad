@@ -138,7 +138,6 @@ module {
                         case(? round){
                             let new_round = await _getUpdatedRound(round);
                             _rounds.put(round.id, new_round);
-                            _Logs.logMessage("Round " # Nat.toText(round.id) # " updated");
                             return #ok();
                         };
                     };

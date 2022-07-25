@@ -529,14 +529,15 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         // Report all burned accessories to CAP
         for(index in burned.vals()){
             let name = Option.get(_Items.getName(index), "Unknown");
+            let owner = Option.get(_Items.getOwner(index), "Unknown");
             let event : IndefiniteEvent = {
                 operation = "burn";
-                details = [("token", #Text(Ext.TokenIdentifier.encode(cid, index))),("name", #Text(name))];
-                caller = caller;
+                details = [("token", #Text(Ext.TokenIdentifier.encode(cid, index))),("name", #Text(name)), ("from", #Text(owner))]; //Put the owner of the accessory for keeping track of burned accessories per user, for missions.
+                caller = caller; 
             };
             ignore(_Cap.registerEvent(event));
         };
-        _Logs.logMessage("Daily update of accessories : " # Nat.toText(burned.size()) # Nat.toText(decreased.size()) #  Nat.toText(not_found.size()));
+        _Logs.logMessage("CRON :: Daily update of accessories :: " # "Burned : " #  Nat.toText(burned.size()) # " Decreased : " # Nat.toText(decreased.size()) #  " Not found : " #Nat.toText(not_found.size()));
         return;
     };
 
