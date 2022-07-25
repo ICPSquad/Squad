@@ -218,16 +218,16 @@ module {
                     let time : Nat = Nat64.toNat(event.time) * 1_000_000;
                     // Only keep the events from the past 24 hours BUT only exit the loop if we encounter an event from before yesterday. If we encounter an event "in the future" we do nothing.
                     if(time > yesterday and time <= now){
-                        let caller = event.caller;
-                        let extended_event = _eventToExtendendEvent(event, cid);
-                        switch(daily_cached_events_per_user.get(caller)){
-                            case(null){
-                                daily_cached_events_per_user.put(caller, [extended_event]);
-                            };
-                            case(? events){
-                                daily_cached_events_per_user.put(caller, Array.append<Types.ExtendedEvent>(events, [extended_event]));
-                            };
-                        };
+                        // let caller = event.caller;
+                        // let extended_event = _eventToExtendendEvent(event, cid);
+                        // switch(daily_cached_events_per_user.get(caller)){
+                        //     case(null){
+                        //         daily_cached_events_per_user.put(caller, [extended_event]);
+                        //     };
+                        //     case(? events){
+                        //         daily_cached_events_per_user.put(caller, Array.append<Types.ExtendedEvent>(events, [extended_event]));
+                        //     };
+                        // };
                         r.add(event);
                     } else if (time < yesterday){
                         is_over := true;
@@ -241,7 +241,7 @@ module {
                 // Add a security to stop the loop if the page number is too high (ie too many events in one day for one collection).
                 if(count > 100){
                     is_over := true;
-                    _Logs.logMessage("ERROR :: getDailyEvents :: " # Principal.toText(cid) # " :: " # "Too many pages to be queried.");
+                    _Logs.logMessage("ERROR :: getDailyEvents :: " # Principal.toText(cid) # " :: " # "More than 100 pages.");
                 };
             };
             return(r.toArray());
@@ -249,7 +249,7 @@ module {
 
 
         /* 
-            Update the daily stats (and engagement scores!) for all users.
+            Update the daily events, stats and engagement scores! for all users.
          */
         public func cronStats () : async Result.Result<(), Text> {
             let date : Date = switch(DateModule.Date.nowToDatePartsISO8601()){
@@ -259,20 +259,32 @@ module {
                 };
                 case(? date) {date};
             };
+            // Get the latest list of users.
             let infos = await AVATAR_ACTOR.get_infos_leaderboard();
             let users = Array.map<(Principal, ?Text, ?Text), Principal>(infos, func(x) {x.0});
-            for((user, events) in daily_cached_events_per_user.entries()){
-                switch(Array.find<Principal>(users, func(x) {x == user})){
-                    case(null){};
-                    case(? user){
-                        let stats = _getDailyStats(user, events);
-                        let daily_engagement_score = _getDailyEngagementScore(stats);
-                        stats_daily.put((date,user), stats);
-                        engagement_score_daily.put((date, user), daily_engagement_score);
-                    };
-                };
+            let events = _getAllEventsExtendedDay();
+            
+            for (p in users.vals()){
+                let event_specific_to_user = _filterEventsByPrincipal(p, events);
+                let stats = _getDailyStats(p, event_specific_to_user);
+                let daily_engagement_score = _getDailyEngagementScore(stats);
+                stats_daily.put((date,p), stats);
+                engagement_score_daily.put((date, p), daily_engagement_score);
             };
-            _Logs.logMessage("Cron :: stats (hub)");
+
+            // let event_specific_to_user = await _updateDailyEvents(users);
+            // for((user, events) in daily_cached_events_per_user.entries()){
+            //     switch(Array.find<Principal>(users, func(x) {x == user})){
+            //         case(null){};
+            //         case(? user){
+            //             let stats = _getDailyStats(user, events);
+            //             let daily_engagement_score = _getDailyEngagementScore(stats);
+            //             stats_daily.put((date,user), stats);
+            //             engagement_score_daily.put((date, user), daily_engagement_score);
+            //         };
+            //     };
+            // };
+            _Logs.logMessage("CRON :: USER EVENTS -> STATS -> ENGAGEMENT SCORE (Hub)");
             return #ok(());
         };
 
@@ -345,6 +357,22 @@ module {
                 return 1;
             };
             return 0;
+        };
+
+        /* 
+            Filter a list of events to only keep events that are relevant to the specified principal.
+        */
+        func _filterEventsByPrincipal(p : Principal, events : [Types.ExtendedEvent]) : [Types.ExtendedEvent] {
+            let r : Buffer.Buffer<Types.ExtendedEvent> = Buffer.Buffer<Types.ExtendedEvent>(0);
+            let account_identifier = Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
+            for(event in events.vals()){
+                if(event.caller == p){
+                    r.add(event);
+                } else if (_isEventRelatedToAccount(account_identifier, event)){
+                    r.add(event);
+                };
+            };
+            r.toArray();
         };
 
         //////////
@@ -674,6 +702,16 @@ module {
             return #ok();
         };
 
+        public func getStatsUser(p : Principal) : async [(Date, Types.CapStats)] {
+            let r : Buffer.Buffer<(Date, Types.CapStats)> = Buffer.Buffer(0);
+            for(((date, user), stats) in stats_daily.entries()){
+                if(p == user){
+                    r.add(date, stats);
+                };
+            };
+            return r.toArray();
+        };
+
         //////////////
         // Helpers //
         ////////////
@@ -965,5 +1003,49 @@ module {
             };
             return false;
         };
+
+    /* 
+        Returns a boolean indicating if an event is involving an Account.
+    */
+    func _isEventRelatedToAccount(account : Ext.AccountIdentifier ,event : Event) : Bool {
+        let details = event.details;
+        for((key, value) in details.vals()){
+            switch(key){
+                case("from"){
+                    switch(value){
+                        case(#Text(account)){
+                            return true;
+                        };
+                        case _ {};
+                    };
+                };
+                case("to"){
+                    switch(value){
+                        case(#Text(account)){
+                            return true;
+                        };
+                        case _ {};
+                    };
+                };
+                case _ {};
+            };
+        };
+        return false;
+    };
+
+    /* 
+        Returns a list of all the (extended) events of the day.
+    */
+    func _getAllEventsExtendedDay() : [Types.ExtendedEvent] {
+        let r : Buffer.Buffer<Types.ExtendedEvent> = Buffer.Buffer<Types.ExtendedEvent>(0);
+        for((cid, events) in daily_cached_events_per_collection.entries()){
+            for(event in events.vals()){
+                let extended_event = _eventToExtendendEvent(event, cid);
+                r.add(extended_event);
+            };
+        };
+        r.toArray();
+    };
+
     };
 };

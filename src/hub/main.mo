@@ -44,6 +44,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     public type Job = Jobs.Job;
     public type Leaderboard = Leaderboard.Leaderboard;
     public type Round = Leaderboard.Round;
+    public type Date = (Nat, Nat, Nat);
 
     ///////////
     // ADMIN //
@@ -273,6 +274,18 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         await _Cap.numberBurnAccessory(p, null);
+    };
+
+    public shared ({ caller }) func get_stats_user(p : Principal) : async [(Date, Cap.CapStats)] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.getStatsUser(p);
+    };
+
+    public shared ({ caller }) func get_registered_collections() : async [(Cap.Collection, Principal)] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Cap.getCollections();
     };
 
     ////////////////
@@ -614,7 +627,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _MissionUD := null;
         _Cap.postupgrade(_CapUD);
         _CapUD := null;
-        _Logs.logMessage("POSTUPGRADE :: hub");
+        _Logs.logMessage("POSTUPGRADE :: Hub");
     };
 
     system func heartbeat() : async () {
