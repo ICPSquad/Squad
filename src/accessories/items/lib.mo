@@ -16,6 +16,7 @@ import TrieMap "mo:base/TrieMap";
 
 import Ext "mo:ext/Ext";
 
+import Cap "../cap";
 import Types "types";
 
 module {
@@ -83,6 +84,8 @@ module {
 
         let _Logs = dependencies._Logs;
         let _Ext = dependencies._Ext;
+        let _Cap = dependencies._Cap;
+
 
         public func preupgrade() : UpgradeData {
             return({
@@ -762,6 +765,15 @@ module {
             switch(_items.get(index)){
                 case(?#Accessory(item)){
                     if(item.wear <= 1){
+                        // Report burn event to CAP.
+                        let name = Option.get(getName(index), "Unknown");
+                        let owner = Option.get(_Ext.getOwner(index), "Unknown");
+                        let event : Cap.IndefiniteEvent = {
+                            operation = "burn";
+                            details = [("token", #Text(Ext.TokenIdentifier.encode(dependencies.cid, index))),("name", #Text(name)), ("from", #Text(owner))]; //Put the owner of the accessory for keeping track of burned accessories per user, for missions.
+                            caller = dependencies.cid; 
+                        };
+                        _Cap.insertEvent(event);
                         _Ext.burn(index);
                         _items.delete(index);
                         _burned.put(index, {
@@ -770,14 +782,14 @@ module {
                             name = item.name;
                             tokenIdentifier = Option.get<Text>(item.equipped, "ngedt-bakor-uwiaa-aaaaa-cmaca-uaqca-aaaaa-a");
                         });
-                        _Logs.logMessage("Accessory : " #  Nat.toText(Nat32.toNat(index)) # " has been burned");
+                        _Logs.logMessage("EVENT :: accessory : " #  Nat.toText(Nat32.toNat(index)) # " has been burned");
                         return #ok(#Burned);
                     };
                     _items.put(index, _createAccessoryWear(item, item.wear - 1));
                     return #ok(#Decreased); 
                 };
                 case _ {
-                    _Logs.logMessage("Accessory not found for tokenIndex : " # Nat32.toText(index));
+                    _Logs.logMessage("ERR :: accessory not found for index : " # Nat32.toText(index));
                     return #err("Accessory not found");
                 };
             };

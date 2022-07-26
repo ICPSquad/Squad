@@ -258,6 +258,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     let _Items = Items.Factory({
         _Logs = _Logs;
         _Ext = _Ext;
+        _Cap = _Cap;
         cid_avatar = cid_avatar; 
         cid = cid;
     });
@@ -526,17 +527,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
         let (burned, decreased, not_found ) = _Items.updateAll();
-        // Report all burned accessories to CAP
-        for(index in burned.vals()){
-            let name = Option.get(_Items.getName(index), "Unknown");
-            let owner = Option.get(_Items.getOwner(index), "Unknown");
-            let event : IndefiniteEvent = {
-                operation = "burn";
-                details = [("token", #Text(Ext.TokenIdentifier.encode(cid, index))),("name", #Text(name)), ("from", #Text(owner))]; //Put the owner of the accessory for keeping track of burned accessories per user, for missions.
-                caller = caller; 
-            };
-            ignore(_Cap.registerEvent(event));
-        };
         _Logs.logMessage("CRON :: Daily update of accessories :: " # "Burned : " #  Nat.toText(burned.size()) # " Decreased : " # Nat.toText(decreased.size()) #  " Not found : " #Nat.toText(not_found.size()));
         return;
     };
@@ -588,7 +578,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     public query func http_request (request : Http.Request) : async Http.Response {
         _HttpHandler.request(request);  
     };
-
 
     ////////////
     // STATS //
@@ -792,7 +781,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     /////////////
 
     system func preupgrade() {
-        _Logs.logMessage("Preupgrade (accessory)");
+        _Logs.logMessage("PREUPGRADE :: accessory");
         // Modules
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
@@ -819,6 +808,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _CapUD := null;
         _Entrepot.postupgrade(_EntrepotUD);
         _EntrepotUD := null;
-        _Logs.logMessage("Postupgrade (accessory)");
+        _Logs.logMessage("POSTUPGRADE :: accessory");
     };
 };

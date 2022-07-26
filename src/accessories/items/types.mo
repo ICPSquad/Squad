@@ -3,6 +3,7 @@ import Time "mo:base/Time";
 
 import Canistergeek "mo:canistergeek/canistergeek";
 
+import Cap "../cap";
 import Ext "../ext";
 
 module {
@@ -63,6 +64,7 @@ module {
         time_avatar_burned : ?Time; // The (optional) moment the avatar canister reported it removed the accessory from the avatar. 
         name : Text; // The name of the accessory
         tokenIdentifier : TokenIdentifier; // The avatar this accessory was equipped on
+        
     };
 
     public type OldUpgradeData = {
@@ -82,6 +84,7 @@ module {
     public type Dependencies = {
         _Logs : Canistergeek.Logger;
         _Ext : Ext.Factory;
+        _Cap : Cap.Factory;
         cid : Principal;
         cid_avatar : Principal;
     };

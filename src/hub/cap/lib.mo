@@ -23,11 +23,12 @@ module {
 
     public type UpgradeData = Types.UpgradeData;
     public type Event = Types.Event;
+    public type ExtendedEvent = Types.ExtendedEvent;
     public type CapStats = Types.CapStats;
     public type Activity = Types.Activity;
+    public type CumulativeActivity = Types.CumulativeActivity;
     public type Collection = Collection.Collection;
-
-    type Date = (Nat,Nat,Nat);
+    public type Date = (Nat,Nat,Nat);
 
     /////////////////
     // Utilities ///
@@ -52,86 +53,49 @@ module {
 
     public class Factory(dependencies : Types.Dependencies) {
 
-        let DAY_NANO = 24 * 60 * 60 * 1000 * 1000 * 1000;
-
         //////////////
         /// State ///
         ////////////
+        
+        // Tracking of activity has started on the 20th of June 2022
+        let BEGIN_TIME : Time.Time = 1655729084018865799;
+        let DAY_NANO = 24 * 60 * 60 * 1000 * 1000 * 1000;
+
+        let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
+            get_infos_leaderboard : shared () -> async [(Principal, ?Text, ?Text)];
+            get_infos_accounts : shared () -> async [(Principal, Ext.AccountIdentifier)];
+        };
 
         let bucket_accessory : Types.Bucket = actor(Principal.toText(dependencies.cid_bucket_accessory));
         let bucket_avatar : Types.Bucket = actor(Principal.toText(dependencies.cid_bucket_avatar));
-
         let cap_router : Types.Router = actor(Principal.toText(dependencies.cid_router));
         let dab : Types.Dab = actor(Principal.toText(dependencies.cid_dab));
 
         let _Logs = dependencies._Logs;
 
-        let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
-            get_infos_leaderboard : shared () -> async [(Principal, ?Text, ?Text)];
-        };
-        
-
-        /* 
-            Keep track of the root bucket for all registered collections.
-         */
+        /* Keep track of the root bucket for all registered collections.*/
         let cids : TrieMap.TrieMap<Collection, Principal> = TrieMap.TrieMap<Collection,Principal>(Collection.equal, Collection.hash);
 
-        public func getCollections() : [(Collection, Principal)] {
-            return Iter.toArray(cids.entries());
-        };
-
-        /* 
-            Keep track of the cids of the collection the user has interacted with.
-        */
+        /* Keep track of the cids of the collection the user has interacted with.*/
         let cid_interacted_collections : TrieMap.TrieMap<Principal, [Principal]> = TrieMap.TrieMap<Principal,[Principal]>(Principal.equal, Principal.hash);
 
-        public func getInteractedCollections() : [(Principal,[Principal])] {
-            return Iter.toArray(cid_interacted_collections.entries());
-        };
-
-        /* 
-            Daily cached events for all collections.
-        */
+        /* Daily cached events for all collections.*/
         let daily_cached_events_per_collection : TrieMap.TrieMap<Principal, [Types.Event]> = TrieMap.TrieMap<Principal,[Types.Event]>(Principal.equal, Principal.hash);
 
-        public func getDailyCachedEventsPerCollection() : [(Principal,[Types.Event])] {
-            return Iter.toArray(daily_cached_events_per_collection.entries());
-        };
-
-        /* 
-            Daily cached events for all users.
-         */
+        /* Daily cached events for all users. */
         let daily_cached_events_per_user : TrieMap.TrieMap<Principal, [Types.ExtendedEvent]> = TrieMap.TrieMap<Principal,[Types.ExtendedEvent]>(Principal.equal, Principal.hash);
 
-        public func getDailyCachedEventsPerUser() : [(Principal,[Types.ExtendedEvent])] {
-            return Iter.toArray(daily_cached_events_per_user.entries());
-        };
-
-        /* 
-            Daily stats for all users. 
-        */
-
+        /* DEPRECEATED : Daily stats for all users. */
         let stats_daily : TrieMap.TrieMap<(Date, Principal), Types.CapStats> = TrieMap.TrieMap<(Date,Principal),Types.CapStats>(customEqual, customHash);
 
-        public func getDailyCachedStatsPerUser() : [((Date,Principal),Types.CapStats)] {
-            return Iter.toArray(stats_daily.entries());
-        };
-
-        /* 
-            Daily engagement score for all users. 
-        */
-
+        /* Daily engagement score for all users. */
         let engagement_score_daily : TrieMap.TrieMap<(Date, Principal), Nat> = TrieMap.TrieMap<(Date,Principal), Nat>(customEqual, customHash);
 
-        public func getDailyEngagementScore() : [((Date,Principal),Nat)] {
-            return Iter.toArray(engagement_score_daily.entries());
-        };
-
-        /* 
-            Tracking of activity for all users.
-        */
-
+        /* Daily tracking of activity for all users. */
         let tracking_activity_daily : TrieMap.TrieMap<(Date, Principal), Activity> = TrieMap.TrieMap<(Date,Principal), Activity>(customEqual, customHash);
+
+        /* Interacted collections per user (cumulative) */
+        let interacted_collections : TrieMap.TrieMap<Principal, [Principal]> = TrieMap.TrieMap<Principal, [Principal]>(Principal.equal, Principal.hash);
 
         public func preupgrade() : UpgradeData {
             return({
@@ -161,9 +125,9 @@ module {
                     for((p, extended_events) in ud.daily_cached_events_per_user.vals()){
                         daily_cached_events_per_user.put(p, extended_events);
                     };
-                    for(((date, collection), stats) in ud.stats_daily.vals()){
-                        stats_daily.put((date, collection), stats);
-                    };
+                    // for(((date, collection), stats) in ud.stats_daily.vals()){
+                    //     stats_daily.put((date, collection), stats);
+                    // };
                     for(((date, user), score) in ud.engagement_score_daily.vals()){
                         engagement_score_daily.put((date, user), score);
                     };
@@ -174,15 +138,15 @@ module {
             };
         };
 
-        ///////////////////
-        // Daily scores //
-        /////////////////
+        ///////////
+        // CRON //
+        //////////
 
         /* 
             Query all the cids and add the event of the day to the daily cache in the canister.
             @ok : Number of events added to the daily cache.
             @err : An error message.
-         */
+        */
         public func cronEvents() : async Result.Result<Nat, Text> {
             var total_number : Nat = 0;
             for((collection, cid) in cids.entries()){
@@ -197,6 +161,176 @@ module {
             return #ok(total_number);
         };
 
+        /* Fill the daily events for each user by assigning events to users & update the list of interacted collections */
+        public func cronUsers() : async Result.Result<(), Text> {
+            let infos = await AVATAR_ACTOR.get_infos_accounts();
+            let events = _getAllEventsExtendedDay();
+            for((p, account) in infos.vals()){
+                let event_specific_to_user = _filterEventsByUser(p, account, events);
+                daily_cached_events_per_user.put(p, event_specific_to_user);
+                // Update the list of interacted collections for the user.
+                for(event in event_specific_to_user.vals()){
+                    let collection = event.collection;
+                    _addToInteractedCollection(p, collection);
+                };
+            };
+            _Logs.logMessage("CRON :: DAILY EVENTS FOR USERS & INTERACTED COLLECTIONS (Hub)");
+            return #ok();
+        };
+
+        /* Update the daily events, activity and engagement scores for all users */
+        public func cronStats () : async Result.Result<(), Text> {
+            let date : Date = switch(DateModule.Date.nowToDatePartsISO8601()){
+                case(null){
+                    assert(false); 
+                    (0,0,0);
+                };
+                case(? date) {date};
+            };
+            let infos = await AVATAR_ACTOR.get_infos_accounts();
+            for ((p, account) in infos.vals()){
+                switch(daily_cached_events_per_user.get(p)){
+                    case(null){};
+                    case(? events){
+                        let activity = _getDailyActivity(p, account, events);
+                        tracking_activity_daily.put((date,p), activity);
+                        let daily_engagement_score = _getDailyEngagementScore(activity);
+                        engagement_score_daily.put((date, p), daily_engagement_score);
+                    };
+                };
+            };
+            _Logs.logMessage("CRON :: ACTIVITY & ENGAGEMENT SCORE (Hub)");
+            return #ok(());
+        };
+
+        //////////
+        // API //
+        ////////
+
+        /* Returns the total engagement score of the principal between t1 and t2 by summing the engagement scores of all the days.*/
+        public func getScore(p : Principal, dates : [Date]) : Nat {
+            return _getSumEngagementScore(dates, p);
+        };
+
+        /* Returns the number of different collections the user has interacted with */
+        public func numberCollectionsInteracted(p : Principal) : Nat {
+            switch(interacted_collections.get(p)){
+                case(null){
+                    return 0;
+                };
+                case(? collections){
+                    return collections.size();
+                };
+            };
+        };
+
+        /* Returns a cumulative activity calculated between t1 & t2 */
+        public func CumulativeActivity(p : Principal, t1 : ?Time.Time, t2 : ?Time.Time) : Activity {
+            var number_buy : Nat = 0;
+            var icps_buy : Nat = 0;
+            var number_sell : Nat = 0;
+            var icps_sell : Nat = 0;
+            var number_mint : Nat = 0;
+            var number_burn : Nat = 0;
+            var accessory_burned : Nat = 0;
+            var accessory_minted : Nat = 0;
+            var collection_involved : Nat = 0;
+            let dates = _getDatesBetween(t1, t2);
+            for(date in dates.vals()){
+                switch(tracking_activity_daily.get(date, p)){
+                    case(null){};
+                    case(? activity){
+                        number_buy += activity.buy.0;
+                        icps_buy += activity.buy.1;
+                        number_sell += activity.sell.0;
+                        icps_sell += activity.sell.1;
+                        number_mint += activity.mint;
+                        number_burn += activity.burn;
+                        accessory_burned += activity.accessory_burned;
+                        accessory_minted += activity.accessory_minted;
+                        collection_involved += activity.collection_involved;
+                    };
+                };
+            };
+            return({
+                buy = (number_buy, icps_buy);
+                sell = (number_sell, icps_sell);
+                mint = number_mint;
+                burn = number_burn;
+                accessory_burned;
+                accessory_minted;
+                collection_involved;
+            })
+        };
+
+        public func registerCollection(collection : Collection) : async Result.Result<(), Text> {
+            let cid = collection.contractId;
+            try {
+                let result = await cap_router.get_token_contract_root_bucket({
+                    canister = cid;
+                    witness = false;
+                });
+                switch(result.canister){
+                    case(? cid_bucket){
+                        cids.put(collection, cid_bucket);
+                    };
+                    case(null){
+                        return #err("ERR :: no bucket to register found");
+                    };
+                };
+            } catch e {
+                return #err(Error.message(e));
+            };
+            return #ok();
+        };
+
+        /*  
+            Returns the number of operations (among those specified) the user has performed across all collections that he has interacted with.
+            @param user : The user to perform the count on.
+            @param operations : A list of operations to count.
+            @param (opt) : To eventually specify a list of collections to look across. If null we check the interacted_collections TrieMap.
+        */
+        public func numberOperations(user : Principal, operations : [Text] , cid_buckets : ?[Principal]) : async Nat {
+            let cids_to_check : [Principal] = switch(cid_buckets){
+                case(? cids){cids};
+                case(null){
+                    switch(cid_interacted_collections.get(user)){
+                        case(? cids){cids};
+                        case(null){[]};
+                    };
+                };
+            };
+            var count : Nat = 0;
+            for(cid in cids_to_check.vals()){
+                // When Promise.all. Currently this might take a long time to perfom 😢
+                let bucket : Types.Bucket = actor(Principal.toText(cid));
+                try {
+                    let result = await bucket.get_user_transactions({
+                        page = null;
+                        user;
+                        witness = false;
+                    });
+                    let events = result.data;
+                    for(event in events.vals()){
+                        switch(Array.find<Text>(operations, func(x) {Text.equal(x, event.operation)} )){
+                            case(null){};
+                            case(? some){
+                                count += 1;
+                            };
+                        };
+                    };
+                } catch e {
+                    _Logs.logMessage("ERR :: failed to query transactions for user " # Principal.toText(user) # " and bucket " # Principal.toText(cid) # " : " # Error.message(e));
+                };
+            };
+            return(count);
+        };
+
+        ////////////////
+        // UTILITIES //
+        ///////////////
+
+        /* Calculates and returns the number of the last page for the specified bucket */
         func getLatestPage(cid : Principal) : async Nat {
             let bucket : Types.Bucket = actor(Principal.toText(cid));
             let size = await bucket.size();
@@ -204,6 +338,7 @@ module {
             Nat64.toNat(latest_page);
         };
 
+        /* Returns a list of the daily events for the specified bucket  */
         func getDailyEvents(cid : Principal) : async [Types.Event] {
             let latest_page = await getLatestPage(cid);
             let bucket : Types.Bucket = actor(Principal.toText(cid));
@@ -247,119 +382,8 @@ module {
             };
             return(r.toArray());
         };
-    
-        /* 
-            Fill the daily events for each user by assigning events to users.
-        */
-        public func cronUsers() : async Result.Result<(), Text> {
-            let infos = await AVATAR_ACTOR.get_infos_leaderboard();
-            let users = Array.map<(Principal, ?Text, ?Text), Principal>(infos, func(x) {x.0});
-            let events = _getAllEventsExtendedDay();
-            for(p in users.vals()){
-                let event_specific_to_user = _filterEventsByUser(p, ?, events);
-                daily_cached_events_per_user.put(p, event_specific_to_user);
-            };
-            _Logs.logMessage("CRON :: DAILY EVENTS FOR USERS (Hub)");
-            return #ok();
-        };
 
-        /* 
-            Update the daily events, stats and engagement scores! for all users.
-         */
-        public func cronStats () : async Result.Result<(), Text> {
-            let date : Date = switch(DateModule.Date.nowToDatePartsISO8601()){
-                case(null){
-                    assert(false); 
-                    (0,0,0);
-                };
-                case(? date) {date};
-            };
-            
-            for ((p, events) in daily_cached_events_per_user.entries()){
-                let stats = _getDailyStats(p, events);
-                let daily_engagement_score = _getDailyEngagementScore(stats);
-                stats_daily.put((date,p), stats);
-                engagement_score_daily.put((date, p), daily_engagement_score);
-            };
-
-            _Logs.logMessage("CRON :: STATS & ENGAGEMENT SCORE (Hub)");
-            return #ok(());
-        };
-
-        /* 
-            Returns the stats object from the list of events of the specified user.
-         */
-        func _getDailyStats(user : Principal, events : [Types.ExtendedEvent]) : Types.CapStats {
-            let account_identifier = Text.map(Ext.AccountIdentifier.fromPrincipal(user, null), Prim.charToLower);
-            var number_buy : Nat = 0;
-            var icps_buy : Nat64 = 0;
-            var number_sell : Nat = 0;
-            var icps_sell : Nat64 = 0;
-            var number_mint : Nat = 0;
-            var collections : [Principal] = [];
-            for(event in events.vals()){
-                switch(event.operation){
-                    case("sale"){
-                        collections := _addCollectionToInvolvedCollections(collections, event.collection);
-                        let {to; from; price} = _saleDetails(event);
-                        if(to == account_identifier){
-                            number_sell := number_sell + 1;
-                            icps_sell := icps_sell + price;
-                        } else if (from == account_identifier){
-                            number_buy := number_buy + 1;
-                            icps_buy := icps_buy + price;
-                        } else {
-                            // Do nothing.
-                        };
-                    };
-                    case("mint"){
-                        number_mint := number_mint + 1;
-                        collections := _addCollectionToInvolvedCollections(collections, event.collection);
-                    };
-                    // Operations we don't care about.
-                    case ("transfer") {};
-                    case("burn"){};
-                    case("approve"){};
-                    case("transferFrom"){};
-                    // In case of an unknown operation. For later.
-                    case (x){
-                        _Logs.logMessage("Unknown operation: " # x);
-                    };
-                };
-            };
-            return({
-                buy = (number_buy, Nat64.toNat(icps_buy));
-                sell = (number_sell, Nat64.toNat(icps_sell));
-                mint = number_mint;
-                collection_involved = collections.size();
-            });
-        };
-
-        /* 
-            Returns an engagement score based from the daily collected stat.
-            ⚠️ This is a very simple engagement score and should be improved with more data.
-            If there is one buy (at least) with more than 1 ICP the user is considered engaged and the score is 1.
-            If there is one sale (at least) with more than 1 ICP the user is considered engaged and the score is 1.
-            If there is one mint (at least) the user is considered engaged and the score is 1.
-            Otherwise the score is 0.
-        */
-        func _getDailyEngagementScore(stat : Types.CapStats) : Nat {
-            // Check mint
-            if(stat.mint > 0) {
-                return 1;
-            };
-            if(stat.buy.0 > 0 and stat.buy.1 >= 100_000_000) {
-                return 1;
-            };
-            if(stat.sell.0 > 0 and stat.sell.1 >= 100_000_000) {
-                return 1;
-            };
-            return 0;
-        };
-
-        /* 
-            Filter a list of events to only keep events that are relevant to the specified principal.
-        */
+        /* Filter a list of events to only keep events that are relevant to the specified principal */
         func _filterEventsByUser(p : Principal, account : Ext.AccountIdentifier,  events : [Types.ExtendedEvent]) : [Types.ExtendedEvent] {
             let r : Buffer.Buffer<Types.ExtendedEvent> = Buffer.Buffer<Types.ExtendedEvent>(0);
             for(event in events.vals()){
@@ -372,426 +396,83 @@ module {
             r.toArray();
         };
 
-        //////////
-        // API //
-        ////////
-
-        /* 
-            Returns the total engagement score of the principal between t1 and t2 by summing the engagement scores of all the days.
-         */
-        public func getScore(p : Principal, dates : [Date]) : Nat {
-            return _getSumEngagementScore(dates, p);
-        };
-
-        public func registerCollection(collection : Collection) : async Result.Result<(), Text> {
-            let cid = collection.contractId;
-            try {
-                let result = await cap_router.get_token_contract_root_bucket({
-                    canister = cid;
-                    witness = false;
-                });
-                switch(result.canister){
-                    case(? cid_bucket){
-                        cids.put(collection, cid_bucket);
+        /* Returns the activity of the user based on the recorded events of the day */
+        func _getDailyActivity(user : Principal, account : Ext.AccountIdentifier, events : [ExtendedEvent]) : Activity {
+            var number_buy : Nat = 0;
+            var icps_buy : Nat64 = 0;
+            var number_sell : Nat = 0;
+            var icps_sell : Nat64 = 0;
+            var number_mint : Nat = 0;
+            var number_burn : Nat = 0;
+            var accessory_burned : Nat = 0;
+            var accessory_minted : Nat = 0;
+            var collections : [Principal] = [];
+            for (event in events.vals()){
+                collections := _addCollectionToInvolvedCollections(collections, event.collection);
+                switch(event.operation){
+                    case("sale"){
+                        let {to; from; price} = _saleDetails(event);
+                        if(to == account){
+                            number_sell := number_sell + 1;
+                            icps_sell := icps_sell + price;
+                        } else if (from == account){
+                            number_buy := number_buy + 1;
+                            icps_buy := icps_buy + price;
+                        }
                     };
-                    case(null){
-                        return #err("No bucket found");
+                    case("mint"){
+                        number_mint := number_mint + 1;
+                        if(event.collection == Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai") and _isEventAccessory(event)){
+                            accessory_minted := accessory_minted + 1;
+                        };
+                    };
+                    case("burn"){
+                        number_burn := number_burn + 1;
+                        if(event.collection == Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai") and _isEventAccessory(event)){
+                            accessory_burned := accessory_burned + 1;
+                        };
+                    };
+                    case("approve"){};
+                    case("transferFrom"){};
+                    case(x) {
+                        _Logs.logMessage("WARNING :: unknown operation: " # x);
                     };
                 };
-            } catch e {
-                return #err(Error.message(e));
             };
-            return #ok();
-        };
-
-        public func updateUserInteractedCollections(user : Principal) : async Result.Result<Nat, Text> {
-            try {
-                let result = await cap_router.get_user_root_buckets({
-                    user;
-                    witness = false;
-                });
-                cid_interacted_collections.put(user, result.contracts);
-                return #ok(result.contracts.size());
-            } catch e {
-                return #err(Error.message(e));
-            };
+            return({
+                buy = (number_buy, Nat64.toNat(icps_buy));
+                sell = (number_sell, Nat64.toNat(icps_sell));
+                mint = number_mint;
+                burn = number_burn;
+                accessory_minted = accessory_minted;
+                accessory_burned = accessory_burned;
+                collection_involved = collections.size();
+            });
         };
 
         /* 
-            Returns the number of collections this user has any interaction with. 
-         */
-        public func numberCollectionsInteracted(user : Principal) : async Nat {
-            let result = await cap_router.get_user_root_buckets({
-                user;
-                witness = false;
-            });
-            return(result.contracts.size());
-        };  
-
-        /*  
-            Returns the number of operations (among those specified) the user has performed across all collections that he has interacted with.
-            @param user : The user to perform the count on.
-            @param operations : A list of operations to count.
-            @param (opt) : To eventually specify a list of collections to look across. If null we check the interacted_collections TrieMap.
+            Returns an engagement score based from the daily activity.
+            ⚠️ This is a very simple engagement score and should be improved with more data.
+            If there is one buy (at least) with more than 1 ICP the user is considered engaged and the score is 1.
+            If there is one sale (at least) with more than 1 ICP the user is considered engaged and the score is 1.
+            If there is one mint (at least) the user is considered engaged and the score is 1.
+            Otherwise the score is 0.
         */
-        public func numberOperations(user : Principal, operations : [Text] , cid_buckets : ?[Principal]) : async Nat {
-            let cids_to_check : [Principal] = switch(cid_buckets){
-                case(? cids){cids};
-                case(null){
-                    switch(cid_interacted_collections.get(user)){
-                        case(? cids){cids};
-                        case(null){[]};
-                    };
-                };
+        func _getDailyEngagementScore(stat : Activity) : Nat {
+            // Check mint
+            if(stat.mint > 0) {
+                return 1;
             };
-            var count : Nat = 0;
-            for(cid in cids_to_check.vals()){
-                // When Promise.all. Currently this might take a long time to perfom 😢
-                let bucket : Types.Bucket = actor(Principal.toText(cid));
-                try {
-                    let result = await bucket.get_user_transactions({
-                        page = null;
-                        user;
-                        witness = false;
-                    });
-                    let events = result.data;
-                    for(event in events.vals()){
-                        switch(Array.find<Text>(operations, func(x) {Text.equal(x, event.operation)} )){
-                            case(null){};
-                            case(? some){
-                                count += 1;
-                            };
-                        };
-                    };
-                } catch e {
-                    _Logs.logMessage("Error when querying transactions for user " # Principal.toText(user) # " and bucket " # Principal.toText(cid) # " : " # Error.message(e));
-                };
+            if(stat.buy.0 > 0 and stat.buy.1 >= 100_000_000) {
+                return 1;
             };
-            return(count);
-        };
-
-
-        /* 
-            Returns stats on the sale of the specified user (Number of sales, Total ICPs) the user has performed across all collections that he has interacted with.
-            @param user : The user to perform the count on.
-            @param (opt) : To eventually specify a list of collections to look across. If null we check the interacted_collections TrieMap.
-            @param (opt) : To eventually specify a start date.
-            @param (opt) : To eventually specify an end date.
-            ⚠️ This function takes an extremely long time and is expensive.
-         */
-        public func statsSales(
-            user : Principal, 
-            cid_buckets : ?[Principal], 
-            time_start : ?Time.Time,
-            time_end : ?Time.Time
-            ) : async Result.Result<(Nat, Nat), Text> {
-            let potential_sale_nomenclature : [Text] = ["sale", "Sale", "Sell", "sell", "SALE", "SELL"];
-            let account_identifier = Text.map(Ext.AccountIdentifier.fromPrincipal(user, null), Prim.charToLower);
-            let cids_to_check : [Principal] = switch(cid_buckets){
-                case(? cids){cids};
-                case(null){
-                    switch(cid_interacted_collections.get(user)){
-                        case(? cids){cids};
-                        case(null){[]};
-                    };
-                };
+            if(stat.sell.0 > 0 and stat.sell.1 >= 100_000_000) {
+                return 1;
             };
-            var count_number_of_sales : Nat = 0;
-            var count_total_icps : Nat64 = 0;
-            for(cid in cids_to_check.vals()){
-                // Need to query all the pages until the last. 
-                let bucket : Types.Bucket = actor(Principal.toText(cid));
-                var is_page_empty : Bool = false;
-                var page_number : Nat32 = 0;
-                while(not is_page_empty){
-                    try {
-                        let result = await bucket.get_transactions({
-                        page = ?page_number;
-                        witness = false;
-                        });
-                        let events = result.data;
-                        for(event in events.vals()){
-                            if(_isTimeBound(Nat64.toNat(event.time), time_start, time_end)){
-                                switch(Array.find<Text>(potential_sale_nomenclature, func(x) {Text.equal(x, event.operation)} )){
-                                    case(null){};
-                                    case(? some){
-                                        if(_isSaleFrom(event, account_identifier)){
-                                            count_number_of_sales += 1;
-                                            count_total_icps += _getICPAmount(event, cid);
-                                        };
-                                    };
-                                };
-                            };
-                        };
-                        page_number += 1;
-                        // We put a high limit at 100 on the number of pages we can query by precautionary measure. 
-                        if(events.size() == 0 or page_number > 100){
-                            is_page_empty := true;
-                        };
-                    } catch e {
-                        _Logs.logMessage("Error when querying transactions for user " # Principal.toText(user) # " and bucket " # Principal.toText(cid) # " : " # Error.message(e));
-                        return #err(Error.message(e));
-                    };      
-                };  
-            };
-            return #ok((count_number_of_sales, Nat64.toNat(count_total_icps)));
-        };
-
-
-        public func numberMint(caller : Principal, name : ?Text) : async Nat {
-            // Query the list of events for this user from the CAP bucket.
-            let result = await bucket_accessory.get_user_transactions({
-                page = null;
-                user = caller;
-                witness = false;
-            });
-            let events = result.data;
-            // Count the number of mint events (corresponding to the eventual accessories or to all).
-            var count : Nat = 0;
-            switch(name){
-                case(null) {
-                    // Count all the mint events.
-                    for(event in events.vals()){
-                        if(event.operation == "mint"){
-                            count += 1;
-                        };
-                    };
-                };
-                case(? name){
-                    // Count only the mint events corresponding to the given name.
-                    for(event in events.vals()){
-                        if(event.operation == "burn"){
-                            if(_isEventAbout(name, event)){
-                                count += 1;
-                            };
-                        };
-                    };
-                };
-            };
-            return count;
+            return 0;
         };
         
-        public func numberBurn(caller : Principal, name : ?Text) : async Nat {
-            // Query the list of events for this user from the CAP bucket.
-            let result = await bucket_accessory.get_user_transactions({
-                page = null;
-                user = caller;
-                witness = false;
-            });
-            let events = result.data;
-            // Count the number of burn events (corresponding to the eventual accessories or to all).
-            var count : Nat = 0;
-            switch(name){
-                case(null) {
-                    // Count all the burn events.
-                    for(event in events.vals()){
-                        if(event.operation == "burn"){
-                            count += 1;
-                        };
-                    };
-                };
-                case(? name){
-                    // Count only the burn events corresponding to the given name.
-                     for(event in events.vals()){
-                        if(event.operation == "burn"){
-                            if(_isEventAbout(name, event)){
-                                count += 1;
-                            };
-                        };
-                    };
-                };
-            };
-            return count;
-        };
-
-        public func numberBurnAccessory(caller : Principal, name : ?Text) : async Nat {
-            // Query the list of events for this user from the CAP bucket.
-            let result = await bucket_accessory.get_user_transactions({
-                page = null;
-                user = caller;
-                witness = false;
-            });
-            let events = result.data;
-            // Count the number of burn events (corresponding to the eventual accessories or to all).
-            var count : Nat = 0;
-            switch(name){
-                case(null) {
-                    // Count all the burn events.
-                    for(event in events.vals()){
-                        if(event.operation == "burn"){
-                            if(_isEventAccessory(event)){
-                                count += 1;
-                            };
-                        };
-                    };
-                };
-                case(? name){
-                    // Count only the burn events corresponding to the given name.
-                     for(event in events.vals()){
-                        if(event.operation == "burn"){
-                            if(_isEventAbout(name, event)){
-                                count += 1;
-                            };
-                        };
-                    };
-                };
-            };
-            return count;
-        };
-
-        /* 
-            Returns the cumulative stats of the specified user. Tracking starts from the 20th of June 2022.
-         */
-        // 20th of June 2022
-        let BEGIN_TIME : Time.Time = 1655729084018865799;
-        public func getAllTimeStats(caller : Principal) : CapStats {
-            let dates = _getDatesBetween(BEGIN_TIME, Time.now());
-            var r : Buffer.Buffer<CapStats> = Buffer.Buffer(0);
-            for(date in dates.vals()){
-                switch(stats_daily.get(date, caller)){
-                    case(null){};
-                    case(? stats){
-                        r.add(stats);
-                    };
-                };
-            };
-            let stats = r.toArray();
-            return _getCumulativeStats(stats);
-        };
-
-        /////////////
-        // Admins //
-        ///////////
-
-        public func getAllOperations() : async [(Text, Nat)] {
-            let r = TrieMap.TrieMap<Text,Nat>(Text.equal, Text.hash);
-            for((cid, events) in daily_cached_events_per_collection.entries()){
-                for(event in events.vals()){
-                    let operation = event.operation;
-                    switch(r.get(operation)){
-                        case(null){
-                            r.put(operation, 1);
-                        };
-                        case(? nb){
-                            r.put(operation, nb + 1);
-                        };
-                    };
-                };
-            };
-            return Iter.toArray(r.entries());
-        };
-
-
-        public func registerAllCollections() : async Result.Result<(), Text> {
-            let collections : [Types.NFT_CANISTER] = await dab.get_all();
-            for(collection in collections.vals()){
-                let obj : Collection = {
-                    name = collection.name;
-                    contractId = collection.principal_id;
-                };
-                switch(await registerCollection(obj)){
-                    case(#ok()){};
-                    case(#err(e)){
-                        _Logs.logMessage("No bucket found for : " # Principal.toText(collection.principal_id));
-                    };
-                }
-            };
-            return #ok();
-        };
-
-        public func getStatsUser(p : Principal) : async [(Date, Types.CapStats)] {
-            let r : Buffer.Buffer<(Date, Types.CapStats)> = Buffer.Buffer(0);
-            for(((date, user), stats) in stats_daily.entries()){
-                if(p == user){
-                    r.add(date, stats);
-                };
-            };
-            return r.toArray();
-        };
-
-        //////////////
-        // Helpers //
-        ////////////
-
-        /*
-            Returns a boolean indicating if an event is related to an accessory by looking over the available details and finding the name.  
-        */
-        func _isEventAbout(
-            name : Text,
-            event : Types.Event
-            ) : Bool {
-            let details = event.details;
-            for((key, value) in details.vals()){
-                if(key == "name"){
-                    switch(value){
-                        case(#Text(message)){
-                            return (message == name);
-                        };
-                        case _ {
-                            return false;
-                        };
-                    };
-                };
-            };
-            return false;
-        };
-
-
-        /*
-            Returns a boolean indicating if an event was performed during the (optional) given time interval. 
-         */
-        func _isTimeBound(
-            event : Time.Time,
-            time_start : ?Time.Time,
-            time_end : ?Time.Time
-            ) : Bool {
-            switch(time_start){
-                case(? start){
-                    if(event < start){
-                        return false;
-                    };
-                };
-                case(null){};
-            };
-            switch(time_end){
-                case(? end){
-                    if(event > end){
-                        return false;
-                    };
-                };
-                case(null){};
-            };
-            return true;
-        };
-
-        /* 
-            Returns a boolean indicating if a sale was perfomed by the given account.
-            Returns false if the event was not a sale or if the account was not the seller.
-         */
-        func _isSaleFrom(
-            event : Types.Event,
-            account : Ext.AccountIdentifier
-        ) : Bool {
-            let details = event.details;
-            for((key, value) in details.vals()){
-                if(key == "from"){
-                    switch(value){
-                        case(#Text(message)){
-                            return (message == account);
-                        };
-                        case _ {
-                            return false;
-                        };
-                    };
-                };
-            };
-            return false;
-        };
-
-        /* 
-            Returns (from, to, icps) from a sale event.
-        
-         */
+        /* Returns (from, to, icps) from a sale event (assuming the informations are available) */
         func _saleDetails(
             event : Types.Event
         ) : {to : Text; from : Text; price : Nat64} {
@@ -831,35 +512,7 @@ module {
             return ({to; from; price;});
         };
 
-
-        /* 
-            This function is an attempt to get the ICP price of a sale. 
-            Different standards in the nomenclature are used so it's not guarantee to work in all cases.
-            In case of a miss : log a message so we can fix it later.
-         */
-        func _getICPAmount(
-            sale_event : Types.Event,
-            collection : Principal
-            ) : Nat64 {
-            let details = sale_event.details;
-            for((key, value) in details.vals()){
-                if(key == "price" or key == "Price"){
-                    switch(value){
-                        case(#U64(value)){
-                            return value;
-                        };
-                        case _ {};
-                    };
-                };
-            };
-            _Logs.logMessage("ERR :: Could not find the ICP amount of the sale event : " # Principal.toText(collection));
-            return 0;
-        };
-
-
-        /* 
-            Returns an extended event from an event and the collection involved.
-         */
+        /* Returns an extended event from an event and the collection involved */
         func _eventToExtendendEvent(
             event : Types.Event,
             collection : Principal
@@ -873,9 +526,7 @@ module {
             })
         };
 
-        /* 
-            Add a new collection to a list of collections if the collection is not already in the list.
-         */
+        /* Add a new collection to a list of collections if the collection is not already in the list */
         func _addCollectionToInvolvedCollections(
             involved_collections : [Principal],
             collection : Principal
@@ -890,10 +541,7 @@ module {
             };
         };
 
-        
-        /* 
-            Returns the sum of all engagement scores found for the provided dates and user.
-         */
+        /* Returns the sum of all engagement scores found for the provided dates and user */
         func _getSumEngagementScore(dates : [Date], p : Principal) : Nat {
             var sum : Nat = 0;
             for(date in dates.vals()){
@@ -907,15 +555,21 @@ module {
             return sum;
         };
 
-        /*
-            Takes T1 & T2 and returns an array of dates between T1 and T2. 
-         */
-        func _getDatesBetween(start : Time.Time, end : Time.Time) : [Date] {
-            if(end < start){
+        /* Takes T1 & T2 and returns the array of dates between T1 and T2 */
+        func _getDatesBetween(t1 : ?Time.Time, t2 : ?Time.Time) : [Date] {
+            var buffer : Buffer.Buffer<Date> = Buffer.Buffer<Date>(0);
+            let start = switch(t1){
+                case(? t1) {t1};
+                case(null) {BEGIN_TIME};
+            };
+            let end = switch(t2){
+                case(? t2) {t2};
+                case(null) {Time.now()};
+            };
+            if(start > end){
                 assert(false);
                 return [];
             };
-            var buffer : Buffer.Buffer<Date> = Buffer.Buffer<Date>(0);
             let date_start = switch(DateModule.Date.toDatePartsISO8601(start)){
                 case(null) {
                     assert(false);
@@ -945,36 +599,8 @@ module {
             };
             return buffer.toArray();
         };
-        
-        /* 
-            Returns the cumulative stats from a list of stats.
-         */
-        func _getCumulativeStats(stats : [CapStats]) : CapStats {
-            var number_buy : Nat = 0;
-            var icps_buy : Nat = 0;
-            var number_sell : Nat = 0;
-            var icps_sell : Nat = 0;
-            var number_mint : Nat = 0;
-            var involved_collections : Nat = 0;
-            for(stat in stats.vals()){
-                number_buy += stat.buy.0;
-                icps_buy += stat.buy.1;
-                number_sell += stat.sell.0;
-                icps_sell += stat.sell.1;
-                number_mint += stat.mint;
-                involved_collections += stat.collection_involved;
-            };
-            return({
-                buy = (number_buy, icps_buy);
-                sell = (number_sell, icps_sell);
-                mint = number_mint;
-                collection_involved = involved_collections;
-            });
-        };
 
-        /* 
-            Returns a boolean indicating if the event is related to an accessory.
-         */
+        /* Returns a boolean indicating if the event is related to an accessory.*/
         func _isEventAccessory(event : Event) : Bool {
             let details = event.details;
             let potential_materials_name : [Text] = ["Cloth", "Wood", "Glass", "Circuit", "Metal", "Dfinity-stone", "Cronic-essence", "Punk-essence"];
@@ -1001,48 +627,130 @@ module {
             return false;
         };
 
-    /* 
-        Returns a boolean indicating if an event is involving an Account.
-    */
-    func _isEventRelatedToAccount(account : Ext.AccountIdentifier ,event : Event) : Bool {
-        let details = event.details;
-        for((key, value) in details.vals()){
-            switch(key){
-                case("from"){
-                    switch(value){
-                        case(#Text(account)){
-                            return true;
+        /* Returns a boolean indicating if an event is involving an Account */
+        func _isEventRelatedToAccount(account : Ext.AccountIdentifier, event : Event) : Bool {
+            let details = event.details;
+            for((key, value) in details.vals()){
+                switch(key){
+                    case("from"){
+                        switch(value){
+                            case(#Text(account)){
+                                return true;
+                            };
+                            case _ {};
                         };
-                        case _ {};
                     };
-                };
-                case("to"){
-                    switch(value){
-                        case(#Text(account)){
-                            return true;
+                    case("to"){
+                        switch(value){
+                            case(#Text(account)){
+                                return true;
+                            };
+                            case _ {};
                         };
-                        case _ {};
                     };
+                    case _ {};
                 };
-                case _ {};
             };
+            return false;
         };
-        return false;
-    };
 
-    /* 
-        Returns a list of all the (extended) events of the day.
-    */
-    func _getAllEventsExtendedDay() : [Types.ExtendedEvent] {
-        let r : Buffer.Buffer<Types.ExtendedEvent> = Buffer.Buffer<Types.ExtendedEvent>(0);
-        for((cid, events) in daily_cached_events_per_collection.entries()){
-            for(event in events.vals()){
-                let extended_event = _eventToExtendendEvent(event, cid);
-                r.add(extended_event);
+        /* Returns a boolean indicating if an event is related to a given name by looking over the available details and finding the name */
+        func _isEventAbout(
+            name : Text,
+            event : Types.Event
+            ) : Bool {
+            let details = event.details;
+            for((key, value) in details.vals()){
+                if(key == "name"){
+                    switch(value){
+                        case(#Text(message)){
+                            return (message == name);
+                        };
+                        case _ {
+                            return false;
+                        };
+                    };
+                };
+            };
+            return false;
+        };
+
+        /* Returns a boolean indicating if an event was performed during the (optional) given time interval. */
+        func _isTimeBound(
+            event : Time.Time,
+            time_start : ?Time.Time,
+            time_end : ?Time.Time
+            ) : Bool {
+            switch(time_start){
+                case(? start){
+                    if(event < start){
+                        return false;
+                    };
+                };
+                case(null){};
+            };
+            switch(time_end){
+                case(? end){
+                    if(event > end){
+                        return false;
+                    };
+                };
+                case(null){};
+            };
+            return true;
+        };
+
+        /* Returns a boolean indicating if a sale was perfomed by the given account*/
+        func _isSaleFrom(
+            event : Types.Event,
+            account : Ext.AccountIdentifier
+        ) : Bool {
+            let details = event.details;
+            for((key, value) in details.vals()){
+                if(key == "from"){
+                    switch(value){
+                        case(#Text(message)){
+                            return (message == account);
+                        };
+                        case _ {
+                            return false;
+                        };
+                    };
+                };
+            };
+            return false;
+        };
+
+        /* Returns a list of all the (extended) events of the day */
+        func _getAllEventsExtendedDay() : [Types.ExtendedEvent] {
+            let r : Buffer.Buffer<Types.ExtendedEvent> = Buffer.Buffer<Types.ExtendedEvent>(0);
+            for((cid, events) in daily_cached_events_per_collection.entries()){
+                for(event in events.vals()){
+                    let extended_event = _eventToExtendendEvent(event, cid);
+                    r.add(extended_event);
+                };
+            };
+            r.toArray();
+        };
+
+        func _addToInteractedCollection(
+            p : Principal,
+            collection : Principal
+        ) : () {
+            switch(interacted_collections.get(p)){
+                case(null) {
+                    interacted_collections.put(p, [collection]);
+                };
+                case(? collections) {
+                    switch(Array.find<Principal>(collections, func(x) {x == collection})){
+                        case(null) {
+                            interacted_collections.put(p, Array.append<Principal>(collections, [collection]));
+                        };
+                        case(? _){};
+                    };
+                };
             };
         };
-        r.toArray();
-    };
 
     };
 };

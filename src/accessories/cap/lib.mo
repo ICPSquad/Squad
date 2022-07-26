@@ -59,8 +59,11 @@ module {
                 };
             };
         };
-        
 
+        public func insertEvent(event : Types.IndefiniteEvent) : () {
+            pendingEvents := List.push(event, pendingEvents);
+        };
+        
         // Process the queue of events (in case they have failed before)
         var pendingCount : Nat = 0;
         public func cronEvents () : async () {

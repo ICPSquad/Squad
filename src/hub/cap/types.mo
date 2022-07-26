@@ -21,6 +21,17 @@ module {
         collection_involved : Nat; // Number of interaction with different collections
     };
 
+    public type CumulativeActivity = {
+        buy : (Nat, Nat); // (Number of operations, ICP)
+        sell : (Nat, Nat); // (Number of operations, ICP)
+        mint : Nat; // Number of operations
+        burn : Nat; // Number of operations
+        accessory_burned : Nat; // Number of operations
+        accessory_minted : Nat; // Number of operations
+        collections : [Principal]; // List of collections involved
+        score : Nat;
+    };
+
     public type DetailValue = {
         #I64 : Int64;
         #U64 : Nat64;

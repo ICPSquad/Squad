@@ -195,25 +195,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         await _Cap.numberOperations(user, operations, cids_buckets);
     };
 
-    /* 
-        Returns stats on the sale of the specified user (Number of sales, Total ICPs) the user has performed across many collections.
-        @param user : The user to perform the count on.
-        @param cids_buckets (opt) : To eventually specify a list of collections to look across. If null then process on the interacted collections of the user.
-        @param time_start (opt) : To eventually specify a start date.
-        @param time_end (opt) : To eventually specify an end date.
-        @ok : (Number of sales, Total ICPs)
-        @err : Error message
-        ⚠️ This function can take several minutes to resolve.
-    */
-    public func get_stats_sales(
-        user : Principal,
-        cids_buckets : ?[Principal],
-        time_start : ?Time.Time,
-        time_end : ?Time.Time,
-    ) : async Result.Result<(Nat, Nat), Text> {
-        _Monitor.collectMetrics();
-        await _Cap.statsSales(user, cids_buckets, time_start, time_end);
-    };
 
     /* 
         Returns a summary of the daily cached events of the day accross all registered collections.
@@ -239,37 +220,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         await _Cap.registerAllCollections();
     };  
 
-    /* 
-        Returns a list of the registered collections.
-        @return : [(Collection, Cid of the bucket)]
-    */
-    public query func get_collections() : async [(Collection, Principal)] {
-        _Monitor.collectMetrics();
-        _Cap.getCollections();
-    };
-
-    /* 
-        Returns a list of the interacted collections for each user.
-        @return : [(User, [(Cid of interacted buckets)])]
-        @auth : admin
-    */
-    public shared query ({ caller }) func get_interacted_collections() : async [(Principal, [Principal])] {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Cap.getInteractedCollections();
-    };
-
-    /* 
-        Returns a list of the event of the day for each collection.
-        @return : [(Cid of the bucket, [Events of the last 24 hours])]
-        @auth : admin
-    */
-    public shared query ({ caller }) func get_daily_cached_events_per_collection() : async [(Principal, [Event])] {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Cap.getDailyCachedEventsPerCollection();
-    };
-
     public shared ({ caller }) func get_number_burn(p : Principal) : async Nat {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
@@ -282,11 +232,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         await _Cap.getStatsUser(p);
     };
 
-    public shared ({ caller }) func get_registered_collections() : async [(Cap.Collection, Principal)] {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Cap.getCollections();
-    };
 
     ////////////////
     // MISSION ////

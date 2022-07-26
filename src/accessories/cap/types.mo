@@ -6,7 +6,6 @@ module {
     public type IndefiniteEvent = Root.IndefiniteEvent;
     public type Event = Root.Event;
     public type DetailValue = Root.DetailValue;
-    
 
     public type Dependencies = {
         _Logs : Canistergeek.Logger;
