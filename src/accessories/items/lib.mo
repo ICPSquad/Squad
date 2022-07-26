@@ -143,7 +143,7 @@ module {
             switch(template){
                 case(#Accessory(template)) {
                     _recipes.put(name, template.recipe);
-                    _Logs.logMessage("Recipe added for accessory: " # name);
+                    _Logs.logMessage("TASK :: recipe added for accessory: " # name);
                 };
                 case _ {};
             };
@@ -172,13 +172,13 @@ module {
             let index = switch(Ext.TokenIdentifier.decode(accessory)){
                 case(#ok(p, i)) {
                     if(p != dependencies.cid){
-                        _Logs.logMessage("Error when decoding the tokenIdentifier : " # accessory # "the canister id is " # Principal.toText(p));
-                        return #err("Error when decoding the tokenIdentifier : " # accessory);
+                        _Logs.logMessage("ERR :: decoding of tokenIdentifier : " # accessory # "the canister id is " # Principal.toText(p));
+                        return #err("Error when decoding of tokenIdentifier : " # accessory);
                     };
                     i;
                 };
                 case(#err(e)) {
-                    _Logs.logMessage("Error during decode of tokenIdentifier : " # accessory # ". Detail : " # e);
+                    _Logs.logMessage("ERR :: decoding of tokenIdentifier : " # accessory # ". Detail : " # e);
                     return #err(e);
                 };
             };
@@ -187,16 +187,16 @@ module {
                     switch(item.equipped){
                         case(? avatar){
                             if(avatar == "InProgress"){
-                                _Logs.logMessage("Reentrancy attack detected from " # Principal.toText(caller));
+                                _Logs.logMessage("WARNING :: reentrancy attack detected from " # Principal.toText(caller));
                                 return #err("Accessory" # accessory # " is being equipped");
                             };
-                            _Logs.logMessage("Accessory " # accessory # " is already equipped on " # avatar);
+                            _Logs.logMessage("ERR :: accessory " # accessory # " is already equipped on " # avatar);
                             return #err("Accessory" # accessory # " is already equipped on " # avatar);
                         };
                         case(null) {
                             // Verify the wear value 
                             if(item.wear <= 1){
-                                _Logs.logMessage("Accessory " # accessory # " cannot be equipped (wear value too low)");
+                                _Logs.logMessage("ERR :: accessory " # accessory # " cannot be equipped (wear value too low)");
                                 return #err("Accessory" # accessory # " cannot be equipped (wear value too low)");
                             };
                             _items.put(index, _createAccessoryEquippedOn(item, ?"InProgress"));
@@ -204,18 +204,18 @@ module {
                                 // 🎯 Commit point for the state of the canister.
                                 switch(await AVATAR_ACTOR.wearAccessory(avatar, Text.map(item.name, Prim.charToLower), caller)){
                                     case(#ok(())) {
-                                        _Logs.logMessage("TASK :: Accessory " # accessory # " equipped on " # avatar);
+                                        _Logs.logMessage("EVENT :: Accessory " # accessory # " equipped on " # avatar);
                                         _items.put(index, _createAccessoryEquippedOn(item, ?avatar));
                                         return #ok;
                                     };
                                     case(#err(e)) {
-                                        _Logs.logMessage("Error during wearAccessory : " # e);
+                                        _Logs.logMessage("ERR :: wearAccessory : " # e);
                                         _items.put(index, _createAccessoryEquippedOn(item, null));
                                         return #err(e);
                                     };
                                 };
                             } catch e {
-                                _Logs.logMessage("Error during wearAccessory : " # Error.message(e));
+                                _Logs.logMessage("ERR :: wearAccessory : " # Error.message(e));
                                 _items.put(index, _createAccessoryEquippedOn(item, null));
                                 throw e;
                             };
@@ -223,7 +223,7 @@ module {
                     };
                 };
                 case _ {
-                    _Logs.logMessage("Accessory not found for tokenIndex : " # Nat32.toText(index));
+                    _Logs.logMessage("ERR :: accessory not found for index : " # Nat32.toText(index));
                     return #err("Accessory not found for tokenIdentifier : " # accessory);
                 };
             };

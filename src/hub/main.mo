@@ -177,6 +177,8 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     ////////////////
     // MISSION ////
     //////////////  
+    
+    let ONE_DAY_NANO = 24 * 60 * 60 * 1000 * 1000 * 1000;
 
     stable var _MissionUD : ?Mission.UpgradeData = null;
     let _Mission = Mission.Center({

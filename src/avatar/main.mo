@@ -498,10 +498,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         // Reduce capitalilisation of name
         switch(_Avatar.removeAccessory(avatar, Text.map(name, Prim.charToLower))){
             case(#err(_)){
-                _Logs.logMessage("CRITICAL :: " # "Accessory " # name # " not removed from avatar " # avatar);
+                _Logs.logMessage("CRITICAL ERR :: " # "Accessory " # name # " not removed from avatar " # avatar);
             };
             case(#ok){
-                _Logs.logMessage("TASK :: Accessory " # name # " removed from avatar " # avatar);
+                _Logs.logMessage("EVENT :: accessory " # name # " removed from avatar " # avatar);
             };
         };
         // Send a notification to the accessory canister
