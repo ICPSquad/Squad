@@ -222,10 +222,41 @@ module {
                     return collections.size();
                 };
             };
+        };  
+
+        /* Returns the number of accessory the user has burned */
+        public func numberBurn(p : Principal) : Nat {
+            let activity = getCumulativeActivity(p,null,null);
+            return activity.accessory_burned;
+        };
+        
+        /* Returns the number of accessory the user has minted */
+        public func numberMint(p : Principal) : Nat {
+            let activity = getCumulativeActivity(p,null,null);
+            return activity.accessory_minted;
+        };
+
+        /* Returns the (optional) recorded activity for the user at the specified time */
+        public func getDailyActivity(p : Principal, time : Time.Time) : ?Activity {
+            let date : Date = switch(DateModule.Date.nowToDatePartsISO8601()){
+                case(null){
+                    assert(false); 
+                    (0,0,0);
+                };
+                case(? date) {date};
+            };
+            switch(tracking_activity_daily.get((date, p))){
+                case(null){
+                    return null;
+                };
+                case(? activity){
+                    return ?activity;
+                };
+            };
         };
 
         /* Returns a cumulative activity calculated between t1 & t2 */
-        public func CumulativeActivity(p : Principal, t1 : ?Time.Time, t2 : ?Time.Time) : Activity {
+        public func getCumulativeActivity(p : Principal, t1 : ?Time.Time, t2 : ?Time.Time) : Activity {
             var number_buy : Nat = 0;
             var icps_buy : Nat = 0;
             var number_sell : Nat = 0;
@@ -284,46 +315,30 @@ module {
             return #ok();
         };
 
-        /*  
-            Returns the number of operations (among those specified) the user has performed across all collections that he has interacted with.
-            @param user : The user to perform the count on.
-            @param operations : A list of operations to count.
-            @param (opt) : To eventually specify a list of collections to look across. If null we check the interacted_collections TrieMap.
-        */
-        public func numberOperations(user : Principal, operations : [Text] , cid_buckets : ?[Principal]) : async Nat {
-            let cids_to_check : [Principal] = switch(cid_buckets){
-                case(? cids){cids};
-                case(null){
-                    switch(cid_interacted_collections.get(user)){
-                        case(? cids){cids};
-                        case(null){[]};
-                    };
-                };
-            };
-            var count : Nat = 0;
-            for(cid in cids_to_check.vals()){
-                // When Promise.all. Currently this might take a long time to perfom 😢
-                let bucket : Types.Bucket = actor(Principal.toText(cid));
-                try {
-                    let result = await bucket.get_user_transactions({
-                        page = null;
-                        user;
-                        witness = false;
-                    });
-                    let events = result.data;
-                    for(event in events.vals()){
-                        switch(Array.find<Text>(operations, func(x) {Text.equal(x, event.operation)} )){
-                            case(null){};
-                            case(? some){
-                                count += 1;
+        /* Returns a boolean indicating if the user has ever minted one of the accessory among all the names */
+        public func hasEverMinted(p : Principal, names : [Text]) : async Bool {
+            try {
+                let result = await bucket_accessory.get_user_transactions({
+                page = null;
+                user = p;
+                witness = false;
+                });
+                let events = result.data;
+                for(event in events.vals()){
+                    // Check if the event is a mint event.
+                    if(event.operation == "mint") {
+                        // Check if the mint event is for one of the names.
+                        for(name in names.vals()){
+                            if(_isEventAbout(name, event)){
+                                return true;
                             };
                         };
                     };
-                } catch e {
-                    _Logs.logMessage("ERR :: failed to query transactions for user " # Principal.toText(user) # " and bucket " # Principal.toText(cid) # " : " # Error.message(e));
                 };
+            } catch e {
+                _Logs.logMessage("ERR :: failed to query transactions for user : " # Principal.toText(p) # " and bucket : " # Principal.toText(dependencies.cid_bucket_accessory));
             };
-            return(count);
+            return false;
         };
 
         ////////////////
@@ -700,7 +715,7 @@ module {
             return true;
         };
 
-        /* Returns a boolean indicating if a sale was perfomed by the given account*/
+        /* Returns a boolean indicating if a sale was perfomed by the given account */
         func _isSaleFrom(
             event : Types.Event,
             account : Ext.AccountIdentifier

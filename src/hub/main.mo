@@ -162,76 +162,17 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         Manually register a new collection to the CAP module.
         @auth : admin
     */
-    public shared ({ caller }) func register_collection (collection : Collection) : async Result.Result<(), Text> {
+    public shared ({ caller }) func register_collection(collection : Collection) : async Result.Result<(), Text> {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         await _Cap.registerCollection(collection);
     };
     
-    /* 
-        Manually update the information on the interacted collections of the given user.
-        @auth : admin
-        @ok : Number of reported collections
-        @err : Error message
-     */
-    public shared ({ caller }) func update_user_interacted_collections(user : Principal) : async Result.Result<Nat, Text> {
+    public shared ({ caller }) func get_daily_activity(p : Principal, time : Time.Time) : async ?Cap.Activity {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        await _Cap.updateUserInteractedCollections(user);
+        _Cap.getDailyActivity(p, time);
     };
-
-    /* 
-        Returns the number of operations the user has performed across many collections.
-        @param user : The user to perform the count on.
-        @param operations : The operations to count.
-        @param cids_buckets : An (optional) list of collection to perform the count on. If null then process on the interacted collections of the user.  
-     */
-    public func get_number_operations(
-        user : Principal,
-        operations : [Text],
-        cids_buckets : ?[Principal]
-    ) : async Nat {
-        _Monitor.collectMetrics();
-        await _Cap.numberOperations(user, operations, cids_buckets);
-    };
-
-
-    /* 
-        Returns a summary of the daily cached events of the day accross all registered collections.
-        @return : [(Name of event, Number of occurence)]
-        @auth : admin
-    */
-    public shared ({ caller }) func get_all_operations() : async [(Text,Nat)]{
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Cap.getAllOperations();
-    };
-
-    /* 
-        Automatically register all collections from DAB that also have a CAP root bucket.
-        @ok : void
-        @err : Error message
-        @auth : admin
-        ⚠️ This function can take several minutes to resolve.
-    */
-    public shared ({ caller }) func register_all_collections () : async Result.Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Cap.registerAllCollections();
-    };  
-
-    public shared ({ caller }) func get_number_burn(p : Principal) : async Nat {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Cap.numberBurnAccessory(p, null);
-    };
-
-    public shared ({ caller }) func get_stats_user(p : Principal) : async [(Date, Cap.CapStats)] {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Cap.getStatsUser(p);
-    };
-
 
     ////////////////
     // MISSION ////
