@@ -168,10 +168,10 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         await _Cap.registerCollection(collection);
     };
     
-    public shared ({ caller }) func get_daily_activity(p : Principal, time : Time.Time) : async ?Cap.Activity {
+    public shared ({ caller }) func get_daily_activity(p : Principal, date : Cap.Date) : async ?Cap.Activity {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
-        _Cap.getDailyActivity(p, time);
+        _Cap.getDailyActivity(p, date);
     };
 
     public shared ({ caller }) func get_all_daily_events() : async [(Principal, [Cap.Event])] {
@@ -473,7 +473,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Logs.logMessage("CRON :: querying events");
         switch(await _Cap.cronEvents()){
             case(#err(e)){
-                _Logs.logMessage("CRON :: ERR :: error while querying events : " # e);
+                _Logs.logMessage("CRON :: ERaR :: error while querying events : " # e);
                 return #err(e);
             };
             case(#ok(nb)) {

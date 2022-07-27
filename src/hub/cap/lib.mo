@@ -237,7 +237,7 @@ module {
         };
 
         /* Update the daily events, activity and engagement scores for all users */
-        public func cronStats () : async Result.Result<(), Text> {
+        public func cronStats() : async Result.Result<(), Text> {
             let date : Date = switch(DateModule.Date.nowToDatePartsISO8601()){
                 case(null){
                     assert(false); 
@@ -257,7 +257,7 @@ module {
                     };
                 };
             };
-            _Logs.logMessage("CRON :: ACTIVITY & ENGAGEMENT SCORE " # " :: " # Nat.toText(infos.size()) # " users");
+            _Logs.logMessage("CRON :: activity & engagement score " # " :: " # Nat.toText(infos.size()) # " users");
             return #ok(());
         };
 
@@ -314,22 +314,8 @@ module {
         };
 
         /* Returns the (optional) recorded activity for the user at the specified time */
-        public func getDailyActivity(p : Principal, time : Time.Time) : ?Activity {
-            let date : Date = switch(DateModule.Date.nowToDatePartsISO8601()){
-                case(null){
-                    assert(false); 
-                    (0,0,0);
-                };
-                case(? date) {date};
-            };
-            switch(tracking_activity_daily.get((date, p))){
-                case(null){
-                    return null;
-                };
-                case(? activity){
-                    return ?activity;
-                };
-            };
+        public func getDailyActivity(p : Principal, date : Date) : ?Activity {
+            return(tracking_activity_daily.get((date, p)));
         };
 
         /* Returns a cumulative activity calculated between t1 & t2 */
