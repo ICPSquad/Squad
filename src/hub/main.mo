@@ -174,6 +174,18 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Cap.getDailyActivity(p, time);
     };
 
+    public shared ({ caller }) func get_all_daily_events() : async [(Principal, [Cap.Event])] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Cap.getAllDailyEvents();
+    };
+
+    public shared ({ caller }) func get_daily_events_user(p : Principal) : async [Cap.ExtendedEvent] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Cap.getDailyEventsUser(p);
+    };
+
     ////////////////
     // MISSION ////
     //////////////  
@@ -458,7 +470,17 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     public shared ({ caller }) func cron_events () : async Result.Result<Nat, Text> {
         assert(_Admins.isAdmin(caller) or caller == cid);
         _Monitor.collectMetrics();
-        await _Cap.cronEvents();
+        _Logs.logMessage("CRON :: querying events");
+        switch(await _Cap.cronEvents()){
+            case(#err(e)){
+                _Logs.logMessage("CRON :: ERR :: error while querying events : " # e);
+                return #err(e);
+            };
+            case(#ok(nb)) {
+                _Logs.logMessage("CRON :: " # "recorded " # Nat.toText(nb) # " events.");
+                return #ok(nb);
+            };
+        };
     };
     
     /* 
@@ -471,6 +493,16 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
 
     /* 
+        TESTING PURPOSE : only calculate the stats.
+    */
+    public shared ({ caller }) func cron_activity() : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.cronStats();
+    };
+
+
+    /* 
         Query all the buckets from all the registered collections on the IC and cache the event of the last 24 hours.
         THEN calculate the stats.
         @cronic : Every 12 hours.
@@ -478,26 +510,14 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     public shared ({ caller }) func cron_stats() : async Result.Result<(), Text> {
         assert(_Admins.isAdmin(caller) or caller == cid);
         _Monitor.collectMetrics();
-        _Logs.logMessage("CRON :: querying events");
         switch(await cron_events()){
+            case(#ok(nb)){
+                await _Cap.cronStats();
+            };
             case(#err(e)){
-                _Logs.logMessage("CRON :: ERR :: error while querying events : " # e);
                 return #err(e);
             };
-            case(#ok(nb)) {
-                _Logs.logMessage("CRON :: " # "recorded " # Nat.toText(nb) # " events.");
-            };
         };
-        await _Cap.cronStats();
-    };
-
-    /* 
-        TESTING PURPOSE : only calculate the stats.
-    */
-    public shared ({ caller }) func cron_stats_alone() : async Result.Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Cap.cronStats();
     };
 
     //////////////
@@ -505,7 +525,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     ////////////
 
     system func preupgrade() {
-        _Logs.logMessage("PREUPGRADE :: Hub");
+        _Logs.logMessage("PREUPGRADE :: hub");
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
         _AdminsUD := ? _Admins.preupgrade();
@@ -533,7 +553,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _MissionUD := null;
         _Cap.postupgrade(_CapUD);
         _CapUD := null;
-        _Logs.logMessage("POSTUPGRADE :: Hub");
+        _Logs.logMessage("POSTUPGRADE :: hub");
     };
 
     system func heartbeat() : async () {

@@ -169,12 +169,12 @@ module {
                 let event_specific_to_user = _filterEventsByUser(p, account, events);
                 daily_cached_events_per_user.put(p, event_specific_to_user);
                 // Update the list of interacted collections for the user.
-                for(event in event_specific_to_user.vals()){
-                    let collection = event.collection;
-                    _addToInteractedCollection(p, collection);
-                };
+                let interacted_collections : [Principal] = Array.map<ExtendedEvent, Principal>(event_specific_to_user, func(e : ExtendedEvent) : Principal {
+                    return e.collection;
+                });
+                _addToInteractedCollections(p, interacted_collections);
             };
-            _Logs.logMessage("CRON :: DAILY EVENTS FOR USERS & INTERACTED COLLECTIONS (Hub)");
+            _Logs.logMessage("CRON :: DAILY EVENTS FOR USERS & INTERACTED COLLECTIONS " # " :: " # Nat.toText(infos.size()) # " users");
             return #ok();
         };
 
@@ -199,7 +199,7 @@ module {
                     };
                 };
             };
-            _Logs.logMessage("CRON :: ACTIVITY & ENGAGEMENT SCORE (Hub)");
+            _Logs.logMessage("CRON :: ACTIVITY & ENGAGEMENT SCORE " # " :: " # Nat.toText(infos.size()) # " users");
             return #ok(());
         };
 
@@ -234,6 +234,21 @@ module {
         public func numberMint(p : Principal) : Nat {
             let activity = getCumulativeActivity(p,null,null);
             return activity.accessory_minted;
+        };
+
+        public func getAllDailyEvents() : [(Principal, [Event])] {
+            return (Iter.toArray(daily_cached_events_per_collection.entries()));
+        };
+
+        public func getDailyEventsUser(p : Principal) : [ExtendedEvent] {
+            switch(daily_cached_events_per_user.get(p)){
+                case(null){
+                    return [];
+                };
+                case(? events){
+                    return events;
+                };
+            };
         };
 
         /* Returns the (optional) recorded activity for the user at the specified time */
@@ -541,6 +556,33 @@ module {
             })
         };
 
+        func _addToInteractedCollections(
+            p : Principal,
+            collections : [Principal]
+        ) : () {
+            switch(interacted_collections.get(p)){
+                case(null){
+                    interacted_collections.put(p, collections);
+                };
+                case(? already_collections){
+                    let r : TrieMap.TrieMap<Principal,Bool> = TrieMap.TrieMap<Principal,Bool>(Principal.equal, Principal.hash);
+                    for(c in already_collections.vals()){
+                        r.put(c, true);
+                    };
+                    for(c in collections.vals()){
+                        switch(r.get(c)){
+                            case(null){
+                                r.put(c, true);
+                            };
+                            case(? _){};
+                        };
+                    };
+                    let total : [Principal] = Iter.toArray(r.keys());
+                    interacted_collections.put(p, total);
+                };
+            };
+        };
+
         /* Add a new collection to a list of collections if the collection is not already in the list */
         func _addCollectionToInvolvedCollections(
             involved_collections : [Principal],
@@ -747,25 +789,5 @@ module {
             };
             r.toArray();
         };
-
-        func _addToInteractedCollection(
-            p : Principal,
-            collection : Principal
-        ) : () {
-            switch(interacted_collections.get(p)){
-                case(null) {
-                    interacted_collections.put(p, [collection]);
-                };
-                case(? collections) {
-                    switch(Array.find<Principal>(collections, func(x) {x == collection})){
-                        case(null) {
-                            interacted_collections.put(p, Array.append<Principal>(collections, [collection]));
-                        };
-                        case(? _){};
-                    };
-                };
-            };
-        };
-
     };
 };
