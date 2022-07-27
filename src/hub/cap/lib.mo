@@ -232,7 +232,7 @@ module {
             for(event in events.vals()){
                 f(event);
             };
-            _Logs.logMessage("CRON :: daily events recorded : " # Nat.toText(total_operations_recorded) # " for " #  Nat.toText(infos.size()) # " users");
+            _Logs.logMessage("CRON :: total of daily events : " # Nat.toText(events.size()) # " recorded : " # Nat.toText(total_operations_recorded) # " from " #  Nat.toText(infos.size()) # " users");
             return #ok();
         };
 
