@@ -50,6 +50,14 @@ module {
         return _dateHash(a.0) ^ Principal.hash(a.1);
     };
 
+    public func tupplePrincipalEqual(a : (Principal, Principal), b : (Principal, Principal)) : Bool {
+        return Principal.equal(a.0, b.0) and Principal.equal(a.1, b.1);
+    };
+
+    public func tupplePrincipalHash(a : (Principal, Principal)) : Hash.Hash {
+        return Principal.hash(a.0) ^ Principal.hash(a.1);
+    };
+
 
     public class Factory(dependencies : Types.Dependencies) {
 
@@ -95,7 +103,7 @@ module {
         let tracking_activity_daily : TrieMap.TrieMap<(Date, Principal), Activity> = TrieMap.TrieMap<(Date,Principal), Activity>(customEqual, customHash);
 
         /* Interacted collections per user (cumulative) */
-        let interacted_collections : TrieMap.TrieMap<Principal, [Principal]> = TrieMap.TrieMap<Principal, [Principal]>(Principal.equal, Principal.hash);
+        let interacted_collections : TrieMap.TrieMap<(Principal,Principal), Bool> = TrieMap.TrieMap<(Principal,Principal), Bool>(tupplePrincipalEqual, tupplePrincipalHash);
 
         public func preupgrade() : UpgradeData {
             return({
@@ -164,17 +172,67 @@ module {
         /* Fill the daily events for each user by assigning events to users & update the list of interacted collections */
         public func cronUsers() : async Result.Result<(), Text> {
             let infos = await AVATAR_ACTOR.get_infos_accounts();
-            let events = _getAllEventsExtendedDay();
-            for((p, account) in infos.vals()){
-                let event_specific_to_user = _filterEventsByUser(p, account, events);
-                daily_cached_events_per_user.put(p, event_specific_to_user);
-                // Update the list of interacted collections for the user.
-                let interacted_collections : [Principal] = Array.map<ExtendedEvent, Principal>(event_specific_to_user, func(e : ExtendedEvent) : Principal {
-                    return e.collection;
-                });
-                _addToInteractedCollections(p, interacted_collections);
+            // Create and fill a temporary TrieMap to associate Account & Principal.
+            let r : TrieMap.TrieMap<Ext.AccountIdentifier, Principal> = TrieMap.TrieMap<Ext.AccountIdentifier, Principal>(Text.equal, Text.hash);
+            for(info in infos.vals()){
+                r.put(info.1, info.0);
             };
-            _Logs.logMessage("CRON :: DAILY EVENTS FOR USERS & INTERACTED COLLECTIONS " # " :: " # Nat.toText(infos.size()) # " users");
+            var total_operations_recorded : Nat = 0;
+            // Create a closure function that is used to assign events to users.
+            let f = func(e : ExtendedEvent) : () {
+                switch(e.operation){
+                    case("sale"){
+                        let {to; from} = _saleDetails(e);
+                        switch(r.get(to)){
+                            case(null){};
+                            case(? p){
+                                _addToDailyEventUser(p, e);
+                                total_operations_recorded += 1;
+                            };
+                        };
+                        switch(r.get(from)){
+                            case(null){};
+                            case(? p){
+                                _addToDailyEventUser(p, e);
+                                total_operations_recorded += 1;
+                            };
+                        };
+                    };
+                    case("mint"){
+                        let user = e.caller;
+                        _addToDailyEventUser(user, e);
+                        total_operations_recorded += 1;
+                    };
+                    case("burn"){
+                        // Special case for burn : it comes from the accessory collection!
+                        if(e.collection == Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai")){
+                            let burner = _getBurner(e);
+                            switch(r.get(burner)){
+                                case(null){
+                                    _Logs.logMessage("WARNING :: " # "no account responsible for burn event was found ");
+                                };
+                                case(? p){
+                                    _addToDailyEventUser(p, e);
+                                    total_operations_recorded += 1;
+                                };
+                            };
+                        } else {
+                            let user = e.caller;
+                            _addToDailyEventUser(user, e);
+                            total_operations_recorded += 1;
+                        }
+                    };
+                    case(_){
+                        // Nothing to do.
+                    };
+                };
+            };
+
+            let events = _getAllEventsExtendedDay();
+            for(event in events.vals()){
+                f(event);
+            };
+            _Logs.logMessage("CRON :: daily events recorded : " # Nat.toText(total_operations_recorded) # " for " #  Nat.toText(infos.size()) # " users");
             return #ok();
         };
 
@@ -214,14 +272,18 @@ module {
 
         /* Returns the number of different collections the user has interacted with */
         public func numberCollectionsInteracted(p : Principal) : Nat {
-            switch(interacted_collections.get(p)){
-                case(null){
-                    return 0;
-                };
-                case(? collections){
-                    return collections.size();
+            var nb : Nat = 0;
+            for(collection in cids.vals()){
+                switch(interacted_collections.get(p, collection)){
+                    case(null){};
+                    case(? b){
+                        if(b){
+                            nb += 1;
+                        };
+                    };
                 };
             };
+            nb;
         };  
 
         /* Returns the number of accessory the user has burned */
@@ -556,33 +618,6 @@ module {
             })
         };
 
-        func _addToInteractedCollections(
-            p : Principal,
-            collections : [Principal]
-        ) : () {
-            switch(interacted_collections.get(p)){
-                case(null){
-                    interacted_collections.put(p, collections);
-                };
-                case(? already_collections){
-                    let r : TrieMap.TrieMap<Principal,Bool> = TrieMap.TrieMap<Principal,Bool>(Principal.equal, Principal.hash);
-                    for(c in already_collections.vals()){
-                        r.put(c, true);
-                    };
-                    for(c in collections.vals()){
-                        switch(r.get(c)){
-                            case(null){
-                                r.put(c, true);
-                            };
-                            case(? _){};
-                        };
-                    };
-                    let total : [Principal] = Iter.toArray(r.keys());
-                    interacted_collections.put(p, total);
-                };
-            };
-        };
-
         /* Add a new collection to a list of collections if the collection is not already in the list */
         func _addCollectionToInvolvedCollections(
             involved_collections : [Principal],
@@ -711,6 +746,25 @@ module {
             return false;
         };
 
+        /* Returns the AccountIdentifier responsible from burning an accessory assuming the event is a Burn event from the accessory collection */
+        func _getBurner(event : ExtendedEvent) : Ext.AccountIdentifier {
+            let details = event.details;
+            for((key, value) in details.vals()){
+                switch(key){
+                    case("from"){
+                        switch(value){
+                            case(#Text(account)){
+                                return account;
+                            };
+                            case _ {};
+                        };
+                    };
+                    case _ {};
+                };
+            };
+            return "";
+        };
+
         /* Returns a boolean indicating if an event is related to a given name by looking over the available details and finding the name */
         func _isEventAbout(
             name : Text,
@@ -789,5 +843,20 @@ module {
             };
             r.toArray();
         };
+
+        func _addToDailyEventUser(
+            p : Principal,
+            event : ExtendedEvent
+        ) : () {
+            switch(daily_cached_events_per_user.get(p)){
+                case(null){
+                    daily_cached_events_per_user.put(p, [event]);
+                };
+                case(? events){
+                    daily_cached_events_per_user.put(p, Array.append<ExtendedEvent>(events, [event]));
+                };
+            };
+        };
+
     };
 };
