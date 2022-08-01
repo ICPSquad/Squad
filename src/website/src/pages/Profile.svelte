@@ -95,6 +95,11 @@
 <div class="page-header">
   <h1>Profile</h1>
 </div>
+<div class="menu-choice">
+  <div>Informations</div>
+  <div>Activity</div>
+  <div>Missions</div>
+</div>
 <div class="container">
   {#if !userProfile.loggedIn}
     <div class="not-logged-in">
@@ -227,6 +232,14 @@
 
   img {
     border-radius: 10px;
+  }
+
+  .menu-choice {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 20px;
   }
 
   .container {

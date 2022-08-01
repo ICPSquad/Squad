@@ -217,6 +217,17 @@ module {
             };
         };
 
+        public func getLeaderboard(n : Nat) : ?Leaderboard {
+            switch(_rounds.get(n)){
+                case(null){
+                    return null;
+                };
+                case(? round){
+                    return round.leaderboard;
+                };
+            };
+        };
+
         /* 
             Needed to communicate a list of Principal to the CAP module.
          */

@@ -21,3 +21,6 @@ sed -i '' '1s/.*/Name,Supply/' scripts/audits/$dir_name.csv
 # Fix indentation by removing the first space in each line two times    
 sed -i '' 's/ //' scripts/audits/$dir_name.csv
 sed -i '' 's/ //' scripts/audits/$dir_name.csv
+sed -i '' 's/ //' scripts/audits/$dir_name.csv
+
+sed -i '' 's/, /,/' scripts/audits/$dir_name.csv

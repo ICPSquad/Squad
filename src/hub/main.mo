@@ -168,10 +168,16 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         await _Cap.registerCollection(collection);
     };
     
-    public shared ({ caller }) func get_daily_activity(p : Principal, date : Cap.Date) : async ?Cap.Activity {
-        assert(_Admins.isAdmin(caller));
+    public query ({ caller }) func get_daily_activity(p : Principal, date : Cap.Date) : async ?Cap.Activity {
+        assert(_Admins.isAdmin(caller) or caller == p);
         _Monitor.collectMetrics();
         _Cap.getDailyActivity(p, date);
+    };
+
+    public query ({ caller }) func get_cumulative_activity(p : Principal, t1 : ?Time.Time, t2 : ?Time.Time) : async Cap.Activity {
+        assert(_Admins.isAdmin(caller) or caller == p);
+        _Monitor.collectMetrics();
+        _Cap.getCumulativeActivity(p, t1, t2);
     };
 
     public shared ({ caller }) func get_all_daily_events() : async [(Principal, [Cap.Event])] {
@@ -352,6 +358,22 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     */
     public query func get_leaderboard() : async ?Leaderboard {
         _Leaderboard.getCurrentLeaderboard();
+    };
+
+    /* 
+        Get the (optional) simplified version of the leaderbord
+    */
+    public query func get_leaderboard_simplified(n : Nat) : async ?[(Principal,Nat)] {
+        let leaderboard_opt :?Leaderboard = _Leaderboard.getLeaderboard(n);
+        switch(leaderboard_opt){
+            case(null){
+                return null;
+            };
+            case(? leaderboard){
+                let simplified : [(Principal, Nat)] = Array.map<(Principal, ?Text, ?Text, ?Nat, ?Nat, Nat),(Principal,Nat)>(leaderboard, func(x) {(x.0, x.5)});
+                return ?simplified
+            };
+        };
     };
 
     /* 
