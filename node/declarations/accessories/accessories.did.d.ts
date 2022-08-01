@@ -109,6 +109,7 @@ export interface ICPSquadNFT {
   'balance' : ActorMethod<[BalanceRequest], BalanceResponse>,
   'bearer' : ActorMethod<[TokenIdentifier], Result_6>,
   'burn_accessory' : ActorMethod<[TokenIndex], undefined>,
+  'checkInventory' : ActorMethod<[Principal], Result_5>,
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
   'confirmed_burned_accessory' : ActorMethod<[TokenIndex], undefined>,
   'create_accessory' : ActorMethod<[string, bigint], Result__1_1>,
@@ -121,6 +122,11 @@ export interface ICPSquadNFT {
   'disbursement_pending_count' : ActorMethod<[], bigint>,
   'disbursement_queue_size' : ActorMethod<[], bigint>,
   'extensions' : ActorMethod<[], Array<Extension>>,
+  'fix_items' : ActorMethod<[], undefined>,
+  'fix_transfer' : ActorMethod<
+    [TokenIdentifier, Principal, AccountIdentifier__2],
+    Result,
+  >,
   'getCanisterLog' : ActorMethod<
     [[] | [CanisterLogRequest]],
     [] | [CanisterLogResponse],
@@ -135,6 +141,15 @@ export interface ICPSquadNFT {
   'get_accessories_holders' : ActorMethod<
     [],
     Array<[AccountIdentifier__2, bigint]>,
+  >,
+  'get_avatar_equipped' : ActorMethod<
+    [TokenIdentifier],
+    [] | [TokenIdentifier],
+  >,
+  'get_items' : ActorMethod<[], Array<[string, Array<TokenIndex>]>>,
+  'get_materials' : ActorMethod<
+    [Principal, boolean],
+    Array<[TokenIndex, string]>,
   >,
   'get_name' : ActorMethod<[TokenIndex], [] | [string]>,
   'get_recipes' : ActorMethod<[], Array<[string, Recipe__1]>>,

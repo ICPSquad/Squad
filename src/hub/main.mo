@@ -167,6 +167,12 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Monitor.collectMetrics();
         await _Cap.registerCollection(collection);
     };
+
+    public query ({ caller }) func get_all_collections() : async [(Cap.Collection, Principal)] {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Cap.getAllCollections();
+    };
     
     public query ({ caller }) func get_daily_activity(p : Principal, date : Cap.Date) : async ?Cap.Activity {
         assert(_Admins.isAdmin(caller) or caller == p);

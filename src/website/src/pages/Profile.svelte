@@ -2,18 +2,28 @@
   import Header from "@components/shared/Header.svelte";
   import Footer from "@components/shared/Footer.svelte";
   import Join from "@components/shared/Join.svelte";
+  import LinkButton from "@src/components/shared/LinkButton.svelte";
   import Newsletter from "@components/shared/Newsletter.svelte";
+  import ConnectButton from "@src/components/shared/ConnectButton.svelte";
   import { disconnectWallet } from "@utils/connection";
   import { onDestroy } from "svelte";
   import { get } from "svelte/store";
   import { setMessage } from "@src/store/toast";
   import { actors } from "@src/store/actor";
+  import type { Activity } from "@canisters/hub/hub.did.d";
   import { user } from "@src/store/user";
-
-  import LinkButton from "@src/components/shared/LinkButton.svelte";
-  import ConnectButton from "@src/components/shared/ConnectButton.svelte";
+  import { getCumulativeActivity } from "@utils/activity";
+  import ActivityComponent from "@src/components/profile/Activity.svelte";
 
   let editing = false;
+  let mode = "informations";
+  let activity: Activity | null = null;
+
+  $: if (mode === "activity") {
+    if (!activity) {
+      getActivity();
+    }
+  }
 
   let userProfile = { ...get(user) };
 
@@ -89,17 +99,29 @@
   onDestroy(() => {
     unsubcribe();
   });
+
+  function changeMode(new_mode: string) {
+    mode = new_mode;
+  }
+
+  async function getActivity() {
+    activity = await getCumulativeActivity(userProfile.principal);
+    console.log(activity);
+  }
 </script>
 
 <Header />
 <div class="page-header">
   <h1>Profile</h1>
 </div>
-<div class="menu-choice">
-  <div>Informations</div>
-  <div>Activity</div>
-  <div>Missions</div>
-</div>
+{#if userProfile.loggedIn}
+  <div class="menu-choice">
+    <button class="secondary" on:click={() => changeMode("informations")}> Informations </button>
+    <button class="secondary" on:click={() => changeMode("activity")}> Activity </button>
+    <button class="secondary" on:click={() => changeMode("missions")}> Missions </button>
+    <button class="secondary" on:click={() => changeMode("rewards")}> Rewards </button>
+  </div>
+{/if}
 <div class="container">
   {#if !userProfile.loggedIn}
     <div class="not-logged-in">
@@ -113,7 +135,7 @@
         <button> Create </button>
       </LinkButton>
     </div>
-  {:else}
+  {:else if mode === "informations"}
     <div class="avatar-col">
       <img src={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?&tokenid=${userProfile.avatarDefault}`} alt="ICP Squad Avatar" class="avatar" />
       <LinkButton to="/add-accessory">
@@ -190,6 +212,20 @@
         <button on:click={() => (editing = true)}>EDIT PROFILE</button>
       {/if}
     </div>
+  {:else if mode === "activity"}
+    <!-- <div class="button-col">
+      <button class="secondary-button">Cumulative</button>
+       <button class="secondary-button">Daily</button> 
+    </div> -->
+    {#if activity}
+      <ActivityComponent {activity} />
+    {:else}
+      <div class="not-logged-in">
+        <p>No activity detected.</p>
+      </div>
+    {/if}
+  {:else if mode === "missions"}
+    <div>Missions</div>
   {/if}
 </div>
 <Join />
@@ -239,13 +275,16 @@
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    margin-top: 20px;
+    margin: 20px auto;
+    max-width: 1400px;
+    gap: 50px;
   }
 
   .container {
     display: grid;
     grid-template-columns: 3fr 6fr 3fr;
     grid-gap: 40px;
+    padding: 20px 20px !important;
   }
 
   .field {

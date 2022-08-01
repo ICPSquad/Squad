@@ -3,6 +3,20 @@ import type { ActorMethod } from '@dfinity/agent';
 
 export type AccountIdentifier = string;
 export type AccountIdentifier__1 = string;
+export interface Avatar {
+  'mouth' : string,
+  'background' : string,
+  'blob' : Array<number>,
+  'ears' : string,
+  'eyes' : string,
+  'hair' : string,
+  'cloth' : string,
+  'nose' : string,
+  'level' : Level,
+  'slots' : Slots,
+  'style' : Style,
+  'profile' : string,
+}
 export interface AvatarRendering {
   'mouth' : string,
   'background' : string,
@@ -111,6 +125,16 @@ export interface ICPSquadNFT {
     [[] | [TokenIdentifier], [] | [AvatarRendering]],
   >,
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
+  'create_profile' : ActorMethod<
+    [
+      [] | [string],
+      [] | [string],
+      [] | [string],
+      [] | [string],
+      TokenIdentifier,
+    ],
+    Result,
+  >,
   'cron_default_avatar' : ActorMethod<[], undefined>,
   'cron_events' : ActorMethod<[], undefined>,
   'cron_scores' : ActorMethod<[], undefined>,
@@ -137,6 +161,10 @@ export interface ICPSquadNFT {
   >,
   'get_avatars' : ActorMethod<[], Array<TokenIdentifier>>,
   'get_components' : ActorMethod<[], Array<[string, Component]>>,
+  'get_infos_accounts' : ActorMethod<
+    [],
+    Array<[Principal, AccountIdentifier__1]>,
+  >,
   'get_infos_holders' : ActorMethod<
     [],
     Array<
@@ -157,9 +185,11 @@ export interface ICPSquadNFT {
   'get_style_score' : ActorMethod<[], Array<[TokenIdentifier, StyleScore]>>,
   'get_user' : ActorMethod<[], [] | [UserData]>,
   'http_request' : ActorMethod<[Request], Response>,
+  'inspect_avatar' : ActorMethod<[TokenIdentifier], [] | [Avatar]>,
   'is_admin' : ActorMethod<[Principal], boolean>,
   'metadata' : ActorMethod<[TokenIdentifier], Result_4>,
   'mint' : ActorMethod<[MintInformation, [] | [bigint]], MintResult>,
+  'mint_legendary' : ActorMethod<[string, Principal], Result>,
   'modify_profile' : ActorMethod<
     [
       [] | [string],
@@ -170,10 +200,8 @@ export interface ICPSquadNFT {
     ],
     Result,
   >,
-  'modify_user' : ActorMethod<[UserData], Result>,
   'registerComponent' : ActorMethod<[string, Component], Result>,
   'removeAccessory' : ActorMethod<[TokenIdentifier, string, Principal], Result>,
-  'removeAccessory_fix' : ActorMethod<[TokenIdentifier, string], Result>,
   'report_burned_accessory' : ActorMethod<
     [string, TokenIdentifier, TokenIndex],
     undefined,
@@ -191,6 +219,10 @@ export interface ICPSquadNFT {
   'upload_stats' : ActorMethod<[Stats], undefined>,
   'wearAccessory' : ActorMethod<[TokenIdentifier, string, Principal], Result>,
 }
+export type Level = { 'Level1' : null } |
+  { 'Level2' : null } |
+  { 'Level3' : null } |
+  { 'Legendary' : null };
 export interface Listing {
   'subaccount' : [] | [SubAccount],
   'locked' : [] | [Time],

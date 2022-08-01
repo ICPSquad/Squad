@@ -215,6 +215,26 @@ export const idlFactory = ({ IDL }) => {
     'streaming_strategy' : IDL.Opt(StreamingStrategy),
     'status_code' : IDL.Nat16,
   });
+  const Level = IDL.Variant({
+    'Level1' : IDL.Null,
+    'Level2' : IDL.Null,
+    'Level3' : IDL.Null,
+    'Legendary' : IDL.Null,
+  });
+  const Avatar = IDL.Record({
+    'mouth' : IDL.Text,
+    'background' : IDL.Text,
+    'blob' : IDL.Vec(IDL.Nat8),
+    'ears' : IDL.Text,
+    'eyes' : IDL.Text,
+    'hair' : IDL.Text,
+    'cloth' : IDL.Text,
+    'nose' : IDL.Text,
+    'level' : Level,
+    'slots' : Slots,
+    'style' : Style,
+    'profile' : IDL.Text,
+  });
   const Result_4 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError__1 });
   const MintInformation = IDL.Record({
     'mouth' : IDL.Text,
@@ -295,6 +315,17 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'collectCanisterMetrics' : IDL.Func([], [], []),
+    'create_profile' : IDL.Func(
+        [
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          TokenIdentifier,
+        ],
+        [Result],
+        [],
+      ),
     'cron_default_avatar' : IDL.Func([], [], []),
     'cron_events' : IDL.Func([], [], []),
     'cron_scores' : IDL.Func([], [], []),
@@ -340,6 +371,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(IDL.Text, Component))],
         [],
       ),
+    'get_infos_accounts' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Principal, AccountIdentifier__1))],
+        ['query'],
+      ),
     'get_infos_holders' : IDL.Func(
         [],
         [
@@ -372,9 +408,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_user' : IDL.Func([], [IDL.Opt(UserData)], ['query']),
     'http_request' : IDL.Func([Request], [Response], ['query']),
+    'inspect_avatar' : IDL.Func([TokenIdentifier], [IDL.Opt(Avatar)], []),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'metadata' : IDL.Func([TokenIdentifier], [Result_4], ['query']),
     'mint' : IDL.Func([MintInformation, IDL.Opt(IDL.Nat)], [MintResult], []),
+    'mint_legendary' : IDL.Func([IDL.Text, IDL.Principal], [Result], []),
     'modify_profile' : IDL.Func(
         [
           IDL.Opt(IDL.Text),
@@ -386,14 +424,12 @@ export const idlFactory = ({ IDL }) => {
         [Result],
         [],
       ),
-    'modify_user' : IDL.Func([UserData], [Result], []),
     'registerComponent' : IDL.Func([IDL.Text, Component], [Result], []),
     'removeAccessory' : IDL.Func(
         [TokenIdentifier, IDL.Text, IDL.Principal],
         [Result],
         [],
       ),
-    'removeAccessory_fix' : IDL.Func([TokenIdentifier, IDL.Text], [Result], []),
     'report_burned_accessory' : IDL.Func(
         [IDL.Text, TokenIdentifier, TokenIndex],
         [],

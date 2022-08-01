@@ -84,6 +84,10 @@ module {
         /* Keep track of the root bucket for all registered collections.*/
         let cids : TrieMap.TrieMap<Collection, Principal> = TrieMap.TrieMap<Collection,Principal>(Collection.equal, Collection.hash);
 
+        public func getAllCollections() : [(Collection, Principal)] {
+            return(Iter.toArray(cids.entries()));
+        };
+
         /* Keep track of the cids of the collection the user has interacted with.*/
         let cid_interacted_collections : TrieMap.TrieMap<Principal, [Principal]> = TrieMap.TrieMap<Principal,[Principal]>(Principal.equal, Principal.hash);
 

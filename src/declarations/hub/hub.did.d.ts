@@ -2,6 +2,15 @@ import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
 export type AccountIdentifier = string;
+export interface Activity {
+  'buy' : [bigint, bigint],
+  'burn' : bigint,
+  'mint' : bigint,
+  'sell' : [bigint, bigint],
+  'collection_involved' : bigint,
+  'accessory_minted' : bigint,
+  'accessory_burned' : bigint,
+}
 export interface AutomaticValidation { 'canister' : Principal }
 export type CanisterCyclesAggregatedData = Array<bigint>;
 export type CanisterHeapMemoryAggregatedData = Array<bigint>;
@@ -27,6 +36,7 @@ export interface CanisterMetrics { 'data' : CanisterMetricsData }
 export type CanisterMetricsData = { 'hourly' : Array<HourlyMetricsData> } |
   { 'daily' : Array<DailyMetricsData> };
 export interface Collection { 'name' : string, 'contractId' : Principal }
+export interface Collection__1 { 'name' : string, 'contractId' : Principal }
 export interface CreateMission {
   'title' : string,
   'tags' : Array<string>,
@@ -48,7 +58,30 @@ export interface DailyMetricsData {
   'canisterMemorySize' : NumericEntity,
   'timeMillis' : bigint,
 }
+export type Date = [bigint, bigint, bigint];
+export type DetailValue = { 'I64' : bigint } |
+  { 'U64' : bigint } |
+  { 'Vec' : Array<DetailValue> } |
+  { 'Slice' : Array<number> } |
+  { 'Text' : string } |
+  { 'True' : null } |
+  { 'False' : null } |
+  { 'Float' : number } |
+  { 'Principal' : Principal };
 export type EngagementScore = bigint;
+export interface Event {
+  'time' : bigint,
+  'operation' : string,
+  'details' : Array<[string, DetailValue]>,
+  'caller' : Principal,
+}
+export interface ExtendedEvent {
+  'collection' : Principal,
+  'time' : bigint,
+  'operation' : string,
+  'details' : Array<[string, DetailValue]>,
+  'caller' : Principal,
+}
 export interface GetLatestLogMessagesParameters {
   'upToTimeNanos' : [] | [Nanos],
   'count' : number,
@@ -82,12 +115,15 @@ export interface ICPSquadHub {
   'add_job' : ActorMethod<[Principal, string, bigint], undefined>,
   'availableCycles' : ActorMethod<[], bigint>,
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
-  'create_mission' : ActorMethod<[CreateMission], Result_1>,
-  'cron_events' : ActorMethod<[], Result_1>,
+  'create_mission' : ActorMethod<[CreateMission], Result_2>,
+  'cron_activity' : ActorMethod<[], Result_1>,
+  'cron_events' : ActorMethod<[], Result_2>,
   'cron_round' : ActorMethod<[], Result__1_1>,
+  'cron_stats' : ActorMethod<[], Result_1>,
   'cron_style_score' : ActorMethod<[], undefined>,
+  'cron_users' : ActorMethod<[], Result_1>,
   'delete_job' : ActorMethod<[bigint], undefined>,
-  'delete_mission' : ActorMethod<[bigint], Result_2>,
+  'delete_mission' : ActorMethod<[bigint], Result_1>,
   'getCanisterLog' : ActorMethod<
     [[] | [CanisterLogRequest]],
     [] | [CanisterLogResponse],
@@ -96,7 +132,14 @@ export interface ICPSquadHub {
     [GetMetricsParameters],
     [] | [CanisterMetrics],
   >,
-  'get_all_operations' : ActorMethod<[], Array<[string, bigint]>>,
+  'get_all_collections' : ActorMethod<[], Array<[Collection__1, Principal]>>,
+  'get_all_daily_events' : ActorMethod<[], Array<[Principal, Array<Event>]>>,
+  'get_cumulative_activity' : ActorMethod<
+    [Principal, [] | [Time], [] | [Time]],
+    Activity,
+  >,
+  'get_daily_activity' : ActorMethod<[Principal, Date], [] | [Activity]>,
+  'get_daily_events_user' : ActorMethod<[Principal], Array<ExtendedEvent>>,
   'get_holders' : ActorMethod<
     [],
     Array<
@@ -112,27 +155,21 @@ export interface ICPSquadHub {
   >,
   'get_jobs' : ActorMethod<[], Array<[bigint, Job]>>,
   'get_leaderboard' : ActorMethod<[], [] | [Leaderboard__1]>,
+  'get_leaderboard_simplified' : ActorMethod<
+    [bigint],
+    [] | [Array<[Principal, bigint]>],
+  >,
   'get_missions' : ActorMethod<[], Array<Mission>>,
-  'get_number_operations' : ActorMethod<
-    [Principal, Array<string>, [] | [Array<Principal>]],
-    bigint,
-  >,
   'get_round' : ActorMethod<[], [] | [Round]>,
-  'get_stats_sales' : ActorMethod<
-    [Principal, [] | [Array<Principal>], [] | [Time], [] | [Time]],
-    Result_3,
-  >,
   'is_admin' : ActorMethod<[Principal], boolean>,
-  'manually_add_winners' : ActorMethod<[bigint, Array<Principal>], Result_2>,
+  'manually_add_winners' : ActorMethod<[bigint, Array<Principal>], Result_1>,
   'my_completed_missions' : ActorMethod<[], Array<[bigint, Time]>>,
-  'register_all_collections' : ActorMethod<[], Result_2>,
-  'register_collection' : ActorMethod<[Collection], Result_2>,
+  'register_collection' : ActorMethod<[Collection], Result_1>,
   'set_job_status' : ActorMethod<[boolean], undefined>,
-  'start_mission' : ActorMethod<[bigint], Result_2>,
+  'start_mission' : ActorMethod<[bigint], Result_1>,
   'start_round' : ActorMethod<[], Result__1>,
-  'stop_mission' : ActorMethod<[bigint], Result_2>,
+  'stop_mission' : ActorMethod<[bigint], Result_1>,
   'stop_round' : ActorMethod<[], Result__1>,
-  'update_user_interacted_collections' : ActorMethod<[Principal], Result_1>,
   'verify_mission' : ActorMethod<[bigint], Result>,
 }
 export interface Job {
@@ -197,11 +234,9 @@ export interface NumericEntity {
 }
 export type Result = { 'ok' : boolean } |
   { 'err' : string };
-export type Result_1 = { 'ok' : bigint } |
+export type Result_1 = { 'ok' : null } |
   { 'err' : string };
-export type Result_2 = { 'ok' : null } |
-  { 'err' : string };
-export type Result_3 = { 'ok' : [bigint, bigint] } |
+export type Result_2 = { 'ok' : bigint } |
   { 'err' : string };
 export type Result__1 = { 'ok' : bigint } |
   { 'err' : string };

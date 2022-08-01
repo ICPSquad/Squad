@@ -48,6 +48,7 @@
       const result = await payInvoice(invoice, Wallet);
       if (result.height > 0) {
         setState("waiting-mint");
+        handleMint();
       } else {
         setState("error");
         error_message = "The payment was not successful. Make sure you have enough funds in your wallet.\n\nYou need to have at least 1.0001 ICP to pay for the avatar & the transfer fee.";
@@ -59,15 +60,25 @@
     }
   };
 
-  const handlePreorder = () => {
-    if (confirm("If you joined the preorder list but never minted your avatar, you can skip payment. This won't work otherwise. \n\nDo you confirm being part of the preorder ?")) {
+  const handlePreorder = async () => {
+    if (!confirm("If you joined the preorder list but never minted your avatar, you can skip payment. This won't work otherwise. \n\nDo you confirm being part of the preorder ?")) {
+      return;
+    }
+    try {
       setState("waiting-mint");
+      const result = await mintRequestAvatar(components, colors, undefined);
+      if ("ok" in result) {
+        token_identifier = result.ok;
+        setState("avatar-minted");
+      } else {
+        setState("error");
+        error_message = result.err;
+      }
+    } catch (e) {
+      setState("error");
+      error_message = "The minting was rejected by the wallet.";
     }
   };
-
-  $: if (state === "waiting-mint") {
-    handleMint();
-  }
 
   const handleMint = async () => {
     try {

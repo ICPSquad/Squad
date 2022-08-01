@@ -15,7 +15,7 @@ export function nameToStats(stats: Stats | undefined, name: string): [Supply, La
   }
 }
 
-function e8sToICP(e8s: [bigint] | []): number | null {
+export function e8sToICP(e8s: [bigint] | []): number | null {
   if (e8s.length === 0) {
     return null;
   } else {

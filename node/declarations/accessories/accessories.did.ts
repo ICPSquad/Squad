@@ -40,6 +40,21 @@ export const idlFactory = ({ IDL }) => {
     'err' : CommonError,
   });
   const TokenIndex = IDL.Nat32;
+  const AccessoryInventory = IDL.Record({
+    'tokenIdentifier' : IDL.Text,
+    'name' : IDL.Text,
+    'equipped' : IDL.Bool,
+  });
+  const MaterialInventory = IDL.Record({
+    'tokenIdentifier' : IDL.Text,
+    'name' : IDL.Text,
+  });
+  const ItemInventory = IDL.Variant({
+    'Accessory' : AccessoryInventory,
+    'Material' : MaterialInventory,
+  });
+  const Inventory = IDL.Vec(ItemInventory);
+  const Result_5 = IDL.Variant({ 'ok' : Inventory, 'err' : IDL.Text });
   const Result__1_1 = IDL.Variant({ 'ok' : TokenIdentifier, 'err' : IDL.Text });
   const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const AccountIdentifier__1 = IDL.Text;
@@ -142,21 +157,6 @@ export const idlFactory = ({ IDL }) => {
     'daily' : IDL.Vec(DailyMetricsData),
   });
   const CanisterMetrics = IDL.Record({ 'data' : CanisterMetricsData });
-  const AccessoryInventory = IDL.Record({
-    'tokenIdentifier' : IDL.Text,
-    'name' : IDL.Text,
-    'equipped' : IDL.Bool,
-  });
-  const MaterialInventory = IDL.Record({
-    'tokenIdentifier' : IDL.Text,
-    'name' : IDL.Text,
-  });
-  const ItemInventory = IDL.Variant({
-    'Accessory' : AccessoryInventory,
-    'Material' : MaterialInventory,
-  });
-  const Inventory = IDL.Vec(ItemInventory);
-  const Result_5 = IDL.Variant({ 'ok' : Inventory, 'err' : IDL.Text });
   const Metadata = IDL.Variant({
     'fungible' : IDL.Record({
       'decimals' : IDL.Nat8,
@@ -306,6 +306,7 @@ export const idlFactory = ({ IDL }) => {
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
     'bearer' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
     'burn_accessory' : IDL.Func([TokenIndex], [], []),
+    'checkInventory' : IDL.Func([IDL.Principal], [Result_5], ['query']),
     'collectCanisterMetrics' : IDL.Func([], [], []),
     'confirmed_burned_accessory' : IDL.Func([TokenIndex], [], []),
     'create_accessory' : IDL.Func([IDL.Text, IDL.Nat], [Result__1_1], []),
@@ -318,6 +319,12 @@ export const idlFactory = ({ IDL }) => {
     'disbursement_pending_count' : IDL.Func([], [IDL.Nat], ['query']),
     'disbursement_queue_size' : IDL.Func([], [IDL.Nat], ['query']),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
+    'fix_items' : IDL.Func([], [], []),
+    'fix_transfer' : IDL.Func(
+        [TokenIdentifier, IDL.Principal, AccountIdentifier__2],
+        [Result],
+        [],
+      ),
     'getCanisterLog' : IDL.Func(
         [IDL.Opt(CanisterLogRequest)],
         [IDL.Opt(CanisterLogResponse)],
@@ -343,6 +350,21 @@ export const idlFactory = ({ IDL }) => {
         [],
         [IDL.Vec(IDL.Tuple(AccountIdentifier__2, IDL.Nat))],
         [],
+      ),
+    'get_avatar_equipped' : IDL.Func(
+        [TokenIdentifier],
+        [IDL.Opt(TokenIdentifier)],
+        ['query'],
+      ),
+    'get_items' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Vec(TokenIndex)))],
+        ['query'],
+      ),
+    'get_materials' : IDL.Func(
+        [IDL.Principal, IDL.Bool],
+        [IDL.Vec(IDL.Tuple(TokenIndex, IDL.Text))],
+        ['query'],
       ),
     'get_name' : IDL.Func([TokenIndex], [IDL.Opt(IDL.Text)], ['query']),
     'get_recipes' : IDL.Func(

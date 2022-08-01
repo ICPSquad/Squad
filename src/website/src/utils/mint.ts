@@ -54,7 +54,6 @@ export function capitalizeFirstLetter(word: string) {
 
 export async function mintRequestAvatar(components: AvatarComponents, color: AvatarColors, invoiceId?: number): Promise<MintResultAvatar> {
   let id: [bigint] | [] = invoiceId ? [BigInt(invoiceId)] : [];
-  let mint_request = createMintRequest(components, color) as MintInformation;
   const result = await get(actors).avatarActor.mint(createMintRequest(components, color), id);
   return result;
 }

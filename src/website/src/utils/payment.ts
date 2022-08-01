@@ -1,10 +1,8 @@
-import type { AccountIdentifier, Invoice__1 as Invoice } from "@canisters/invoice/invoice.did.d";
+import type { Invoice__1 as Invoice } from "@canisters/invoice/invoice.did.d";
 import type { Wallet } from "@src/types/wallet";
 import { StoicIdentity } from "ic-stoic-identity";
 import { ledgerActor } from "@src/api/actor";
-import type { _SERVICE as Ledger } from "@canisters/ledger/ledger.did.d";
 import type { TransferArgs, TransferResult } from "@canisters/ledger/ledger.did.d";
-import type { ActorSubclass } from "@dfinity/agent";
 
 export async function payInvoice(invoice: Invoice, wallet: Wallet): Promise<{ height: number }> {
   const { paid, expiration } = invoice;

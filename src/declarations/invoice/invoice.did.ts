@@ -152,6 +152,26 @@ export const idlFactory = ({ IDL }) => {
   });
   const CanisterMetrics = IDL.Record({ 'data' : CanisterMetricsData });
   const Token = IDL.Record({ 'symbol' : IDL.Text });
+  const GetDestinationAccountIdentifierArgs = IDL.Record({
+    'token' : Token,
+    'invoiceId' : IDL.Nat,
+    'caller' : IDL.Principal,
+  });
+  const GetDestinationAccountIdentifierSuccess = IDL.Record({
+    'accountIdentifier' : AccountIdentifier,
+  });
+  const GetDestinationAccountIdentifierErr = IDL.Record({
+    'kind' : IDL.Variant({
+      'InvalidToken' : IDL.Null,
+      'InvalidInvoiceId' : IDL.Null,
+      'Other' : IDL.Null,
+    }),
+    'message' : IDL.Opt(IDL.Text),
+  });
+  const GetDestinationAccountIdentifierResult = IDL.Variant({
+    'ok' : GetDestinationAccountIdentifierSuccess,
+    'err' : GetDestinationAccountIdentifierErr,
+  });
   const GetAccountIdentifierArgs = IDL.Record({
     'principal' : IDL.Principal,
     'token' : Token,
@@ -250,6 +270,8 @@ export const idlFactory = ({ IDL }) => {
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'collectCanisterMetrics' : IDL.Func([], [], []),
     'create_invoice' : IDL.Func([Category], [CreateInvoiceResult], []),
+    'cron_balance' : IDL.Func([], [], []),
+    'cron_transfer' : IDL.Func([], [], []),
     'getCanisterLog' : IDL.Func(
         [IDL.Opt(CanisterLogRequest)],
         [IDL.Opt(CanisterLogResponse)],
@@ -260,6 +282,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(CanisterMetrics)],
         ['query'],
       ),
+    'getDestinationAccountIdentifierPublic' : IDL.Func(
+        [GetDestinationAccountIdentifierArgs],
+        [GetDestinationAccountIdentifierResult],
+        [],
+      ),
     'get_account_identifier' : IDL.Func(
         [GetAccountIdentifierArgs],
         [GetAccountIdentifierResult],
@@ -267,9 +294,9 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_balance' : IDL.Func([GetBalanceArgs], [GetBalanceResult], []),
     'get_invoice' : IDL.Func([GetInvoiceArgs], [GetInvoiceResult], ['query']),
-    'hello' : IDL.Func([], [IDL.Text], []),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'transfer' : IDL.Func([TransferArgs], [TransferResult], []),
+    'transfer_back_invoice' : IDL.Func([IDL.Nat], [], []),
     'verify_invoice_accessory' : IDL.Func(
         [VerifyInvoiceArgs],
         [VerifyInvoiceResult],
@@ -285,6 +312,7 @@ export const idlFactory = ({ IDL }) => {
 };
 export const init = ({ IDL }) => {
   return [
+    IDL.Principal,
     IDL.Principal,
     IDL.Principal,
     IDL.Principal,

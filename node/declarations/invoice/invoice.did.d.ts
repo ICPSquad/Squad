@@ -89,6 +89,24 @@ export interface GetBalanceErr {
 export type GetBalanceResult = { 'ok' : GetBalanceSuccess } |
   { 'err' : GetBalanceErr };
 export interface GetBalanceSuccess { 'balance' : bigint }
+export interface GetDestinationAccountIdentifierArgs {
+  'token' : Token,
+  'invoiceId' : bigint,
+  'caller' : Principal,
+}
+export interface GetDestinationAccountIdentifierErr {
+  'kind' : { 'InvalidToken' : null } |
+    { 'InvalidInvoiceId' : null } |
+    { 'Other' : null },
+  'message' : [] | [string],
+}
+export type GetDestinationAccountIdentifierResult = {
+    'ok' : GetDestinationAccountIdentifierSuccess
+  } |
+  { 'err' : GetDestinationAccountIdentifierErr };
+export interface GetDestinationAccountIdentifierSuccess {
+  'accountIdentifier' : AccountIdentifier,
+}
 export interface GetInvoiceArgs { 'id' : bigint }
 export interface GetInvoiceErr {
   'kind' : { 'NotFound' : null } |
@@ -137,6 +155,8 @@ export interface Invoice {
   'availableCycles' : ActorMethod<[], bigint>,
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
   'create_invoice' : ActorMethod<[Category], CreateInvoiceResult>,
+  'cron_balance' : ActorMethod<[], undefined>,
+  'cron_transfer' : ActorMethod<[], undefined>,
   'getCanisterLog' : ActorMethod<
     [[] | [CanisterLogRequest]],
     [] | [CanisterLogResponse],
@@ -145,15 +165,19 @@ export interface Invoice {
     [GetMetricsParameters],
     [] | [CanisterMetrics],
   >,
+  'getDestinationAccountIdentifierPublic' : ActorMethod<
+    [GetDestinationAccountIdentifierArgs],
+    GetDestinationAccountIdentifierResult,
+  >,
   'get_account_identifier' : ActorMethod<
     [GetAccountIdentifierArgs],
     GetAccountIdentifierResult,
   >,
   'get_balance' : ActorMethod<[GetBalanceArgs], GetBalanceResult>,
   'get_invoice' : ActorMethod<[GetInvoiceArgs], GetInvoiceResult>,
-  'hello' : ActorMethod<[], string>,
   'is_admin' : ActorMethod<[Principal], boolean>,
   'transfer' : ActorMethod<[TransferArgs], TransferResult>,
+  'transfer_back_invoice' : ActorMethod<[bigint], undefined>,
   'verify_invoice_accessory' : ActorMethod<
     [VerifyInvoiceArgs],
     VerifyInvoiceResult,
