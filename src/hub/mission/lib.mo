@@ -1,5 +1,6 @@
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
+import Buffer "mo:base/Buffer";
 import Hash "mo:base/Hash";
 import IC "mo:base/ExperimentalInternetComputer";
 import Iter "mo:base/Iter";
@@ -235,6 +236,24 @@ module {
                 case(null) return [];
                 case(? completed){
                     return completed;
+                };
+            };
+        };
+
+        public func getCompletedMissions(p : Principal) : [(Mission, Time.Time)] {
+            switch(completedMissions.get(p)){
+                case(null) return [];
+                case(? completed){
+                    var r : Buffer.Buffer<(Mission, Time.Time)> = Buffer.Buffer(0);
+                    for((id, time) in completed.vals()){
+                        switch(missions.get(id)){
+                            case(null){};
+                            case(? mission){
+                                r.add(mission, time);
+                            };
+                        };
+                    };
+                    return r.toArray();
                 };
             };
         };

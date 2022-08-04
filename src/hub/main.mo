@@ -259,6 +259,15 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
     
     /* 
+        Returns a list of the completed mission for the specified principal. 
+        @return : [(Mission, time of completion)]
+     */
+    public query func get_completed_missions(p : Principal) : async [(Mission.Mission, Time.Time)] {
+        _Monitor.collectMetrics();
+        return _Mission.getCompletedMissions(p);
+    };
+
+    /* 
         Returns a list of the completed mission for the caller with the time of completion.
         @return : [(id, time of completion)]
      */
@@ -266,6 +275,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Monitor.collectMetrics();
         return _Mission.myCompletedMissions(caller);
     };
+
 
     /* 
         Delete the mission with the given id.
