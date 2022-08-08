@@ -16,9 +16,9 @@ const canisters =
 const accessoriesID = process.env.NODE_ENV === "production" ? canisters.accessories.ic : canisters.accessories.local;
 const network = process.env.NODE_ENV === "production" ? "ic" : "local";
 
-console.log("Airdrop in progress using  : " + accessoriesID + " on network : " + network);
+console.log("Airdrop is in progress using  : " + accessoriesID + " on network : " + network);
 
-createReadStream(`${__dirname}/csv/July_rewards.csv`)
+createReadStream(`${__dirname}/csv/Test_rewards.csv`)
   .pipe(csvParser())
   .on("data", (data) => results.push(data))
   .on("end", () => {
@@ -39,7 +39,7 @@ createReadStream(`${__dirname}/csv/July_rewards.csv`)
       const airdrop = createAirdrop(result);
       output.push([account, airdrop]);
     });
-    // distribute();
+    distribute();
     console.log("Numbers of cloth : " + nb_cloth_total);
     console.log("Numbers of wood : " + nb_wood_total);
     console.log("Numbers of glass : " + nb_glass_total);
@@ -74,7 +74,6 @@ function createAirdrop(data): Airdrop {
   for (let i = 0; i < nb_stone; i++) {
     output.push("Dfinity-stone");
   }
-  console.log("");
   return output;
 }
 
@@ -83,6 +82,5 @@ async function distribute() {
   console.log("My principal is : " + identity.getPrincipal().toString());
   let actor = accessoriesActor(identity);
   let result = await actor.airdrop_rewards(output);
-  console.log("Airdrop result : " + result);
   console.log("Rewards have been distributed.");
 }

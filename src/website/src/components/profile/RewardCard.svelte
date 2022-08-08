@@ -1,7 +1,6 @@
 <script lang="ts">
   export let name: string | null;
   export let collection: string | null;
-  export let type: string | null;
   export let url: string | null;
   export let time: number | null;
 
@@ -14,9 +13,8 @@
 
 <div class="grid-row">
   <div class="name">{name}</div>
-  <div class="collection">{collection}</div>
-  <div class="type">{type}</div>
-  <div class="url">{url}</div>
+  <div class="collection"><a href={`https://test.icscan.io/canister/${collection}`} target="_blank"> {collection} </a></div>
+  <div><a href={url} target="_blank"> Look </a></div>
   <div class="date">{unixTimeToDate(time)}</div>
 </div>
 
@@ -25,7 +23,7 @@
   .grid-row {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 120px;
+    grid-template-columns: 1fr 1fr 1fr 120px;
     padding: 10px 20px;
     align-items: center;
     background-color: $verydarkgrey;
