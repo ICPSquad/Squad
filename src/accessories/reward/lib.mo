@@ -92,7 +92,7 @@ module {
                         ];
                         caller = cid;
                     };
-                    _Cap.insertEvent(event);
+                    _Cap.registerEvent(event);
                 };
                 // Record the events into the TrieMap
                 switch(recordedRewards.get(account)){
