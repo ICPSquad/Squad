@@ -11,15 +11,19 @@
   import { setMessage } from "@src/store/toast";
   import { actors } from "@src/store/actor";
   import type { Activity, Mission } from "@canisters/hub/hub.did.d";
+  import type { Reward } from "@canisters/accessories/accessories.did.d";
   import { user } from "@src/store/user";
-  import { getCumulativeActivity, getCompletedMissions } from "@utils/activity";
+  import { getCumulativeActivity, getCompletedMissions, getRecordedRewards } from "@utils/activity";
   import ActivityComponent from "@src/components/profile/Activity.svelte";
   import MissionComponent from "@src/components/profile/Mission.svelte";
+  import RewardsComponent from "@src/components/profile/Rewards.svelte";
 
   let editing = false;
   let mode = "informations";
+
   let activity: Activity | null = null;
   let completed: [Mission, bigint][] | null = null;
+  let rewards: [Reward][] | null | [] = null;
 
   $: if (mode === "activity") {
     if (!activity) {
@@ -30,6 +34,12 @@
   $: if (mode === "missions") {
     if (!completed) {
       getCompleted();
+    }
+  }
+
+  $: if (mode === "rewards") {
+    if (!rewards) {
+      getRewards();
     }
   }
 
@@ -118,6 +128,11 @@
 
   async function getCompleted() {
     completed = await getCompletedMissions(userProfile.principal);
+  }
+
+  async function getRewards() {
+    rewards = await getRecordedRewards(userProfile.principal);
+    console.log("Rewards : ", rewards);
   }
 </script>
 
@@ -243,6 +258,16 @@
     {:else}
       <div class="not-logged-in">
         <p>No missions completed.</p>
+      </div>
+    {/if}
+  {:else if mode === "rewards"}
+    {#if rewards}
+      <div class="reward-card">
+        <RewardsComponent received_rewards={rewards} />
+      </div>
+    {:else}
+      <div class="not-logged-in">
+        <p>No rewards received.</p>
       </div>
     {/if}
   {/if}
