@@ -10,6 +10,8 @@ export const idlFactory = ({ IDL }) => {
     'Material' : IDL.Vec(IDL.Nat8),
   });
   const Result_7 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
+  const AccountIdentifier__2 = IDL.Text;
+  const Airdrop = IDL.Vec(IDL.Text);
   const TokenIdentifier__1 = IDL.Text;
   const AccountIdentifier = IDL.Text;
   const User = IDL.Variant({
@@ -30,7 +32,6 @@ export const idlFactory = ({ IDL }) => {
     'err' : CommonError__1,
   });
   const TokenIdentifier = IDL.Text;
-  const AccountIdentifier__2 = IDL.Text;
   const CommonError = IDL.Variant({
     'InvalidToken' : TokenIdentifier__1,
     'Other' : IDL.Text,
@@ -167,6 +168,19 @@ export const idlFactory = ({ IDL }) => {
     'nonfungible' : IDL.Record({ 'metadata' : IDL.Opt(IDL.Vec(IDL.Nat8)) }),
   });
   const Recipe__1 = IDL.Vec(IDL.Text);
+  const TypeReward = IDL.Variant({
+    'NFT' : IDL.Null,
+    'Token' : IDL.Null,
+    'Other' : IDL.Null,
+  });
+  const Reward = IDL.Record({
+    'collection' : IDL.Principal,
+    'date' : Time,
+    'name' : IDL.Text,
+    'category' : TypeReward,
+    'identifier' : IDL.Opt(IDL.Text),
+    'amount' : IDL.Nat,
+  });
   const Supply = IDL.Nat;
   const Floor = IDL.Nat64;
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
@@ -302,6 +316,11 @@ export const idlFactory = ({ IDL }) => {
     'acceptCycles' : IDL.Func([], [], []),
     'add_admin' : IDL.Func([IDL.Principal], [], []),
     'add_template' : IDL.Func([IDL.Text, Template], [Result_7], []),
+    'airdrop_rewards' : IDL.Func(
+        [IDL.Vec(IDL.Tuple(AccountIdentifier__2, Airdrop))],
+        [],
+        [],
+      ),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
     'bearer' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
@@ -370,6 +389,11 @@ export const idlFactory = ({ IDL }) => {
     'get_recipes' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Text, Recipe__1))],
+        ['query'],
+      ),
+    'get_recorded_rewards' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(IDL.Vec(Reward))],
         ['query'],
       ),
     'get_stats_items' : IDL.Func(

@@ -1,0 +1,1029 @@
+[
+  [
+    '4457b46a96abc33daffcaac7111a6b1ac9a40912af5822b8642a3d03b3c0bedf',
+    [
+      'Cloth',
+      'Wood',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    '8488106ba7d8a1c7a5594b69b43580a0c2afd9b158693e10da4cbf9147bc0440',
+    [
+      'Cloth',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    'f83cd2085a4ec7cadfc1f64a872ed59119a5a19f1d57b2f387467e9c5f209980',
+    [
+      'Cloth',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    '05fcda3de0504e970252c3e762e42f9217e9c55b79e4f00513df65e20314fb9a',
+    [
+      'Cloth',
+      'Wood',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    'c3125b8208a46cc054831119386d71345f97e2f850b466a233422862b3d2dd62',
+    [
+      'Cloth',
+      'Wood',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    'ffa8c0252106d9a545f04b065dd6a6b738e2d271b59fda14ea75cf540056fb71',
+    [
+      'Cloth',
+      'Wood',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    '6930ca7d16a632e271197e5e42ec523c07e2ae4eef5a4bb97ee795d0a9b6a2f7',
+    [ 'Cloth', 'Wood', 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '52e320344262523141030b4143a8339c595b77e5e5f2a0576e1a286169c04b7e',
+    [ 'Cloth', 'Metal', 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    'd6a8f78c22ee42c733ad9fdad9fecfd7b4ceda3932863d6aafb9aee7860fb429',
+    [ 'Cloth', 'Metal', 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '7718b4b68aa1fc96dfad47a7ae8c56f75a885dd829c5dfbde2c7b2f3c904daaa',
+    [
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    '1acf91b9eed8582a1c1406a60a3dc80108d04e638bcfd94792daad3d5fee2a7f',
+    [
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    '6644e3a255d8a7d8c29f11374a72543c1543568d8988c2a3f5af5e2afb39fb9a',
+    [ 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '409a1fd3468b823b6487fef34c9f63618c93f21d086c0b101959e5ad62d7dd68',
+    [
+      'Wood',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    'f27b3e86c55a91432f2e28fa804086d1200166086f0e62b0371319f340b9ed86',
+    [
+      'Wood',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    '7caaa9813fdd6afe7c592620cf8fac5fda59c2a7092d9e73b63c994686935c18',
+    [
+      'Cloth',
+      'Wood',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    '0f1195548c67e42bc94580405493c02f85ea93926f8a679f620bfcdc33c5ab0b',
+    [
+      'Cloth',
+      'Wood',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    'd49012ccd3ff7b0e3efc6137b5342cf7e59095ed2c7703a57605b37669dc019c',
+    [
+      'Wood',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    '0d99fc8adcd9c8db74ac7a90dd2e97e0c5c3020a019d050be52bc2a720453722',
+    [ 'Cloth', 'Metal', 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    'b7036c470f8f125b86876c173f22ed95fe063a6ae19a974271212ca68041da31',
+    [ 'Wood', 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    'db5252fc5941ab00bbdb0332b0e0ec5812abd1f93b95fe75ee94e9af731e23cf',
+    [
+      'Cloth',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    'ea60a4ef9838c0de4c635bb4a5ba47342873f7b319d22c8ed4df0d720114f6fb',
+    [ 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    'd339bd9c6e9dce9a613e784f93ddccce0140e8306f1c48a31f9fbcaeeb1c565a',
+    [
+      'Wood',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    '5b7348e370d88ccad94ca2ad998ac455e34a559d5583e6f157bdb7cf9b1238ac',
+    [ 'Cloth', 'Wood', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '0d06e28597a811bda0b514ebbfbf8a7269228f5d9cce8ef627f42aad2b96eeed',
+    [ 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '07e717dc398daf6f23034e0f166cddf4c1ed99ec6c840cafb10ac71ac0d990ac',
+    [
+      'Wood',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Metal',
+      'Dfinity-stone'
+    ]
+  ],
+  [
+    'b4c9257239d54f35b48975698083aa495100fa5db3092a2f62a3ebe1cfbfb578',
+    [ 'Wood', 'Metal', 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '6fb487b3dde0cbabe24f793d3d96cc3cc508f656d029c94bba7d03d87d3e2fa8',
+    [ 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    'b7d596d7703fd4448cd11251abc5322fa5b41b6aa0913f3b03bcf76bbcafedb9',
+    [
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal'
+    ]
+  ],
+  [
+    '8fa0166bcdb1b7f1de637b88661e8303eeebb023666c8893dfa260afaee9d524',
+    [ 'Cloth', 'Wood', 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '31967de8a7cce31b624290f5b20e2f9769cc1207e1bd319d7805695ec5c1927d',
+    [ 'Metal', 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '22239b378a431648ae42ea83274870fd7cfeaa77cc745822681f1132412fa9ea',
+    [ 'Wood', 'Metal', 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '2251bf67cbd757b2be4e72941b5b8ae2cadcd002b159a1edf0c3abc98dd04930',
+    [ 'Wood', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '19aec65306703efb421a6d46461370b6f2fc379e95f5c330402ca2f63e0613da',
+    [ 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    'c9b40702e694ca6b10e50b401b115655c654610cd419f89438d979960cc3eb32',
+    [ 'Cloth', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    'a781539b7f9ed19ee31fe528387c15d3dd2dcdfde24397f1d91285c58dd6e2c8',
+    [ 'Metal', 'Metal', 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '028e0341e33800d8b252c8d1636dfbfc342782a1e4b2ff8b87a4c27105be1cf7',
+    [ 'Metal', 'Metal', 'Metal', 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '47ebc311c7951318dee58a05be5ebe946b2710289162b6dd9c69d2abc49852a1',
+    [ 'Metal', 'Dfinity-stone' ]
+  ],
+  [
+    '79938d6188e126b5e210005db54cd683210feb91d1eb4318e1280aebd29348a2',
+    [
+      'Cloth', 'Metal', 'Metal',
+      'Metal', 'Metal', 'Metal',
+      'Metal', 'Metal', 'Metal',
+      'Metal', 'Metal', 'Metal',
+      'Metal', 'Metal', 'Metal',
+      'Metal'
+    ]
+  ],
+  [
+    '14d4cf2762e3b1086f15479bf26f539aa56e7ec444ed00496cddbf0ba0b01cf0',
+    [
+      'Wood',  'Metal', 'Metal',
+      'Metal', 'Metal', 'Metal',
+      'Metal', 'Metal', 'Metal',
+      'Metal', 'Metal', 'Metal',
+      'Metal', 'Metal', 'Metal',
+      'Metal', 'Metal'
+    ]
+  ],
+  [
+    '738aa29e9edde74c045312b67e9c40a44ee1700ae819b687b6b69bc012784295',
+    [
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal'
+    ]
+  ],
+  [
+    '6a6c46eb17037e595d258539da53d1e6a9f783b9c2aa4fb0a61b0e0150d8095d',
+    [
+      'Cloth', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal'
+    ]
+  ],
+  [
+    '4b5264c32e2a9728889e781981bfb83853b6c7b8aa698cb108b6248f83b4498c',
+    [
+      'Wood',  'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal', 'Metal',
+      'Metal'
+    ]
+  ],
+  [
+    'fd206deb400987902e33a57c619da83b4ee87ce791512dd64e95482e8ccfc1c0',
+    [
+      'Wood',  'Glass', 'Glass',
+      'Metal', 'Metal', 'Metal',
+      'Metal', 'Metal', 'Metal',
+      'Metal', 'Metal', 'Metal',
+      'Metal', 'Metal', 'Metal'
+    ]
+  ],
+  [
+    '321b029992fabc352acc1922a5cf52605895daa7ca4f5e9994f88b4080ac43e7',
+    [
+      'Wood',  'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass'
+    ]
+  ],
+  [
+    '16e3be893a79bdcabb06e7f052c427028336b629ad94f4d860f85ecee72f90f3',
+    [
+      'Cloth', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass'
+    ]
+  ],
+  [
+    'ef68b48e3ebdf8be93df108e9de1fa68c6455edec74ea3c8d0f6283382c0e4e9',
+    [
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass'
+    ]
+  ],
+  [
+    '3221d657c70b510c66f64d47262ddce3d48ce86ff72913e5eaaff45260542291',
+    [
+      'Cloth', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass'
+    ]
+  ],
+  [
+    '864c6aaf7454b30dbd6600e7ab711c2680d68301dafd9c5aae8eee1888672263',
+    [
+      'Cloth', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass'
+    ]
+  ],
+  [
+    '52e3ae95365778915dd75e595584dd101b1e633af0b601f08e70a0bab87eacc5',
+    [
+      'Wood',  'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass'
+    ]
+  ],
+  [
+    '7e6c6c188cac1bee498a70b0baf1eef42484abf37cf1ab25c17107d135b80fb7',
+    [
+      'Cloth', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass'
+    ]
+  ],
+  [
+    'e49507a0299bdbb123bfb60056eef3c80015ce2f50e6da0f7761b0ad63c5a0d6',
+    [
+      'Cloth', 'Wood',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass'
+    ]
+  ],
+  [
+    '838772fcbcbbe82a0a710498d954d0b16e1b465438d3573ea9be57a89b2290c8',
+    [
+      'Cloth', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass'
+    ]
+  ],
+  [
+    '67ce8d1637eefd8143fb4db3df551be964cf6fb96aa2a8805efc34bea0a2a979',
+    [
+      'Cloth', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass'
+    ]
+  ],
+  [
+    '0f0e00dceeb40bf41e396551fa45d049a4f981a6976c23a06aec4178aef24f09',
+    [
+      'Cloth', 'Wood',  'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass'
+    ]
+  ],
+  [
+    '9b2786bbce8892afdab3d0b837a7caa264fac892a173eb14de356bdff093d61c',
+    [
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass'
+    ]
+  ],
+  [
+    '9374c095ba58b1dbced3b21cc08d2194cc90194f97a7c6a9d630b8cc7a7232b1',
+    [
+      'Wood',  'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass'
+    ]
+  ],
+  [
+    'f6691b637c5ac1efbf8575df62ff94ccca3b47f04c9918e63da677852e7a5d5a',
+    [
+      'Cloth', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass'
+    ]
+  ],
+  [
+    '8dad581ad46d78c73a07140e5208ff8132e629dad2beb39ef92da263cce27c2a',
+    [
+      'Cloth', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass'
+    ]
+  ],
+  [
+    '553846454c5ac96ba3966d446d1c2eaf440a59e19dca4d08218e42cb0087a1f3',
+    [
+      'Cloth', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass', 'Glass',
+      'Glass'
+    ]
+  ],
+  [
+    '38135e574c9d6c91f80060b56666f903e8afba60d14c464e95ceb042d48af9cc',
+    [
+      'Cloth', 'Wood',  'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass', 'Glass',
+      'Glass', 'Glass'
+    ]
+  ],
+  [
+    'eaf19248d3934d61e094ddb83dbd9f42908754177903167741ec89bc4265291c',
+    [
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    '7d4c1db2c1c176e517aad2b1510fd1eafd0c082e28d03294f7a2be78d97a2d1b',
+    [
+      'Cloth', 'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood'
+    ]
+  ],
+  [
+    'ac6ec59c2b66b530430cd2bf906f5fd8b2c5cd7e184f7718e9622b9611e1962e',
+    [
+      'Cloth', 'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood'
+    ]
+  ],
+  [
+    'd43bbcbff091b7dc654b541545f61ca695d4590e3672cd69431696bc80186f57',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood'
+    ]
+  ],
+  [
+    '4ae7f96e7df3009d9356531ddca3a5c9bd4d2d55fce67c9c8c3215b8b1921424',
+    [
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood'
+    ]
+  ],
+  [
+    '3d125a0f3506d9a98fe952606e449227d65ffbe752c09b9b4407fab5da33c418',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood'
+    ]
+  ],
+  [
+    '0821e00ed0ef4cde08833eaf9df0da59441bafcb2a743c0dd8a3f2f9c0d1b1c6',
+    [
+      'Cloth', 'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    '04b3b22c656c08a4d54bedeb43a16cd58b26229e20ab3d39e98b2e1b471eed2a',
+    [
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood'
+    ]
+  ],
+  [
+    'b775bca11d1dcbd6987d69d338170eaf195ab246ebc903348003fa1b7d45af73',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood'
+    ]
+  ],
+  [
+    'afeae02fd85b35f4284a94a6b230a40850f602fe0a67f2aaf32ae2305a033679',
+    [
+      'Cloth', 'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    '9e0a65e8e39cbc7cf934abd710f4f9e305eefa7cf10b78dcee35a1bfc9e0db56',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    'ef7101980b70f78b10b2d9c26ae5945032900d0036bca64c5578640e78924b0e',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood'
+    ]
+  ],
+  [
+    'e7095a526549ed703a64d2eb2a0d6bc5b67a672ad19b9acdfd10eb092279d8f7',
+    [
+      'Cloth', 'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    'dfcb8021897a504bace7debb03d743e930e04f74df3461033dcf8fc445fb1c88',
+    [
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    '96184fbeb4c250ba68b91d7e329231176ad3002e58e1b8d5cea7b5da3ab393c9',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    '7d42a0376d3d57b26d49d030099d862eedbc03a9cbaa119a1bb4d0c508efdae9',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood'
+    ]
+  ],
+  [
+    '148de7a0860d22253d240f603dbcadb5c2f56ac4c9616c27dab4c435abb3c167',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood'
+    ]
+  ],
+  [
+    '7fb01a5e86b5919923ab518656c85e361d878e7395b32f7f05a66b5b94ae8cf3',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood'
+    ]
+  ],
+  [
+    '43f720ca6960ed7af55c1a598bb032e227aedc9a83cc46d47bcdb0f0da0a0583',
+    [
+      'Cloth', 'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood', 'Wood',
+      'Wood',  'Wood'
+    ]
+  ],
+  [
+    'ccd3c64d6b1341488e71de5a03c83b31e56800c675fb05d6a4d1fcac73d0eef2',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood'
+    ]
+  ],
+  [
+    '01f112373fe074b867e58b9ba3d4cc69088fd3b561f929074e6af77a0bb21453',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood'
+    ]
+  ],
+  [
+    'f859a28b9a145aa220a663a3651781b11e6cb0eb91dea4102898a691797d6e02',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood'
+    ]
+  ],
+  [
+    '3d92a6b1ff5c5746782bc4d4cc5b04d3a212350eeb653654a10704186cf33a6a',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood'
+    ]
+  ],
+  [
+    'f096e3ab29d0aef22cff4d5cc1135004aac48815f0b1bc5289eb44acb9d3faf9',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    '72052e07a735f35776b0a0aef17e1be3da149ba5ce7a164dfea68da594769a3a',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood'
+    ]
+  ],
+  [
+    'e5c4f8163c543ae03111d7c7cb3942e0fbf171679a9f1c4945675d11bf7068ab',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood'
+    ]
+  ],
+  [
+    '276151050d1d0c08bcc9cd77ba22d220ab46f690477d73694c26ec3a7781d82a',
+    [
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    '617606d93bf37e530091f2f266e0a1385ac2c7c90de221e00f0bc5f450b431ae',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood'
+    ]
+  ],
+  [
+    '68ebae7027d932cd0f8af32540bcff7eacc2822b31b06be3252c4fbe1fff5e8b',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood'
+    ]
+  ],
+  [
+    '718fdd8260b5b2639318c572333fa5c34b3bf69f1a77edfa8a90fa3e0ed0a448',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood'
+    ]
+  ],
+  [
+    '85d140433197a5aa546fd95b86ab79cb896634053131ab8d27a953a68a50e701',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood'
+    ]
+  ],
+  [
+    '60153f947fbecacb8d120441a851978a7153e94e6f58b947490c6f375743e5df',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    'c60e4bc2c1e66cb8fb2230faeea27e8639a65f19090119ed1f6cf1b959270ba2',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood'
+    ]
+  ],
+  [
+    '5b580a2c72a029dbfc598b5ce163c0848399dc6246010ba904ee92dc855be764',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    '0fad9b2aa9974c978f425823b004c91c134ec6fd6060f96453f3822346a8dba4',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood'
+    ]
+  ],
+  [
+    '09e3ca1d8f6231dfe26850103546583d20759a046b7fcef05d392ee01699b8de',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood'
+    ]
+  ],
+  [
+    'f63c5388f22e27fe516b961bd7b4f65ca3b913fef3daa79a6c03a3ac72c9840d',
+    [
+      'Cloth', 'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood',  'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    '6dcd50a0e8354003a84f63ec6a16d9d7c2c38916fbd47c0b5223a688cce6d4dd',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood'
+    ]
+  ],
+  [
+    '1a96f7857beef47553c674737b90a73acf087147ff68e480e5170344df8f9b0f',
+    [
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood', 'Wood', 'Wood',
+      'Wood'
+    ]
+  ],
+  [
+    '1247347cb13999fb27abc3d45b9d73287af800a5632c1e1cec9cfc1dd4098693',
+    [
+      'Cloth', 'Wood',
+      'Wood',  'Wood',
+      'Wood',  'Wood',
+      'Wood',  'Wood',
+      'Wood',  'Wood',
+      'Wood',  'Wood'
+    ]
+  ],
+  ... 5308 more items
+]
