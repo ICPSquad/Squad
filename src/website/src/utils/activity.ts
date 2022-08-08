@@ -22,7 +22,7 @@ export async function getCompletedMissions(p: Principal): Promise<[Mission, bigi
   return completed;
 }
 
-export async function getRecordedRewards(p: Principal): Promise<[Reward[]] | []> {
+export async function getRecordedRewards(p: Principal): Promise<[Array<Reward>] | []> {
   let accessoriesActor = get(actors).accessoriesActor;
   if (!accessoriesActor) {
     throw new Error("Accessories actor not found");

@@ -22,12 +22,30 @@ createReadStream(`${__dirname}/csv/July_rewards.csv`)
   .pipe(csvParser())
   .on("data", (data) => results.push(data))
   .on("end", () => {
+    var nb_cloth_total = 0;
+    var nb_wood_total = 0;
+    var nb_glass_total = 0;
+    var nb_metal_total = 0;
+    var nb_circuit_total = 0;
+    var nb_stone_total = 0;
     results.forEach((result) => {
+      nb_cloth_total += Number(result.Cloth);
+      nb_wood_total += Number(result.Wood);
+      nb_glass_total += Number(result.Glass);
+      nb_metal_total += Number(result.Metal);
+      nb_circuit_total += Number(result.Circuit);
+      nb_stone_total += Number(result.Dfinity);
       const account = principalToAddress(Principal.fromText(result.Principal));
       const airdrop = createAirdrop(result);
       output.push([account, airdrop]);
     });
-    distribute();
+    // distribute();
+    console.log("Numbers of cloth : " + nb_cloth_total);
+    console.log("Numbers of wood : " + nb_wood_total);
+    console.log("Numbers of glass : " + nb_glass_total);
+    console.log("Numbers of metal : " + nb_metal_total);
+    console.log("Numbers of circuit : " + nb_circuit_total);
+    console.log("Numbers of stone : " + nb_stone_total);
   });
 
 function createAirdrop(data): Airdrop {
@@ -56,6 +74,7 @@ function createAirdrop(data): Airdrop {
   for (let i = 0; i < nb_stone; i++) {
     output.push("Dfinity-stone");
   }
+  console.log("");
   return output;
 }
 

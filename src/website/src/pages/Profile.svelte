@@ -22,8 +22,8 @@
   let mode = "informations";
 
   let activity: Activity | null = null;
-  let completed: [Mission, bigint][] | null = null;
-  let rewards: [Reward][] | null | [] = null;
+  let completed: [Mission, bigint][] | [] | null = null;
+  let rewards: [Array<Reward>] | [] | null = null;
 
   $: if (mode === "activity") {
     if (!activity) {
@@ -239,15 +239,13 @@
       {/if}
     </div>
   {:else if mode === "activity"}
-    <!-- <div class="button-col">
-      <button class="secondary-button">Cumulative</button>
-      <button class="secondary-button">Daily</button> 
-    </div> -->
     {#if activity}
-      <ActivityComponent {activity} />
+      <div class="activity-card">
+        <ActivityComponent {activity} />
+      </div>
     {:else}
       <div class="not-logged-in">
-        <p>No activity detected.</p>
+        <p>Loading your activity...</p>
       </div>
     {/if}
   {:else if mode === "missions"}
@@ -257,7 +255,7 @@
       </div>
     {:else}
       <div class="not-logged-in">
-        <p>No missions completed.</p>
+        <p>Loading your missions...</p>
       </div>
     {/if}
   {:else if mode === "rewards"}
@@ -267,7 +265,7 @@
       </div>
     {:else}
       <div class="not-logged-in">
-        <p>No rewards received.</p>
+        <p>Loading your rewards...</p>
       </div>
     {/if}
   {/if}
@@ -352,8 +350,9 @@
     text-decoration: underline;
     color: $darkgrey;
   }
-
-  .mission-card {
+  .activity-card,
+  .mission-card,
+  .reward-card {
     grid-column: span 3;
   }
 

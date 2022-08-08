@@ -4,6 +4,7 @@
   export let activity: Activity;
 </script>
 
+<h2>Cumulative activity</h2>
 <div>
   <div class="field">
     <div class="label">Trade (number of events)</div>
@@ -37,6 +38,12 @@
 
 <style lang="scss">
   @use "../../styles" as *;
+
+  h2 {
+    text-align: center;
+    color: $yellow;
+  }
+
   .field {
     margin-bottom: 30px;
   }

@@ -1,10 +1,10 @@
 <script lang="ts">
   import RewardCard from "./RewardCard.svelte";
   import type { Reward } from "@canisters/accessories/accessories.did.d";
-  export let received_rewards: [Reward][];
+  export let received_rewards: [Array<Reward>] | [];
 </script>
 
-{#if received_rewards && received_rewards.length > 0}
+{#if received_rewards.length > 0}
   <h2>Received airdrop</h2>
   <div class="title">
     <div class="name">Name</div>
@@ -17,6 +17,8 @@
   {#each received_rewards[0] as reward}
     <RewardCard name={reward.name} collection={reward.collection.toString()} type={"aa"} url={"bb"} time={Number(reward.date)} />
   {/each}
+{:else}
+  <h2>You have not received any airdrop</h2>
 {/if}
 
 <style lang="scss">
