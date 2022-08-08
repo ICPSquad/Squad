@@ -9,7 +9,6 @@
 
   let currentPage = 1;
   let pageSize = 100;
-  let open = false;
 
   let leaderboard: Leaderboard | undefined | null;
   $: paginatedLeaderboard = leaderboard ? paginate({ items: leaderboard, pageSize, currentPage }) : [];

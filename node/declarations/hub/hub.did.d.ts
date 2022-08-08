@@ -134,6 +134,10 @@ export interface ICPSquadHub {
   >,
   'get_all_collections' : ActorMethod<[], Array<[Collection__1, Principal]>>,
   'get_all_daily_events' : ActorMethod<[], Array<[Principal, Array<Event>]>>,
+  'get_completed_missions' : ActorMethod<
+    [Principal],
+    Array<[Mission__1, Time]>,
+  >,
   'get_cumulative_activity' : ActorMethod<
     [Principal, [] | [Time], [] | [Time]],
     Activity,
@@ -223,6 +227,20 @@ export type MissionValidation = { 'Internal' : null } |
   { 'Custom' : CustomValidation } |
   { 'Manual' : ManualValidation } |
   { 'Automatic' : AutomaticValidation };
+export interface Mission__1 {
+  'id' : bigint,
+  'status' : MissionStatus,
+  'title' : string,
+  'tags' : Array<string>,
+  'description' : string,
+  'created_at' : Time,
+  'restricted' : [] | [Array<Principal>],
+  'url_icon' : string,
+  'ended_at' : [] | [Time],
+  'validation' : MissionValidation,
+  'started_at' : [] | [Time],
+  'points' : bigint,
+}
 export type Name = string;
 export type Nanos = bigint;
 export interface NumericEntity {

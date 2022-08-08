@@ -10,18 +10,26 @@
   import { get } from "svelte/store";
   import { setMessage } from "@src/store/toast";
   import { actors } from "@src/store/actor";
-  import type { Activity } from "@canisters/hub/hub.did.d";
+  import type { Activity, Mission } from "@canisters/hub/hub.did.d";
   import { user } from "@src/store/user";
-  import { getCumulativeActivity } from "@utils/activity";
+  import { getCumulativeActivity, getCompletedMissions } from "@utils/activity";
   import ActivityComponent from "@src/components/profile/Activity.svelte";
+  import MissionComponent from "@src/components/profile/Mission.svelte";
 
   let editing = false;
   let mode = "informations";
   let activity: Activity | null = null;
+  let completed: [Mission, bigint][] | null = null;
 
   $: if (mode === "activity") {
     if (!activity) {
       getActivity();
+    }
+  }
+
+  $: if (mode === "missions") {
+    if (!completed) {
+      getCompleted();
     }
   }
 
@@ -106,7 +114,10 @@
 
   async function getActivity() {
     activity = await getCumulativeActivity(userProfile.principal);
-    console.log(activity);
+  }
+
+  async function getCompleted() {
+    completed = await getCompletedMissions(userProfile.principal);
   }
 </script>
 
@@ -215,7 +226,7 @@
   {:else if mode === "activity"}
     <!-- <div class="button-col">
       <button class="secondary-button">Cumulative</button>
-       <button class="secondary-button">Daily</button> 
+      <button class="secondary-button">Daily</button> 
     </div> -->
     {#if activity}
       <ActivityComponent {activity} />
@@ -225,7 +236,15 @@
       </div>
     {/if}
   {:else if mode === "missions"}
-    <div>Missions</div>
+    {#if completed}
+      <div class="mission-card">
+        <MissionComponent {completed} />
+      </div>
+    {:else}
+      <div class="not-logged-in">
+        <p>No missions completed.</p>
+      </div>
+    {/if}
   {/if}
 </div>
 <Join />
@@ -282,7 +301,7 @@
 
   .container {
     display: grid;
-    grid-template-columns: 3fr 6fr 3fr;
+    grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 40px;
     padding: 20px 20px !important;
   }
@@ -307,6 +326,10 @@
   .add-button {
     text-decoration: underline;
     color: $darkgrey;
+  }
+
+  .mission-card {
+    grid-column: span 3;
   }
 
   input {

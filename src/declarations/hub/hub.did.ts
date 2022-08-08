@@ -132,7 +132,26 @@ export const idlFactory = ({ IDL }) => {
     'details' : IDL.Vec(IDL.Tuple(IDL.Text, DetailValue)),
     'caller' : IDL.Principal,
   });
+  const MissionStatus = IDL.Variant({
+    'Ended' : IDL.Null,
+    'Running' : IDL.Null,
+    'Pending' : IDL.Null,
+  });
   const Time = IDL.Int;
+  const Mission__1 = IDL.Record({
+    'id' : IDL.Nat,
+    'status' : MissionStatus,
+    'title' : IDL.Text,
+    'tags' : IDL.Vec(IDL.Text),
+    'description' : IDL.Text,
+    'created_at' : Time,
+    'restricted' : IDL.Opt(IDL.Vec(IDL.Principal)),
+    'url_icon' : IDL.Text,
+    'ended_at' : IDL.Opt(Time),
+    'validation' : MissionValidation,
+    'started_at' : IDL.Opt(Time),
+    'points' : IDL.Nat,
+  });
   const Activity = IDL.Record({
     'buy' : IDL.Tuple(IDL.Nat, IDL.Nat),
     'burn' : IDL.Nat,
@@ -173,11 +192,6 @@ export const idlFactory = ({ IDL }) => {
       TotalScore,
     )
   );
-  const MissionStatus = IDL.Variant({
-    'Ended' : IDL.Null,
-    'Running' : IDL.Null,
-    'Pending' : IDL.Null,
-  });
   const Mission = IDL.Record({
     'id' : IDL.Nat,
     'status' : MissionStatus,
@@ -248,6 +262,11 @@ export const idlFactory = ({ IDL }) => {
         [],
         [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Vec(Event)))],
         [],
+      ),
+    'get_completed_missions' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(IDL.Tuple(Mission__1, Time))],
+        ['query'],
       ),
     'get_cumulative_activity' : IDL.Func(
         [IDL.Principal, IDL.Opt(Time), IDL.Opt(Time)],

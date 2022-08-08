@@ -1,16 +1,12 @@
 import Array "mo:base/Array";
 import Cycles "mo:base/ExperimentalCycles";
 import Error "mo:base/Error";
-import HashMap "mo:base/HashMap";
 import Int "mo:base/Int";
-import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
-import Nat64 "mo:base/Nat64";
 import Nat8 "mo:base/Nat8";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Time "mo:base/Time";
-import TrieMap "mo:base/Trie";
 
 import Canistergeek "mo:canistergeek/canistergeek";
 import Date "mo:canistergeek/dateModule";

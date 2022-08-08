@@ -1,3 +1,42 @@
 <script lang="ts">
-    export let completed;
+  import MissionCard from "./MissionCard.svelte";
+  import type { Mission } from "@canisters/hub/hub.did.d";
+  export let completed: [Mission, bigint][];
 </script>
+
+{#if completed && completed.length > 0}
+  <h2>Completed missions</h2>
+  <div class="title">
+    <div class="name">Name</div>
+    <div class="reward">Reward</div>
+    <div class="time">Date</div>
+  </div>
+  {#each completed as [mission, time]}
+    <MissionCard name={mission.title} reward={Number(mission.points)} time={Number(time)} />
+  {/each}
+{/if}
+
+<style lang="scss">
+  @use "../../styles" as *;
+
+  h2 {
+    text-align: center;
+    color: $yellow;
+  }
+
+  .title {
+    display: grid;
+    grid-template-columns: 1fr 1fr 120px;
+    padding: 10px 20px;
+    align-items: center;
+    font-size: large;
+    font-weight: bold;
+  }
+
+  .header-name,
+  .header-reward,
+  .header-time {
+    font-size: large;
+    font-weight: bold;
+  }
+</style>

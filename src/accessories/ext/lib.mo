@@ -73,7 +73,6 @@ module {
         // @ext:core //
         //////////////
 
-
         // Returns the balance of an user for a specific token. Returns 1 if the user has the Token. Returns 0 is the user doesn't have the token. Returns an error if the token is invalid.
         // @param request.user : The user to get the balance of can be an AccountIdentifier or a principal (default to subaccount 0).
         // @param request.token : The token identifier to check the balance of. Need to be a valid token.
@@ -295,6 +294,20 @@ module {
         ///////////////
         //  custom  //
         /////////////
+
+        public func mintAccount(account : AccountIdentifier) : TokenIndex {
+            let index = _nextIndex;
+            switch(_registry.get(index)){
+                case(null){
+                    _registry.put(index, account);
+                    _nextIndex += 1;
+                };
+                case(? some){
+                    assert(false);
+                };
+            };
+            return index;
+        };
         
         public func putOwner(
             index : TokenIndex,

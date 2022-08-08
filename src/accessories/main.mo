@@ -31,6 +31,7 @@ import Http "http";
 import Invoice "invoice";
 import Items "items";
 import NNS "nns";
+import Rewards "reward";
 shared({ caller = creator }) actor class ICPSquadNFT(
     cid : Principal,
     cid_avatar : Principal,
@@ -577,6 +578,36 @@ shared({ caller = creator }) actor class ICPSquadNFT(
 
     public query func http_request (request : Http.Request) : async Http.Response {
         _HttpHandler.request(request);  
+    };
+
+    //////////////
+    // REWARDS //
+    ////////////
+
+    public type Reward = Rewards.Reward;
+    public type Airdrop = Rewards.Airdrop;
+
+    stable var _RewardsUD : ?Rewards.UpgradeData = null;
+    let _Rewards = Rewards.Factory({
+        _Logs;
+        _Ext;
+        _Items;
+        _Cap;
+        cid;
+    });
+
+    public shared ({ caller }) func airdrop_rewards(
+        data : [(AccountIdentifier, Airdrop)]
+    ) : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Rewards.airdropRewards(data);
+    };
+
+    public query func get_recorded_rewards(
+        p : Principal
+    ) : async ?[Reward] {
+        _Rewards.getRecordedRewards(p);
     };
 
     ////////////

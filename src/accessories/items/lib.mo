@@ -70,11 +70,8 @@ module {
         let _items : HashMap.HashMap<TokenIndex,Item> = HashMap.HashMap(0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
         let _templates : HashMap.HashMap<Text,Template> = HashMap.HashMap(0, Text.equal, Text.hash);
         let _recipes : TrieMap.TrieMap<Text, Recipe> = TrieMap.TrieMap(Text.equal, Text.hash);
-
-
         let _burned : TrieMap.TrieMap<TokenIndex,BurnedInformation> = TrieMap.TrieMap<TokenIndex, BurnedInformation>(Ext.TokenIndex.equal, Ext.TokenIndex.hash);
         let _reported : TrieMap.TrieMap<TokenIndex, BurnedInformation> = TrieMap.TrieMap<TokenIndex, BurnedInformation>(Ext.TokenIndex.equal, Ext.TokenIndex.hash);
-
 
         let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
             wearAccessory : shared (tokeniId : TokenIdentifier, name : Text, p : Principal) -> async Result<(), Text>;
@@ -86,7 +83,6 @@ module {
         let _Ext = dependencies._Ext;
         let _Cap = dependencies._Cap;
 
-
         public func preupgrade() : UpgradeData {
             return({
                 items = Iter.toArray(_items.entries());
@@ -96,8 +92,7 @@ module {
             })
         };
 
-
-          public func postupgrade(ud : ?UpgradeData) : () {
+        public func postupgrade(ud : ?UpgradeData) : () {
             switch(ud){
                 case(? ud){
                     for((index, item) in ud.items.vals()){
@@ -120,7 +115,6 @@ module {
         /////////////
         // API /////
         ///////////
-
 
         public func confirmBurnedAccessory(index : TokenIndex) : () {
             switch(_burned.get(index)){
