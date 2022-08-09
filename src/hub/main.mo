@@ -194,6 +194,10 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Cap.getDailyEventsUser(p);
     };
 
+    public query func is_collection_integrated(p : Principal) : async Bool {
+        _Cap.isCollectionIntegrated(p);
+    };
+
     ////////////////
     // MISSION ////
     //////////////  

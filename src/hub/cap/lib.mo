@@ -302,6 +302,15 @@ module {
             return activity.accessory_minted;
         };
 
+        public func isCollectionIntegrated(p : Principal) : Bool {
+            for(cid in cids.vals()){
+                if(cid == p){
+                    return true;
+                };
+            };
+            return false;
+        };
+
         public func getAllDailyEvents() : [(Principal, [Event])] {
             return (Iter.toArray(daily_cached_events_per_collection.entries()));
         };
