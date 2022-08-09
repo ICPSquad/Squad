@@ -88,18 +88,18 @@ module {
                             pendingCount -= 1;
                         };
                         case(#err(#invalidTransaction)){
-                            _Logs.logMessage("cronicEvents" # "ERR :: Failed to insert(Invalid transaction)");
+                            _Logs.logMessage("CRON" # "ERR :: Failed to insert :: invalid transaction)");
                             failed := List.push(job!, failed);
                             pendingCount -= 1;
                         };
                         case(#err(#unsupportedResponse)){
-                            _Logs.logMessage("cronicEvents" # "ERR :: Failed to insert(Unsupported response)");
+                            _Logs.logMessage("CRON" # "ERR :: Failed to insert :: unsupported response)");
                             failed := List.push(job!, failed);
                             pendingCount -= 1;
                         };
                     };
                 } catch (e) {
-                    _Logs.logMessage("cronciEvent" # "ERR :: Unexpected CAP failure : " # Error.message(e) );
+                    _Logs.logMessage("CRON" # "ERR :: Unexpected CAP failure : " # Error.message(e) );
                     failed := List.push(job!, failed);
                     pendingCount -= 1;
                 };

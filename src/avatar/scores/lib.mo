@@ -80,7 +80,7 @@ module {
             for((name, stars) in stats.vals()){
                 starsAccessory.put(name, stars);
             };  
-            _Logs.logMessage("Uploaded stats");
+            _Logs.logMessage("CONFIG :: uploaded stats");
         };  
 
         public func getLastTimeOfCalculation() : Time {
@@ -92,15 +92,15 @@ module {
         };
 
         /*
-            Updates the style score with the latest equipped accessorie 
-         */
+            Updates the style score using the latest equipped accessories on the avatar corresponding to the tokenIdentifier. 
+        */
         public func calculateStyleScores() : () {
             let registry = _Ext.getRegistry();
             for ((tokenIndex, account ) in registry.vals()){
                 let tokenIdentifier = Ext.TokenIdentifier.encode(CID, tokenIndex);
                 switch(_calculateScore(tokenIdentifier)){
                     case(null){
-                        _Logs.logMessage("No score for : " # tokenIdentifier);
+                        _Logs.logMessage("ERR :: no score for : " # tokenIdentifier);
                     };
                     case(?  score){
                         styleScores.put(tokenIdentifier, score);
@@ -117,7 +117,7 @@ module {
         func _calculateScore(tokenId : TokenIdentifier) : ?Nat {
             switch(_Avatar.getSlot(tokenId)){
                 case(null) {
-                    _Logs.logMessage("No slot found for token :" # tokenId);
+                    _Logs.logMessage("ERR :: no slot found for token :" # tokenId);
                     return null;
                 };
                 case(? slot){
@@ -165,7 +165,7 @@ module {
         func _getScore(name : Text) : Nat {
             switch(starsAccessory.get(name)){
                 case(null) {
-                    _Logs.logMessage("No score found for name : " # name);
+                    _Logs.logMessage("ERR :: no score found for name : " # name);
                     return 0;
                 };
                 case(? stars){

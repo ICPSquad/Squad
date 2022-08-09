@@ -2,8 +2,6 @@
   import RewardCard from "./RewardCard.svelte";
   import type { Reward } from "@canisters/accessories/accessories.did.d";
   export let received_rewards: [Array<Reward>] | [];
-
-  function typeObjectToString(): string {}
 </script>
 
 {#if received_rewards.length > 0}

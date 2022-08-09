@@ -18,7 +18,7 @@ const network = process.env.NODE_ENV === "production" ? "ic" : "local";
 
 console.log("Airdrop is in progress using  : " + accessoriesID + " on network : " + network);
 
-createReadStream(`${__dirname}/csv/Test_rewards.csv`)
+createReadStream(`${__dirname}/csv/July_rewards.csv`)
   .pipe(csvParser())
   .on("data", (data) => results.push(data))
   .on("end", () => {
