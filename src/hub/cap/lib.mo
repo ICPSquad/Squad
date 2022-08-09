@@ -303,8 +303,8 @@ module {
         };
 
         public func isCollectionIntegrated(p : Principal) : Bool {
-            for(cid in cids.vals()){
-                if(cid == p){
+            for(collection in cids.keys()){
+                if(collection.contractId == p){
                     return true;
                 };
             };
