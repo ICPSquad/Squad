@@ -269,6 +269,31 @@ module {
         // API //
         ////////
 
+        public func registerAllCollections() : async Result.Result<(), Text> {
+            let collections : [Types.NFT_CANISTER] = await dab.get_all();
+            for(collection in collections.vals()){
+                let obj : Collection = {
+                    name = collection.name;
+                    contractId = collection.principal_id;
+                };
+                // Check that the collection is not already registered!
+                switch(cids.get(obj)){
+                    case(? some){};
+                    case(null){
+                        switch(await registerCollection(obj)){
+                            case(#ok()){
+                                _Logs.logMessage("CONFIG :: new collection has been registered " # obj.name);
+                            };
+                            case(#err(e)){
+                                _Logs.logMessage("ERR :: no bucket found for : " # Principal.toText(collection.principal_id));
+                            };
+                        };
+                    };
+                };
+            };
+            return #ok();
+        };
+
         /* Returns the total engagement score of the principal between t1 and t2 by summing the engagement scores of all the days.*/
         public func getScore(p : Principal, dates : [Date]) : Nat {
             return _getSumEngagementScore(dates, p);
