@@ -164,6 +164,17 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         await _Cap.registerCollection(collection);
     };
 
+
+    /* 
+        Use DAB to query all collections and try registering them if they are not already registered.
+        @auth : admin
+    */
+    public shared ({ caller }) func register_all_collections() : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.registerAllCollections();
+    };
+
     public query ({ caller }) func get_all_collections() : async [(Cap.Collection, Principal)] {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
