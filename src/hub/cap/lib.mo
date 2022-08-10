@@ -286,11 +286,11 @@ module {
                                     _Logs.logMessage("CONFIG :: new collection has been registered : " # obj.name);
                                 };
                                 case(#err(e)){
-                                    _Logs.logMessage("ERR :: no bucket found for : " # obj.name );
+                                    _Logs.logMessage("ERR :: no bucket found for : " # obj.name);
                                 };
                             };
                         } catch e {
-                            _Logs.logMessage("ERR :: trying to register a collection :: " # Error.message(e))
+                            _Logs.logMessage("ERR :: trying to register a collection :: " # Error.message(e));
                         };
                     };
                 };
