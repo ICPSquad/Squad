@@ -48,7 +48,6 @@ module {
         private let _registry : TrieMap.TrieMap<TokenIndex, AccountIdentifier> = TrieMap.TrieMap<TokenIndex,AccountIdentifier>(Ext.TokenIndex.equal, Ext.TokenIndex.hash);
 
         let _Logs = dependencies._Logs;
-        let _Tickets = dependencies._Tickets;
 
         public func preupgrade() : UpgradeData {
             {
@@ -306,18 +305,9 @@ module {
             _registry.delete(index);
         };
         
-        ////////////////////////////////
-        //  CUSTOM TICKET REDUCTION   //
-        ///////////////////////////////
-
-        public func hasTicket(p : Principal) : Bool {
-            let account = Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
-            for((index, owner) in _registry.entries()) {
-                if (Text.equal(account, owner) and _Tickets.isTicket(index)){
-                return true
-            };
-            return false;
-        };
+        ///////////////////
+        //  UTILITIES   //
+        //////////////////
 
         func _getMaxTokenIndex() : Nat32 {
             var maximum : Nat32 = 0;

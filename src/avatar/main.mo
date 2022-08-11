@@ -28,6 +28,7 @@ import Http "http";
 import Invoice "invoice";
 import SVG "utils/svg";
 import Scores "scores";
+import Tickets "tickets";
 import Users "users";
 
 shared ({ caller = creator }) actor class ICPSquadNFT() = this {
@@ -179,15 +180,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Assets.delete(filePath);
     };
 
-
-    ////////////////
-    // Invoice ////
-    //////////////
-
-    let _Invoice = Invoice.Factory({
-        invoice_cid = invoice_cid 
-    });
-
+  
     ///////////////
     // Avatar ////
     /////////////
@@ -824,8 +817,36 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Scores.getStyleScores();
     };
 
+    ////////////////
+    // TICKETS ////
     //////////////
-    // Cronic ///
+
+    let _Tickets = Ticket.Factory({
+        _Ext;
+        _Logs;
+        cid;
+    });
+
+    public query func has_ticket(p : Principal) : Bool {
+        _Tickets.hasTicket(p);
+    };
+
+    public shared ({ caller }) func mint_ticket(p : Principal) : Result<TokenIndex, Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Tickets.mintTicket(p);
+    };  
+
+    ////////////////
+    // INVOICE ////
+    //////////////
+
+    let _Invoice = Invoice.Factory({
+        invoice_cid = invoice_cid 
+    });
+
+    //////////////
+    // CRONIC ///
     /////////////
 
     /* 
