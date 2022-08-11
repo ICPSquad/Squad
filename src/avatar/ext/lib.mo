@@ -212,10 +212,16 @@ module {
                     return #ok(index);
                 };
                 case (? _) {
-                    _Logs.logMessage("Ext/lib/mint/line214. Index : " # Nat.toText(Nat32.toNat(index)));
+                    _Logs.logMessage("ERR :: Token already exists : " # Nat.toText(Nat32.toNat(index)));
                     return #err(#Other("Token already exists."));
                 };
             };
+        };
+
+        public func mintAccount(
+            account : AccountIdentifier,
+        ) : TokenIndex {
+
         };
 
         public func getRegistry() : [(TokenIndex, AccountIdentifier)] {

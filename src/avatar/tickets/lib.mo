@@ -62,14 +62,24 @@ module {
                             return true;
                         };
                     };
-                    return false;
                 };
             };
         };
 
         public func mintTicket(p : Principal) : Result.Result<Types.TokenIndex, Text> {
-            // Mint token with EXT
-            // Add token to list of tickets
+            let request : Ext.NonFungible.MintRequest = {
+                to = #principal(p);
+                metadata = null;
+            };
+            switch(_Ext.mint(request)){
+                case(#err(e)) {
+                    return #err(e);
+                };
+                case(#ok(tokenIndex)){
+                    addTicket(tokenIndex);
+                    return #ok(tokenIndex);
+                };
+            };
         };
 
     };
