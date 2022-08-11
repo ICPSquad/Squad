@@ -821,17 +821,17 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     // TICKETS ////
     //////////////
 
-    let _Tickets = Ticket.Factory({
+    let _Tickets = Tickets.Factory({
         _Ext;
         _Logs;
         cid;
     });
 
-    public query func has_ticket(p : Principal) : Bool {
+    public query func has_ticket(p : Principal) : async Bool {
         _Tickets.hasTicket(p);
     };
 
-    public shared ({ caller }) func mint_ticket(p : Principal) : Result<TokenIndex, Text> {
+    public shared ({ caller }) func mint_ticket(p : Principal) : async Result<TokenIndex, Text> {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         _Tickets.mintTicket(p);
@@ -842,6 +842,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     //////////////
 
     let _Invoice = Invoice.Factory({
+        _Tickets;
         invoice_cid = invoice_cid 
     });
 

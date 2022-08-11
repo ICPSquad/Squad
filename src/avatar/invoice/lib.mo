@@ -16,21 +16,26 @@ module {
         //////////////
         /// State ///
         ////////////
+
         private let INVOICE : Types.InvoiceInterface = actor(Principal.toText(dependencies.invoice_cid));
+        
+        private let _Tickets = dependencies._Tickets;
 
         public func verifyInvoice(
             id : Nat,
             caller : Principal
         ) : async Result<(),()>{
-            if(_Ext.hasTicket(caller)){
+            if(_Tickets.hasTicket(caller)){
                 switch(await INVOICE.verify_invoice_ticket({ id }, caller)){
-                case(#err(_)) return #err();
-                case(#ok(_)) return #ok();
+                    case(#err(_)) return #err();
+                    case(#ok(_)) return #ok();
+                };
             } else {
                 switch(await INVOICE.verify_invoice_avatar({ id }, caller)){
-                case(#err(_)) return #err();
-                case(#ok(_)) return #ok();
-            };            
+                    case(#err(_)) return #err();
+                    case(#ok(_)) return #ok();
+                };            
+            };
         };
     };
 };

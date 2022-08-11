@@ -218,12 +218,6 @@ module {
             };
         };
 
-        public func mintAccount(
-            account : AccountIdentifier,
-        ) : TokenIndex {
-
-        };
-
         public func getRegistry() : [(TokenIndex, AccountIdentifier)] {
             Iter.toArray(_registry.entries());
         };
@@ -232,7 +226,6 @@ module {
             let registry = Iter.toArray(_registry.entries());
             return(Array.map<(TokenIndex, AccountIdentifier), (TokenIdentifier, AccountIdentifier)>(registry, func(x) {(Ext.TokenIdentifier.encode(CANISTER_ID, x.0), x.1)}));
         };
-
 
         /////////////////////////////
         // @ext:stoic integration //

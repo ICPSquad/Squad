@@ -4,7 +4,7 @@ import Ext "../ext";
 
 module {
 
-    type TokenIndex = Nat32;
+    public type TokenIndex = Nat32;
 
     public type Dependencies = {
         _Ext : Ext.Factory;
@@ -26,5 +26,7 @@ module {
         addTicket : (tokenIndex : TokenIndex) -> ();
 
         deleteTicket : (tokenIndex : TokenIndex) -> (); 
+
+
     };
 }

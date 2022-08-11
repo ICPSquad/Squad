@@ -1,3 +1,4 @@
+import Array "mo:base/Array";
 import Prim "mo:prim";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
@@ -19,11 +20,12 @@ module {
 
         var tickets : [Types.TokenIndex] = [];
 
-        public func preupgrade() : Types.UpgradeData {
+        public func preupgrade() : Types.UpgradeData {
             return({
                 tickets;
             })
         };
+        
         public func postupgrade(ud : ?Types.UpgradeData) : () {
             switch(ud){
                 case(null){};
@@ -47,7 +49,7 @@ module {
         };
 
         public func deleteTicket(tokenIndex  : Types.TokenIndex) : () {
-            tickets := Array.filter<Types.TokenIndex>(tickets, func(x) -> {x != tokenIndex});
+            tickets := Array.filter<Types.TokenIndex>(tickets, func(x) {x != tokenIndex});
         };
 
         public func hasTicket(p : Principal) : Bool {
@@ -62,6 +64,7 @@ module {
                             return true;
                         };
                     };
+                    return false;
                 };
             };
         };
@@ -73,7 +76,7 @@ module {
             };
             switch(_Ext.mint(request)){
                 case(#err(e)) {
-                    return #err(e);
+                    return #err("Error during minting");
                 };
                 case(#ok(tokenIndex)){
                     addTicket(tokenIndex);

@@ -1,13 +1,14 @@
 import Result "mo:base/Result";
 
 import Canistergeek "mo:canistergeek/canistergeek";
-import Ext "mo:ext/Ext";
 
 import InvoiceType "../../invoice/Types";
+import Tickets "../tickets";
 
 module {
 
     public type Dependencies = {
+        _Tickets : Tickets.Factory;
         invoice_cid : Principal;
     };
 
@@ -18,11 +19,10 @@ module {
 
     public type InvoiceInterface = actor {
         verify_invoice_avatar : shared(args : VerifyInvoiceArgs, caller : Principal) -> async VerifyInvoiceResult;
+        verify_invoice_ticket : shared(args : VerifyInvoiceArgs, caller : Principal) -> async VerifyInvoiceResult;
     };
 
     public type Interface = {
-
-
         // Verify the invoice with the specified id for the specified principal.
         // @param id : The id of the invoice to verify.
         // @result(ok) : The invoice has been paid.
