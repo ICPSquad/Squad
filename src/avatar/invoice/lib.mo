@@ -22,10 +22,15 @@ module {
             id : Nat,
             caller : Principal
         ) : async Result<(),()>{
-            switch(await INVOICE.verify_invoice_avatar({ id }, caller)){
+            if(_Ext.hasTicket(caller)){
+                switch(await INVOICE.verify_invoice_ticket({ id }, caller)){
                 case(#err(_)) return #err();
                 case(#ok(_)) return #ok();
-            };
+            } else {
+                switch(await INVOICE.verify_invoice_avatar({ id }, caller)){
+                case(#err(_)) return #err();
+                case(#ok(_)) return #ok();
+            };            
         };
     };
 };

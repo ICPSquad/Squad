@@ -147,6 +147,7 @@ shared ({ caller = creator }) actor class Invoice(
   public type Category =  {
     #AvatarMint;
     #AccessoryFee;
+    #Ticket;
   };
 
   public shared ({caller}) func create_invoice (category : Category) : async T.CreateInvoiceResult {
@@ -208,10 +209,26 @@ shared ({ caller = creator }) actor class Invoice(
               // 1 week in nanoseconds
               expiration = Time.now() + (1000 * 60 * 60 * 24 * 7 * 1_000_000);
               destination = destination;
-            }    
+            }
+          };
+          case(#Ticket){
+            {
+              id;
+              creator = caller;
+              details = ?{ description = "ticket" ; meta = Blob.fromArray([0]) };
+              permissions = null; // Permission system is already implemented through the assertion system.
+              amount = 50_000_000;
+              amountPaid = 0;
+              token = getTokenVerbose({ symbol = "ICP" });
+              verifiedAtTime = null;
+              paid = false;
+              // 1 week in nanoseconds
+              expiration = Time.now() + (1000 * 60 * 60 * 24 * 7 * 1_000_000);
+              destination = destination;
+            }
           };
         };
-         _Logs.logMessage("INVOICE :: TASK :: Created  : " # Nat.toText(id) # " by " # Principal.toText(caller) # " for amount : " # Nat.toText(invoice.amount));
+        _Logs.logMessage("INVOICE :: TASK :: created  : " # Nat.toText(id) # " by " # Principal.toText(caller) # " for amount : " # Nat.toText(invoice.amount));
         invoices.put(id, invoice);
         return (#ok({invoice}));
       };
@@ -525,6 +542,62 @@ public shared ({ caller }) func verify_invoice_accessory(args : T.VerifyInvoiceA
   };
 };
 
+public shared ({ caller }) func verify_invoice_ticket(args : T.VerifyInvoiceArgs) : async T.VerifyInvoiceResult {
+  assert(caller == accessory_cid);
+  let invoice = invoices.get(args.id);
+  let canisterId = Principal.fromActor(this);
+
+  switch(invoice){
+    case(null) {
+      _Logs.logMessage("INVOICE :: ERR :: Invoice not found : " # Nat.toText(args.id));
+      return #err({ message = ?"Invoice not found"; kind = #NotFound });
+    };
+    case(? invoice){
+      if(Option.isSome(invoice.verifiedAtTime)) {
+        _Logs.logMessage("INVOICE :: ERR :: Already verified : " # Nat.toText(invoice.id));
+        return #err({ message = ?"Invoice already verified"; kind = #Expired });
+      };
+      switch(invoice.details){
+        case(null) {
+          _Logs.logMessage("INVOICE :: ERR :: No details : " # Nat.toText(invoice.id));
+          return #err({ message = ?"Invoice has no details"; kind = #Other });
+        };
+        case(? details) {
+          if(details.description != "ticket")  {
+            _Logs.logMessage("INVOICE :: ERR :: Not corresponding to an accessory : " # Nat.toText(invoice.id));
+            return #err({ message = ?"Invoice is not for accessory"; kind = #Other });
+          };
+        };
+      };
+      switch(invoice.token.symbol){
+        case ("ICP"){
+          switch (await _Ledger.verifyInvoice({ invoice ; caller; canisterId })){
+            case(#err(_)) {
+              _Logs.logMessage("INVOICE :: ERR :: Issue when calling the ledger canister : " # Nat.toText(invoice.id));
+              return #err({ message = ?"Issue when calling the ledger canister"; kind = #Other});
+            };
+            case(#ok (value)){
+              switch(value) {
+                case(#AlreadyVerified(_)){
+                  _Logs.logMessage("INVOICE :: ERR :: Already verified : " # Nat.toText(invoice.id));
+                  return #err({ message = ?"Invoice already verified"; kind = #Expired });
+                };
+                case(#Paid paidResult) {
+                  let replaced = invoices.replace(invoice.id, paidResult.invoice);
+                  _Logs.logMessage("INVOICE :: TASK :: verified : " # Nat.toText(invoice.id));
+                  _Logs.logMessage("INVOICE :: TASK :: funds transfered  : " # Nat.toText(invoice.amount));
+                  return #ok(#Paid { invoice = paidResult.invoice });
+                };
+              };
+            };
+          };
+        };
+        case(_) return #err({ message = ?"Invalid token"; kind = #Other });
+      };
+    };
+  };
+};
+
 // #region Transfer
   public shared ({caller}) func transfer (args : T.TransferArgs) : async T.TransferResult {
     let token = args.token;
@@ -698,9 +771,9 @@ public shared ({ caller }) func cron_balance() : async () {
     return;
   };
   // Keep track of empty account, to be refunded account & failed verifcation.
-  var empty   : List.List<(Principal, Nat)> = null;
-  var refunded : List.List<(Principal, Nat, Nat)> = null;
-  var failed      : List.List<(Principal, Nat)> = null;
+  var empty : List.List<(Principal, Nat)> = null;
+  var refunded  : List.List<(Principal, Nat)> = null;
+  var failed  : List.List<(Principal, Nat)> = null;
 
   let (tmp, remaining) = List.pop(invoices_to_check);
   var info = tmp;
@@ -715,7 +788,7 @@ public shared ({ caller }) func cron_balance() : async () {
             empty := List.push<(Principal, Nat)>((info!.0, info!.1), empty);
           } else {
             _Logs.logMessage("INVOICE :: VERIF :: account is not empty for invoice : " # Nat.toText(info!.1));
-            refunded := List.push<(Principal, Nat, Nat)>((info!.0, info!.1, success.balance), refunded);
+            refunded := List.push<(Principal, Nat)>((info!.0, info!.1), refunded);
             ignore(transfer_back_invoice(info!.1));
           };
         };
