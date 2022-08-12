@@ -158,16 +158,19 @@ export interface ICPSquadHub {
     >,
   >,
   'get_jobs' : ActorMethod<[], Array<[bigint, Job]>>,
-  'get_leaderboard' : ActorMethod<[], [] | [Leaderboard__1]>,
+  'get_leaderboard' : ActorMethod<[], [] | [Leaderboard]>,
   'get_leaderboard_simplified' : ActorMethod<
     [bigint],
     [] | [Array<[Principal, bigint]>],
   >,
   'get_missions' : ActorMethod<[], Array<Mission>>,
   'get_round' : ActorMethod<[], [] | [Round]>,
+  'get_specified_leaderboard' : ActorMethod<[bigint], [] | [Leaderboard]>,
   'is_admin' : ActorMethod<[Principal], boolean>,
+  'is_collection_integrated' : ActorMethod<[Principal], boolean>,
   'manually_add_winners' : ActorMethod<[bigint, Array<Principal>], Result_1>,
   'my_completed_missions' : ActorMethod<[], Array<[bigint, Time]>>,
+  'register_all_collections' : ActorMethod<[], Result_1>,
   'register_collection' : ActorMethod<[Collection], Result_1>,
   'set_job_status' : ActorMethod<[boolean], undefined>,
   'start_mission' : ActorMethod<[bigint], Result_1>,
@@ -262,7 +265,7 @@ export type Result__1_1 = { 'ok' : null } |
   { 'err' : string };
 export interface Round {
   'id' : bigint,
-  'leaderboard' : [] | [Leaderboard],
+  'leaderboard' : [] | [Leaderboard__1],
   'end_date' : [] | [Time],
   'start_date' : Time,
 }

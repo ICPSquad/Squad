@@ -18,6 +18,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const Category = IDL.Variant({
     'AvatarMint' : IDL.Null,
+    'Ticket' : IDL.Null,
     'AccessoryFee' : IDL.Null,
   });
   const Permissions = IDL.Record({
@@ -271,7 +272,6 @@ export const idlFactory = ({ IDL }) => {
     'collectCanisterMetrics' : IDL.Func([], [], []),
     'create_invoice' : IDL.Func([Category], [CreateInvoiceResult], []),
     'cron_balance' : IDL.Func([], [], []),
-    'cron_transfer' : IDL.Func([], [], []),
     'getCanisterLog' : IDL.Func(
         [IDL.Opt(CanisterLogRequest)],
         [IDL.Opt(CanisterLogResponse)],
@@ -304,6 +304,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'verify_invoice_avatar' : IDL.Func(
         [VerifyInvoiceArgs, IDL.Principal],
+        [VerifyInvoiceResult],
+        [],
+      ),
+    'verify_invoice_ticket' : IDL.Func(
+        [VerifyInvoiceArgs],
         [VerifyInvoiceResult],
         [],
       ),

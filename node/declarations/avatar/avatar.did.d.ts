@@ -116,7 +116,7 @@ export interface ICPSquadNFT {
   'associate_legendary' : ActorMethod<[string, TokenIdentifier], Result>,
   'availableCycles' : ActorMethod<[], bigint>,
   'balance' : ActorMethod<[BalanceRequest], BalanceResponse>,
-  'bearer' : ActorMethod<[TokenIdentifier], Result_6>,
+  'bearer' : ActorMethod<[TokenIdentifier], Result_7>,
   'burn' : ActorMethod<[TokenIdentifier], Result>,
   'calculate_style_score' : ActorMethod<[], undefined>,
   'changeStyle' : ActorMethod<[string], undefined>,
@@ -141,7 +141,7 @@ export interface ICPSquadNFT {
   'delete_admin' : ActorMethod<[Principal], undefined>,
   'delete_component' : ActorMethod<[string], Result>,
   'delete_file' : ActorMethod<[string], Result>,
-  'details' : ActorMethod<[TokenIdentifier], Result_5>,
+  'details' : ActorMethod<[TokenIdentifier], Result_6>,
   'draw' : ActorMethod<[TokenIdentifier], Result>,
   'extensions' : ActorMethod<[], Array<Extension>>,
   'getCanisterLog' : ActorMethod<
@@ -184,12 +184,14 @@ export interface ICPSquadNFT {
   'get_number_users' : ActorMethod<[], bigint>,
   'get_style_score' : ActorMethod<[], Array<[TokenIdentifier, StyleScore]>>,
   'get_user' : ActorMethod<[], [] | [UserData]>,
+  'has_ticket' : ActorMethod<[Principal], boolean>,
   'http_request' : ActorMethod<[Request], Response>,
   'inspect_avatar' : ActorMethod<[TokenIdentifier], [] | [Avatar]>,
   'is_admin' : ActorMethod<[Principal], boolean>,
-  'metadata' : ActorMethod<[TokenIdentifier], Result_4>,
+  'metadata' : ActorMethod<[TokenIdentifier], Result_5>,
   'mint' : ActorMethod<[MintInformation, [] | [bigint]], MintResult>,
   'mint_legendary' : ActorMethod<[string, Principal], Result>,
+  'mint_ticket' : ActorMethod<[Principal], Result_4>,
   'modify_profile' : ActorMethod<
     [
       [] | [string],
@@ -294,11 +296,13 @@ export type Result_2 = {
   { 'err' : CommonError };
 export type Result_3 = { 'ok' : Array<TokenIndex> } |
   { 'err' : CommonError };
-export type Result_4 = { 'ok' : Metadata } |
+export type Result_4 = { 'ok' : TokenIndex } |
+  { 'err' : string };
+export type Result_5 = { 'ok' : Metadata } |
   { 'err' : CommonError__1 };
-export type Result_5 = { 'ok' : [AccountIdentifier__1, [] | [Listing]] } |
+export type Result_6 = { 'ok' : [AccountIdentifier__1, [] | [Listing]] } |
   { 'err' : CommonError };
-export type Result_6 = { 'ok' : AccountIdentifier__1 } |
+export type Result_7 = { 'ok' : AccountIdentifier__1 } |
   { 'err' : CommonError };
 export interface Slots {
   'Hat' : [] | [string],

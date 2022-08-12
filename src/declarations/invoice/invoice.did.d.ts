@@ -41,6 +41,7 @@ export interface CanisterMetrics { 'data' : CanisterMetricsData }
 export type CanisterMetricsData = { 'hourly' : Array<HourlyMetricsData> } |
   { 'daily' : Array<DailyMetricsData> };
 export type Category = { 'AvatarMint' : null } |
+  { 'Ticket' : null } |
   { 'AccessoryFee' : null };
 export interface CreateInvoiceErr {
   'kind' : { 'InvalidDetails' : null } |
@@ -156,7 +157,6 @@ export interface Invoice {
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
   'create_invoice' : ActorMethod<[Category], CreateInvoiceResult>,
   'cron_balance' : ActorMethod<[], undefined>,
-  'cron_transfer' : ActorMethod<[], undefined>,
   'getCanisterLog' : ActorMethod<
     [[] | [CanisterLogRequest]],
     [] | [CanisterLogResponse],
@@ -184,6 +184,10 @@ export interface Invoice {
   >,
   'verify_invoice_avatar' : ActorMethod<
     [VerifyInvoiceArgs, Principal],
+    VerifyInvoiceResult,
+  >,
+  'verify_invoice_ticket' : ActorMethod<
+    [VerifyInvoiceArgs],
     VerifyInvoiceResult,
   >,
 }

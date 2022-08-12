@@ -182,7 +182,7 @@ export const idlFactory = ({ IDL }) => {
   const StyleScore = IDL.Nat;
   const EngagementScore = IDL.Nat;
   const TotalScore = IDL.Nat;
-  const Leaderboard__1 = IDL.Vec(
+  const Leaderboard = IDL.Vec(
     IDL.Tuple(
       IDL.Principal,
       IDL.Opt(Name),
@@ -206,7 +206,7 @@ export const idlFactory = ({ IDL }) => {
     'started_at' : IDL.Opt(Time),
     'points' : IDL.Nat,
   });
-  const Leaderboard = IDL.Vec(
+  const Leaderboard__1 = IDL.Vec(
     IDL.Tuple(
       IDL.Principal,
       IDL.Opt(Name),
@@ -218,7 +218,7 @@ export const idlFactory = ({ IDL }) => {
   );
   const Round = IDL.Record({
     'id' : IDL.Nat,
-    'leaderboard' : IDL.Opt(Leaderboard),
+    'leaderboard' : IDL.Opt(Leaderboard__1),
     'end_date' : IDL.Opt(Time),
     'start_date' : Time,
   });
@@ -300,7 +300,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'get_jobs' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Nat, Job))], ['query']),
-    'get_leaderboard' : IDL.Func([], [IDL.Opt(Leaderboard__1)], ['query']),
+    'get_leaderboard' : IDL.Func([], [IDL.Opt(Leaderboard)], ['query']),
     'get_leaderboard_simplified' : IDL.Func(
         [IDL.Nat],
         [IDL.Opt(IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Nat)))],
@@ -308,7 +308,17 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_missions' : IDL.Func([], [IDL.Vec(Mission)], ['query']),
     'get_round' : IDL.Func([], [IDL.Opt(Round)], ['query']),
+    'get_specified_leaderboard' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Opt(Leaderboard)],
+        ['query'],
+      ),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
+    'is_collection_integrated' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Bool],
+        ['query'],
+      ),
     'manually_add_winners' : IDL.Func(
         [IDL.Nat, IDL.Vec(IDL.Principal)],
         [Result_1],
@@ -319,6 +329,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(IDL.Nat, Time))],
         ['query'],
       ),
+    'register_all_collections' : IDL.Func([], [Result_1], []),
     'register_collection' : IDL.Func([Collection], [Result_1], []),
     'set_job_status' : IDL.Func([IDL.Bool], [], []),
     'start_mission' : IDL.Func([IDL.Nat], [Result_1], []),

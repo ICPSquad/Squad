@@ -25,7 +25,7 @@ export const idlFactory = ({ IDL }) => {
     'InvalidToken' : TokenIdentifier__1,
     'Other' : IDL.Text,
   });
-  const Result_6 = IDL.Variant({
+  const Result_7 = IDL.Variant({
     'ok' : AccountIdentifier__1,
     'err' : CommonError,
   });
@@ -59,7 +59,7 @@ export const idlFactory = ({ IDL }) => {
     'seller' : IDL.Principal,
     'price' : IDL.Nat64,
   });
-  const Result_5 = IDL.Variant({
+  const Result_6 = IDL.Variant({
     'ok' : IDL.Tuple(AccountIdentifier__1, IDL.Opt(Listing)),
     'err' : CommonError,
   });
@@ -235,7 +235,7 @@ export const idlFactory = ({ IDL }) => {
     'style' : Style,
     'profile' : IDL.Text,
   });
-  const Result_4 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError__1 });
+  const Result_5 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError__1 });
   const MintInformation = IDL.Record({
     'mouth' : IDL.Text,
     'background' : IDL.Text,
@@ -248,6 +248,7 @@ export const idlFactory = ({ IDL }) => {
     'profile' : IDL.Text,
   });
   const MintResult = IDL.Variant({ 'ok' : TokenIdentifier, 'err' : IDL.Text });
+  const Result_4 = IDL.Variant({ 'ok' : TokenIndex, 'err' : IDL.Text });
   const Result_3 = IDL.Variant({
     'ok' : IDL.Vec(TokenIndex),
     'err' : CommonError,
@@ -305,7 +306,7 @@ export const idlFactory = ({ IDL }) => {
     'associate_legendary' : IDL.Func([IDL.Text, TokenIdentifier], [Result], []),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
-    'bearer' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
+    'bearer' : IDL.Func([TokenIdentifier], [Result_7], ['query']),
     'burn' : IDL.Func([TokenIdentifier], [Result], []),
     'calculate_style_score' : IDL.Func([], [], ['oneway']),
     'changeStyle' : IDL.Func([IDL.Text], [], []),
@@ -332,7 +333,7 @@ export const idlFactory = ({ IDL }) => {
     'delete_admin' : IDL.Func([IDL.Principal], [], []),
     'delete_component' : IDL.Func([IDL.Text], [Result], []),
     'delete_file' : IDL.Func([IDL.Text], [Result], []),
-    'details' : IDL.Func([TokenIdentifier], [Result_5], ['query']),
+    'details' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
     'draw' : IDL.Func([TokenIdentifier], [Result], []),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
     'getCanisterLog' : IDL.Func(
@@ -407,12 +408,14 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'get_user' : IDL.Func([], [IDL.Opt(UserData)], ['query']),
+    'has_ticket' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'http_request' : IDL.Func([Request], [Response], ['query']),
     'inspect_avatar' : IDL.Func([TokenIdentifier], [IDL.Opt(Avatar)], []),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
-    'metadata' : IDL.Func([TokenIdentifier], [Result_4], ['query']),
+    'metadata' : IDL.Func([TokenIdentifier], [Result_5], ['query']),
     'mint' : IDL.Func([MintInformation, IDL.Opt(IDL.Nat)], [MintResult], []),
     'mint_legendary' : IDL.Func([IDL.Text, IDL.Principal], [Result], []),
+    'mint_ticket' : IDL.Func([IDL.Principal], [Result_4], []),
     'modify_profile' : IDL.Func(
         [
           IDL.Opt(IDL.Text),

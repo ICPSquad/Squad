@@ -388,6 +388,13 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
 
     /* 
+        Get the (optional) specified Leaderboard.
+    */
+    public query func get_specified_leaderboard(id : Nat) : async ?Leaderboard {
+        _Leaderboard.getLeaderboard(id);
+    };
+
+    /* 
         Get the (optional) simplified version of the leaderbord
     */
     public query func get_leaderboard_simplified(n : Nat) : async ?[(Principal,Nat)] {

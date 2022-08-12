@@ -625,7 +625,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     public query func http_request (request : Http.Request) : async Http.Response {
         _HttpHandler.request(request);  
     };
-
+    
     //////////////
     // Users ////
     /////////////
