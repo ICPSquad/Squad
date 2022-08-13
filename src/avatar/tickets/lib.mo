@@ -80,7 +80,7 @@ module {
             };
             switch(_Ext.mint(request)){
                 case(#err(e)) {
-                    return #err("Error during minting");
+                    return #err("ERR :: minting failed");
                 };
                 case(#ok(tokenIndex)){
                     addTicket(tokenIndex);

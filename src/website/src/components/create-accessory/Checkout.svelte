@@ -52,26 +52,28 @@
   });
 
   const handlePayment = async () => {
-    setState("waiting-payment");
-    if (!invoice) {
-      throw new Error("Invoice is not defined");
-    }
-    const { wallet: Wallet } = get(user);
-    if (!Wallet) {
-      throw new Error("Wallet is not defined");
-    }
-    try {
-      const result = await payInvoice(invoice, Wallet);
-      if (result.height > 0) {
-        setState("waiting-mint");
-      } else {
-        setState("error");
-        error_message = "Payment failed";
-      }
-    } catch (error) {
-      setState("error");
-      error_message = "Payment was rejected.";
-    }
+    alert("There is currently an issue with the payment system. Please try again later."); 
+    return;
+    // setState("waiting-payment");
+    // if (!invoice) {
+    //   throw new Error("Invoice is not defined");
+    // }
+    // const { wallet: Wallet } = get(user);
+    // if (!Wallet) {
+    //   throw new Error("Wallet is not defined");
+    // }
+    // try {
+    //   const result = await payInvoice(invoice, Wallet);
+    //   if (result.height > 0) {
+    //     setState("waiting-mint");
+    //   } else {
+    //     setState("error");
+    //     error_message = "Payment failed";
+    //   }
+    // } catch (error) {
+    //   setState("error");
+    //   error_message = "Payment was rejected.";
+    // }
   };
 
   $: if (state === "waiting-mint") {
@@ -138,7 +140,7 @@
   {:else if ready}
     <p>You will receive the accessory directly in your wallet.</p>
     <img src="/assets/accessories/{nameToSlot(cardSelected)}/{cardSelected}/{cardSelected}-minified.svg" alt="Card" />
-    <button on:click={() => handlePayment()}>Pay 0.5 ICP and mint</button>
+    <button on:click={() => handlePayment()}>Pay & mint</button>
   {/if}
 </div>
 

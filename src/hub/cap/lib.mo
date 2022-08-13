@@ -155,7 +155,7 @@ module {
         //////////
 
         /* 
-            Query all the cids and add the event of the day to the daily cache in the canister.
+            Query all the cids and add the events of the day to the daily cache in the canister.
             @ok : Number of events added to the daily cache.
             @err : An error message.
         */

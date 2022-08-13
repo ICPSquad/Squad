@@ -519,8 +519,8 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
 
     /* 
-        Query all the buckets from all the registered collections on the IC and cache the event of the last 24 hours.
-        Not cronic, it can be called manually.
+        Query all the buckets from all the registered collections on the IC.
+        Cache the event of the last 24 hours.
      */
 
     public shared ({ caller }) func cron_events () : async Result.Result<Nat, Text> {
@@ -529,7 +529,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Logs.logMessage("CRON :: querying events");
         switch(await _Cap.cronEvents()){
             case(#err(e)){
-                _Logs.logMessage("CRON :: ERaR :: error while querying events : " # e);
+                _Logs.logMessage("CRON :: ERR :: error while querying events : " # e);
                 return #err(e);
             };
             case(#ok(nb)) {
@@ -549,7 +549,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
 
     /* 
-        TESTING PURPOSE : only calculate the stats.
+        Calculate the stats.
     */
     public shared ({ caller }) func cron_activity() : async Result.Result<(), Text> {
         assert(_Admins.isAdmin(caller));
@@ -561,16 +561,39 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     /* 
         Query all the buckets from all the registered collections on the IC and cache the event of the last 24 hours.
         THEN calculate the stats.
-        @cronic : Every 12 hours.
+        @cronic : Every 24 hours.
      */
     public shared ({ caller }) func cron_stats() : async Result.Result<(), Text> {
         assert(_Admins.isAdmin(caller) or caller == cid);
         _Monitor.collectMetrics();
-        switch(await cron_events()){
+        _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: START");
+        _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: querying events");
+        switch(await _Cap.cronEvents()){
             case(#ok(nb)){
-                await _Cap.cronStats();
+                _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: " # "recorded " # Nat.toText(nb) # " events.");
+                _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: assigning events to users");
+                switch(await _Cap.cronUsers()){
+                    case(#ok()){
+                        _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: calculating stats");
+                        switch(await _Cap.cronStats()){
+                            case(#ok()){
+                                _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: DONE");
+                                return #ok();
+                            };
+                            case(#err(e)){
+                                _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: ERR :: " # e);
+                                return #err(e);
+                            };
+                        };
+                    };
+                    case(#err(e)){
+                        _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: ERR :: " # e);
+                        return #err(e);
+                    };
+                };
             };
             case(#err(e)){
+                _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: ERR :: " # e);
                 return #err(e);
             };
         };

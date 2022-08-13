@@ -2,6 +2,7 @@ import type { Invoice__1 as Invoice } from "@canisters/invoice/invoice.did.d";
 import type { Wallet } from "@src/types/wallet";
 import { StoicIdentity } from "ic-stoic-identity";
 import { ledgerActor } from "@src/api/actor";
+import { idlFactory as idlFactoryLedger } from "@canisters/ledger/ledger.did";
 import type { TransferArgs, TransferResult } from "@canisters/ledger/ledger.did.d";
 
 export async function payInvoice(invoice: Invoice, wallet: Wallet): Promise<{ height: number }> {
@@ -29,18 +30,20 @@ async function pay_plug(
 ): Promise<{
   height: number;
 }> {
-  const resultTransfer = await window.ic.plug.requestTransfer({
-    to: address,
-    amount: amount,
-    memo: "12345",
+  const NNS_LEDGER_CID = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+  let actor = await window.ic.plug.createActor({
+    canisterId: NNS_LEDGER_CID,
+    interfaceFactory: idlFactoryLedger,
   });
-  if (resultTransfer) {
-    return {
-      height: resultTransfer.height,
-    };
-  } else {
-    throw new Error("Transfer failed");
-  }
+  const blockHeight = await actor.transfer({
+    to: Array.from(new Uint8Array(Buffer.from(address, "hex"))),
+    amount: { e8s: BigInt(50000000) },
+    fee: { e8s: BigInt(10000) },
+    memo: BigInt(12345),
+    from_subaccount: [],
+    created_at_time: [],
+  });
+  return { height: blockHeight };
 }
 
 async function pay_stoic(address: string, amount: number): Promise<{ height: number }> {
