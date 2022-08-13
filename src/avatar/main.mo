@@ -333,6 +333,13 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
                             details = [("token", #Text(tokenId)), ("to", #Text(receiver))];
                             caller = caller;
                         }));
+                        // Delete the coupon in case the user has one
+                        switch(_Tickets.getTicket(caller)){
+                            case(null) {};
+                            case(? tokenIndex){
+                                _Tickets.deleteTicket(tokenIndex);
+                            };
+                        };
                         _Users.welcome(caller, invoice_id, tokenId);
                         return #ok(tokenId);
                     };

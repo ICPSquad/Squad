@@ -34,9 +34,11 @@
   const handleInvoice = async () => {
     const ticket = await $actors.avatarActor.has_ticket($user.principal);
     if (ticket) {
-      message = "Reduction ticket detected, reduction is applied...";
+      message = "Coupon detected, reduction is being applied...";
+      invoice = await createInvoice("Ticket");
+    } else {
+      invoice = await createInvoice("AvatarMint");
     }
-    invoice = await createInvoice("AvatarMint");
     setState("waiting-payment");
   };
 

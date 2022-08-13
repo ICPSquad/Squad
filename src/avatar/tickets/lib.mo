@@ -49,6 +49,7 @@ module {
         };
 
         public func deleteTicket(tokenIndex  : Types.TokenIndex) : () {
+            _Ext.burn(tokenIndex);
             tickets := Array.filter<Types.TokenIndex>(tickets, func(x) {x != tokenIndex});
         };
 
@@ -85,5 +86,21 @@ module {
             };
         };
 
+        public func getTicket(p : Principal) : ?Types.TokenIndex {
+            let account = Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
+            switch(_Ext.tokens(account)){
+                case(#err(_)) {
+                    return null;
+                };
+                case(#ok(tokens)){
+                    for(tokenIndex in tokens.vals()){
+                        if(isTicket(tokenIndex)){
+                            return ?tokenIndex
+                        };
+                    };
+                    return null;
+                };
+            };
+        };
     };
-}
+};

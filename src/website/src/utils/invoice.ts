@@ -22,6 +22,8 @@ function stringTypeToVariant(type: string): Category {
       return { AvatarMint: null };
     case "AccessoryFee":
       return { AccessoryFee: null };
+    case "Ticket":
+      return { Ticket: null };
     default:
       throw new Error("Unknown type");
   }
