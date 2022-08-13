@@ -21,8 +21,9 @@
   let invoice: Invoice | undefined = undefined;
   let error_message: string | undefined;
   let token_identifier: string | undefined;
+  let message: string = "Please wait...";
 
-  $: if ($actors.invoiceActor) {
+  $: if ($actors.invoiceActor && $actors.avatarActor) {
     state = "waiting-invoice";
   }
 
@@ -31,6 +32,10 @@
   }
 
   const handleInvoice = async () => {
+    const ticket = await $actors.avatarActor.has_ticket($user.principal);
+    if (ticket) {
+      message = "Reduction ticket detected, reduction is applied...";
+    }
     invoice = await createInvoice("AvatarMint");
     setState("waiting-payment");
   };
@@ -116,10 +121,10 @@
     <ConnectButton />
     <div class="back" on:click={() => setState("creating-avatar")}>← Back</div>
   {:else if state === "waiting-invoice"}
-    <Spinner message="Please wait..." />
+    <Spinner {message} />
   {:else if state === "waiting-payment"}
     <p>You will receive the avatar directly in your wallet.</p>
-    <button on:click={() => handlePayment()}>Pay 1 ICP and Mint</button>
+    <button on:click={() => handlePayment()}>Pay & Mint</button>
     <button on:click={() => handlePreorder()}>Preorder member ?</button>
   {:else if state === "waiting-payment-processing"}
     <Spinner message="Processing payment..." />
