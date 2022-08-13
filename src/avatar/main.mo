@@ -333,7 +333,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
                             details = [("token", #Text(tokenId)), ("to", #Text(receiver))];
                             caller = caller;
                         }));
-                        // Delete the coupon in case the user has one
+                        // Delete the coupon in case the user has one (assume the reduction was applied...!)
                         switch(_Tickets.getTicket(caller)){
                             case(null) {};
                             case(? tokenIndex){
@@ -828,6 +828,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     // TICKETS ////
     //////////////
 
+    stable var _TicketsUD : ?Tickets.UpgradeData = null;
     let _Tickets = Tickets.Factory({
         _Ext;
         _Logs;
@@ -905,6 +906,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _ScoresUD := ? _Scores.preupgrade();
         _UsersUD := ? _Users.preupgrade();
         _CapUD := ? _Cap.preupgrade();
+        _TicketsUD := ? _Tickets.preupgrade();
     };
 
     system func postupgrade() {
@@ -926,6 +928,8 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _UsersUD := null;
         _Cap.postupgrade(_CapUD);
         _CapUD := null;
+        _Tickets.postupgrade(_TicketsUD);
+        _TicketsUD := null;
         _Logs.logMessage("POSTUPGRADE :: avatar");
     };
 

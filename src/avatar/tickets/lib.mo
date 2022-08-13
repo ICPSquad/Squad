@@ -9,6 +9,9 @@ import Types "types";
 
 
 module {
+
+    public type UpgradeData = Types.UpgradeData;
+
     public class Factory(dependencies : Types.Dependencies) : Types.Interface {
 
         //////////////
