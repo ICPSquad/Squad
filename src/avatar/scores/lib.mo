@@ -99,9 +99,7 @@ module {
             for ((tokenIndex, account ) in registry.vals()){
                 let tokenIdentifier = Ext.TokenIdentifier.encode(CID, tokenIndex);
                 switch(_calculateScore(tokenIdentifier)){
-                    case(null){
-                        _Logs.logMessage("ERR :: no score for : " # tokenIdentifier);
-                    };
+                    case(null){};
                     case(?  score){
                         styleScores.put(tokenIdentifier, score);
                     };
@@ -116,10 +114,7 @@ module {
 
         func _calculateScore(tokenId : TokenIdentifier) : ?Nat {
             switch(_Avatar.getSlot(tokenId)){
-                case(null) {
-                    _Logs.logMessage("ERR :: no slot found for token :" # tokenId);
-                    return null;
-                };
+                case(null) {return null};
                 case(? slot){
                     return ?_calculateScoreFromSlot(slot);
                 };
