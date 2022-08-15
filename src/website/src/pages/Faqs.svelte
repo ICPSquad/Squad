@@ -86,6 +86,20 @@
       ],
     },
     {
+      category: "CONNEXION ISSUES",
+      articles: [
+        {
+          title: "I can't login to my account, what should I do?",
+          content: `<p>Many reasons can cause login issues. Here's are a few things to check : <p>
+                    <p> Enable cookies. </p>
+                    <p> Enable cross-site tracking (blocked by default on Safari & Brave). </p>
+                    <p> Remove Brave shield for this website if you are using Brave. </p>
+                    <p> If you are still having issues, please follow the step for customer support. </p>
+                    `,
+        },
+      ],
+    },
+    {
       category: "CUSTOMER SUPPORT",
       articles: [
         {

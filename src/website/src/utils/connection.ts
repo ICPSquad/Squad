@@ -51,7 +51,6 @@ export async function stoicConnexion(): Promise<void> {
       if (identity == false) {
         StoicIdentity.connect()
           .then((identity) => {
-            console.log("Identity", identity);
             user.update((u) => ({ ...u, wallet: "stoic", loggedIn: true, principal: identity.getPrincipal() }));
             const agent = new HttpAgent({
               identity: identity,
@@ -78,11 +77,9 @@ export async function stoicConnexion(): Promise<void> {
               canisterId: hubID,
             });
             actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor, hubActor: hubActor }));
-            console.log("Stoic identity connected", identity);
           })
           .catch((error) => {
             alert("Unable to connect to StoicIdentity, please read our FAQ for more informations.");
-            console.log("Stoic identity connexion error", error);
           });
       } else {
         user.update((u) => ({ ...u, wallet: "stoic", loggedIn: true, principal: identity.getPrincipal() }));
@@ -115,7 +112,6 @@ export async function stoicConnexion(): Promise<void> {
     })
     .catch((error) => {
       alert("Unable to load your StoicIdentity, please read our FAQ for more informations.");
-      console.log("StoicIdentity loading error", error);
     });
 }
 
