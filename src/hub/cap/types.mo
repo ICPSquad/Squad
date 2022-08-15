@@ -3,7 +3,7 @@ import Canistergeek "mo:canistergeek/canistergeek";
 import Collection "../collection";
 module {
 
-    public type Date = (Nat, Nat, Nat);
+    public type Date = (Nat, Nat, Nat); //(Year, Month, Day)
     public type CapStats = {
         buy : (Nat, Nat); // (Number of operations, ICP)
         sell : (Nat, Nat); // (Number of operations, ICP)

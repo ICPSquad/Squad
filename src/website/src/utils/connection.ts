@@ -46,16 +46,47 @@ export async function plugConnection(): Promise<void> {
 }
 
 export async function stoicConnexion(): Promise<void> {
-  try {
-    StoicIdentity.load().then(async (identity) => {
-      if (identity !== false) {
-        //ID is a already connected wallet!
+  StoicIdentity.load()
+    .then((identity) => {
+      if (identity == false) {
+        StoicIdentity.connect()
+          .then((identity) => {
+            console.log("Identity", identity);
+            user.update((u) => ({ ...u, wallet: "stoic", loggedIn: true, principal: identity.getPrincipal() }));
+            const agent = new HttpAgent({
+              identity: identity,
+              host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
+            });
+            const avatarActor = Actor.createActor<Avatar>(idlFactoryAvatar, {
+              agent,
+              canisterId: avatarID,
+            });
+            const accessoriesActor = Actor.createActor<Accessories>(idlFactoryAccessories, {
+              agent,
+              canisterId: accessoriesID,
+            });
+            const invoiceActor = Actor.createActor<Invoice>(idlFactoryInvoice, {
+              agent,
+              canisterId: invoiceID,
+            });
+            const ledgerActor = Actor.createActor<Ledger>(idlFactoryLedger, {
+              agent,
+              canisterId: ledgerID,
+            });
+            const hubActor = Actor.createActor<Hub>(idlFactoryHub, {
+              agent,
+              canisterId: hubID,
+            });
+            actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor, hubActor: hubActor }));
+            console.log("Stoic identity connected", identity);
+          })
+          .catch((error) => {
+            alert("Unable to connect to StoicIdentity, please read our FAQ for more informations.");
+            console.log("Stoic identity connexion error", error);
+          });
       } else {
-        identity = await StoicIdentity.connect();
-      }
-      try {
-        const principal = identity.getPrincipal();
-        let agent = new HttpAgent({
+        user.update((u) => ({ ...u, wallet: "stoic", loggedIn: true, principal: identity.getPrincipal() }));
+        const agent = new HttpAgent({
           identity: identity,
           host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
         });
@@ -79,18 +110,13 @@ export async function stoicConnexion(): Promise<void> {
           agent,
           canisterId: hubID,
         });
-
-        user.update((u) => ({ ...u, wallet: "stoic", loggedIn: true, principal }));
         actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor, hubActor: hubActor }));
-      } catch (e) {
-        alert("Error logging in with stoic, please ensure cookies are enabled.");
-        return;
       }
+    })
+    .catch((error) => {
+      alert("Unable to load your StoicIdentity, please read our FAQ for more informations.");
+      console.log("StoicIdentity loading error", error);
     });
-  } catch (e) {
-    alert(e);
-    return;
-  }
 }
 
 export function disconnectWallet(): void {
@@ -131,33 +157,38 @@ export async function persistConnexion(): Promise<void> {
     user.update((u) => ({ ...u, wallet: "plug", loggedIn: true, principal }));
     actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, hubActor: hubActor }));
   } else if (stoicConnected) {
-    const principal = stoicConnected.getPrincipal();
-    let agent = new HttpAgent({
-      identity: stoicConnected,
-      host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
-    });
-    const avatarActor = Actor.createActor<Avatar>(idlFactoryAvatar, {
-      agent,
-      canisterId: avatarID,
-    });
-    const accessoriesActor = Actor.createActor<Accessories>(idlFactoryAccessories, {
-      agent,
-      canisterId: accessoriesID,
-    });
-    const invoiceActor = Actor.createActor<Invoice>(idlFactoryInvoice, {
-      agent,
-      canisterId: invoiceID,
-    });
-    const ledgerActor = Actor.createActor<Ledger>(idlFactoryLedger, {
-      agent,
-      canisterId: ledgerID,
-    });
-    const hubActor = Actor.createActor<Hub>(idlFactoryHub, {
-      agent,
-      canisterId: hubID,
-    });
-    user.update((u) => ({ ...u, wallet: "stoic", loggedIn: true, principal }));
-    actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor, hubActor: hubActor }));
+    try {
+      const principal = stoicConnected.getPrincipal();
+      let agent = new HttpAgent({
+        identity: stoicConnected,
+        host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
+      });
+      const avatarActor = Actor.createActor<Avatar>(idlFactoryAvatar, {
+        agent,
+        canisterId: avatarID,
+      });
+      const accessoriesActor = Actor.createActor<Accessories>(idlFactoryAccessories, {
+        agent,
+        canisterId: accessoriesID,
+      });
+      const invoiceActor = Actor.createActor<Invoice>(idlFactoryInvoice, {
+        agent,
+        canisterId: invoiceID,
+      });
+      const ledgerActor = Actor.createActor<Ledger>(idlFactoryLedger, {
+        agent,
+        canisterId: ledgerID,
+      });
+      const hubActor = Actor.createActor<Hub>(idlFactoryHub, {
+        agent,
+        canisterId: hubID,
+      });
+      user.update((u) => ({ ...u, wallet: "stoic", loggedIn: true, principal }));
+      actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, ledgerActor: ledgerActor, hubActor: hubActor }));
+    } catch (e) {
+      alert("Error logging in with stoic, please ensure cookies are enabled and Brave protection is disabled");
+      throw e;
+    }
   } else {
     return;
   }

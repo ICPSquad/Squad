@@ -57,8 +57,11 @@
 
   @media (max-width: 960px) {
     .items {
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      grid-gap: 10px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
     }
   }
 

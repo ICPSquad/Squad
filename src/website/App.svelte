@@ -18,9 +18,9 @@
 </script>
 
 <Router>
+  <Route path="/"><Home /></Route>
   <Route path="create-avatar"><CreateAvatar /></Route>
   <Route path="create-accessory"><CreateAccessory /></Route>
-  <Route path="/"><Home /></Route>
   <Route path="faqs"><Faqs /></Route>
   <Route path="legendary-avatars"><Legendary /></Route>
   <Route path="accessories"><Accessories /></Route>

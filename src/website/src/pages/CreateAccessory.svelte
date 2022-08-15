@@ -79,6 +79,7 @@
   main {
     --page-feature-color: #{$pink};
   }
+
   .layout-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -87,18 +88,20 @@
 
   @media (max-width: 960px) {
     .layout-grid {
-      grid-template-columns: 3fr 3fr 4fr;
-      grid-gap: 10px;
-      grid-auto-flow: dense;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      max-width: 100%;
     }
     .categories {
-      grid-column: span 2;
+      width: 100%;
     }
+
     .item-selection {
-      grid-column: span 2;
-    }
-    .accessory-details {
-      grid-row: span 2;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      width: 100%;
     }
   }
 

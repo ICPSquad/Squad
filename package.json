@@ -17,11 +17,6 @@
     "declarations:ts": "bash scripts/utils/copy-dec.sh"
   },
   "devDependencies": {
-    "@dfinity/agent": "^0.10.1",
-    "@dfinity/authentication": "^0.10.1",
-    "@dfinity/candid": "^0.10.1",
-    "@dfinity/identity": "^0.10.1",
-    "@dfinity/principal": "^0.10.1",
     "@rollup/plugin-alias": "^3.1.9",
     "@sveltejs/vite-plugin-svelte": "next",
     "@tsconfig/svelte": "^3.0.0",
@@ -54,8 +49,12 @@
   "dependencies": {
     "@connect2ic/core": "^0.0.9",
     "@connect2ic/svelte": "^0.0.9",
-    "@dfinity/agent": "^0.10.1",
-    "@dfinity/auth-client": "^0.10.1",
+    "@dfinity/agent": "^0.13.1",
+    "@dfinity/auth-client": "^0.13.1",
+    "@dfinity/authentication": "^0.13.1",
+    "@dfinity/candid": "^0.13.1",
+    "@dfinity/identity": "^0.13.1",
+    "@dfinity/principal": "^0.13.1",
     "@emailjs/browser": "^3.6.2",
     "ic-stoic-identity": "^2.0.0",
     "js-sha256": "^0.9.0",

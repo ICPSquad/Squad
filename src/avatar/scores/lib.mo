@@ -96,7 +96,7 @@ module {
         */
         public func calculateStyleScores() : () {
             let registry = _Ext.getRegistry();
-            for ((tokenIndex, account ) in registry.vals()){
+            for ((tokenIndex, account) in registry.vals()){
                 let tokenIdentifier = Ext.TokenIdentifier.encode(CID, tokenIndex);
                 switch(_calculateScore(tokenIdentifier)){
                     case(null){};
