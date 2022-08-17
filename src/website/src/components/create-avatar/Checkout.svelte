@@ -43,30 +43,28 @@
   };
 
   const handlePayment = async () => {
-    alert("There is currently an issue with the payment system. Please try again later.");
-    return;
-    // setState("waiting-payment-processing");
-    // if (!invoice) {
-    //   throw new Error("Invoice is not defined");
-    // }
-    // const { wallet: Wallet } = get(user);
-    // if (!Wallet) {
-    //   throw new Error("Wallet is not defined");
-    // }
-    // try {
-    //   const result = await payInvoice(invoice, Wallet);
-    //   if (result.height > 0) {
-    //     setState("waiting-mint");
-    //     handleMint();
-    //   } else {
-    //     setState("error");
-    //     error_message = "The payment was not successful. Make sure you have enough funds in your wallet.\n\nYou need to have at least 1.0001 ICP to pay for the avatar & the transfer fee.";
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    //   setState("error");
-    //   error_message = "Payment was rejected.";
-    // }
+    setState("waiting-payment-processing");
+    if (!invoice) {
+      throw new Error("Invoice is not defined");
+    }
+    const { wallet: Wallet } = get(user);
+    if (!Wallet) {
+      throw new Error("Wallet is not defined");
+    }
+    try {
+      const result = await payInvoice(invoice, Wallet);
+      if (result.height > 0) {
+        setState("waiting-mint");
+        handleMint();
+      } else {
+        setState("error");
+        error_message = "The payment was not successful. Make sure you have enough funds in your wallet.\n\nYou need to have at least 1.0001 ICP to pay for the avatar & the transfer fee.";
+      }
+    } catch (error) {
+      console.error(error);
+      setState("error");
+      error_message = "Payment was rejected.";
+    }
   };
 
   const handlePreorder = async () => {

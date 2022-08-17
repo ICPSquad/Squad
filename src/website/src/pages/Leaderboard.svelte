@@ -58,10 +58,6 @@
       <div class="stat">31 August 22</div>
       <div class="label">END DATE</div>
     </div>
-    <div>
-      <div class="stat">? ICP</div>
-      <div class="label">ESTIMATED REWARDS</div>
-    </div>
   </div>
   <div class="my-rank">
     <MyRank {leaderboard} />
@@ -128,7 +124,7 @@
     padding: 30px;
     border-radius: 10px;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .stat,

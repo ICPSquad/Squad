@@ -658,6 +658,14 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         await _Entrepot.list(caller, request);
     };
 
+    public shared ({ caller }) func can_settle(
+        p : Principal,
+        token : Ext.TokenIdentifier
+    ) : async Result.Result<(), Ext.CommonError> {
+        assert(_Admins.isAdmin(caller));
+        await _Entrepot.canSettle(p, token);
+    };
+
     public shared ({ caller }) func lock(
         token : TokenIdentifier,
         price : Nat64,
@@ -693,6 +701,16 @@ shared({ caller = creator }) actor class ICPSquadNFT(
 
     public query func listings () : async Entrepot.ListingResponse {
         _Entrepot.getListings();
+    };
+
+    public query func get_pending_transactions () : async [(TokenIndex, Entrepot.Transaction)] {
+        _Entrepot.getPendingTransactions();
+    };
+
+    public shared ({ caller }) func purge_pending_transactions () : () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        _Entrepot.purgePendingTransactions();
     };
 
     public query func transactions() : async [Entrepot.EntrepotTransaction] {

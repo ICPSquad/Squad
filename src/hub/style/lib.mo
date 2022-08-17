@@ -153,7 +153,31 @@ module {
             };
             return buffer.toArray();
         };
+
+        /////////////////
+        //  ADMIN    ///
+        ///////////////
+
+        public func getScoreDay(tokenId : TokenIdentifier, date : Date) : ?StyleScore {
+            return style_score_daily.get(date, tokenId);
+        };
+
+        public func getAllScores(tokenId : TokenIdentifier, start : Time.Time) : [(Date, ?StyleScore)] {
+            let r : Buffer.Buffer<(Date, ?StyleScore)> = Buffer.Buffer(0);
+            let dates = _getDatesBetween(start, Time.now());
+            for(date in dates.vals()){
+                switch(style_score_daily.get(date, tokenId)){
+                    case(null) {
+                        r.add((date, null));
+                    };
+                    case(? score) {
+                        r.add((date, ?score));
+                    };
+                };
+            };
+            return r.toArray();
+        };
+
+
     }; 
-
-
 };

@@ -52,28 +52,27 @@
   });
 
   const handlePayment = async () => {
-    alert("There is currently an issue with the payment system. Please try again later."); 
-    return;
-    // setState("waiting-payment");
-    // if (!invoice) {
-    //   throw new Error("Invoice is not defined");
-    // }
-    // const { wallet: Wallet } = get(user);
-    // if (!Wallet) {
-    //   throw new Error("Wallet is not defined");
-    // }
-    // try {
-    //   const result = await payInvoice(invoice, Wallet);
-    //   if (result.height > 0) {
-    //     setState("waiting-mint");
-    //   } else {
-    //     setState("error");
-    //     error_message = "Payment failed";
-    //   }
-    // } catch (error) {
-    //   setState("error");
-    //   error_message = "Payment was rejected.";
-    // }
+    setState("waiting-payment");
+    if (!invoice) {
+      throw new Error("Invoice is not defined");
+    }
+    const { wallet: Wallet } = get(user);
+    if (!Wallet) {
+      throw new Error("Wallet is not defined");
+    }
+    try {
+      const result = await payInvoice(invoice, Wallet);
+      if (result.height > 0) {
+        setState("waiting-mint");
+      } else {
+        setState("error");
+        error_message = "Payment failed";
+      }
+    } catch (e) {
+      alert(e);
+      setState("error");
+      error_message = "Payment was rejected.";
+    }
   };
 
   $: if (state === "waiting-mint") {

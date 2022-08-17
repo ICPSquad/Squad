@@ -269,6 +269,18 @@ module {
         // API //
         ////////
 
+        /* 
+            Drop all the events from the past day before starting a new day & calculating the stats & events.
+        */
+        public func resetDaily() : () {
+            for(p in daily_cached_events_per_collection.keys()){
+                daily_cached_events_per_collection.delete(p);
+            };
+            for(p in daily_cached_events_per_user.keys()){
+                daily_cached_events_per_user.delete(p);
+            };
+        };
+
         public func registerAllCollections() : async Result.Result<(), Text> {
             let collections : [Types.NFT_CANISTER] = await dab.get_all();
             for(collection in collections.vals()){
@@ -533,11 +545,11 @@ module {
                     case("sale"){
                         let {to; from; price} = _saleDetails(event);
                         if(to == account){
-                            number_sell := number_sell + 1;
-                            icps_sell := icps_sell + price;
-                        } else if (from == account){
                             number_buy := number_buy + 1;
                             icps_buy := icps_buy + price;
+                        } else if (from == account){
+                            number_sell := number_sell + 1;
+                            icps_sell := icps_sell + price;
                         }
                     };
                     case("mint"){
@@ -579,17 +591,26 @@ module {
             Otherwise the score is 0.
         */
         func _getDailyEngagementScore(stat : Activity) : Nat {
+            var score : Nat = 0;
             // Check mint
             if(stat.mint > 0) {
-                return 1;
+                score += 3;
             };
-            if(stat.buy.0 > 0 and stat.buy.1 >= 100_000_000) {
-                return 1;
+            // Check trading activity
+            let nb_transactions = stat.buy.0 + stat.sell.0;
+            let icps_transactions = stat.buy.1 + stat.sell.1;
+            if(nb_transactions > 0){
+                if(icps_transactions < 100_000_000 and icps_transactions > 0){
+                    score += 1;
+                };
+                if(icps_transactions >= 100_000_000 and icps_transactions < 1_000_000_000){
+                    score += 2;
+                };
+                if(icps_transactions >= 1_000_000_000){
+                    score += 3;
+                };
             };
-            if(stat.sell.0 > 0 and stat.sell.1 >= 100_000_000) {
-                return 1;
-            };
-            return 0;
+            score; 
         };
         
         /* Returns (from, to, icps) from a sale event (assuming the informations are available) */

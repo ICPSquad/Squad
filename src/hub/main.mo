@@ -140,6 +140,16 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         _Logs = _Logs;
     });
 
+    public shared ({caller}) func get_score_day(tokenId : TokenIdentifier, date : Cap.Date) : async ?StyleScore {
+        assert(_Admins.isAdmin(caller));
+        return _Style.getScoreDay(tokenId, date);
+    };
+
+    public shared ({caller}) func get_all_scores(tokenId : TokenIdentifier, time : Time.Time) : async [(Cap.Date, ?StyleScore)] {
+        assert(_Admins.isAdmin(caller));
+        return _Style.getAllScores(tokenId, time);
+    };
+
     ///////////
     // CAP ///
     //////////
@@ -566,15 +576,18 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     public shared ({ caller }) func cron_stats() : async Result.Result<(), Text> {
         assert(_Admins.isAdmin(caller) or caller == cid);
         _Monitor.collectMetrics();
+        _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: RESET");
+        // Need to drop the events & interactions of the past day before calculating the stats.
+        _Cap.resetDaily();
         _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: START");
-        _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: querying events");
+        _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: events");
         switch(await _Cap.cronEvents()){
             case(#ok(nb)){
-                _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: " # "recorded " # Nat.toText(nb) # " events.");
+                _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: " # " recorded " # Nat.toText(nb) # " events.");
                 _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: assigning events to users");
                 switch(await _Cap.cronUsers()){
                     case(#ok()){
-                        _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: calculating stats");
+                        _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: determining activity & score");
                         switch(await _Cap.cronStats()){
                             case(#ok()){
                                 _Logs.logMessage("CRON :: ENGAGEMENT SCORE :: DONE");

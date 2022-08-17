@@ -85,6 +85,16 @@ module {
             Ext.TokenIndex.hash,
         );
 
+        public func getPendingTransactions() : [(Ext.TokenIndex, Types.Transaction)] {
+            Iter.toArray(pendingTransactions.entries());
+        };
+
+        public func purgePendingTransactions() : () {
+            for((tokenIndex) in pendingTransactions.keys()) {
+                pendingTransactions.delete(tokenIndex);
+            }
+        };
+
         //Finalized transactions.
         private var transactions = TrieMap.TrieMap<Nat, Types.Transaction>(
             Nat.equal,
@@ -194,6 +204,13 @@ module {
             };
         };
 
+        public func canSettle(
+            caller : Principal,
+            token : Ext.TokenIdentifier,
+        ) : async Result.Result<(), Ext.CommonError> {
+            await _canSettle(caller, token);
+        };
+
         func _canSettle(
             caller : Principal,
             token : Ext.TokenIdentifier,
@@ -282,7 +299,7 @@ module {
         ) : async Types.ListResponse {
             let index = switch (Ext.TokenIdentifier.decode(request.token)) {
                 case (#err(_)) {
-                    _Logs.logMessage("Failed to decode token : " # request.token);
+                    _Logs.logMessage("ERR :: failed to decode token : " # request.token);
                     return #err(#InvalidToken(request.token));
                 };
                 case (#ok(_, tokenIndex)) { tokenIndex; };
@@ -291,27 +308,28 @@ module {
             // Verify that the caller owns the token.
             let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, request.from_subaccount),Prim.charToLower); 
             if(not _Ext.isOwnerAccount(account, index)){
+                _Logs.logMessage("ERR :: LIST :: not owner of token");
                 return #err(#Other("Unauthorized"));
             };
-
             // Ensure token is not already locked.
             if(_isLocked(index)){
+                _Logs.logMessage("ERR :: LIST :: token is locked");
                 return #err(#Other("Token is locked."));
             };
 
             // Ensure there isn't a pending transaction which can be settled.
             switch(await _canSettle(caller, request.token)){
                 case (#err(e)) {
+                    _Logs.logMessage("ERR :: LIST :: CAN SETTLE ");
                     return #err(e);
                 };
-                case _ ();
+                case _  {};
             };
-
             // Ensure this item is not equipped.AccountBlob
             if(_Items.isEquipped(index)){
+                _Logs.logMessage("ERR :: LIST :: item is equipped");
                 return #err(#Other("Item is equipped."));
             };
-
             // NOTE: The interface to delete a listing is not explicit enough for my taste.
             switch (request.price) {
                 // Create the listing.
@@ -389,7 +407,6 @@ module {
                         };
                         case _ ();
                     };
-
                     // Create a pending transaction
                     // NOTE: Keys in this map are TOKEN INDECES. Upon settlement, a transaction is moved to the "finalized transactions" map, which used a generic transaction ID as a key. Effectively, the key type changes during a settlement. This is at best an unclear thing to do, so perhaps worthy of a refactor.
                     pendingTransactions.put(index, {
@@ -821,7 +838,5 @@ module {
             };
             return minimum;
         };
-
-
     };
 };

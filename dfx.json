@@ -23,7 +23,7 @@
     },
     "website": {
       "frontend": {
-        "entrypoint": "./src/website/dit/index.html"
+        "entrypoint": "./src/website/dist/index.html"
       },
       "source": ["./src/website/dist/"],
       "type": "assets"

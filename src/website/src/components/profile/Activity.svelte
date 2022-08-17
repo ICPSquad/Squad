@@ -19,7 +19,7 @@
     <div class="value">{Number(activity.mint)} events</div>
   </div>
   <div class="field">
-    <div class="label">Mint (number of events)</div>
+    <div class="label">Burn (number of events)</div>
     <div class="value">{Number(activity.burn)} events</div>
   </div>
   <div class="field">
