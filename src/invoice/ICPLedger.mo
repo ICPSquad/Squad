@@ -201,7 +201,7 @@ module {
                 };
                 amount = {
                   // Total amount, minus the fee
-                  e8s = Nat64.sub(Nat64.fromNat(balance), 10000);
+                  e8s = Nat64.sub(Nat64.fromNat(i.amount), 10000);
                 };
                 from_subaccount = ?subaccount;
                 to = U.getDefaultAccount({

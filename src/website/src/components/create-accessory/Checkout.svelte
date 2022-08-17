@@ -4,7 +4,6 @@
   import Spinner from "../shared/Spinner.svelte";
   import ConnectButton from "../shared/ConnectButton.svelte";
   import type { State } from "@src/components/create-accessory/types";
-  import { plugConnection } from "@src/utils/connection";
   import { inventory, checkRecipe } from "@src/store/inventory";
   import { nameToRecipe } from "@src/utils/recipes";
   import { createInvoice } from "@utils/invoice";
@@ -23,6 +22,7 @@
   // In case we encounter an error or the user has not enough materials.
   let error_message: string | undefined;
   let missing_materials: string[];
+  let processing: boolean = false;
 
   let invoice: Invoice | undefined;
   let tokens_materials: string[];
@@ -31,19 +31,17 @@
   $: if (ready) {
     setState("waiting-payment");
   }
+  $: if (state === "waiting-invoice") {
+    handleInvoice();
+  }
 
-  async function handleConnectPlug() {
-    await plugConnection();
-    setState("waiting-invoice");
+  $: if (state === "error") {
+    processing = false;
   }
 
   const handleInvoice = async () => {
     invoice = await createInvoice("AccessoryFee");
   };
-
-  $: if (state === "waiting-invoice") {
-    handleInvoice();
-  }
 
   user.subscribe(async (user) => {
     if (user.loggedIn) {
@@ -52,12 +50,18 @@
   });
 
   const handlePayment = async () => {
+    if (processing) {
+      return;
+    }
+    processing = true;
     setState("waiting-payment");
     if (!invoice) {
+      processing = false;
       throw new Error("Invoice is not defined");
     }
     const { wallet: Wallet } = get(user);
     if (!Wallet) {
+      processing = false;
       throw new Error("Wallet is not defined");
     }
     try {
@@ -84,6 +88,7 @@
       const result = await mintRequestAccessory(capitalizeFirstLetter(cardSelected), Number(invoice.id));
       if ("ok" in result) {
         setState("accessory-minted");
+        processing = false;
       } else {
         setState("error");
         error_message = result.err;
