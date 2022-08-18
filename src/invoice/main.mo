@@ -698,17 +698,18 @@ public shared ({ caller }) func transfer_back_invoice(invoiceId : Nat) : async (
                     caller = invoice.creator;
                     id = invoiceId;
                   });
-                  switch(await _Ledger.transfer({ memo = 0;
+                  switch(await _Ledger.transfer({ 
+                    memo = 0;
                     fee = {
                       e8s = 10000;
                     };
                     amount = {
                       // Total amount, minus the fee
-                      e8s = Nat64.sub(Nat64.fromNat(invoice.amount), 10000);
+                      e8s = Nat64.sub(Nat64.fromNat(success.balance), 10000);
                     };
                     from_subaccount = ?subaccount;
-                    // Send back the funds to the person who created the invoice!
-                    to = A.accountIdentifier(invoice.creator, A.defaultSubaccount());
+                    // Send back the funds to main wallet.
+                    to = U.getDefaultAccount({ canisterId = Principal.fromActor(this); principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae")});
                     created_at_time = null;
                   })){
                     case(#ok(_)){

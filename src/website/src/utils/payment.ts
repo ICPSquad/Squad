@@ -37,7 +37,7 @@ async function pay_plug(
   });
   const blockHeight = await actor.send_dfx({
     to: address,
-    amount: { e8s: BigInt(50000000) },
+    amount: { e8s: BigInt(amount) },
     fee: { e8s: BigInt(10000) },
     memo: BigInt(12345),
     from_subaccount: [],

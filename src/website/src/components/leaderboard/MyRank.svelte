@@ -73,18 +73,40 @@
   .grid-row {
     width: 100%;
     display: grid;
-    grid-template-columns: 60px 120px 1fr 60px;
-    padding: 10px 20px;
+    grid-template-columns: 60px 150px 1fr 60px;
+    grid-template-rows: 140px;
     align-items: center;
     background-color: $verydarkgrey;
     border-radius: 10px;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
   }
-
   @media (max-width: 768px) {
     .grid-row {
-      grid-template-columns: 40px 60px 1fr 40px;
-      font-size: small;
+      padding: 10px 10px;
+      grid-template-columns: 20px 150px 1fr 25px;
+    }
+
+    .name {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      word-break: break-all;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      height: 150px;
+      word-wrap: wrap;
+      font-size: x-small;
+      padding: 10px;
+    }
+
+    .rank {
+      font-size: x-small;
+    }
+  }
+
+  @media (max-width: 320px) {
+    .name {
+      visibility: hidden;
     }
   }
 
@@ -100,10 +122,14 @@
     margin-bottom: 5px;
   }
   .avatar > a > img {
-    border-radius: 50%;
+    border-radius: 5%;
   }
   .name {
     padding-left: 20px;
+  }
+
+  .avatar {
+    padding: 0px 10px;
   }
 
   .points {
@@ -115,6 +141,10 @@
   .rank {
     font-size: 20px;
     font-weight: bold;
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
   }
 
   .points {
