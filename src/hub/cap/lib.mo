@@ -823,7 +823,9 @@ module {
                 if(key == "name"){
                     switch(value){
                         case(#Text(message)){
-                            return (message == name);
+                            if(message == name){
+                                return true;
+                            };
                         };
                         case _ {};
                     };
