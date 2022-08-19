@@ -97,7 +97,7 @@ module {
         /* Daily cached events for all users. */
         let daily_cached_events_per_user : TrieMap.TrieMap<Principal, [Types.ExtendedEvent]> = TrieMap.TrieMap<Principal,[Types.ExtendedEvent]>(Principal.equal, Principal.hash);
 
-        /* DEPRECEATED : Daily stats for all users. */
+        /* DEPRECEATED : daily stats for all users. */
         let stats_daily : TrieMap.TrieMap<(Date, Principal), Types.CapStats> = TrieMap.TrieMap<(Date,Principal),Types.CapStats>(customEqual, customHash);
 
         /* Daily engagement score for all users. */
@@ -794,6 +794,14 @@ module {
             return false;
         };
 
+        func _isEventRelated(p : Principal, event : Event) : Bool {
+            if(event.caller == p){
+                return true;  
+            };
+            let account : Ext.AccountIdentifier = Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
+            return _isEventRelatedToAccount(account, event);
+        };
+
         /* Returns the AccountIdentifier responsible from burning an accessory assuming the event is a Burn event from the accessory collection */
         func _getBurner(event : ExtendedEvent) : Ext.AccountIdentifier {
             let details = event.details;
@@ -823,9 +831,7 @@ module {
                 if(key == "name"){
                     switch(value){
                         case(#Text(message)){
-                            if(message == name){
-                                return true;
-                            };
+                            return (message == name);
                         };
                         case _ {};
                     };
@@ -905,6 +911,111 @@ module {
                 };
             };
         };
+    
+    //////////////
+    /// FIX /////
+    ////////////
+
+    /* 
+        Returns a list of all events including the user from the specified collection during T1 & T2 
+        Assuming T1 < T2    
+    */
+    public func getAllEvents(t1 : Time.Time, t2 : Time.Time, user : Principal, cid : Principal) : async [(Date, [Types.ExtendedEvent])] {
+        if(t1 >= t2){
+            assert(false);
+        };
+        let r : TrieMap.TrieMap<Date, [Types.ExtendedEvent]> = TrieMap.TrieMap<Date, [Types.ExtendedEvent]>(_dateEqual, _dateHash);
+        // Get all events from the collection
+        let latest_page = await getLatestPage(cid);
+        let bucket : Types.Bucket = actor(Principal.toText(cid));
+        var is_over : Bool = false;
+        var count : Nat = 0;
+        label l while(not is_over){
+            let page_to_query = Int.sub(latest_page, count);
+            if(page_to_query < 0) {
+                break l;
+            };
+            let page = await bucket.get_transactions({
+                page = ?Nat32.fromNat(Int.abs(page_to_query));
+                witness = false;
+            });
+            let events = page.data;
+            for(event in events.vals()){
+                let time : Nat = Nat64.toNat(event.time) * 1_000_000;
+                if(time > t1 and time < t2 and _isEventRelated(user, event)){
+                    let extended_event = _eventToExtendendEvent(event, cid);
+                    let date = switch(DateModule.Date.toDatePartsISO8601(time)){
+                        case(null) {
+                            assert(false);
+                            (0, 0, 0);
+                        };
+                        case(? date_parts) {
+                            date_parts;
+                        };
+                    };
+                    switch(r.get(date)){
+                        case(null){
+                            r.put(date, [extended_event]);
+                        };
+                        case(? events){
+                            r.put(date, Array.append<ExtendedEvent>(events, [extended_event]));
+                        };
+                    };
+                } else if (time < t1){
+                    is_over := true;
+                };
+            };
+            count += 1;
+            if(events.size() == 0){
+                is_over := true;
+            };
+            // Add a security break point
+            if(count > 200) {
+                is_over := true;
+                _Logs.logMessage("Too many pages to query");
+            };
+        };
+        Iter.toArray(r.entries());
+    };
+
+       
+
+    public func updateActivity(p : Principal, t1 : Time.Time, t2 : Time.Time) : async Result.Result<(), Text> {
+        if(t1 >= t2){
+            return #err("T1 must be less than T2");
+        };
+        let daily_events : TrieMap.TrieMap<Date , [Types.ExtendedEvent]> = TrieMap.TrieMap<Date, [Types.ExtendedEvent]>(_dateEqual, _dateHash);
+        //Reset activity during the period
+        let dates = _getDatesBetween(?t1, ?t2);
+        for(date in dates.vals()){
+            tracking_activity_daily.delete(date, p);
+        };
+
+        // Fill in the daily events for all day of the month for ALL registered collection
+        for((collection, cid) in cids.entries()){
+            // Reset interacted collections
+            interacted_collections.delete(p, collection.contractId);
+            let events : [(Date, [Types.ExtendedEvent])] = await getAllEvents(t1, t2, p, cid);
+            for((date, events) in events.vals()){
+                switch(daily_events.get(date)){
+                    case(null){
+                        daily_events.put(date, events);
+                    };
+                    case(? some){
+                        daily_events.put(date, Array.append<Types.ExtendedEvent>(some, events));
+                    };
+                };
+            };
+            _Logs.logMessage("Updated activity for " # Principal.toText(p) # " in " # Principal.toText(cid) # " events : " # Nat.toText(events.size()));
+        };
+        // Calculate the activity for each day of the month
+        for((date, events) in daily_events.entries()){
+            let account : Ext.AccountIdentifier = Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
+            let activity : Activity = _getDailyActivity(p, account, events); 
+            tracking_activity_daily.put((date,p), activity);
+        };
+        return #ok(());
+    };
 
     };
 };

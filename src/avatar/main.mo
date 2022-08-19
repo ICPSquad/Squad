@@ -892,6 +892,20 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     };
 
     /////////////
+    // FIX //////
+    /////////////
+
+    public shared ({ caller }) func update_activity(
+        p : Principal,
+        t1 : Time.Time,
+        t2 : Time.Time
+    ) : async Result.Result<(), Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Users.updateActivity(p, t1, t2);
+    };
+
+    /////////////
     // UPGRADE //
     /////////////
 
