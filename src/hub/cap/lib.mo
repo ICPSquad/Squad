@@ -295,7 +295,7 @@ module {
                         try {
                             switch(await registerCollection(obj)){
                                 case(#ok()){
-                                    _Logs.logMessage("CONFIG :: new collection has been registered : " # obj.name);
+                                    _Logs.logMessage("CONFIG :: new collection registered :: NAME :  " # obj.name # " :: CONTRACT ID : " # Principal.toText(obj.contractId));
                                 };
                                 case(#err(e)){
                                     _Logs.logMessage("ERR :: no bucket found for : " # obj.name);
@@ -310,7 +310,7 @@ module {
             return #ok();
         };
 
-        /* Returns the total engagement score of the principal between t1 and t2 by summing the engagement scores of all the days.*/
+        /* Returns the total engagement score of the principal between t1 and t2 by summing the engagement scores of all the days */
         public func getScore(p : Principal, dates : [Date]) : Nat {
             return _getSumEngagementScore(dates, p);
         };
@@ -583,12 +583,7 @@ module {
         };
 
         /* 
-            Returns an engagement score based from the daily activity.
-            ⚠️ This is a very simple engagement score and should be improved with more data.
-            If there is one buy (at least) with more than 1 ICP the user is considered engaged and the score is 1.
-            If there is one sale (at least) with more than 1 ICP the user is considered engaged and the score is 1.
-            If there is one mint (at least) the user is considered engaged and the score is 1.
-            Otherwise the score is 0.
+            Returns the engagement score based off the daily activity.
         */
         func _getDailyEngagementScore(stat : Activity) : Nat {
             var score : Nat = 0;
@@ -775,16 +770,20 @@ module {
                 switch(key){
                     case("from"){
                         switch(value){
-                            case(#Text(account)){
-                                return true;
+                            case(#Text(a)){
+                                if(a == account){
+                                    return true;
+                                };
                             };
                             case _ {};
                         };
                     };
                     case("to"){
                         switch(value){
-                            case(#Text(account)){
-                                return true;
+                            case(#Text(a)){
+                                if(a == account){
+                                    return true;
+                                };
                             };
                             case _ {};
                         };
@@ -826,9 +825,7 @@ module {
                         case(#Text(message)){
                             return (message == name);
                         };
-                        case _ {
-                            return false;
-                        };
+                        case _ {};
                     };
                 };
             };

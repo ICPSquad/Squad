@@ -801,7 +801,7 @@ public shared ({ caller }) func cron_balance() : async () {
             empty := List.push<(Principal, Nat)>((info!.0, info!.1), empty);
             _Logs.logMessage("INVOICE :: VERIF :: empty account : " # Nat.toText(info!.1));
           } else {
-            _Logs.logMessage("INVOICE :: VERIF :: account is not empty for invoice : " # Nat.toText(info!.1));
+            _Logs.logMessage("INVOICE :: VERIF :: WARNING :: account is not empty for invoice : " # Nat.toText(info!.1));
             refunded := List.push<(Principal, Nat)>((info!.0, info!.1), refunded);
             switch(await transfer_back_invoice(info!.1)){
               case(#ok(_)){
