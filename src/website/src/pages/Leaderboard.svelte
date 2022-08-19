@@ -2,10 +2,10 @@
   import Header from "@components/shared/Header.svelte";
   import Footer from "@components/shared/Footer.svelte";
   import UserCard from "@src/components/leaderboard/UserCard.svelte";
+  import MyRank from "@components/leaderboard/MyRank.svelte";
   import type { Leaderboard } from "@canisters/hub/hub.did.d";
   import { hubActor } from "@src/api/actor";
   import { paginate, DarkPaginationNav } from "svelte-paginate";
-  import MyRank from "@components/leaderboard/MyRank.svelte";
 
   let currentPage = 1;
   let pageSize = 100;

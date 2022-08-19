@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { TokenIdentifier } from "@canisters/avatar/avatar.did.d";
   import Carat from "@icons/Carat.svelte";
+  import type { TokenIdentifier } from "@canisters/avatar/avatar.did.d";
+
   export let rank: Number = 0;
   export let tokenIdentifier: TokenIdentifier = "";
-
   export let name: String | undefined;
   export let style_score: Number = 0;
   export let engagement_score: Number = 0;
@@ -64,7 +64,7 @@
       overflow: hidden;
       height: 150px;
       word-wrap: wrap;
-      font-size: x-small;
+      font-size: small;
       padding: 10px;
     }
 

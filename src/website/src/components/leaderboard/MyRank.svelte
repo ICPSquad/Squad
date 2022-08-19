@@ -1,9 +1,11 @@
 <script lang="ts">
+  import Carat from "@icons/Carat.svelte";
+  import ConnectDialog from "../shared/ConnectDialog.svelte";
+  import { dialog } from "@src/store/dialog";
   import type { Leaderboard } from "@canisters/hub/hub.did.d";
   import type { Principal } from "@dfinity/principal";
   import { plugConnection } from "@src/utils/connection";
   import { user } from "@src/store/user";
-  import Carat from "@icons/Carat.svelte";
 
   export let leaderboard: Leaderboard | undefined;
   let my_principal: Principal | undefined;
@@ -64,7 +66,8 @@
     </div>
   {/if}
 {:else}
-  <button class="secondary" on:click={() => plugConnection()}> SIGN IN TO SEE YOUR RANK </button>
+  <button class="secondary" on:click={() => $dialog.open()}> SIGN IN TO SEE YOUR RANK </button>
+  <ConnectDialog />
 {/if}
 
 <style lang="scss">
@@ -95,7 +98,7 @@
       overflow: hidden;
       height: 150px;
       word-wrap: wrap;
-      font-size: x-small;
+      font-size: small;
       padding: 10px;
     }
 

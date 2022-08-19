@@ -4,11 +4,12 @@ import Cycles     "mo:base/ExperimentalCycles";
 import Hash       "mo:base/Hash";
 import HashMap    "mo:base/HashMap";
 import Iter       "mo:base/Iter";
-import List      "mo:base/List";
+import List       "mo:base/List";
 import Nat        "mo:base/Nat";
 import Nat64      "mo:base/Nat64";
 import Option     "mo:base/Option";
 import Principal  "mo:base/Principal";
+import Result     "mo:base/Result";
 import Text       "mo:base/Text";
 import Time       "mo:base/Time";
 
@@ -667,11 +668,11 @@ public shared ({ caller }) func verify_invoice_ticket(args : T.VerifyInvoiceArgs
   };
 // #endregion
 
-public shared ({ caller }) func transfer_back_invoice(invoiceId : Nat) : async (){
+public shared ({ caller }) func transfer_back_invoice(invoiceId : Nat) : async Result.Result<(), Text> {
   assert(_Admins.isAdmin(caller) or caller == Principal.fromActor(this));
   switch(invoices.get(invoiceId)){
     case(null){
-      return;
+      return #err("Invoice not found");
     };
     case(? invoice){
       let destinationResult : T.GetDestinationAccountIdentifierResult = getDestinationAccountIdentifier({
@@ -680,7 +681,7 @@ public shared ({ caller }) func transfer_back_invoice(invoiceId : Nat) : async (
         caller = invoice.creator;
       });
       switch(destinationResult){
-        case(#ok result){
+        case(#ok (result)){
           let destination : AccountIdentifier = result.accountIdentifier;
           let account = U.accountIdentifierToText({
             accountIdentifier = destination;
@@ -688,7 +689,7 @@ public shared ({ caller }) func transfer_back_invoice(invoiceId : Nat) : async (
           });
           switch(account){
             case(#err(e)){
-              return;
+              return #err("Error calculating the account");
             };
             case(#ok(result)){
             switch(await _Ledger.balance({ account = result })){
@@ -712,20 +713,25 @@ public shared ({ caller }) func transfer_back_invoice(invoiceId : Nat) : async (
                     to = U.getDefaultAccount({ canisterId = Principal.fromActor(this); principal = Principal.fromText("dv5tj-vdzwm-iyemu-m6gvp-p4t5y-ec7qa-r2u54-naak4-mkcsf-azfkv-cae")});
                     created_at_time = null;
                   })){
-                    case(#ok(_)){
-                      _Logs.logMessage("INVOICE :: TASK :: refund completed  : " # Nat.toText(invoiceId));
-                      return;
-                    };
-                    case(#err(_)){
-                      return;
-                    };
-                  }
+                      case(#ok(_)){
+                        _Logs.logMessage("INVOICE :: TASK :: refund completed  : " # Nat.toText(invoiceId));
+                        return #ok;
+                      };
+                      case(#err(_)){
+                        return #err("Issue when calling the ledger canister");
+                      };
+                    }
+                  };
+                  return #err("No funds to refund");
                 };
+                case(#err(_)){
+                  return #err("Issue when querying the balance");
+                }
               };
-          };
             };
           };
         };
+      case(#err(_)) return #err("Account not found");
       };
     };
   };
@@ -766,6 +772,12 @@ public func accountIdentifierToBlob (accountIdentifier : AccountIdentifier) : as
   };
 // #endregion
 
+let ONE_HOUR_NANOSECONDS = Nat64.fromIntWrap(1 * 60 * 60 * 1000 * 1000 * 1000);
+
+/* 
+    Check the balance of all the accounts related to past invoices & iniatiate the transfer of funds if needed.
+    @cronic : every 1 hour.
+*/
 public shared ({ caller }) func cron_balance() : async () {
   assert(caller == hub_cid or _Admins.isAdmin(caller));
   if(List.size(invoices_to_check) == 0) {
@@ -787,10 +799,19 @@ public shared ({ caller }) func cron_balance() : async () {
         case(#ok(success)){
           if(success.balance == 0){
             empty := List.push<(Principal, Nat)>((info!.0, info!.1), empty);
+            _Logs.logMessage("INVOICE :: VERIF :: empty account : " # Nat.toText(info!.1));
           } else {
             _Logs.logMessage("INVOICE :: VERIF :: account is not empty for invoice : " # Nat.toText(info!.1));
             refunded := List.push<(Principal, Nat)>((info!.0, info!.1), refunded);
-            ignore(transfer_back_invoice(info!.1));
+            switch(await transfer_back_invoice(info!.1)){
+              case(#ok(_)){
+                _Logs.logMessage("INVOICE :: VERIF :: refund completed  : " # Nat.toText(info!.1));
+              };
+              case(#err(_)){
+                _Logs.logMessage("INVOICE :: VERIF :: refund failed  : " # Nat.toText(info!.1));
+                failed := List.push<(Principal, Nat)>((info!.0, info!.1), failed);
+              };
+            };
           };
         };
         case(#err(e)) switch(e.kind){
@@ -822,6 +843,11 @@ public shared ({ caller }) func cron_balance() : async () {
   };
   // Put back the invoices that failed to verify and those that should have been refunded.
   invoices_to_check := List.append<(Principal, Nat)>(failed, refunded);
+};
+
+public shared ({ caller }) func get_invoices_to_check() : async [(Principal, Nat)] {
+  assert(_Admins.isAdmin(caller));
+  return List.toArray(invoices_to_check);
 };
 
 
