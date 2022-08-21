@@ -905,6 +905,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         await _Users.updateActivity(p, t1, t2);
     };
 
+
     /////////////
     // UPGRADE //
     /////////////

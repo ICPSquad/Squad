@@ -612,6 +612,21 @@ shared ({ caller = creator }) actor class ICPSquadHub(
         };
     };
 
+    /////////////
+    // FIX /////
+    ///////////
+
+    public shared ({ caller }) func update_activity(
+        p : Principal,
+        t1 : Time.Time,
+        t2 : Time.Time
+    ) : async Result.Result<[(Date, [Cap.ExtendedEvent])], Text> {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Cap.updateActivity(p, t1, t2);
+    };
+
+
     //////////////
     // SYSTEM ///
     ////////////

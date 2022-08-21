@@ -980,7 +980,7 @@ module {
 
        
 
-    public func updateActivity(p : Principal, t1 : Time.Time, t2 : Time.Time) : async Result.Result<(), Text> {
+    public func updateActivity(p : Principal, t1 : Time.Time, t2 : Time.Time) : async Result.Result<[(Date, [Types.ExtendedEvent])], Text> {
         if(t1 >= t2){
             return #err("T1 must be less than T2");
         };
@@ -1014,7 +1014,8 @@ module {
             let activity : Activity = _getDailyActivity(p, account, events); 
             tracking_activity_daily.put((date,p), activity);
         };
-        return #ok(());
+        let r : [(Date, [Types.ExtendedEvent])] = Iter.toArray(daily_events.entries());
+        return #ok(r);
     };
 
     };
