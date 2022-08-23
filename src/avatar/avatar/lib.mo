@@ -29,6 +29,7 @@ module {
     public type MintInformation = Types.MintInformation;
     public type Style = Types.Style;
     public type Colors = Types.Colors;
+    public type Slots = Types.Slots;
 
     public class Factory(dependencies : Types.Dependencies) : Types.Interface {
 
@@ -37,7 +38,6 @@ module {
         ///////////
 
         public type Result<A,B> = Result.Result<A,B>;
-        public type Slots = Types.Slots;
         public type Level = Types.Level;
         public type Layers = Types.Layers;
         public type Colors = Types.Colors;

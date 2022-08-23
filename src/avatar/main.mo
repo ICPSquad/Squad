@@ -438,6 +438,12 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         };
     };
 
+    public shared ({ caller }) func get_slot(token : TokenIdentifier) : async ?Avatar.Slots {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        return _Avatar.getSlot(token);
+    };
+
     public shared ({ caller }) func set_default_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
         _Monitor.collectMetrics();
         _Users.setDefaultAvatar(caller, tokenId);
@@ -780,6 +786,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     /////////////
 
     public type Stats = Scores.Stats;
+    public type Stars = Scores.Stars;
     public type StyleScore = Scores.StyleScore;
 
     stable var _ScoresUD: ?Scores.UpgradeData = null;
@@ -803,6 +810,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Scores.uploadStats(stats);
     };
 
+    public query func get_stats() : async [(Scores.Name, Stars)] {
+        _Scores.getStats();
+    };
+
     /* 
         Update the current score (non cumulative) of each Token based on what they wear.
         @auth : admin
@@ -811,6 +822,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         _Scores.calculateStyleScores();
+    };
+
+    public query func get_score(tokenId : TokenIdentifier) : async ?Nat {
+        _Scores.getScore(tokenId);
     };
 
 
@@ -895,15 +910,15 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     // FIX //////
     /////////////
 
-    public shared ({ caller }) func update_activity(
-        p : Principal,
-        t1 : Time.Time,
-        t2 : Time.Time
-    ) : async Result.Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        await _Users.updateActivity(p, t1, t2);
-    };
+    // public shared ({ caller }) func update_activity(
+    //     p : Principal,
+    //     t1 : Time.Time,
+    //     t2 : Time.Time
+    // ) : async Result.Result<(), Text> {
+    //     assert(_Admins.isAdmin(caller));
+    //     _Monitor.collectMetrics();
+    //     await _Users.updateActivity(p, t1, t2);
+    // };
 
 
     /////////////

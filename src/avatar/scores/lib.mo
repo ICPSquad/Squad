@@ -21,6 +21,8 @@ module {
     public type UpgradeData = Types.UpgradeData;
     public type Stats = Types.Stats;
     public type StyleScore = Types.StyleScore;
+    public type Name = Types.Name;
+    public type Stars = Types.Stars;
 
     public class Factory (dependencies : Types.Dependencies) : Types.Interface {
 
@@ -30,7 +32,6 @@ module {
 
         type AccountIdentifier = Types.AccountIdentifier;
         type Name = Types.Name;
-        type Stars = Types.Stars;
         type Time = Time.Time;
         type Slots = Types.Slots;
         type TokenIdentifier = Types.TokenIdentifier;
@@ -83,6 +84,10 @@ module {
             _Logs.logMessage("CONFIG :: uploaded stats");
         };  
 
+        public func getStats() : [(Name, Stars)] {
+            return Iter.toArray(starsAccessory.entries());
+        };
+
         public func getLastTimeOfCalculation() : Time {
             return last_time_of_calculation;
         };
@@ -107,6 +112,9 @@ module {
             };
         };
 
+        public func getScore(tokenId : TokenIdentifier) : ?Nat {
+            _calculateScore(tokenId);
+        };
 
         //////////////////
         /// Helpers /////

@@ -71,6 +71,7 @@ async function getActivity() {
     });
     metrics.push([principal, activity.buy[0], activity.buy[1], activity.sell[0], activity.sell[1], activity.mint, activity.burn]);
   });
+  //TODO : add list of evetns
   writeFileSync(`user_metrics.csv`, metrics.join("\n"));
 }
 
