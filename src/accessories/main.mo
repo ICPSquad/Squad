@@ -721,6 +721,10 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Entrepot.readTransactionsNew();
     };
 
+    public query func transactions_new_size() : async Nat {
+        _Entrepot.transactionsSize();
+    };
+
     public query ({ caller }) func payments() : async ?[SubAccount] {
         _Entrepot.payments(caller);
     };
@@ -745,6 +749,13 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     //////////////
     // Cronic ///
     /////////////
+
+
+    public shared ({ caller }) func cron_verification() : async () {
+        assert(_Admins.isAdmin(caller));
+        _Monitor.collectMetrics();
+        await _Entrepot.cronVerification();
+    };
 
     /* 
         Process disbursements jobs (send ICPs from fees and sales) 
@@ -786,14 +797,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         await _Items.cronBurned();
     };
 
-
-    /* 
-        Decrease the wear value of all equipped accessories by one and burn those reaching 0 
-        @cronic : 1 day
-    */
-    // public shared ({ caller }) func cron_decrease : async () {
-
-    // };
 
     //////////////
     // FIX //////

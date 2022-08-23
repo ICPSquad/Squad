@@ -478,7 +478,7 @@ module {
             _addDisbursement(index, transaction.from, transaction.bytes, remaining);
 
             // Update the transaction.
-            // NOTE: We use the id of the pending transaction as the key. The pending transaction map uses TOKEN INDECES for keys, but this is an intentional change.
+            // NOTE: We use the id of the pending transaction as the key. The pending transaction map uses TOKEN INDEX for keys, but this is an intentional change.
             transactions.put(transaction.id, {
                 id          = transaction.id;
                 memo        = transaction.memo;
@@ -590,11 +590,14 @@ module {
             Iter.toArray(transactions.entries());
         };
 
+        public func transactionsSize() : Nat {
+            transactions.size();
+        };
+
         /* 
             Indicates if a token is locked and not subject to concurrency issues 
             (i.e. it is in the process of being sold).
         */
-
         public func isLocked(index : Ext.TokenIndex) : Bool {
             Option.isSome(pendingTransactions.get(index));
         };
@@ -774,6 +777,17 @@ module {
             lastSettleCron := now;
             label queue for ((index, tx) in pendingTransactions.entries()) {
                 ignore settle(dependencies.cid, tx.token);
+            };
+        };
+
+        public func cronVerification() : async () {
+            for(transaction in transactions.vals()){
+                // Check the transaction account on the ledger.
+                let account_as_blob = AccountBlob.fromPrincipal(dependencies.cid, ?transaction.bytes);
+                let balance = await _nnsActor.account_balance({account = account_as_blob});
+                if(balance.e8s > 0){
+                    _Logs.logMessage("Account for transaction with id " # Nat.toText(transaction.id) # " has balance " # Nat64.toText(balance.e8s));
+                };
             };
         };
 

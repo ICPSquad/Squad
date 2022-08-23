@@ -6,7 +6,8 @@ import { Principal } from "@dfinity/principal";
 import { principalToAddress } from "../../tools/principal";
 import type { Activity } from "@canisters/hub/hub.did.d";
 import { avatarActor } from "../../actor";
-import { writeFileSync, readFileSync } from "fs";
+import { writeFileSync, readFileSync, write } from "fs";
+import type internal from "stream";
 
 const BEGIN_TIME = 1655729084018865799;
 
@@ -17,7 +18,7 @@ const BEGIN_TIME = 1655729084018865799;
 // }
 
 async function getActivity() {
-  let metrics: [Principal, Activity][] = []; //[principal, activity]
+  let metrics: [Principal, bigint, bigint, bigint, bigint, bigint, bigint][] = []; //[principal, activity]
   let identity = fetchIdentity("admin");
   let avatar = avatarActor(identity);
   let data = await avatar.get_infos_accounts();
@@ -26,11 +27,13 @@ async function getActivity() {
   let collections = await hub.get_all_collections();
   let events = [];
   for (let collection of collections) {
-    let new_events = await collectEvents(BEGIN_TIME, collection[1]);
-    events = events.concat(new_events);
-    console.log("Collected " + new_events.length + " events from " + collection[1].toString());
+    if (collection[1].toString() == "qfevy-hqaaa-aaaaj-qanda-cai") {
+      let new_events = await collectEvents(BEGIN_TIME, collection[1]);
+      events = events.concat(new_events);
+    }
+    // console.log("Collected " + new_events.length + " events from " + collection[1].toString());
   }
-  console.log("Total number of events" + events.length);
+  console.log("Total number of events : " + events.length);
   data.forEach((info) => {
     let principal = info[0];
     let account = info[1];
@@ -51,12 +54,12 @@ async function getActivity() {
         // A sell
         if (data_sale[0] == account) {
           activity.sell[0]++;
-          activity.sell[1] = BigInt(data_sale[2] + Number(activity.sell[1]));
+          activity.sell[1] = BigInt(BigInt(data_sale[2]) + activity.sell[1]);
         }
         // A buy
         if (data_sale[1] == account) {
           activity.buy[0]++;
-          activity.buy[1] = BigInt(data_sale[2] + Number(activity.buy[1]));
+          activity.buy[1] = BigInt(BigInt(data_sale[2]) + activity.buy[1]);
         }
       }
       if ((event.operation == "mint" || event.operation == "Mint") && event.caller.toString() == principal.toString()) {
@@ -66,7 +69,7 @@ async function getActivity() {
         activity.burn++;
       }
     });
-    metrics.push([principal, activity]);
+    metrics.push([principal, activity.buy[0], activity.buy[1], activity.sell[0], activity.sell[1], activity.mint, activity.burn]);
   });
   writeFileSync(`user_metrics.csv`, metrics.join("\n"));
 }
@@ -79,13 +82,13 @@ function getDetails(event: Event): [string, string, number] {
   let length = details.length;
   for (let i = 0; i < length; i++) {
     if (details[i][0] == "from") {
-      from = details[i][1];
+      from = details[i][1].Text;
     }
     if (details[i][0] == "to") {
-      to = details[i][1];
+      to = details[i][1].Text;
     }
     if (details[i][0] == "price") {
-      price = details[i][1];
+      price = details[i][1].U64;
     }
   }
   return [from, to, price];
