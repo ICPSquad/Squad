@@ -15,6 +15,36 @@ import type { Invoice } from "@canisters/invoice/invoice.did.d";
 import type { _SERVICE as Ledger } from "@canisters/ledger/ledger.did.d";
 import type { _SERVICE as Hub } from "@canisters/hub/hub.did.d";
 
+export async function infinityConnection(): Promise<void> {
+  const result = await window.ic.infinityWallet.requestConnect({
+    whitelist: [avatarID, accessoriesID, invoiceID, ledgerID, hubID],
+  });
+  if (!result) {
+    throw new Error("Unable to connect to Infinity wallet");
+  }
+  // Initialize and stores the actor
+  const principal = await window.ic.infinityWallet.agent.getPrincipal();
+  const avatarActor = await window.ic.infinityWallet.createActor({
+    canisterId: avatarID,
+    interfaceFactory: idlFactoryAvatar,
+  });
+  const accessoriesActor = await window.ic.infinityWallet.createActor({
+    canisterId: accessoriesID,
+    interfaceFactory: idlFactoryAccessories,
+  });
+  const invoiceActor = await window.ic.infinityWallet.createActor({
+    canisterId: invoiceID,
+    interfaceFactory: idlFactoryInvoice,
+  });
+  const hubActor = await window.ic.infinityWallet.createActor({
+    canisterId: hubID,
+    interfaceFactory: idlFactoryHub,
+  });
+
+  user.update((u) => ({ ...u, wallet: "infinity", loggedIn: true, principal }));
+  actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, hubActor: hubActor }));
+}
+
 export async function plugConnection(): Promise<void> {
   const result = await window.ic.plug.requestConnect({
     whitelist: [avatarID, accessoriesID, invoiceID, ledgerID, hubID],
@@ -123,13 +153,16 @@ export function disconnectWallet(): void {
   if (Wallet === "stoic") {
     StoicIdentity.disconnect();
   }
+  if (Wallet === "infinity") {
+    window.ic.infinityWallet.disconnect();
+  }
   user.update((u) => ({ ...u, wallet: undefined, loggedIn: false, principal: null }));
   actors.update((a) => ({ ...a, avatarActor: null, accessoriesActor: null, invoiceActor: null, ledgerActor: null, hubActor: null }));
 }
 
 export async function persistConnexion(): Promise<void> {
-  const promises = [window.ic.plug.isConnected(), StoicIdentity.load()];
-  const [plugConnected, stoicConnected] = await Promise.all(promises);
+  const promises = [window.ic.plug.isConnected(), StoicIdentity.load(), window.ic.infinityWallet.isConnected()];
+  const [plugConnected, stoicConnected, infinityConnected] = await Promise.all(promises);
   if (plugConnected) {
     // Initialize and stores the actor
     const principal = await window.ic.plug.getPrincipal();
@@ -185,7 +218,27 @@ export async function persistConnexion(): Promise<void> {
       alert("Error logging in with stoic, please ensure cookies are enabled and Brave protection is disabled");
       throw e;
     }
-  } else {
-    return;
+  } else if (infinityConnected) {
+    // Initialize and stores the actor
+    const principal = await window.ic.infinityWallet.getPrincipal();
+    const avatarActor = await window.ic.infinityWallet.createActor({
+      canisterId: avatarID,
+      interfaceFactory: idlFactoryAvatar,
+    });
+    const accessoriesActor = await window.ic.infinityWallet.createActor({
+      canisterId: accessoriesID,
+      interfaceFactory: idlFactoryAccessories,
+    });
+    const invoiceActor = await window.ic.infinityWallet.createActor({
+      canisterId: invoiceID,
+      interfaceFactory: idlFactoryInvoice,
+    });
+    const hubActor = await window.ic.infinityWallet.createActor({
+      canisterId: hubID,
+      interfaceFactory: idlFactoryHub,
+    });
+
+    user.update((u) => ({ ...u, wallet: "infinity", loggedIn: true, principal }));
+    actors.update((a) => ({ ...a, avatarActor: avatarActor, accessoriesActor: accessoriesActor, invoiceActor: invoiceActor, hubActor: hubActor }));
   }
 }

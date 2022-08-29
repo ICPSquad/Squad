@@ -1,1 +1,1 @@
-export type Wallet = "plug" | "stoic";
+export type Wallet = "plug" | "stoic" | "infinity";

@@ -5,6 +5,8 @@ import { ledgerActor } from "@src/api/actor";
 import idlFactory from "../idl/ledger.did";
 import type { TransferArgs, TransferResult } from "@canisters/ledger/ledger.did.d";
 
+const NNS_LEDGER_CID = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+
 export async function payInvoice(invoice: Invoice, wallet: Wallet): Promise<{ height: number }> {
   const { paid, expiration } = invoice;
   if (paid) {
@@ -19,9 +21,33 @@ export async function payInvoice(invoice: Invoice, wallet: Wallet): Promise<{ he
   } else if (wallet === "stoic") {
     //@ts-ignore
     return await pay_stoic(invoice.destination.text, Number(invoice.amount));
+  } else if (wallet == "infinity") {
+    //@ts-ignore
+    return await pay_infinity(invoice.destination.text, Number(invoice.amount));
   } else {
-    throw new Error("Unknown wallet");
+    throw new Error("Invalid wallet");
   }
+}
+
+async function pay_infinity(
+  address: string,
+  amount: number
+): Promise<{
+  height: number;
+}> {
+  let actor = await window.ic.infinityWallet.createActor({
+    canisterId: NNS_LEDGER_CID,
+    interfaceFactory: idlFactory,
+  });
+  const blockHeight = await actor.send_dfx({
+    to: address,
+    amount: { e8s: BigInt(amount) },
+    fee: { e8s: BigInt(10000) },
+    memo: BigInt(12345),
+    from_subaccount: [],
+    created_at_time: [],
+  });
+  return { height: blockHeight };
 }
 
 async function pay_plug(
@@ -30,7 +56,6 @@ async function pay_plug(
 ): Promise<{
   height: number;
 }> {
-  const NNS_LEDGER_CID = "ryjl3-tyaaa-aaaaa-aaaba-cai";
   let actor = await window.ic.plug.createActor({
     canisterId: NNS_LEDGER_CID,
     interfaceFactory: idlFactory,

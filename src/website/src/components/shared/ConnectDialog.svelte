@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { plugConnection, stoicConnexion } from "@src/utils/connection";
+  import { plugConnection, stoicConnexion, infinityConnection } from "@src/utils/connection";
   import { onMount } from "svelte";
   import { get } from "svelte/store";
   import { dialog } from "../../store/dialog";
@@ -40,8 +40,17 @@
       } catch (e) {
         alert(e.message);
       }
-    } else {
-      throw new Error("Unknown connexion type");
+    } else if (name === "Infinity") {
+      if (mobileCheck()) {
+        alert("Infinity wallet is not supported on mobile devices for now. Please use another wallet provider.");
+        return;
+      }
+      try {
+        await infinityConnection();
+        close();
+      } catch (e) {
+        alert(e.message);
+      }
     }
   }
 
@@ -80,6 +89,12 @@
           <img class="img-styles" src={`assets/stoic.png`} alt="Stoic Logo" />
           <div>
             <span class="button-label">Stoic wallet</span>
+          </div>
+        </button>
+        <button on:click={() => handleConnexion("Infinity")} class={`button-styles`}>
+          <img class="img-styles" src={`assets/infinity.png`} alt="Infinity Logo" />
+          <div>
+            <span class="button-label">Infinity wallet</span>
           </div>
         </button>
       </div>

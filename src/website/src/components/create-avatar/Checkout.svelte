@@ -135,7 +135,7 @@
   {:else if state === "avatar-minted"}
     <p>Congratulation : your avatar has been successfully minted 🚀</p>
     <a
-      href="https://twitter.com/intent/tweet?text=I%27ve%20just%20minted%20my%20ICPSquad%20avatar%20!%20Join%20the%20squad%2C%20explore%20the%20ecosystem%2C%20have%20fun%20and%20earn%20prizes%20%3A%20icpsquad.dfinitycommunity.com.%20Powered%20by%20%23ICP"
+      href="https://twitter.com/intent/tweet?text=I%27ve%20just%20minted%20my%20ICPSquad%20avatar%20!%20Join%20the%20squad%2C%20explore%20the%20ecosystem%2C%20have%20fun%20and%20earn%20prizes%20%3A%20dsquad.icp.xyz%20Powered%20by%20%23ICP"
       target="_blank"
       ><button> Share </button>
     </a>
