@@ -4,75 +4,101 @@ import { CapRoot } from "@psychedelic/cap-js";
 import type { Event } from "@psychedelic/cap-js";
 import { Principal } from "@dfinity/principal";
 import { principalToAddress } from "../../tools/principal";
-import type { Activity } from "@canisters/hub/hub.did.d";
+import type { Activity, Collection } from "@canisters/hub/hub.did.d";
 import { avatarActor } from "../../actor";
-import { writeFileSync, readFileSync, write } from "fs";
-import type internal from "stream";
+import { writeFileSync } from "fs";
 
 const BEGIN_TIME = 1655729084018865799;
 
-// async function getAllCollections() {
-//   let identity = fetchIdentity("admin");
-//   let actor = await hubActor(identity);
-//   let collections = await actor.get_all_collections();
-// }
-
 async function getActivity() {
-  let metrics: [Principal, bigint, bigint, bigint, bigint, bigint, bigint][] = []; //[principal, activity]
+  // let metrics: [Principal, bigint, bigint, bigint, bigint, bigint, bigint, bigint][] = []; //[principal, activity]
   let identity = fetchIdentity("admin");
-  let avatar = avatarActor(identity);
-  let data = await avatar.get_infos_accounts();
-  // Collect ALL events from all registered collections!
+  // let avatar = avatarActor(identity);
+  // let data = await avatar.get_infos_accounts();
+  // Collect all events from registered collections!
   let hub = await hubActor(identity);
   let collections = await hub.get_all_collections();
-  let events = [];
-  for (let collection of collections) {
-    if (collection[1].toString() == "qfevy-hqaaa-aaaaj-qanda-cai") {
-      let new_events = await collectEvents(BEGIN_TIME, collection[1]);
-      events = events.concat(new_events);
-    }
-    // console.log("Collected " + new_events.length + " events from " + collection[1].toString());
-  }
-  console.log("Total number of events : " + events.length);
-  data.forEach((info) => {
-    let principal = info[0];
-    let account = info[1];
-    let buy: [bigint, bigint] = [BigInt(0), BigInt(0)];
-    let sell: [bigint, bigint] = [BigInt(0), BigInt(0)];
-    let activity = {
-      buy,
-      burn: BigInt(0),
-      mint: BigInt(0),
-      sell,
-      collection_involved: BigInt(0),
-      accessory_minted: BigInt(0),
-      accessory_burned: BigInt(0),
-    };
-    events.forEach((event) => {
-      if (event.operation == "sale" || event.operation == "Sale") {
-        let data_sale = getDetails(event);
-        // A sell
-        if (data_sale[0] == account) {
-          activity.sell[0]++;
-          activity.sell[1] = BigInt(BigInt(data_sale[2]) + activity.sell[1]);
-        }
-        // A buy
-        if (data_sale[1] == account) {
-          activity.buy[0]++;
-          activity.buy[1] = BigInt(BigInt(data_sale[2]) + activity.buy[1]);
-        }
-      }
-      if ((event.operation == "mint" || event.operation == "Mint") && event.caller.toString() == principal.toString()) {
-        activity.mint++;
-      }
-      if ((event.operation == "burn" || event.operation == "Burn") && event.caller.toString() == principal.toString()) {
-        activity.burn++;
-      }
-    });
-    metrics.push([principal, activity.buy[0], activity.buy[1], activity.sell[0], activity.sell[1], activity.mint, activity.burn]);
+  collections = collections.filter((collection) => {
+    return collection[1].toString() === "qfevy-hqaaa-aaaaj-qanda-cai";
   });
-  //TODO : add list of evetns
-  writeFileSync(`user_metrics.csv`, metrics.join("\n"));
+  let summary_all_collections = [];
+  for (let collection of collections) {
+    let new_events = await collectEvents(BEGIN_TIME, collection[1]);
+    let summary_collection = {
+      collection,
+      events: new_events,
+    };
+    summary_all_collections.push(summary_collection);
+  }
+  let events = summary_all_collections[0].events;
+  events = events.filter((event) => {
+    event.operation === "burn";
+  });
+  events.forEach((event) => {
+    console.log(event);
+  });
+  // data.forEach((info) => {
+  //   let principal = info[0];
+  //   let account = info[1];
+  //   let buy: [bigint, bigint] = [BigInt(0), BigInt(0)];
+  //   let sell: [bigint, bigint] = [BigInt(0), BigInt(0)];
+  //   let activity = {
+  //     buy,
+  //     burn: BigInt(0),
+  //     mint: BigInt(0),
+  //     sell,
+  //     collection_involved: BigInt(0),
+  //     accessory_minted: BigInt(0),
+  //     accessory_burned: BigInt(0),
+  //   };
+  //   let collection_involved: Collection[] = [];
+  //   summary_all_collections.forEach((summary) => {
+  //     let collection = summary.collection;
+  //     console.log("Collection: " + collection[0].name);
+  //     summary.events.forEach((event) => {
+  //       console.log("Event: " + event.operation);
+  //       if (event.operation == "sale" || event.operation == "Sale") {
+  //         console.log("event: " + event);
+  //         let data_sale = getDetails(event);
+  //         // A sell
+  //         if (data_sale[0] == account) {
+  //           activity.sell[0]++;
+  //           activity.sell[1] = BigInt(BigInt(data_sale[2]) + activity.sell[1]);
+  //           addToCollectionInvolved(collection, collection_involved);
+  //         }
+  //         // A buy
+  //         if (data_sale[1] == account) {
+  //           activity.buy[0]++;
+  //           activity.buy[1] = BigInt(BigInt(data_sale[2]) + activity.buy[1]);
+  //           addToCollectionInvolved(collection, collection_involved);
+  //         }
+  //       }
+  //       if ((event.operation == "mint" || event.operation == "Mint") && event.caller.toString() == principal.toString()) {
+  //         activity.mint++;
+  //         addToCollectionInvolved(collection, collection_involved);
+  //       }
+  //       if ((event.operation == "burn" || event.operation == "Burn") && event.caller.toString() == principal.toString()) {
+  //         activity.burn++;
+  //         addToCollectionInvolved(collection, collection_involved);
+  //       }
+  //     });
+  //   });
+  //   console.log(collection_involved);
+  //   metrics.push([principal, activity.buy[0], activity.buy[1], activity.sell[0], activity.sell[1], activity.mint, activity.burn, BigInt(collection_involved.length)]);
+  // });
+  // writeFileSync(`user_metrics.csv`, metrics.join("\n"));
+}
+
+function addToCollectionInvolved(collection: Collection, collection_involved: Collection[]) {
+  let is_already_there = false;
+  for (let c of collection_involved) {
+    if (c[0].name == collection[0].name) {
+      is_already_there = true;
+    }
+  }
+  if (!is_already_there) {
+    collection_involved.push(collection);
+  }
 }
 
 function getDetails(event: Event): [string, string, number] {
@@ -153,9 +179,11 @@ async function collectEvents(time: Number, root_cid: Principal): Promise<Event[]
       page: latest_page,
       witness: false,
     });
+    console.log("Result", result);
     let events = result.data;
     events.forEach((event) => {
-      if (Number(event.time) * 1_000_000 > time) {
+      if (Number(event.time) * 1_000_000 > time && keep_going) {
+        console.log("Event: " + event.operation);
         all_events.push(event);
       } else {
         keep_going = false;
@@ -172,7 +200,7 @@ async function getLatestPage(root_cid: Principal): Promise<number> {
     host: "https://ic0.app",
   });
   let size = await capRoot.size();
-  let latest_page = Math.floor(Number(size) / 64);
+  let latest_page = Math.floor(Number(size) / 64) + 1;
   console.log("Latest page", latest_page);
   return latest_page;
 }

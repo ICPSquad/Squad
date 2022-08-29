@@ -63,22 +63,28 @@ module {
         time_card_burned : Time; // The moment the accessory (card) was burned
         time_avatar_burned : ?Time; // The (optional) moment the avatar canister reported it removed the accessory from the avatar. 
         name : Text; // The name of the accessory
-        tokenIdentifier : TokenIdentifier; // The avatar this accessory was equipped on
-        
+        tokenIdentifier : TokenIdentifier; // The avatar this accessory was equipped on  
     };
 
-    public type OldUpgradeData = {
+    public type BurnedAccessory = {
+        name : Text;
+        tokenIndex : TokenIndex;
+        tokenIdentifier : TokenIdentifier;
+    };
+
+
+    public type UpgradeDataOld = {
         items : [(TokenIndex, Item)];
         templates : [(Text, Template)];
-        blobs : [(TokenIndex, Blob)];
         recipes : [(Text, Recipe)];
+        burned : [(TokenIndex, BurnedInformation)];
     };
 
     public type UpgradeData = {
         items : [(TokenIndex, Item)];
         templates : [(Text, Template)];
         recipes : [(Text, Recipe)];
-        burned : [(TokenIndex, BurnedInformation)];
+        pendingBurned : [BurnedAccessory];
     };
 
     public type Dependencies = {

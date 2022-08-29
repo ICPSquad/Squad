@@ -16,20 +16,6 @@ module {
         sell : (Nat, Nat); // (Number of operations, ICP)
         mint : Nat; // Number of operations
         burn : Nat; // Number of operations
-        accessory_burned : Nat; // Number of operations
-        accessory_minted : Nat; // Number of operations
-        collection_involved : Nat; // Number of interaction with different collections
-    };
-
-    public type CumulativeActivity = {
-        buy : (Nat, Nat); // (Number of operations, ICP)
-        sell : (Nat, Nat); // (Number of operations, ICP)
-        mint : Nat; // Number of operations
-        burn : Nat; // Number of operations
-        accessory_burned : Nat; // Number of operations
-        accessory_minted : Nat; // Number of operations
-        collections : [Principal]; // List of collections involved
-        score : Nat;
     };
 
     public type DetailValue = {
@@ -124,15 +110,10 @@ module {
         _Logs : Canistergeek.Logger; 
     };
 
-
     public type UpgradeData = {
         cids : [(Collection.Collection, Principal)];
-        cid_interacted_collections : [(Principal, [Principal])];
-        daily_cached_events_per_collection : [(Principal, [Event])];
-        daily_cached_events_per_user : [(Principal, [ExtendedEvent])];
-        stats_daily : [((Date, Principal), CapStats)];
-        engagement_score_daily : [((Date, Principal), Nat)];
-        tracking_activity_daily : [((Date, Principal), Activity)];  
+        events : [((Date, Principal), [ExtendedEvent])];
+        scores : [((Date, Principal), Nat)];
     };
 
 };

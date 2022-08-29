@@ -489,30 +489,23 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         }
     };
 
-    let ACCESSORY_ACTOR = actor(Principal.toText(accessory_cid)) : actor {
-        confirmed_burned_accessory: shared (index : TokenIndex) -> async ();
-    };
-
     public shared ({caller}) func report_burned_accessory(
         name : Text,
         avatar : TokenIdentifier,
         accessory : TokenIndex
-    ) : async () {
-        assert(caller == accessory_cid);
+    ) : async Result.Result<(),()> {
+        assert(_Admins.isAdmin(caller) or caller == accessory_cid);
         _Monitor.collectMetrics();
-        let index = accessory; 
-        // Reduce capitalilisation of name
         switch(_Avatar.removeAccessory(avatar, Text.map(name, Prim.charToLower))){
             case(#err(_)){
-                _Logs.logMessage("CRITICAL ERR :: " # "Accessory " # name # " not removed from avatar " # avatar);
+                _Logs.logMessage("ERR :: " # "accessory " # name # " not removed from avatar " # avatar);
+                return #err;
             };
             case(#ok){
                 _Logs.logMessage("EVENT :: accessory " # name # " removed from avatar " # avatar);
+                return #ok;
             };
         };
-        // Send a notification to the accessory canister
-        ignore(ACCESSORY_ACTOR.confirmed_burned_accessory(index));
-        return;
     };
 
     ///////////////////
@@ -905,21 +898,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
         _Users.cronDefaultAvatar();
         _Logs.logMessage("CRON :: Update default avatar");
     };
-
-    /////////////
-    // FIX //////
-    /////////////
-
-    // public shared ({ caller }) func update_activity(
-    //     p : Principal,
-    //     t1 : Time.Time,
-    //     t2 : Time.Time
-    // ) : async Result.Result<(), Text> {
-    //     assert(_Admins.isAdmin(caller));
-    //     _Monitor.collectMetrics();
-    //     await _Users.updateActivity(p, t1, t2);
-    // };
-
 
     /////////////
     // UPGRADE //

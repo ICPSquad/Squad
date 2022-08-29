@@ -71,7 +71,6 @@ module {
                 return;
             };
 
-            // Keep track of completed and failed jobs
             var completed : List.List<Types.IndefiniteEvent> = null;
             var failed : List.List<Types.IndefiniteEvent> = null;
 
@@ -107,8 +106,6 @@ module {
                 job := event;
                 pendingEvents := remaining;
             };
-
-            // If there are any failed jobs, re-queue them
             if(List.size(failed) > 0){
                 pendingEvents := List.append(failed, pendingEvents);
             };

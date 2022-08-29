@@ -3,6 +3,7 @@ import Buffer "mo:base/Buffer";
 import Error "mo:base/Error";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
+import List "mo:base/List";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat8 "mo:base/Nat8";
@@ -35,9 +36,10 @@ module {
     public type MaterialInventory = Types.MaterialInventory;
     public type AccessoryInventory = Types.AccessoryInventory;
     public type AccessoryUpdate = Types.AccessoryUpdate;
-    public type OldUpgradeData = Types.OldUpgradeData;
+    public type UpgradeDataOld = Types.UpgradeDataOld;
     public type UpgradeData = Types.UpgradeData;
     public type BurnedInformation = Types.BurnedInformation;
+    public type BurnedAccessory = Types.BurnedAccessory;
     type TokenIndex = Ext.TokenIndex;
     type TokenIdentifier = Ext.TokenIdentifier;
     type AccountIdentifier = Ext.AccountIdentifier;
@@ -49,34 +51,17 @@ module {
         ////////////
         // State //
         ///////////
-        /* 
-            * The following rules are used to track the state of accessory and their burning mechanism.
-
-            A- Every 24 hours we decrease the wear value of all equipped accessory by 1. When an accessory reaches a wear value of 0 it is burned.
-            B- If the wear value of an accessory is 1 or below it can be equipped on an avatar (in theory this situation should never happen because of rule C).
-            C- If the wear value of an accessory is 2 or below it cannot be removed from an avatar. (Preventing the user from creating an "useless" accessory).
-            
-            Process when an accessory is burned :
-            1- The card is burned and all data associated in the accessory canister is deleted.
-            2- A log message record the event.
-            3- We create a new object that represents this burn event where we store the time of the burn, the name of the accessory and the avatar that it was equipped on and an optional (future) field where will be stored the moment the avatar canister removed it from the avatar.
-            4- We periodically check if among all the burned accessories, some doesn't have the moment it was removed from the avatar.
-            5- We send an (one-shot) intercanister call to the avatar canister method report_burned_accessory(name : Text, avatar : TokenIdentifer, accessory : TokenIndex)
-            6- (Passive) When the avatar canister receives the call it will remove the accessory from the avatar and send a (one-shot) message to the confirmed_burned_accessory(name : Text, avatar : TokenIdentifer, accessory : TokenIndex)!
-            7- (Passive) Moved the burned event from burned to reported and record the time when the accessory was removed from the avatar.
-            8- A log message record the event.
-         */
 
         let _items : HashMap.HashMap<TokenIndex,Item> = HashMap.HashMap(0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
         let _templates : HashMap.HashMap<Text,Template> = HashMap.HashMap(0, Text.equal, Text.hash);
         let _recipes : TrieMap.TrieMap<Text, Recipe> = TrieMap.TrieMap(Text.equal, Text.hash);
-        let _burned : TrieMap.TrieMap<TokenIndex,BurnedInformation> = TrieMap.TrieMap<TokenIndex, BurnedInformation>(Ext.TokenIndex.equal, Ext.TokenIndex.hash);
-        let _reported : TrieMap.TrieMap<TokenIndex, BurnedInformation> = TrieMap.TrieMap<TokenIndex, BurnedInformation>(Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+
+        var _pendingBurned : List.List<BurnedAccessory> = null;
 
         let AVATAR_ACTOR = actor(Principal.toText(dependencies.cid_avatar)) : actor {
             wearAccessory : shared (tokeniId : TokenIdentifier, name : Text, p : Principal) -> async Result<(), Text>;
             removeAccessory : shared (tokeniId : TokenIdentifier, name : Text, p : Principal) -> async Result<(), Text>;
-            report_burned_accessory: shared (name : Text, avatar : TokenIdentifier, accessory : TokenIndex) -> async ();
+            report_burned_accessory: shared (name : Text, avatar : TokenIdentifier, accessory : TokenIndex) -> async Result<(), ()>;
         };
 
         let _Logs = dependencies._Logs;
@@ -88,9 +73,10 @@ module {
                 items = Iter.toArray(_items.entries());
                 templates = Iter.toArray(_templates.entries());
                 recipes = Iter.toArray(_recipes.entries());
-                burned = Iter.toArray(_burned.entries());
+                pendingBurned = List.toArray(_pendingBurned);
             })
-        };
+        }; 
+
 
         public func postupgrade(ud : ?UpgradeData) : () {
             switch(ud){
@@ -101,14 +87,12 @@ module {
                     for((name, template) in ud.templates.vals()){
                         _templates.put(name, template);
                     };
-                    for((index, info) in ud.burned.vals()){
-                        _burned.put(index, info);
-                    };
                     for((name, recipe) in ud.recipes.vals()){
                         _recipes.put(name, recipe);
                     };
+                    _pendingBurned := List.fromArray(ud.pendingBurned);
                 };
-                case _ {};
+                case(null){};
             };
         };
 
@@ -116,22 +100,6 @@ module {
         // API /////
         ///////////
 
-        public func confirmBurnedAccessory(index : TokenIndex) : () {
-            switch(_burned.get(index)){
-                case(? burn){
-                    _burned.delete(index);
-                    _reported.put(index, {
-                        time_card_burned = burn.time_card_burned;
-                        time_avatar_burned = burn.time_avatar_burned;
-                        name = burn.name;
-                        tokenIdentifier = burn.tokenIdentifier;
-                    });
-                };
-                case _ {
-                    _Logs.logMessage("CRITICAL ERROR : " # "Burned accessory not found in the burned accessories queue with index : " # Nat.toText(Nat32.toNat(index)));
-                };
-            };
-        };
 
         public func addTemplate(name : Text, template : Template) : Result<Text,Text> {
             switch(template){
@@ -439,82 +407,28 @@ module {
             return buffer.toArray();
         };
 
-        /* Todo : why is it this here ? */   
         public func burn(
             index : TokenIndex
         ) : () {
             _items.delete(index);
         };
 
-        public func fixItems() : () {
-            for((index, item) in _items.entries()){
-                let name = _itemToName(item);
-                if(name == "Dfinity-face-mask"){
-                    switch(item){
-                        case(#Accessory(properties)){
-                            let new_item = {
-                                name = "Facemask";
-                                wear = properties.wear;
-                                equipped = properties.equipped;
-                            };
-                            _items.put(index, #Accessory(new_item));
-                        };
-                        case(_) {
-                            assert(false);
-                        };
-                    };
-                };
-                if(name == "Matrix-glasses"){
-                    switch(item){
-                        case(#Accessory(properties)){
-                            let new_item = {
-                                name = "Sunglasses";
-                                wear = properties.wear;
-                                equipped = properties.equipped;
-                            };
-                            _items.put(index, #Accessory(new_item));
-                        };
-                        case(_) {
-                            assert(false);
-                        };
-                    };
-                };
-                if(name == "Oni-half-mask"){
-                    switch(item){
-                        case(#Accessory(properties)){
-                            let new_item = {
-                                name = "Oni-face-mask";
-                                wear = properties.wear;
-                                equipped = properties.equipped;
-                            };
-                            _items.put(index, #Accessory(new_item));
-                        };
-                        case(_) {
-                            assert(false);
-                        };
-                    };
-                };
-            };
-        };
-
         /* 
-            Decreases the wear value of all equipped accessories by one and returns a triple of lists.
+            Decreases the wear value of all equipped accessories by one and returns a tupple of lists.
             List 1 : Burned accessories
             List 2: Decreased accessories
-            List 3: Accessory not found
             @Cronic : Called once per day
         */
-        public func updateAll() : ([TokenIndex], [TokenIndex], [TokenIndex]) {    
+        public func updateAll() : ([TokenIndex], [TokenIndex]) {    
             let list_accessory_to_update = _getListEquippedAccessory();
 
             var buffer_burned : Buffer.Buffer<TokenIndex> = Buffer.Buffer<TokenIndex>(0);
             var buffer_decreased : Buffer.Buffer<TokenIndex> = Buffer.Buffer<TokenIndex>(0);
-            var buffer_not_found : Buffer.Buffer<TokenIndex> = Buffer.Buffer<TokenIndex>(0);
 
             for(index in list_accessory_to_update.vals()){
                 switch(_updateAccessory(index)){
                     case(#err(e)){
-                        buffer_not_found.add(index);
+                        _Logs.logMessage("ERR :: updating accessory : " # Nat32.toText(index));
                     };
                     case(#ok(event)){
                         switch(event){
@@ -528,76 +442,50 @@ module {
                     };
                 }
             };
-            return (buffer_burned.toArray(), buffer_decreased.toArray(), buffer_not_found.toArray());
+            return (buffer_burned.toArray(), buffer_decreased.toArray());
         };
 
-
-        public func updateAccessory(
-            index : TokenIndex
-        ) : Result<AccessoryUpdate, Text> {
-            switch(_items.get(index)){
-                case(?#Accessory(item)){
-                    if(item.wear <= 1){
-                        _Ext.burn(index);
-                        _items.delete(index);
-                        _burned.put(index, {
-                            time_card_burned = Time.now();
-                            time_avatar_burned = null;
-                            name = item.name;
-                            tokenIdentifier = Option.get<Text>(item.equipped, "ngedt-bakor-uwiaa-aaaaa-cmaca-uaqca-aaaaa-a");
-                        });
-                        _Logs.logMessage("Accessory : " #  Nat.toText(Nat32.toNat(index)) # " has been burned");
-                        return #ok(#Burned);
-                    };
-                    _items.put(index, _createAccessoryWear(item, item.wear - 1));
-                    return #ok(#Decreased); 
-                };
-                case _ {
-                    _Logs.logMessage("Accessory not found for tokenIndex : " # Nat32.toText(index));
-                    return #err("Accessory not found");
-                };
-            };
-        };
-
+        var pendingCount : Nat = 0;
         public func cronBurned() : async () {
-            if(_burned.size() == 0) return;
-            for((index, item) in _burned.entries()){
-                if(Option.isNull(item.time_avatar_burned)){
-                  ignore(AVATAR_ACTOR.report_burned_accessory (item.name, item.tokenIdentifier, index));
+            if(List.size<BurnedAccessory>(_pendingBurned) == 0) {
+                return;
+            };
+            
+            var completed : List.List<BurnedAccessory> = null;
+            var failed : List.List<BurnedAccessory> = null;
+            let (burned, remaining) = List.pop(_pendingBurned);
+            var job = burned;
+            _pendingBurned := remaining;
+
+            label queue while(Option.isSome(job)) ignore do ? {
+                pendingCount += 1;
+                try {
+                    switch(await AVATAR_ACTOR.report_burned_accessory(job!.name, job!.tokenIdentifier, job!.tokenIndex)){
+                        case(#ok(_)){
+                            completed := List.push(job!, completed);
+                            pendingCount -= 1;
+                        };
+                        case(#err(_)){
+                            _Logs.logMessage("ERR :: reporting burned accessory : " # Nat32.toText(job!.tokenIndex));
+                            failed := List.push(job!, failed);
+                            pendingCount -= 1;
+                        };
+                    };
+                } catch (e) {
+                    _Logs.logMessage("ERR :: CATCH :: " # Error.message(e));
+                    failed := List.push(job!, failed);
+                    pendingCount -= 1;
                 };
-          };
+                let (burned, remaining) = List.pop(_pendingBurned);
+                job := burned;
+                _pendingBurned := remaining;
+            };
+
+            if(List.size(failed) > 0) {
+                _pendingBurned := List.append(failed, _pendingBurned);
+            };
         };
 
-        public func getHolders() : [(AccountIdentifier, Nat)] {
-            let ownerships : TrieMap.TrieMap<AccountIdentifier, [TokenIndex]> = TrieMap.TrieMap<AccountIdentifier, [TokenIndex]>(Text.equal, Text.hash);
-            let registry = _Ext.getRegistry();
-            for((token, account) in registry.vals()){
-                switch(ownerships.get(account)){
-                    case(? list){
-                        ownerships.put(account, Array.append<TokenIndex>(list, [token]));
-                    };
-                    case(null) {
-                        ownerships.put(account, [token]);
-                    };
-                };
-            };
-            // Coun the number of Accessories for each account
-            let r : Buffer.Buffer<(AccountIdentifier, Nat)> = Buffer.Buffer<(AccountIdentifier, Nat)>(0);
-            for((account, tokens) in ownerships.entries()){
-                var count : Nat = 0;
-                for(token in tokens.vals()){
-                    if(_isAccessory(token)){
-                        count += 1;
-                    };
-                };
-                r.add((account, count));
-            };
-            let count = r.toArray();
-            // Return the array ordered by count
-            return(Array.sort<(AccountIdentifier, Nat)>(count, func(a : (AccountIdentifier, Nat), b : (AccountIdentifier, Nat)) {
-                Nat.compare(a.1, b.1);
-            }));
-        };
 
         public func deleteItem(name : Text) : Result<(), Text> {
             //Verify that the item doesn't exist live
@@ -770,12 +658,12 @@ module {
                         _Cap.insertEvent(event);
                         _Ext.burn(index);
                         _items.delete(index);
-                        _burned.put(index, {
-                            time_card_burned = Time.now();
-                            time_avatar_burned = null;
-                            name = item.name;
-                            tokenIdentifier = Option.get<Text>(item.equipped, "ngedt-bakor-uwiaa-aaaaa-cmaca-uaqca-aaaaa-a");
-                        });
+                        let burned : BurnedAccessory = {
+                            name;
+                            tokenIndex = index;
+                            tokenIdentifier =  Option.get<Text>(item.equipped, "ngedt-bakor-uwiaa-aaaaa-cmaca-uaqca-aaaaa-a");
+                        };
+                        _pendingBurned := List.push(burned, _pendingBurned);
                         _Logs.logMessage("EVENT :: accessory : " #  Nat.toText(Nat32.toNat(index)) # " has been burned");
                         return #ok(#Burned);
                     };

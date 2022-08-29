@@ -43,8 +43,8 @@ module {
     public type ExtListing = Types.ExtListing;
     public type Metadata = Types.Metadata;
 
-    // Time for a transaction to complete (2 mins)
-    private let transactionTtl = 120_000_000_000;
+    // Time for a transaction to complete (2 mins + 1min to be safe)
+    private let transactionTtl = 180_000_000_000;
 
     // Fees to be deducted from all marketplace sales
     private let fees : [(Ext.AccountIdentifier, Nat64)] = [
@@ -459,6 +459,7 @@ module {
             if (balance.e8s < transaction.price) {
                 if (not _isLocked(index)) {
                     // This pending transaction is past its lock, so we delete it to save compute in our cron that iterates pending transactions.
+                    _Logs.logMessage("ERR :: SETTLE :: " # Nat.toText(transaction.id) # " :: LOCK TIME EXPIRED");
                     pendingTransactions.delete(index);
                 };
                 _Logs.logMessage(Principal.toText(caller) # " :: lock " # token # " :: ERR :: Insufficient funds");
@@ -776,7 +777,14 @@ module {
             if (now - lastSettleCron < settleInterval) return;
             lastSettleCron := now;
             label queue for ((index, tx) in pendingTransactions.entries()) {
-                ignore settle(dependencies.cid, tx.token);
+                switch(await settle(dependencies.cid, tx.token)){
+                    case(#err(_)) {
+                        _Logs.logMessage("ERR :: cronSettlement :: fail to settle " # Nat.toText(Nat32.toNat(index)));
+                    };
+                    case(#ok(_)) {
+                        _Logs.logMessage("TASK :: cronSettlement :: settled " # Nat.toText(Nat32.toNat(index)));
+                    };
+                };
             };
         };
 

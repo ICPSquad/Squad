@@ -254,6 +254,7 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     public type ItemInventory = Items.ItemInventory;
     public type MaterialInventory = Items.MaterialInventory;
     public type AccessoryInventory = Items.AccessoryInventory;
+    public type BurnedInformation = Items.BurnedInformation;
 
     stable var _ItemsUD : ?Items.UpgradeData = null;
     let _Items = Items.Factory({
@@ -291,12 +292,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         assert(_Admins.isAdmin(caller));
         _Monitor.collectMetrics();
         _Items.getItems();
-    };
-
-    public shared ({ caller }) func fix_items() : async () {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Items.fixItems();
     };
 
     public query func get_templates() : async [(Text, Template)] {
@@ -489,21 +484,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         };
     };
 
-    public shared ({ caller }) func burn_accessory(tokenIndex : TokenIndex) : async () {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        _Items.burn(tokenIndex);
-        _Ext.burn(tokenIndex);
-        _Entrepot.burn(tokenIndex);
-        // Report burning events to CAP.
-        let event : IndefiniteEvent = {
-            operation = "burn";
-            details = [("token", #Text(Ext.TokenIdentifier.encode(cid,tokenIndex))), ("from", #Text(Principal.toText(caller)))];
-            caller = caller;
-        };
-        ignore(_Cap.registerEvent(event));
-    };
-
     public query func get_name(index : TokenIndex) : async ?Text {
         _Items.getName(index);
     };
@@ -515,28 +495,11 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Items.getAvatarEquipped(tokenId);
     };
 
-
-    public shared ({ caller }) func confirmed_burned_accessory(
-        index : TokenIndex
-    ) : async () {
-        assert(_Admins.isAdmin(caller) or caller == cid_avatar);
-        _Monitor.collectMetrics();
-        _Items.confirmBurnedAccessory(index);
-    };
-
     public shared ({ caller }) func update_accessories() : async () {
         assert(_Admins.isAdmin(caller) or caller == cid_hub);
         _Monitor.collectMetrics();
-        let (burned, decreased, not_found ) = _Items.updateAll();
-        _Logs.logMessage("CRON :: Daily update of accessories :: " # "Burned : " #  Nat.toText(burned.size()) # " Decreased : " # Nat.toText(decreased.size()) #  " Not found : " #Nat.toText(not_found.size()));
-        return;
-    };
-
-
-    public shared ({ caller }) func update_accessory(index : TokenIndex) : async () {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        ignore(_Items.updateAccessory(index));
+        let (burned, decreased) = _Items.updateAll();
+        _Logs.logMessage("CRON :: update of accessories :: " # "BURNED :: " #  Nat.toText(burned.size()) # " DECREASED : " # Nat.toText(decreased.size()));
         return;
     };
 
@@ -550,11 +513,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
 
     let DAY_NANO_RAW = 86400000000 * 1000;
 
-    public shared ({ caller }) func get_accessories_holders() : async [(AccountIdentifier, Nat)] {
-        _Monitor.collectMetrics();
-        _Items.getHolders();
-    };  
-
     public query func get_materials(p : Principal, available : Bool) : async [(TokenIndex, Text)] {
         let materials = _Items.getMaterials(p);
         if(available){
@@ -563,7 +521,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
             return(materials);
         };
     };
-
 
     //////////
     // HTTP //
@@ -630,6 +587,8 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     ///////////////
     // Entrepot //
     //////////////
+
+    public type Disbursement = Entrepot.Disbursement;
 
     stable var _EntrepotUD : ?Entrepot.UpgradeData = null;
     let _Entrepot = Entrepot.Factory({
@@ -729,8 +688,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         _Entrepot.payments(caller);
     };
 
-    public type Disbursement = Entrepot.Disbursement;
-
     public query ({caller}) func read_disbursements() : async [Disbursement] {
         assert(_Admins.isAdmin(caller));
         _Entrepot.disbursements();
@@ -797,44 +754,12 @@ shared({ caller = creator }) actor class ICPSquadNFT(
         await _Items.cronBurned();
     };
 
-
-    //////////////
-    // FIX //////
-    /////////////
-
-    public shared ({ caller }) func fix_transfer(
-        token : TokenIdentifier,
-        owner : Principal,
-        receiver : AccountIdentifier,
-    ) : async Result<(), Text> {
-        assert(_Admins.isAdmin(caller));
-        _Monitor.collectMetrics();
-        let request : Ext.Core.TransferRequest = {
-            from = #principal(owner);
-            to = #address(receiver);
-            token;
-            amount = 1;
-            memo = Blob.fromArray([0]);
-            notify = false;
-            subaccount = null;
-        };
-        switch(_Ext.transfer(owner, request)){
-            case(#ok(_)){
-                return #ok();
-            };
-            case(#err(_)){
-                return #err("Failed to transfer");
-            };
-        };
-    };
-
     //////////////
     // UPGRADE //
     /////////////
 
     system func preupgrade() {
         _Logs.logMessage("PREUPGRADE :: accessory");
-        // Modules
         _MonitorUD := ? _Monitor.preupgrade();
         _LogsUD := ? _Logs.preupgrade();
         _ItemsUD := ? _Items.preupgrade();
@@ -845,7 +770,6 @@ shared({ caller = creator }) actor class ICPSquadNFT(
     };
 
     system func postupgrade() {
-        // Modules
         _Monitor.postupgrade(_MonitorUD);
         _MonitorUD := null;
         _Logs.postupgrade(_LogsUD);
