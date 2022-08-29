@@ -103,6 +103,10 @@ export interface ICPSquadHub {
   'add_admin' : ActorMethod<[Principal], undefined>,
   'add_job' : ActorMethod<[Principal, string, bigint], undefined>,
   'availableCycles' : ActorMethod<[], bigint>,
+  'calculate_score' : ActorMethod<
+    [Principal, [] | [Time], [] | [Time]],
+    Result_1,
+  >,
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
   'create_mission' : ActorMethod<[CreateMission], Result_3>,
   'cron_clean' : ActorMethod<[], Result_1>,
@@ -149,6 +153,7 @@ export interface ICPSquadHub {
   'manually_add_winners' : ActorMethod<[bigint, Array<Principal>], Result_1>,
   'my_completed_missions' : ActorMethod<[], Array<[bigint, Time]>>,
   'nano_to_seconds' : ActorMethod<[bigint], bigint>,
+  'number_mint_accessory' : ActorMethod<[Principal], bigint>,
   'populate_events' : ActorMethod<[Principal, Array<ExtendedEvent>], Result_1>,
   'purge_round' : ActorMethod<[bigint], Result_2>,
   'register_all_collections' : ActorMethod<[], Result_1>,

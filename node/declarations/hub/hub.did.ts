@@ -1,5 +1,7 @@
 export const idlFactory = ({ IDL }) => {
   const DetailValue = IDL.Rec();
+  const Time = IDL.Int;
+  const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const CustomValidation = IDL.Record({
     'args' : IDL.Vec(IDL.Nat8),
     'method_name' : IDL.Text,
@@ -25,7 +27,6 @@ export const idlFactory = ({ IDL }) => {
     'points' : IDL.Nat,
   });
   const Result_3 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text });
-  const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const Result__1_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const GetLogMessagesFilter = IDL.Record({
     'analyzeCount' : IDL.Nat32,
@@ -114,7 +115,6 @@ export const idlFactory = ({ IDL }) => {
     'Running' : IDL.Null,
     'Pending' : IDL.Null,
   });
-  const Time = IDL.Int;
   const Mission__1 = IDL.Record({
     'id' : IDL.Nat,
     'status' : MissionStatus,
@@ -219,6 +219,11 @@ export const idlFactory = ({ IDL }) => {
     'add_admin' : IDL.Func([IDL.Principal], [], []),
     'add_job' : IDL.Func([IDL.Principal, IDL.Text, IDL.Int], [], []),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
+    'calculate_score' : IDL.Func(
+        [IDL.Principal, IDL.Opt(Time), IDL.Opt(Time)],
+        [Result_1],
+        [],
+      ),
     'collectCanisterMetrics' : IDL.Func([], [], []),
     'create_mission' : IDL.Func([CreateMission], [Result_3], []),
     'cron_clean' : IDL.Func([], [Result_1], []),
@@ -299,6 +304,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'nano_to_seconds' : IDL.Func([IDL.Int], [IDL.Int], ['query']),
+    'number_mint_accessory' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
     'populate_events' : IDL.Func(
         [IDL.Principal, IDL.Vec(ExtendedEvent)],
         [Result_1],

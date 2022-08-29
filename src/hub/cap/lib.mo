@@ -253,7 +253,7 @@ module {
       for ((p, cached) in cached_events_per_user.entries()) {
         let cached_events = cached.toArray();
         for (e in cached_events.vals()) {
-          let date = switch (DateModule.Date.toDatePartsISO8601(Nat64.toNat(e.time * 1_000_000))) {
+          let date = switch (DateModule.Date.toDatePartsISO8601(Nat64.toNat(_convertToNano(e.time)))) {
             case (null) {
               _Logs.logMessage("WARNING :: " # "unable to parse date " # Nat64.toText(e.time));
               return #err("Unable to parse date : " # Nat64.toText(e.time));
@@ -588,7 +588,7 @@ module {
         let events = result.data;
         for (event in events.vals()) {
           // Time for event recorded in CAP are in milliseconds (10^(-3) seconds)
-          let time : Nat = Nat64.toNat(event.time) * 1_000_000;
+          let time : Nat = Nat64.toNat(_convertToNano(event.time));
           // Only keep the events from the past 24 hours BUT only exit the loop if we encounter an event from before yesterday. If we encounter an event "in the future" we do nothing.
           if (time > yesterday and time <= now) {
             r.add(event);
@@ -906,7 +906,7 @@ module {
     };
 
     func _getDate(e : Event) : Date {
-      let time = Nat64.toNat(e.time * 1_000_000);
+      let time = Nat64.toNat(_convertToNano(e.time));
       let date = switch (
         DateModule.Date.toDatePartsISO8601(time),
       ) {
@@ -977,6 +977,26 @@ module {
             };
           };
           return true;
+        };
+      };
+    };
+
+    func _convertToNano(time : Nat64) : Nat64 {
+      let t = Nat64.toText(time);
+      let s = t.size();
+      switch (s) {
+        case (13) {
+          return time * 1_000_000;
+        };
+        case (16) {
+          return time * 1_000;
+        };
+        case (19) {
+          return time;
+        };
+        case _ {
+          _Logs.logMessage("ERR :: time format not recognized");
+          return 0;
         };
       };
     };

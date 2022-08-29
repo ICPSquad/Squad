@@ -1,10 +1,10 @@
-import { hubActor } from "../../actor";
+import { avatarActor, hubActor } from "../../actor";
 import { fetchIdentity } from "../../keys";
 import { CapRoot } from "@psychedelic/cap-js";
 import type { Event } from "@psychedelic/cap-js";
 import { Principal } from "@dfinity/principal";
 import { principalToAddress } from "../../tools/principal";
-import type { Activity, Collection, ExtendedEvent } from "@canisters/hub/hub.did.d";
+import type { Collection, ExtendedEvent } from "@canisters/hub/hub.did.d";
 
 const BEGIN_TIME = 1655729084018865799;
 
@@ -56,12 +56,32 @@ function _isEventRelated(p: Principal, e: Event): boolean {
 
 async function doJob() {
   let identity = fetchIdentity("admin");
+  let avatar = await avatarActor(identity);
   let hub = await hubActor(identity);
   let events = await collectAllEvents();
-  let principal_test = Principal.fromText("udmjf-fyc6j-f7dnl-dw5bh-hh4wg-ln7iy-36pgp-mjocm-my4vc-r2irg-2ae");
-  let events_related = events.filter((e) => _isEventRelated(principal_test, e));
-  let result = await hub.populate_events(principal_test, events_related);
-  console.log("Done", result);
+  let infos = await avatar.get_infos_accounts();
+  let length = infos.length;
+  for (let i = 0; i < length; i++) {
+    let p = infos[i][0];
+    let events_related = events.filter((e) => _isEventRelated(p, e));
+    if (p.toString() == "thlnc-agwop-l2tte-p2lb2-ptg2k-wubou-6ioli-yuj67-tuaj6-t4jgz-oqe") {
+      console.log(events_related);
+    }
+    let result_1 = await hub.populate_events(p, events_related);
+    if (result_1.hasOwnProperty("ok")) {
+      console.log("Events populated successfully for " + p.toString());
+      let result_2 = await hub.calculate_score(p, [], []);
+      if (result_2.hasOwnProperty("ok")) {
+        console.log("Score calculated successfully for " + p.toString());
+      } else {
+        //@ts-ignore
+        console.log("Error calculating score for " + p.toString() + ": " + result_2.err);
+      }
+    } else {
+      //@ts-ignore
+      console.log("Error populating events for " + principal_test.toString() + ": " + result_1.err);
+    }
+  }
 }
 
 function addToCollectionInvolved(collection: Collection, collection_involved: Collection[]) {
