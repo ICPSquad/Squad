@@ -56,8 +56,8 @@
       title: "Engage",
       items: [
         {
-          label: "Add accessory",
-          url: "/add-accessory",
+          label: "Equip accessory",
+          url: "/equip-accessory",
         },
         {
           label: "Leaderboard",

@@ -11,7 +11,7 @@
   import Contact from "@src/pages/Contact.svelte";
   import CreateAccessory from "@src/pages/CreateAccessory.svelte";
   import Leaderboard from "@src/pages/Leaderboard.svelte";
-  import AddAccessory from "@src/pages/AddAccessory.svelte";
+  import EquipAccessory from "@src/pages/EquipAccessory.svelte";
   import Profile from "@src/pages/Profile.svelte";
   import Roadmap from "@src/pages/Roadmap.svelte";
   import Render from "@src/pages/Render.svelte";
@@ -28,7 +28,7 @@
   <Route path="partners"><Partners /></Route>
   <Route path="contact"><Contact /></Route>
   <Route path="mission"><Mission /></Route>
-  <Route path="add-accessory"><AddAccessory /></Route>
+  <Route path="equip-accessory"><EquipAccessory /></Route>
   <Route path="leaderboard"><Leaderboard /></Route>
   <Route path="profile"><Profile /></Route>
   <Route path="roadmap"><Roadmap /></Route>
