@@ -148,11 +148,6 @@ module {
     // CRON //
     //////////
 
-    /* 
-            Query all the cids and add the events of the day to the daily cache in the canister.
-            @ok : Number of events added to the daily cache.
-            @err : An error message.
-        */
     public func cronEvents() : async Result.Result<(), Text> {
       var total : Nat = 0;
       for ((collection, cid) in cids.entries()) {
@@ -169,11 +164,6 @@ module {
       return #ok();
     };
 
-    /* 
-            Fill the daily events for each user by assigning events to users & update the list of interacted collections 
-            @ok 
-            @err : An error message.
-        */
     public func cronUsers() : async Result.Result<(), Text> {
       // Query necessary informations to get a list of Principals and associated AccountIdentifier.
       let infos = await AVATAR_ACTOR.get_infos_accounts();
@@ -259,9 +249,6 @@ module {
       return #ok();
     };
 
-    /* 
-            Move all events from the daily cache to the permanent database.
-         */
     public func cronClean() : Result.Result<(), Text> {
       for ((p, cached) in cached_events_per_user.entries()) {
         let cached_events = cached.toArray();
@@ -338,7 +325,6 @@ module {
     // CONFIG & REGISTRATION //
     ///////////////////////////
 
-    /* Register a collection if the collection is integrated with CAP */
     public func registerCollection(collection : Collection) : async Result.Result<(), Text> {
       let cid = collection.contractId;
       try {
@@ -362,7 +348,6 @@ module {
       return #ok();
     };
 
-    /* Register all collections that are registered into DAB & CAP */
     public func registerAllCollections() : async Result.Result<(), Text> {
       let collections : [Types.NFT_CANISTER] = await dab.get_all();
       for (collection in collections.vals()) {
@@ -474,6 +459,54 @@ module {
     };
 
     /////////////////
+    //  MISSIONS  //
+    ///////////////
+
+    public func numberMintAccessory(
+      p : Principal,
+      t1 : ?Time.Time,
+      t2 : ?Time.Time,
+    ) : Nat {
+      var total : Nat = 0;
+      let dates = _getDatesBetween(t1, t2);
+      for (date in dates.vals()) {
+        switch (events.get(date, p)) {
+          case (null) {};
+          case (?list_events) {
+            for (e in list_events.vals()) {
+              if (_isEventMintAccessory(e)) {
+                total += 1;
+              };
+            };
+          };
+        };
+      };
+      total;
+    };
+
+    public func numberBurnAccessory(
+      p : Principal,
+      t1 : ?Time.Time,
+      t2 : ?Time.Time,
+    ) : Nat {
+      var total : Nat = 0;
+      let dates = _getDatesBetween(t1, t2);
+      for (date in dates.vals()) {
+        switch (events.get(date, p)) {
+          case (null) {};
+          case (?list_events) {
+            for (e in list_events.vals()) {
+              if (_isEventBurnAccessory(e)) {
+                total += 1;
+              };
+            };
+          };
+        };
+      };
+      total;
+    };
+
+    /////////////////
     //    FIX     //
     ///////////////
 
@@ -495,6 +528,24 @@ module {
       };
       for ((date, list_events) in r.entries()) {
         events.put((date, p), list_events);
+      };
+      return #ok();
+    };
+
+    public func calculateScore(
+      p : Principal,
+      t1 : ?Time.Time,
+      t2 : ?Time.Time,
+    ) : Result.Result<(), Text> {
+      let dates = _getDatesBetween(t1, t2);
+      for (date in dates.vals()) {
+        switch (events.get(date, p)) {
+          case (null) {};
+          case (?some) {
+            let score = _getScore(some, p);
+            scores.put((date, p), score);
+          };
+        };
       };
       return #ok();
     };
@@ -844,7 +895,6 @@ module {
       collections;
     };
 
-    /* Check if an event is already contained in a list by comparing the time field */
     func _isEventContained(e : ExtendedEvent, list : [ExtendedEvent]) : Bool {
       let time = e.time;
       for (event in list.vals()) {
@@ -854,21 +904,82 @@ module {
       };
       false;
     };
-  };
 
-  func _getDate(e : Event) : Date {
-    let time = Nat64.toNat(e.time * 1_000_000);
-    let date = switch (
-      DateModule.Date.toDatePartsISO8601(time),
-    ) {
-      case (null) {
-        assert (false);
-        (0, 0, 0);
+    func _getDate(e : Event) : Date {
+      let time = Nat64.toNat(e.time * 1_000_000);
+      let date = switch (
+        DateModule.Date.toDatePartsISO8601(time),
+      ) {
+        case (null) {
+          assert (false);
+          (0, 0, 0);
+        };
+        case (?date_parts) {
+          date_parts;
+        };
       };
-      case (?date_parts) {
-        date_parts;
+      date;
+    };
+
+    func _getName(e : Event) : ?Text {
+      let details = e.details;
+      for ((key, value) in details.vals()) {
+        if (key == "name") {
+          switch (value) {
+            case (#Text(name)) {
+              return ?name;
+            };
+            case _ {};
+          };
+        };
+      };
+      _Logs.logMessage("WARNING :: name not found for event");
+      null;
+    };
+
+    func _isEventMintAccessory(
+      e : ExtendedEvent,
+    ) : Bool {
+      let materials = ["Cloth", "Wood", "Glass", "Metal", "Circuit", "Dfinity-stone", "Cronic-essence", "Punk-essence"];
+      if (e.operation != "mint" or e.collection != Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai")) {
+        return false;
+      };
+      switch (_getName(e)) {
+        case (null) {
+          return false;
+        };
+        case (?name) {
+          for (material in materials.vals()) {
+            if (material == name) {
+              return false;
+            };
+          };
+          return true;
+        };
       };
     };
-    date;
+
+    func _isEventBurnAccessory(
+      e : ExtendedEvent,
+    ) : Bool {
+      let materials = ["Cloth", "Wood", "Glass", "Metal", "Circuit", "Dfinity-stone", "Cronic-essence", "Punk-essence"];
+      if (e.operation != "burn" or e.collection != Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai")) {
+        return false;
+      };
+      switch (_getName(e)) {
+        case (null) {
+          return false;
+        };
+        case (?name) {
+          for (material in materials.vals()) {
+            if (material == name) {
+              return false;
+            };
+          };
+          return true;
+        };
+      };
+    };
+
   };
 };

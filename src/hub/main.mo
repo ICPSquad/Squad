@@ -676,4 +676,21 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     _Cap.populateEvents(p, events);
   };
 
+  public shared ({ caller }) func calculate_score(
+    p : Principal,
+    t1 : ?Time.Time,
+    t2 : ?Time.Time,
+  ) : async Result.Result<(), Text> {
+    assert (_Admins.isAdmin(caller));
+    _Monitor.collectMetrics();
+    _Cap.calculateScore(p, t1, t2);
+  };
+
+  public query func number_mint_accessory(
+    p : Principal,
+  ) : async Nat {
+    _Monitor.collectMetrics();
+    return _Cap.numberMintAccessory(p, null, null);
+  };
+
 };
