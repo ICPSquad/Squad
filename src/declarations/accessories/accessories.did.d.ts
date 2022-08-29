@@ -113,25 +113,20 @@ export interface ICPSquadNFT {
   'availableCycles' : ActorMethod<[], bigint>,
   'balance' : ActorMethod<[BalanceRequest], BalanceResponse>,
   'bearer' : ActorMethod<[TokenIdentifier], Result_6>,
-  'burn_accessory' : ActorMethod<[TokenIndex], undefined>,
+  'can_settle' : ActorMethod<[Principal, TokenIdentifier__1], Result__1_2>,
   'checkInventory' : ActorMethod<[Principal], Result_5>,
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
-  'confirmed_burned_accessory' : ActorMethod<[TokenIndex], undefined>,
   'create_accessory' : ActorMethod<[string, bigint], Result__1_1>,
   'cron_burned' : ActorMethod<[], undefined>,
   'cron_disbursements' : ActorMethod<[], undefined>,
   'cron_events' : ActorMethod<[], undefined>,
   'cron_settlements' : ActorMethod<[], undefined>,
+  'cron_verification' : ActorMethod<[], undefined>,
   'delete_item' : ActorMethod<[string], Result>,
   'details' : ActorMethod<[TokenIdentifier], DetailsResponse>,
   'disbursement_pending_count' : ActorMethod<[], bigint>,
   'disbursement_queue_size' : ActorMethod<[], bigint>,
   'extensions' : ActorMethod<[], Array<Extension>>,
-  'fix_items' : ActorMethod<[], undefined>,
-  'fix_transfer' : ActorMethod<
-    [TokenIdentifier, Principal, AccountIdentifier__2],
-    Result,
-  >,
   'getCanisterLog' : ActorMethod<
     [[] | [CanisterLogRequest]],
     [] | [CanisterLogResponse],
@@ -143,10 +138,6 @@ export interface ICPSquadNFT {
   'getInventory' : ActorMethod<[], Result_5>,
   'getRegistry' : ActorMethod<[], Array<[TokenIndex, AccountIdentifier__2]>>,
   'getTokens' : ActorMethod<[], Array<[TokenIndex, Metadata]>>,
-  'get_accessories_holders' : ActorMethod<
-    [],
-    Array<[AccountIdentifier__2, bigint]>,
-  >,
   'get_avatar_equipped' : ActorMethod<
     [TokenIdentifier],
     [] | [TokenIdentifier],
@@ -157,6 +148,10 @@ export interface ICPSquadNFT {
     Array<[TokenIndex, string]>,
   >,
   'get_name' : ActorMethod<[TokenIndex], [] | [string]>,
+  'get_pending_transactions' : ActorMethod<
+    [],
+    Array<[TokenIndex, Transaction]>,
+  >,
   'get_recipes' : ActorMethod<[], Array<[string, Recipe__1]>>,
   'get_recorded_rewards' : ActorMethod<[Principal], [] | [Array<Reward>]>,
   'get_stats_items' : ActorMethod<[], Array<[string, Supply, [] | [Floor]]>>,
@@ -173,12 +168,14 @@ export interface ICPSquadNFT {
   'metadata' : ActorMethod<[TokenIdentifier], Result_4>,
   'mint' : ActorMethod<[string, Principal], Result>,
   'payments' : ActorMethod<[], [] | [Array<SubAccount__2>]>,
+  'purge_pending_transactions' : ActorMethod<[], undefined>,
   'read_disbursements' : ActorMethod<[], Array<Disbursement>>,
   'remove_accessory' : ActorMethod<
     [TokenIdentifier, TokenIdentifier],
     Result__1,
   >,
   'remove_admin' : ActorMethod<[Principal], undefined>,
+  'setMaxMessagesCount' : ActorMethod<[bigint], undefined>,
   'settle' : ActorMethod<[TokenIdentifier], Result_3>,
   'stats' : ActorMethod<
     [],
@@ -189,9 +186,9 @@ export interface ICPSquadNFT {
   'tokens_ext' : ActorMethod<[AccountIdentifier__2], Result_1>,
   'transactions' : ActorMethod<[], Array<EntrepotTransaction>>,
   'transactions_new' : ActorMethod<[], Array<[bigint, Transaction]>>,
+  'transactions_new_size' : ActorMethod<[], bigint>,
   'transfer' : ActorMethod<[TransferRequest], TransferResponse>,
   'update_accessories' : ActorMethod<[], undefined>,
-  'update_accessory' : ActorMethod<[TokenIndex], undefined>,
   'wear_accessory' : ActorMethod<[TokenIdentifier, TokenIdentifier], Result>,
 }
 export type Inventory = Array<ItemInventory>;
@@ -289,6 +286,8 @@ export type Result__1 = { 'ok' : null } |
   { 'err' : string };
 export type Result__1_1 = { 'ok' : TokenIdentifier } |
   { 'err' : string };
+export type Result__1_2 = { 'ok' : null } |
+  { 'err' : CommonError__1 };
 export interface Reward {
   'collection' : Principal,
   'date' : Time,

@@ -175,9 +175,10 @@ export interface Invoice {
   >,
   'get_balance' : ActorMethod<[GetBalanceArgs], GetBalanceResult>,
   'get_invoice' : ActorMethod<[GetInvoiceArgs], GetInvoiceResult>,
+  'get_invoices_to_check' : ActorMethod<[], Array<[Principal, bigint]>>,
   'is_admin' : ActorMethod<[Principal], boolean>,
   'transfer' : ActorMethod<[TransferArgs], TransferResult>,
-  'transfer_back_invoice' : ActorMethod<[bigint], undefined>,
+  'transfer_back_invoice' : ActorMethod<[bigint], Result>,
   'verify_invoice_accessory' : ActorMethod<
     [VerifyInvoiceArgs],
     VerifyInvoiceResult,
@@ -219,6 +220,8 @@ export interface Permissions {
   'canGet' : Array<Principal>,
   'canVerify' : Array<Principal>,
 }
+export type Result = { 'ok' : null } |
+  { 'err' : string };
 export type Time = bigint;
 export interface Token { 'symbol' : string }
 export interface TokenVerbose {

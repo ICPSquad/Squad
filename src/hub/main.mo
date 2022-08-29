@@ -667,13 +667,13 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   //  FIX  ////
   ////////////
 
-  // public shared ({ caller }) func populate_events(
-  //   p : Principal,
-  //   events : [ExtendedEvent],
-  // ) : async Result.Result<(), Text> {
-  //   assert (_Admins.isAdmin(caller));
-  //   _Monitor.collectMetrics();
-  //   _Cap.populateEvents(p, events);
-  // };
+  public shared ({ caller }) func populate_events(
+    p : Principal,
+    events : [ExtendedEvent],
+  ) : async Result.Result<(), Text> {
+    assert (_Admins.isAdmin(caller));
+    _Monitor.collectMetrics();
+    _Cap.populateEvents(p, events);
+  };
 
 };

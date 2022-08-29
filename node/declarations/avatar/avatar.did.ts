@@ -180,7 +180,16 @@ export const idlFactory = ({ IDL }) => {
     'layers' : IDL.Vec(IDL.Nat),
     'category' : ComponentCategory,
   });
+  const Name__3 = IDL.Text;
+  const Slots__1 = IDL.Record({
+    'Hat' : IDL.Opt(IDL.Text),
+    'Body' : IDL.Opt(IDL.Text),
+    'Eyes' : IDL.Opt(IDL.Text),
+    'Face' : IDL.Opt(IDL.Text),
+    'Misc' : IDL.Opt(IDL.Text),
+  });
   const Name__2 = IDL.Text;
+  const Stars__1 = IDL.Nat;
   const StyleScore = IDL.Nat;
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
   const Request = IDL.Record({
@@ -249,6 +258,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const MintResult = IDL.Variant({ 'ok' : TokenIdentifier, 'err' : IDL.Text });
   const Result_4 = IDL.Variant({ 'ok' : TokenIndex, 'err' : IDL.Text });
+  const Result__1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Null });
   const Result_3 = IDL.Variant({
     'ok' : IDL.Vec(TokenIndex),
     'err' : CommonError,
@@ -396,12 +406,19 @@ export const idlFactory = ({ IDL }) => {
         [],
         [
           IDL.Vec(
-            IDL.Tuple(IDL.Principal, IDL.Opt(Name__2), IDL.Opt(TokenIdentifier))
+            IDL.Tuple(IDL.Principal, IDL.Opt(Name__3), IDL.Opt(TokenIdentifier))
           ),
         ],
         ['query'],
       ),
     'get_number_users' : IDL.Func([], [IDL.Nat], ['query']),
+    'get_score' : IDL.Func([TokenIdentifier], [IDL.Opt(IDL.Nat)], ['query']),
+    'get_slot' : IDL.Func([TokenIdentifier], [IDL.Opt(Slots__1)], []),
+    'get_stats' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(Name__2, Stars__1))],
+        ['query'],
+      ),
     'get_style_score' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(TokenIdentifier, StyleScore))],
@@ -435,9 +452,10 @@ export const idlFactory = ({ IDL }) => {
       ),
     'report_burned_accessory' : IDL.Func(
         [IDL.Text, TokenIdentifier, TokenIndex],
-        [],
+        [Result__1],
         [],
       ),
+    'setMaxMessagesCount' : IDL.Func([IDL.Nat], [], []),
     'set_default_avatar' : IDL.Func([TokenIdentifier], [Result], []),
     'supply' : IDL.Func([], [IDL.Nat], ['query']),
     'tokens' : IDL.Func([AccountIdentifier__1], [Result_3], ['query']),

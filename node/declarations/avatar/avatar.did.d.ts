@@ -179,9 +179,12 @@ export interface ICPSquadNFT {
   >,
   'get_infos_leaderboard' : ActorMethod<
     [],
-    Array<[Principal, [] | [Name__2], [] | [TokenIdentifier]]>,
+    Array<[Principal, [] | [Name__3], [] | [TokenIdentifier]]>,
   >,
   'get_number_users' : ActorMethod<[], bigint>,
+  'get_score' : ActorMethod<[TokenIdentifier], [] | [bigint]>,
+  'get_slot' : ActorMethod<[TokenIdentifier], [] | [Slots__1]>,
+  'get_stats' : ActorMethod<[], Array<[Name__2, Stars__1]>>,
   'get_style_score' : ActorMethod<[], Array<[TokenIdentifier, StyleScore]>>,
   'get_user' : ActorMethod<[], [] | [UserData]>,
   'has_ticket' : ActorMethod<[Principal], boolean>,
@@ -206,8 +209,9 @@ export interface ICPSquadNFT {
   'removeAccessory' : ActorMethod<[TokenIdentifier, string, Principal], Result>,
   'report_burned_accessory' : ActorMethod<
     [string, TokenIdentifier, TokenIndex],
-    undefined,
+    Result__1,
   >,
+  'setMaxMessagesCount' : ActorMethod<[bigint], undefined>,
   'set_default_avatar' : ActorMethod<[TokenIdentifier], Result>,
   'supply' : ActorMethod<[], bigint>,
   'tokens' : ActorMethod<[AccountIdentifier__1], Result_3>,
@@ -266,6 +270,7 @@ export type MintResult = { 'ok' : TokenIdentifier } |
 export type Name = string;
 export type Name__1 = string;
 export type Name__2 = string;
+export type Name__3 = string;
 export type Nanos = bigint;
 export interface NumericEntity {
   'avg' : bigint,
@@ -304,6 +309,8 @@ export type Result_6 = { 'ok' : [AccountIdentifier__1, [] | [Listing]] } |
   { 'err' : CommonError };
 export type Result_7 = { 'ok' : AccountIdentifier__1 } |
   { 'err' : CommonError };
+export type Result__1 = { 'ok' : null } |
+  { 'err' : null };
 export interface Slots {
   'Hat' : [] | [string],
   'Body' : [] | [string],
@@ -311,7 +318,15 @@ export interface Slots {
   'Face' : [] | [string],
   'Misc' : [] | [string],
 }
+export interface Slots__1 {
+  'Hat' : [] | [string],
+  'Body' : [] | [string],
+  'Eyes' : [] | [string],
+  'Face' : [] | [string],
+  'Misc' : [] | [string],
+}
 export type Stars = bigint;
+export type Stars__1 = bigint;
 export type Stats = Array<[Name, Stars]>;
 export type StreamingCallback = ActorMethod<
   [StreamingCallbackToken],

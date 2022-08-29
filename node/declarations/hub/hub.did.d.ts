@@ -1,15 +1,11 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
-export type AccountIdentifier = string;
 export interface Activity {
   'buy' : [bigint, bigint],
   'burn' : bigint,
   'mint' : bigint,
   'sell' : [bigint, bigint],
-  'collection_involved' : bigint,
-  'accessory_minted' : bigint,
-  'accessory_burned' : bigint,
 }
 export interface AutomaticValidation { 'canister' : Principal }
 export type CanisterCyclesAggregatedData = Array<bigint>;
@@ -36,7 +32,6 @@ export interface CanisterMetrics { 'data' : CanisterMetricsData }
 export type CanisterMetricsData = { 'hourly' : Array<HourlyMetricsData> } |
   { 'daily' : Array<DailyMetricsData> };
 export interface Collection { 'name' : string, 'contractId' : Principal }
-export interface Collection__1 { 'name' : string, 'contractId' : Principal }
 export interface CreateMission {
   'title' : string,
   'tags' : Array<string>,
@@ -69,12 +64,6 @@ export type DetailValue = { 'I64' : bigint } |
   { 'Float' : number } |
   { 'Principal' : Principal };
 export type EngagementScore = bigint;
-export interface Event {
-  'time' : bigint,
-  'operation' : string,
-  'details' : Array<[string, DetailValue]>,
-  'caller' : Principal,
-}
 export interface ExtendedEvent {
   'collection' : Principal,
   'time' : bigint,
@@ -115,11 +104,11 @@ export interface ICPSquadHub {
   'add_job' : ActorMethod<[Principal, string, bigint], undefined>,
   'availableCycles' : ActorMethod<[], bigint>,
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
-  'create_mission' : ActorMethod<[CreateMission], Result_2>,
-  'cron_activity' : ActorMethod<[], Result_1>,
-  'cron_events' : ActorMethod<[], Result_2>,
+  'create_mission' : ActorMethod<[CreateMission], Result_3>,
+  'cron_clean' : ActorMethod<[], Result_1>,
+  'cron_events' : ActorMethod<[], Result_1>,
   'cron_round' : ActorMethod<[], Result__1_1>,
-  'cron_stats' : ActorMethod<[], Result_1>,
+  'cron_scores' : ActorMethod<[], Result_1>,
   'cron_style_score' : ActorMethod<[], undefined>,
   'cron_users' : ActorMethod<[], Result_1>,
   'delete_job' : ActorMethod<[bigint], undefined>,
@@ -132,30 +121,19 @@ export interface ICPSquadHub {
     [GetMetricsParameters],
     [] | [CanisterMetrics],
   >,
-  'get_all_collections' : ActorMethod<[], Array<[Collection__1, Principal]>>,
-  'get_all_daily_events' : ActorMethod<[], Array<[Principal, Array<Event>]>>,
   'get_completed_missions' : ActorMethod<
     [Principal],
     Array<[Mission__1, Time]>,
   >,
-  'get_cumulative_activity' : ActorMethod<
-    [Principal, [] | [Time], [] | [Time]],
-    Activity,
-  >,
   'get_daily_activity' : ActorMethod<[Principal, Date], [] | [Activity]>,
-  'get_daily_events_user' : ActorMethod<[Principal], Array<ExtendedEvent>>,
-  'get_holders' : ActorMethod<
+  'get_daily_events' : ActorMethod<
+    [Principal, Date],
+    [] | [Array<ExtendedEvent>],
+  >,
+  'get_daily_score' : ActorMethod<[Principal, Date], [] | [bigint]>,
+  'get_entries_events' : ActorMethod<
     [],
-    Array<
-      [
-        AccountIdentifier,
-        bigint,
-        [] | [Principal],
-        [] | [string],
-        [] | [string],
-        [] | [TokenIdentifier__1],
-      ]
-    >,
+    Array<[[Date, Principal], Array<ExtendedEvent>]>,
   >,
   'get_jobs' : ActorMethod<[], Array<[bigint, Job]>>,
   'get_leaderboard' : ActorMethod<[], [] | [Leaderboard]>,
@@ -164,19 +142,26 @@ export interface ICPSquadHub {
     [] | [Array<[Principal, bigint]>],
   >,
   'get_missions' : ActorMethod<[], Array<Mission>>,
+  'get_registered_cids' : ActorMethod<[], Array<[Collection, Principal]>>,
   'get_round' : ActorMethod<[], [] | [Round]>,
   'get_specified_leaderboard' : ActorMethod<[bigint], [] | [Leaderboard]>,
   'is_admin' : ActorMethod<[Principal], boolean>,
-  'is_collection_integrated' : ActorMethod<[Principal], boolean>,
   'manually_add_winners' : ActorMethod<[bigint, Array<Principal>], Result_1>,
   'my_completed_missions' : ActorMethod<[], Array<[bigint, Time]>>,
+  'nano_to_seconds' : ActorMethod<[bigint], bigint>,
+  'populate_events' : ActorMethod<[Principal, Array<ExtendedEvent>], Result_1>,
+  'purge_round' : ActorMethod<[bigint], Result_2>,
   'register_all_collections' : ActorMethod<[], Result_1>,
   'register_collection' : ActorMethod<[Collection], Result_1>,
+  'setMaxMessagesCount' : ActorMethod<[bigint], undefined>,
   'set_job_status' : ActorMethod<[boolean], undefined>,
   'start_mission' : ActorMethod<[bigint], Result_1>,
   'start_round' : ActorMethod<[], Result__1>,
   'stop_mission' : ActorMethod<[bigint], Result_1>,
   'stop_round' : ActorMethod<[], Result__1>,
+  'time' : ActorMethod<[], Time>,
+  'time_difference' : ActorMethod<[Time, [] | [Time]], Time>,
+  'time_to_date' : ActorMethod<[Time], Date>,
   'verify_mission' : ActorMethod<[bigint], Result>,
 }
 export interface Job {
@@ -257,7 +242,9 @@ export type Result = { 'ok' : boolean } |
   { 'err' : string };
 export type Result_1 = { 'ok' : null } |
   { 'err' : string };
-export type Result_2 = { 'ok' : bigint } |
+export type Result_2 = { 'ok' : string } |
+  { 'err' : string };
+export type Result_3 = { 'ok' : bigint } |
   { 'err' : string };
 export type Result__1 = { 'ok' : bigint } |
   { 'err' : string };
@@ -272,7 +259,6 @@ export interface Round {
 export type StyleScore = bigint;
 export type Time = bigint;
 export type TokenIdentifier = string;
-export type TokenIdentifier__1 = string;
 export type TotalScore = bigint;
 export type UpdateCallsAggregatedData = Array<bigint>;
 export interface _SERVICE extends ICPSquadHub {}

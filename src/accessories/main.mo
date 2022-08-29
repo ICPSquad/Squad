@@ -789,3 +789,4 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     _Logs.logMessage("POSTUPGRADE :: accessory");
   };
 };
+

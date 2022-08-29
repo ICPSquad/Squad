@@ -4,89 +4,64 @@ import { CapRoot } from "@psychedelic/cap-js";
 import type { Event } from "@psychedelic/cap-js";
 import { Principal } from "@dfinity/principal";
 import { principalToAddress } from "../../tools/principal";
-import type { Activity, Collection } from "@canisters/hub/hub.did.d";
-import { avatarActor } from "../../actor";
-import { writeFileSync } from "fs";
+import type { Activity, Collection, ExtendedEvent } from "@canisters/hub/hub.did.d";
 
 const BEGIN_TIME = 1655729084018865799;
 
-async function getActivity() {
-  // let metrics: [Principal, bigint, bigint, bigint, bigint, bigint, bigint, bigint][] = []; //[principal, activity]
+async function collectAllEvents(): Promise<ExtendedEvent[]> {
   let identity = fetchIdentity("admin");
-  // let avatar = avatarActor(identity);
-  // let data = await avatar.get_infos_accounts();
-  // Collect all events from registered collections!
   let hub = await hubActor(identity);
-  let collections = await hub.get_all_collections();
-  collections = collections.filter((collection) => {
-    return collection[1].toString() === "qfevy-hqaaa-aaaaj-qanda-cai";
-  });
-  let summary_all_collections = [];
+  let collections = await hub.get_registered_cids();
+  let all_events: ExtendedEvent[] = [];
   for (let collection of collections) {
     let new_events = await collectEvents(BEGIN_TIME, collection[1]);
-    let summary_collection = {
-      collection,
-      events: new_events,
-    };
-    summary_all_collections.push(summary_collection);
+    new_events = new_events.map((e) => _extendEvent(e, collection[0].contractId));
+    new_events = new_events.filter((e) => _keepEvent(e));
+    console.log("Collected " + new_events.length + " events from " + collection[0].name);
+    all_events.push(...new_events);
   }
-  let events = summary_all_collections[0].events;
-  events = events.filter((event) => {
-    event.operation === "burn";
-  });
-  events.forEach((event) => {
-    console.log(event);
-  });
-  // data.forEach((info) => {
-  //   let principal = info[0];
-  //   let account = info[1];
-  //   let buy: [bigint, bigint] = [BigInt(0), BigInt(0)];
-  //   let sell: [bigint, bigint] = [BigInt(0), BigInt(0)];
-  //   let activity = {
-  //     buy,
-  //     burn: BigInt(0),
-  //     mint: BigInt(0),
-  //     sell,
-  //     collection_involved: BigInt(0),
-  //     accessory_minted: BigInt(0),
-  //     accessory_burned: BigInt(0),
-  //   };
-  //   let collection_involved: Collection[] = [];
-  //   summary_all_collections.forEach((summary) => {
-  //     let collection = summary.collection;
-  //     console.log("Collection: " + collection[0].name);
-  //     summary.events.forEach((event) => {
-  //       console.log("Event: " + event.operation);
-  //       if (event.operation == "sale" || event.operation == "Sale") {
-  //         console.log("event: " + event);
-  //         let data_sale = getDetails(event);
-  //         // A sell
-  //         if (data_sale[0] == account) {
-  //           activity.sell[0]++;
-  //           activity.sell[1] = BigInt(BigInt(data_sale[2]) + activity.sell[1]);
-  //           addToCollectionInvolved(collection, collection_involved);
-  //         }
-  //         // A buy
-  //         if (data_sale[1] == account) {
-  //           activity.buy[0]++;
-  //           activity.buy[1] = BigInt(BigInt(data_sale[2]) + activity.buy[1]);
-  //           addToCollectionInvolved(collection, collection_involved);
-  //         }
-  //       }
-  //       if ((event.operation == "mint" || event.operation == "Mint") && event.caller.toString() == principal.toString()) {
-  //         activity.mint++;
-  //         addToCollectionInvolved(collection, collection_involved);
-  //       }
-  //       if ((event.operation == "burn" || event.operation == "Burn") && event.caller.toString() == principal.toString()) {
-  //         activity.burn++;
-  //         addToCollectionInvolved(collection, collection_involved);
-  //       }
-  //     });
-  //   });
-  //   console.log(collection_involved);
-  //   metrics.push([principal, activity.buy[0], activity.buy[1], activity.sell[0], activity.sell[1], activity.mint, activity.burn, BigInt(collection_involved.length)]);
-  // });
-  // writeFileSync(`user_metrics.csv`, metrics.join("\n"));
+  if (all_events.length > 0) {
+    return all_events;
+  } else {
+    throw new Error("No events found!");
+  }
+}
+
+function _extendEvent(e: Event, collection: Principal): ExtendedEvent {
+  return {
+    ...e,
+    collection: collection,
+  };
+}
+
+function _keepEvent(e: Event): boolean {
+  return e.operation == "burn" || e.operation == "mint" || e.operation == "sale";
+}
+
+function _isEventRelated(p: Principal, e: Event): boolean {
+  if (e.caller.toString() == p.toString()) {
+    return true;
+  }
+  switch (e.operation) {
+    case "burn":
+      return false;
+    case "mint":
+      return false;
+    case "sale":
+      let account = principalToAddress(p, 0);
+      let details = _getDetails(e);
+      return details[0] == account || details[1] == account;
+  }
+}
+
+async function doJob() {
+  let identity = fetchIdentity("admin");
+  let hub = await hubActor(identity);
+  let events = await collectAllEvents();
+  let principal_test = Principal.fromText("udmjf-fyc6j-f7dnl-dw5bh-hh4wg-ln7iy-36pgp-mjocm-my4vc-r2irg-2ae");
+  let events_related = events.filter((e) => _isEventRelated(principal_test, e));
+  let result = await hub.populate_events(principal_test, events_related);
+  console.log("Done", result);
 }
 
 function addToCollectionInvolved(collection: Collection, collection_involved: Collection[]) {
@@ -101,7 +76,7 @@ function addToCollectionInvolved(collection: Collection, collection_involved: Co
   }
 }
 
-function getDetails(event: Event): [string, string, number] {
+function _getDetails(event: Event): [string, string, number] {
   let details = event.details;
   var from = "";
   var to = "";
@@ -109,49 +84,28 @@ function getDetails(event: Event): [string, string, number] {
   let length = details.length;
   for (let i = 0; i < length; i++) {
     if (details[i][0] == "from") {
-      from = details[i][1].Text;
+      if (details[i][1].hasOwnProperty("Text")) {
+        from = details[i][1].Text;
+      } else if (details[i][1].hasOwnProperty("Principal")) {
+        from = details[i][1].Principal.toString();
+      } else {
+        console.log("Unknown from type: " + JSON.stringify(details[i][1]));
+      }
     }
     if (details[i][0] == "to") {
-      to = details[i][1].Text;
+      if (details[i][1].hasOwnProperty("Text")) {
+        to = details[i][1].Text;
+      } else if (details[i][1].hasOwnProperty("Principal")) {
+        to = details[i][1].Principal.toString();
+      } else {
+        console.log("Unknown to type: " + JSON.stringify(details[i][1]));
+      }
     }
     if (details[i][0] == "price") {
       price = details[i][1].U64;
     }
   }
   return [from, to, price];
-}
-
-function isEventRelated(p: Principal, account: string, event: Event): boolean {
-  if (event.caller.toString() == p.toString()) {
-    return true;
-  }
-  let details = event.details;
-  let length = details.length;
-  for (let i = 0; i < length; i++) {
-    if (details[i][0] == "from" && details[i][1] == account) {
-      return true;
-    }
-    if (details[i][0] == "to" && details[i][1] == account) {
-      return true;
-    }
-  }
-  return false;
-}
-
-async function collectAllEvents() {
-  let identity = fetchIdentity("admin");
-  let actor = await hubActor(identity);
-  let collections = await actor.get_all_collections();
-  for (let collection of collections) {
-    const capRoot = await CapRoot.init({
-      canisterId: collection[1].toString(),
-      host: "https://ic0.app",
-    });
-    const events = await capRoot.get_transactions({
-      page: 0,
-      witness: false,
-    });
-  }
 }
 
 async function showPage(n: number, root_cid: Principal) {
@@ -163,7 +117,6 @@ async function showPage(n: number, root_cid: Principal) {
     page: n,
     witness: false,
   });
-  console.log(result.data);
 }
 
 async function collectEvents(time: Number, root_cid: Principal): Promise<Event[]> {
@@ -179,11 +132,9 @@ async function collectEvents(time: Number, root_cid: Principal): Promise<Event[]
       page: latest_page,
       witness: false,
     });
-    console.log("Result", result);
     let events = result.data;
     events.forEach((event) => {
       if (Number(event.time) * 1_000_000 > time && keep_going) {
-        console.log("Event: " + event.operation);
         all_events.push(event);
       } else {
         keep_going = false;
@@ -201,7 +152,6 @@ async function getLatestPage(root_cid: Principal): Promise<number> {
   });
   let size = await capRoot.size();
   let latest_page = Math.floor(Number(size) / 64) + 1;
-  console.log("Latest page", latest_page);
   return latest_page;
 }
 
@@ -254,4 +204,4 @@ function isEventFrom(account: string, event: Event): boolean {
   return false;
 }
 
-getActivity();
+doJob();

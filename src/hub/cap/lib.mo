@@ -471,7 +471,32 @@ module {
           return ?_getActivity(some, p);
         };
       };
+    };
 
+    /////////////////
+    //    FIX     //
+    ///////////////
+
+    public func populateEvents(
+      p : Principal,
+      collected_events : [ExtendedEvent],
+    ) : Result.Result<(), Text> {
+      let r = TrieMap.TrieMap<Date, [ExtendedEvent]>(_dateEqual, _dateHash);
+      for (e in collected_events.vals()) {
+        let date = _getDate(e);
+        switch (r.get(date)) {
+          case (null) {
+            r.put(date, [e]);
+          };
+          case (?some) {
+            r.put(date, Array.append<ExtendedEvent>(some, [e]));
+          };
+        };
+      };
+      for ((date, list_events) in r.entries()) {
+        events.put((date, p), list_events);
+      };
+      return #ok();
     };
 
     ////////////////
@@ -561,6 +586,7 @@ module {
               case (#Principal(p)) {
                 to := Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
               };
+              case _ {};
             };
           };
           case ("price") {
@@ -828,5 +854,21 @@ module {
       };
       false;
     };
+  };
+
+  func _getDate(e : Event) : Date {
+    let time = Nat64.toNat(e.time * 1_000_000);
+    let date = switch (
+      DateModule.Date.toDatePartsISO8601(time),
+    ) {
+      case (null) {
+        assert (false);
+        (0, 0, 0);
+      };
+      case (?date_parts) {
+        date_parts;
+      };
+    };
+    date;
   };
 };

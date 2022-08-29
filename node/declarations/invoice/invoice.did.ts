@@ -237,6 +237,7 @@ export const idlFactory = ({ IDL }) => {
     'ok' : TransferSuccess,
     'err' : TransferError,
   });
+  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const VerifyInvoiceArgs = IDL.Record({ 'id' : IDL.Nat });
   const VerifyInvoiceSuccess = IDL.Variant({
     'Paid' : IDL.Record({ 'invoice' : Invoice__1 }),
@@ -294,9 +295,14 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_balance' : IDL.Func([GetBalanceArgs], [GetBalanceResult], []),
     'get_invoice' : IDL.Func([GetInvoiceArgs], [GetInvoiceResult], ['query']),
+    'get_invoices_to_check' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Nat))],
+        [],
+      ),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'transfer' : IDL.Func([TransferArgs], [TransferResult], []),
-    'transfer_back_invoice' : IDL.Func([IDL.Nat], [], []),
+    'transfer_back_invoice' : IDL.Func([IDL.Nat], [Result], []),
     'verify_invoice_accessory' : IDL.Func(
         [VerifyInvoiceArgs],
         [VerifyInvoiceResult],
