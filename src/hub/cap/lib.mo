@@ -14,6 +14,7 @@ import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Result "mo:base/Result";
 import TrieMap "mo:base/TrieMap";
+import Option "mo:base/Option";
 
 import AccountIdentifier "mo:principal/AccountIdentifier";
 import DateModule "mo:canistergeek/dateModule";
@@ -506,6 +507,75 @@ module {
       total;
     };
 
+    public func hasEverMinted(
+      p : Principal,
+      names : [Text],
+      t1 : ?Time.Time,
+      t2 : ?Time.Time,
+    ) : Bool {
+      let dates = _getDatesBetween(t1, t2);
+      let r = Buffer.Buffer<ExtendedEvent>(0);
+      for (date in dates.vals()) {
+        switch (events.get(date, p)) {
+          case (null) {};
+          case (?list_events) {
+            for (e in list_events.vals()) {
+              if (_isEventMintAccessory(e)) {
+                r.add(e);
+              };
+            };
+          };
+        };
+      };
+      for (e in r.toArray().vals()) {
+        let name = Option.get(
+          _getName(e),
+          "Unknown",
+        );
+        for (potential_name in names.vals()) {
+          if (potential_name == name) {
+            return true;
+          };
+        };
+      };
+      return false;
+    };
+
+    public func collectionInteracted(
+      p : Principal,
+      t1 : ?Time.Time,
+      t2 : ?Time.Time,
+    ) : [Principal] {
+      let dates = _getDatesBetween(t1, t2);
+      var collections : [Principal] = [];
+      for (date in dates.vals()) {
+        switch (events.get(date, p)) {
+          case (null) {};
+          case (?list_events) {
+            for (e in list_events.vals()) {
+              let collection = e.collection;
+              switch (Array.find<Principal>(collections, func(x) { Principal.equal(x, collection) })) {
+                case (null) {
+                  collections := Array.append<Principal>(collections, [collection]);
+                };
+                case (?some) {};
+              };
+            };
+          };
+        };
+      };
+      collections;
+    };
+
+    public func cumulativeActivity(
+      p : Principal,
+      t1 : ?Time.Time,
+      t2 : ?Time.Time,
+    ) : Activity {
+      let all_events = _getEventsBetween(p, t1, t2);
+      return _getActivity(all_events, p);
+    };
+
     /////////////////
     //    FIX     //
     ///////////////
@@ -979,6 +1049,26 @@ module {
           return true;
         };
       };
+    };
+
+    func _getEventsBetween(
+      p : Principal,
+      t1 : ?Time.Time,
+      t2 : ?Time.Time,
+    ) : [ExtendedEvent] {
+      let dates = _getDatesBetween(t1, t2);
+      let r = Buffer.Buffer<ExtendedEvent>(0);
+      for (date in dates.vals()) {
+        switch (events.get(date, p)) {
+          case (null) {};
+          case (?some) {
+            for (e in some.vals()) {
+              r.add(e);
+            };
+          };
+        };
+      };
+      r.toArray();
     };
 
     func _convertToNano(time : Nat64) : Nat64 {
