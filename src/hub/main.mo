@@ -165,6 +165,11 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     _Logs.getLog(request);
   };
 
+  public shared ({ caller }) func setMaxMessagesCount(n : Nat) : async () {
+    assert (_Admins.isAdmin(caller));
+    _Logs.setMaxMessagesCount(n);
+  };
+
   //////////////
   // STYLE ////
   ////////////
@@ -452,14 +457,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
   };
 
-  /* 
-        Returns a list of the best holders of accessories with meta-informations.
-    */
-  public func get_holders() : async [(Ext.AccountIdentifier, Nat, ?Principal, ?Text, ?Text, ?TokenIdentifier)] {
-    _Monitor.collectMetrics();
-    await _Leaderboard.getBestHolders();
-  };
-
   ///////////////////////
   //  CRONIC JOBS //////
   /////////////////////
@@ -533,10 +530,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   // Cronic //
   ///////////
 
-  /*  
-        Query the latest available style scores from the Avatar canister and update the daily_style_score accordingly.
-        @cronic : Every hour.
-     */
   public shared ({ caller }) func cron_style_score() : async () {
     assert (_Admins.isAdmin(caller) or caller == cid);
     _Monitor.collectMetrics();
@@ -544,10 +537,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     _Logs.logMessage("CRON :: Style scores (hub)");
   };
 
-  /*  
-        Update the currently running rounds if one is running.  
-        @cronic : Every hour.
-     */
   public shared ({ caller }) func cron_round() : async Result<(), Text> {
     assert (_Admins.isAdmin(caller) or caller == cid);
     _Monitor.collectMetrics();
@@ -562,9 +551,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
   };
 
-  /* 
-        Query all the buckets from all the registered collections on the IC & cache the events.
-     */
   public shared ({ caller }) func cron_events() : async Result.Result<(), Text> {
     assert (_Admins.isAdmin(caller) or caller == cid);
     _Monitor.collectMetrics();
@@ -592,7 +578,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     _Cap.cronClean();
   };
 
-  public shared ({ caller }) func cron_stats() : async Result.Result<(), Text> {
+  public shared ({ caller }) func cron_scores() : async Result.Result<(), Text> {
     assert (_Admins.isAdmin(caller) or caller == cid);
     _Monitor.collectMetrics();
     await _Cap.cronScores();
@@ -676,5 +662,18 @@ shared ({ caller = creator }) actor class ICPSquadHub(
       };
     };
   };
+
+  //////////////
+  //  FIX  ////
+  ////////////
+
+  // public shared ({ caller }) func populate_events(
+  //   p : Principal,
+  //   events : [ExtendedEvent],
+  // ) : async Result.Result<(), Text> {
+  //   assert (_Admins.isAdmin(caller));
+  //   _Monitor.collectMetrics();
+  //   _Cap.populateEvents(p, events);
+  // };
 
 };
