@@ -61,12 +61,16 @@ async function doJob() {
   let events = await collectAllEvents();
   let infos = await avatar.get_infos_accounts();
   let length = infos.length;
+  var skip = true;
   for (let i = 0; i < length; i++) {
     let p = infos[i][0];
-    let events_related = events.filter((e) => _isEventRelated(p, e));
-    if (p.toString() == "thlnc-agwop-l2tte-p2lb2-ptg2k-wubou-6ioli-yuj67-tuaj6-t4jgz-oqe") {
-      console.log(events_related);
+    if (p.toString() === "4wvs3-hpsti-42rpn-ck5ge-aelbk-2kbuv-elxv5-eusbt-qsdq5-mkx5q-gae") {
+      skip = false;
     }
+    if (skip) {
+      continue;
+    }
+    let events_related = events.filter((e) => _isEventRelated(p, e));
     let result_1 = await hub.populate_events(p, events_related);
     if (result_1.hasOwnProperty("ok")) {
       console.log("Events populated successfully for " + p.toString());

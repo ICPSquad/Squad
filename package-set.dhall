@@ -9,17 +9,17 @@ let additions = [
     { name = "array"
     , repo = "https://github.com/aviate-labs/array.mo"
     , version = "v0.1.1"
-    , dependencies = [ "base" ]
+    , dependencies = [ "base"]
     },
     { name = "hash"
     , repo = "https://github.com/aviate-labs/hash.mo"
     , version = "v0.1.0"
-    , dependencies = [ "array", "base" ]
+    , dependencies = [ "array", "base"]
     },
     { name = "encoding"
     , repo = "https://github.com/aviate-labs/encoding.mo"
     , version = "v0.3.1"
-    , dependencies = [ "array", "base" ]
+    , dependencies = [ "array", "base"]
     },
     { name = "canistergeek"
       , repo = "https://github.com/usergeek/canistergeek-ic-motoko"
@@ -29,22 +29,22 @@ let additions = [
     { name = "ext"
       , repo = "https://github.com/aviate-labs/ext.std"
       , version = "v0.2.0"
-      , dependencies = [ "array", "base", "encoding", "principal" ]
+      , dependencies = ["array", "base", "encoding", "principal"]
     },
     { name = "principal"
       , repo = "https://github.com/aviate-labs/principal.mo"
       , version = "v0.2.5"
-      , dependencies = [ "array", "crypto", "base", "encoding", "hash" ]
+      , dependencies = ["array", "crypto", "base", "encoding", "hash"]
     },
     { name = "crypto"
     , repo = "https://github.com/aviate-labs/crypto.mo"
     , version = "v0.1.1"
-    , dependencies = [ "base", "encoding"]
+    , dependencies = ["base", "encoding"]
     },
     { name = "io"
     , repo = "https://github.com/aviate-labs/io.mo"
     , version = "v0.3.1"
-    , dependencies = [ "base" ]
+    , dependencies = ["base"]
     },
     {
       name = "rand"
