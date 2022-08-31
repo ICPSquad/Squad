@@ -312,7 +312,8 @@ shared ({ caller = creator }) actor class ICPSquadHub(
      */
   public shared ({ caller }) func verify_mission(id : Nat) : async Result.Result<Bool, Text> {
     _Monitor.collectMetrics();
-    return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
+    return #err("Missions have been momentarily desactived. Please try again next month!");
+    // return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
   };
 
   /* 
@@ -703,6 +704,15 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     _Cap.addBurnEvent(p, time, from, name, token);
+  };
+
+  public shared ({ caller }) func remove_burn_event(
+    p : Principal,
+    time : Nat64,
+  ) : async Result.Result<Nat, Text> {
+    assert (_Admins.isAdmin(caller));
+    _Monitor.collectMetrics();
+    _Cap.removeBurnEvent(p, time);
   };
 
 };
