@@ -690,7 +690,19 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     p : Principal,
   ) : async Nat {
     _Monitor.collectMetrics();
-    return _Cap.numberMintAccessory(p, null, null);
+    _Cap.numberMintAccessory(p, null, null);
+  };
+
+  public shared ({ caller }) func add_burn_event(
+    p : Principal,
+    time : Nat64,
+    from : Text,
+    name : Text,
+    token : Text,
+  ) : async Result.Result<(), Text> {
+    assert (_Admins.isAdmin(caller));
+    _Monitor.collectMetrics();
+    _Cap.addBurnEvent(p, time, from, name, token);
   };
 
 };

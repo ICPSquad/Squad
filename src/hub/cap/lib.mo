@@ -620,6 +620,40 @@ module {
       return #ok();
     };
 
+    public func addBurnEvent(
+      p : Principal,
+      time_nano : Nat64,
+      from : Text,
+      name : Text,
+      token : Text,
+    ) : Result.Result<(), Text> {
+      let date = switch (DateModule.Date.toDatePartsISO8601(Nat64.toNat(time_nano))) {
+        case (null) {
+          assert (false);
+          (0, 0, 0);
+        };
+        case (?date_parts) {
+          date_parts;
+        };
+      };
+      let event : ExtendedEvent = {
+        time = time_nano / 1_000_000;
+        operation = "burn";
+        details = [("token", #Text(from)), ("from", #Text(from)), ("name", #Text(name))];
+        caller = Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai");
+        collection = Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai");
+      };
+      switch (events.get(date, p)) {
+        case (null) {
+          events.put((date, p), [event]);
+        };
+        case (?some) {
+          events.put((date, p), Array.append<ExtendedEvent>(some, [event]));
+        };
+      };
+      return #ok();
+    };
+
     ////////////////
     // UTILITIES //
     ///////////////
@@ -1090,6 +1124,6 @@ module {
         };
       };
     };
-
   };
 };
+
