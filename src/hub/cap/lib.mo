@@ -654,6 +654,39 @@ module {
       return #ok();
     };
 
+    public func removeBurnEvent(
+      p : Principal,
+      time_nano : Nat64,
+    ) : Result.Result<Nat, Text> {
+      let date = switch (DateModule.Date.toDatePartsISO8601(Nat64.toNat(time_nano))) {
+        case (null) {
+          assert (false);
+          (0, 0, 0);
+        };
+        case (?date_parts) {
+          date_parts;
+        };
+      };
+      var count = 0;
+      switch (events.get(date, p)) {
+        case (null) {
+          return #err("No events for this date");
+        };
+        case (?some) {
+          let r = Buffer.Buffer<ExtendedEvent>(0);
+          for (e in some.vals()) {
+            if (e.operation != "burn" or e.time != time_nano / 1_000_000) {
+              r.add(e);
+            } else {
+              count += 1;
+            };
+            events.put((date, p), r.toArray());
+          };
+        };
+      };
+      return #ok(count);
+    };
+
     ////////////////
     // UTILITIES //
     ///////////////
