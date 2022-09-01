@@ -12,6 +12,7 @@ import Leaderboard "leaderboard";
 import Mission "mission";
 import Nat "mo:base/Nat";
 import Nat8 "mo:base/Nat8";
+import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Style "style";
@@ -445,14 +446,17 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   /* 
         Get the (optional) simplified version of the leaderbord
     */
-  public query func get_leaderboard_simplified(n : Nat) : async ?[(Principal, Nat)] {
+  public query func get_leaderboard_simplified(n : Nat) : async ?[(Principal, Nat, Nat, Nat)] {
     let leaderboard_opt : ?Leaderboard = _Leaderboard.getLeaderboard(n);
     switch (leaderboard_opt) {
       case (null) {
         return null;
       };
       case (?leaderboard) {
-        let simplified : [(Principal, Nat)] = Array.map<(Principal, ?Text, ?Text, ?Nat, ?Nat, Nat), (Principal, Nat)>(leaderboard, func(x) { (x.0, x.5) });
+        let simplified : [(Principal, Nat, Nat, Nat)] = Array.map<(Principal, ?Text, ?Text, ?Nat, ?Nat, Nat), (Principal, Nat, Nat, Nat)>(
+          leaderboard,
+          func(x) { (x.0, Option.get(x.3, 0), Option.get(x.4, 0), x.5) },
+        );
         return ?simplified;
       };
     };

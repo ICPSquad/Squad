@@ -392,8 +392,7 @@ module {
     /////////////////////////////
 
     /* Returns the total engagement score of the principal between T1 & T2 */
-    public func getScore(p : Principal, t1 : ?Time.Time, t2 : ?Time.Time) : Nat {
-      let dates = _getDatesBetween(t1, t2);
+    public func getScore(p : Principal, dates : [Date]) : Nat {
       var total : Nat = 0;
       for (date in dates.vals()) {
         switch (scores.get((date, p))) {

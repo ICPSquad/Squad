@@ -309,7 +309,7 @@ module {
 
     func _getUpdatedRound(round : Round) : async Round {
       let latest_infos : [(Principal, ?Name, ?TokenIdentifier)] = await AVATAR_ACTOR.get_infos_leaderboard();
-      var buffer : Buffer.Buffer<(Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore)> = Buffer.Buffer<
+      var buffer = Buffer.Buffer<
         (Principal, ?Name, ?TokenIdentifier, ?StyleScore, ?EngagementScore, TotalScore),
       >(0);
       let end = Time.now();
@@ -319,13 +319,15 @@ module {
         switch (tokenIdentifier) {
           case (null) {
             let style_score = null;
-            let engagement_score = _Cap.getScore(p, ?start, ?end) + _Mission.getMissionScore(p, start, end);
+            // let engagement_score = _Cap.getScore(p, dates) + _Mission.getMissionScore(p, start, end);
+            let engagement_score = 0;
             let total_score = _getTotalScore(style_score, engagement_score);
             buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
           };
           case (?token) {
             let style_score = _Style.getScore(token, dates);
-            let engagement_score = _Cap.getScore(p, ?start, ?end) + _Mission.getMissionScore(p, start, end);
+            // let engagement_score = _Cap.getScore(p, dates) + _Mission.getMissionScore(p, start, end);
+            let engagement_score = 0;
             let total_score = _getTotalScore(style_score, engagement_score);
             buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
           };
