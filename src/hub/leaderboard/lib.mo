@@ -319,15 +319,13 @@ module {
         switch (tokenIdentifier) {
           case (null) {
             let style_score = null;
-            // let engagement_score = _Cap.getScore(p, dates) + _Mission.getMissionScore(p, start, end);
-            let engagement_score = 0;
+            let engagement_score = _Cap.getScore(p, dates) + _Mission.getMissionScore(p, start, end);
             let total_score = _getTotalScore(style_score, engagement_score);
             buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
           };
           case (?token) {
             let style_score = _Style.getScore(token, dates);
-            // let engagement_score = _Cap.getScore(p, dates) + _Mission.getMissionScore(p, start, end);
-            let engagement_score = 0;
+            let engagement_score = _Cap.getScore(p, dates) + _Mission.getMissionScore(p, start, end);
             let total_score = _getTotalScore(style_score, engagement_score);
             buffer.add((p, name, tokenIdentifier, style_score, ?engagement_score, total_score));
           };

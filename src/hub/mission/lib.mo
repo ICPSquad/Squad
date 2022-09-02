@@ -44,6 +44,9 @@ module {
     let false_encoded : [Nat8] = [68, 73, 68, 76, 0, 1, 126, 0];
     let true_encoded : [Nat8] = [68, 73, 68, 76, 0, 1, 126, 1];
 
+    // const BEGINNING_TIME_AUGUST : Time.Time =
+    // const END_TIME_AUGUST : Time.Time =
+
     var next_mission_id : Nat = 0;
 
     let missions : TrieMap.TrieMap<Nat, Mission> = TrieMap.TrieMap<Nat, Mission>(Nat.equal, Hash.hash);
@@ -589,6 +592,13 @@ module {
       };
       false;
     };
+
+    /*  
+      (FIX) SPECIAL MISSION : change the time of completion for all the missions completed during the month of August!
+    */
+    // func _mission19(caller : Principal) : async Bool {
+    //   let now = Time.now();
+    // };
 
     /*
             Associate a mission Id with the function that will process the verification.

@@ -313,8 +313,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
      */
   public shared ({ caller }) func verify_mission(id : Nat) : async Result.Result<Bool, Text> {
     _Monitor.collectMetrics();
-    return #err("Missions have been momentarily desactived. Please try again next month!");
-    // return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
+    return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
   };
 
   /* 
@@ -425,8 +424,8 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   /* 
         Get the (optional) current Round.
     */
-  public query func get_round() : async ?Round {
-    _Leaderboard.getCurrentRound();
+  public query func get_round(n : Nat) : async ?Round {
+    _Leaderboard.getRound(n);
   };
 
   /* 
