@@ -10,26 +10,17 @@
   import { get } from "svelte/store";
   import { setMessage } from "@src/store/toast";
   import { actors } from "@src/store/actor";
-  import type { Activity, Mission } from "@canisters/hub/hub.did.d";
+  import type { Mission } from "@canisters/hub/hub.did.d";
   import type { Reward } from "@canisters/accessories/accessories.did.d";
   import { user } from "@src/store/user";
-  import { getCumulativeActivity, getCompletedMissions, getRecordedRewards } from "@utils/activity";
-  import ActivityComponent from "@src/components/profile/Activity.svelte";
+  import { getCompletedMissions, getRecordedRewards } from "@utils/activity";
   import MissionComponent from "@src/components/profile/Mission.svelte";
   import RewardsComponent from "@src/components/profile/Rewards.svelte";
 
   let editing = false;
   let mode = "informations";
-
-  let activity: Activity | null = null;
   let completed: [Mission, bigint][] | [] | null = null;
   let rewards: [Array<Reward>] | [] | null = null;
-
-  $: if (mode === "activity") {
-    if (!activity) {
-      getActivity();
-    }
-  }
 
   $: if (mode === "missions") {
     if (!completed) {
@@ -122,10 +113,6 @@
     mode = new_mode;
   }
 
-  async function getActivity() {
-    activity = await getCumulativeActivity(userProfile.principal);
-  }
-
   async function getCompleted() {
     completed = await getCompletedMissions(userProfile.principal);
   }
@@ -143,7 +130,6 @@
 {#if userProfile.loggedIn}
   <div class="menu-choice">
     <button class="secondary" on:click={() => changeMode("informations")}> Informations </button>
-    <button class="secondary" on:click={() => changeMode("activity")}> Activity </button>
     <button class="secondary" on:click={() => changeMode("missions")}> Missions </button>
     <button class="secondary" on:click={() => changeMode("rewards")}> Rewards </button>
   </div>
@@ -238,16 +224,6 @@
         <button on:click={() => (editing = true)}>EDIT PROFILE</button>
       {/if}
     </div>
-  {:else if mode === "activity"}
-    {#if activity}
-      <div class="activity-card">
-        <ActivityComponent {activity} />
-      </div>
-    {:else}
-      <div class="not-logged-in">
-        <p>Loading your activity...</p>
-      </div>
-    {/if}
   {:else if mode === "missions"}
     {#if completed}
       <div class="mission-card">
