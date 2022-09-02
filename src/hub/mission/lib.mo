@@ -44,8 +44,8 @@ module {
     let false_encoded : [Nat8] = [68, 73, 68, 76, 0, 1, 126, 0];
     let true_encoded : [Nat8] = [68, 73, 68, 76, 0, 1, 126, 1];
 
-    // const BEGINNING_TIME_AUGUST : Time.Time =
-    // const END_TIME_AUGUST : Time.Time =
+    let BEGINNING_TIME_AUGUST = 1_659_355_118_663_245_979;
+    let ENDING_TIME_AUGUST = 1_662_009_390_821_475_918;
 
     var next_mission_id : Nat = 0;
 
@@ -596,13 +596,40 @@ module {
     /*  
       (FIX) SPECIAL MISSION : change the time of completion for all the missions completed during the month of August!
     */
-    // func _mission19(caller : Principal) : async Bool {
-    //   let now = Time.now();
-    // };
+    func _mission19(caller : Principal) : async Bool {
+      var modified = false;
+      let now = Time.now();
+      let completed_missions = _getCompletedMissions(caller);
+      let r = Buffer.Buffer<(Nat, Time.Time)>(0);
+      for ((id, time) in completed_missions.vals()) {
+        if (time > BEGINNING_TIME_AUGUST and time < ENDING_TIME_AUGUST) {
+          r.add((id, now));
+          modified := true;
+        } else {
+          r.add((id, time));
+        };
+      };
+      if (modified) {
+        _setCompletedMissions(caller, r.toArray());
+      };
+      modified;
+    };
 
-    /*
-            Associate a mission Id with the function that will process the verification.
-        */
+    func _getCompletedMissions(p : Principal) : [(Nat, Time.Time)] {
+      switch (completedMissions.get(p)) {
+        case (null) {
+          return [];
+        };
+        case (?some) {
+          return some;
+        };
+      };
+    };
+
+    func _setCompletedMissions(p : Principal, completed : [(Nat, Time.Time)]) : () {
+      completedMissions.put(p, completed);
+    };
+
     let handlers : [(Nat, (caller : Principal) -> async Bool)] = [
       (0, _mission0),
       (1, _mission1),
@@ -619,7 +646,9 @@ module {
       (16, _mission16),
       (17, _mission17),
       // 18 is handled manually
+      (19, _mission19),
     ];
 
   };
+
 };

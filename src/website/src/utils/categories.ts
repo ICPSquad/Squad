@@ -28,4 +28,4 @@ export const categoryToColorPickers = {
   clothes: ["clothes"],
 };
 
-export const categoriesMission = ["general", "cronic", "icpunk", "education", "pending", "ended"];
+export const categoriesMission = ["general", "cronic", "icpunk", "education", "pending", "ended", "support"];
