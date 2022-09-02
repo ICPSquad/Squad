@@ -577,6 +577,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     _Rewards.getRecordedRewards(p);
   };
 
+  public query func get_all_recorded_rewards() : async [(Principal, [Reward])] {
+    _Rewards.getAllRecordedRewards();
+  };
+
   ////////////
   // STATS //
   //////////
