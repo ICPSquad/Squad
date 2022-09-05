@@ -49,6 +49,21 @@ module {
       };
     };
 
+    public func airdropReward(
+      account : AccountIdentifier,
+      reward : Reward,
+    ) : Result.Result<(), Text> {
+      switch (recordedRewards.get(account)) {
+        case (null) {
+          recordedRewards.put(account, [reward]);
+        };
+        case (?some) {
+          recordedRewards.put(account, Array.append<Reward>(some, [reward]));
+        };
+      };
+      return #ok();
+    };
+
     // 1 : Create the token (with EXT)
     // 2 : Assign the corresponding material to the token
     // 3 : Report event to CAP
@@ -121,7 +136,7 @@ module {
       };
     };
 
-    public func getAllRecordedRewards(p : Principal) : [(Principal, [Reward])] {
+    public func getAllRecordedRewards() : [(AccountIdentifier, [Reward])] {
       Iter.toArray(recordedRewards.entries());
     };
   };
