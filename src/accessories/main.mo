@@ -550,6 +550,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
   ////////////
 
   public type Reward = Rewards.Reward;
+  public type Airdrop = Rewards.Airdrop;
 
   stable var _RewardsUD : ?Rewards.UpgradeData = null;
   let _Rewards = Rewards.Factory(
@@ -562,13 +563,13 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     },
   );
 
-  // public shared ({ caller }) func airdrop_rewards(
-  //   data : [(AccountIdentifier, Airdrop)],
-  // ) : async () {
-  //   assert (_Admins.isAdmin(caller));
-  //   _Monitor.collectMetrics();
-  //   _Rewards.airdropRewards(data);
-  // };
+  public shared ({ caller }) func airdrop_rewards(
+    data : [(AccountIdentifier, Airdrop)],
+  ) : async () {
+    assert (_Admins.isAdmin(caller));
+    _Monitor.collectMetrics();
+    _Rewards.airdropRewards(data);
+  };
 
   public shared ({ caller }) func record_icps(
     account : AccountIdentifier,
@@ -590,15 +591,19 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     _Rewards.recordNFT(account, collection, name, identifier);
   };
 
+  public shared ({ caller }) func delete_recorded_rewards(
+    p : Principal,
+  ) : () {
+    assert (_Admins.isAdmin(caller));
+    _Monitor.collectMetrics();
+    _Rewards.deleteRecordedRewards(p);
+  };
+
   public query func get_recorded_rewards(
     p : Principal,
   ) : async ?[Reward] {
     _Rewards.getRecordedRewards(p);
   };
-
-  // public query func get_all_recorded_rewards() : async [(AccountIdentifier, [Reward])] {
-  //   _Rewards.getAllRecordedRewards();
-  // };
 
   ////////////
   // STATS //

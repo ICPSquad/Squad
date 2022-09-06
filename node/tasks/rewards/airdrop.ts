@@ -39,7 +39,7 @@ createReadStream(`${__dirname}/csv/July_rewards.csv`)
       const airdrop = createAirdrop(result);
       output.push([account, airdrop]);
     });
-    distribute();
+    // distribute();
     console.log("Numbers of cloth : " + nb_cloth_total);
     console.log("Numbers of wood : " + nb_wood_total);
     console.log("Numbers of glass : " + nb_glass_total);
@@ -80,7 +80,7 @@ function createAirdrop(data): Airdrop {
 async function distribute() {
   let identity = fetchIdentity("admin");
   console.log("My principal is : " + identity.getPrincipal().toString());
-  let actor = accessoriesActor(identity);
-  let result = await actor.airdrop_rewards(output);
+  // let actor = accessoriesActor(identity);
+  // let result = await actor.airdrop_rewards(output);
   console.log("Rewards have been distributed.");
 }

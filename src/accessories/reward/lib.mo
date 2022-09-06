@@ -164,6 +164,11 @@ module {
       };
     };
 
+    public func deleteRecordedRewards(p : Principal) : () {
+      let account_identifier = Text.map(Ext.AccountIdentifier.fromPrincipal(p, null), Prim.charToLower);
+      recordedRewards.delete(account_identifier);
+    };
+
     public func getAllRecordedRewards() : [(AccountIdentifier, [Reward])] {
       Iter.toArray(recordedRewards.entries());
     };

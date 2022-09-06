@@ -39,4 +39,11 @@
     font-size: large;
     font-weight: bold;
   }
+
+  @media (max-width: 768px) {
+    .title {
+      grid-template-columns: 1fr 1fr 20px;
+      font-size: small;
+    }
+  }
 </style>

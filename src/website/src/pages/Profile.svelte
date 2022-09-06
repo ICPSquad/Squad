@@ -128,7 +128,7 @@
 </div>
 {#if userProfile.loggedIn}
   <div class="menu-choice">
-    <button class="secondary" on:click={() => changeMode("informations")}> Informations </button>
+    <button class="secondary" on:click={() => changeMode("informations")}> Settings </button>
     <button class="secondary" on:click={() => changeMode("missions")}> Missions </button>
     <button class="secondary" on:click={() => changeMode("rewards")}> Rewards </button>
   </div>
@@ -374,6 +374,11 @@
     .value,
     .add-button {
       font-size: 14px;
+    }
+
+    .secondary {
+      width: 90px;
+      padding: 10px;
     }
   }
 </style>
