@@ -21,15 +21,14 @@ module {
 
   public type TypeReward = {
     #Material : Text;
-    #NFT : Text;
-    #Token : Text;
+    #NFT : NFT;
+    #Token : Token;
     #Other;
   };
 
   type URL = Text;
   public type Token = {
     name : Text;
-    symbol : Text;
     decimals : Nat8;
     icon : ?URL;
   };

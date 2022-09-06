@@ -3,6 +3,7 @@ import Buffer "mo:base/Buffer";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Prim "mo:prim";
+import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
@@ -49,19 +50,23 @@ module {
       };
     };
 
-    public func airdropReward(
+    public func recordICP(
       account : AccountIdentifier,
-      reward : Reward,
-    ) : Result.Result<(), Text> {
-      switch (recordedRewards.get(account)) {
-        case (null) {
-          recordedRewards.put(account, [reward]);
-        };
-        case (?some) {
-          recordedRewards.put(account, Array.append<Reward>(some, [reward]));
-        };
+      amount : Nat,
+    ) : () {
+      let reward : Reward = {
+        collection = Principal.fromText("ryjl3-tyaaa-aaaaa-aaaba-cai");
+        category = #Token(
+          {
+            name = "ICP";
+            decimals = 8;
+            icon = null;
+          },
+        );
+        date = Time.now();
+        amount = amount;
       };
-      return #ok();
+      _record(account, reward);
     };
 
     // 1 : Create the token (with EXT)
@@ -90,12 +95,10 @@ module {
             };
           };
           let reward : Reward = {
-            name;
-            category = #NFT;
-            collection = cid;
+            collection = Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai");
+            category = #Material(name);
             date = Time.now();
             amount = 1;
-            identifier = ?tokenIdentifier;
           };
           r.add(reward);
           // Report the mint event to CAP
@@ -138,6 +141,20 @@ module {
 
     public func getAllRecordedRewards() : [(AccountIdentifier, [Reward])] {
       Iter.toArray(recordedRewards.entries());
+    };
+
+    func _record(
+      account : AccountIdentifier,
+      reward : Reward,
+    ) : () {
+      switch (recordedRewards.get(account)) {
+        case (null) {
+          recordedRewards.put(account, [reward]);
+        };
+        case (?some) {
+          recordedRewards.put(account, Array.append<Reward>(some, [reward]));
+        };
+      };
     };
   };
 };

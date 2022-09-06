@@ -101,6 +101,10 @@ export interface HourlyMetricsData {
 export interface ICPSquadHub {
   'acceptCycles' : ActorMethod<[], undefined>,
   'add_admin' : ActorMethod<[Principal], undefined>,
+  'add_burn_event' : ActorMethod<
+    [Principal, bigint, string, string, string],
+    Result_1,
+  >,
   'add_job' : ActorMethod<[Principal, string, bigint], undefined>,
   'availableCycles' : ActorMethod<[], bigint>,
   'calculate_score' : ActorMethod<
@@ -108,7 +112,7 @@ export interface ICPSquadHub {
     Result_1,
   >,
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
-  'create_mission' : ActorMethod<[CreateMission], Result_3>,
+  'create_mission' : ActorMethod<[CreateMission], Result_2>,
   'cron_clean' : ActorMethod<[], Result_1>,
   'cron_events' : ActorMethod<[], Result_1>,
   'cron_round' : ActorMethod<[], Result__1_1>,
@@ -143,11 +147,11 @@ export interface ICPSquadHub {
   'get_leaderboard' : ActorMethod<[], [] | [Leaderboard]>,
   'get_leaderboard_simplified' : ActorMethod<
     [bigint],
-    [] | [Array<[Principal, bigint]>],
+    [] | [Array<[Principal, bigint, bigint, bigint]>],
   >,
   'get_missions' : ActorMethod<[], Array<Mission>>,
   'get_registered_cids' : ActorMethod<[], Array<[Collection, Principal]>>,
-  'get_round' : ActorMethod<[], [] | [Round]>,
+  'get_round' : ActorMethod<[bigint], [] | [Round]>,
   'get_specified_leaderboard' : ActorMethod<[bigint], [] | [Leaderboard]>,
   'is_admin' : ActorMethod<[Principal], boolean>,
   'manually_add_winners' : ActorMethod<[bigint, Array<Principal>], Result_1>,
@@ -155,9 +159,10 @@ export interface ICPSquadHub {
   'nano_to_seconds' : ActorMethod<[bigint], bigint>,
   'number_mint_accessory' : ActorMethod<[Principal], bigint>,
   'populate_events' : ActorMethod<[Principal, Array<ExtendedEvent>], Result_1>,
-  'purge_round' : ActorMethod<[bigint], Result_2>,
+  'purge_round' : ActorMethod<[bigint], Result_3>,
   'register_all_collections' : ActorMethod<[], Result_1>,
   'register_collection' : ActorMethod<[Collection], Result_1>,
+  'remove_burn_event' : ActorMethod<[Principal, bigint], Result_2>,
   'setMaxMessagesCount' : ActorMethod<[bigint], undefined>,
   'set_job_status' : ActorMethod<[boolean], undefined>,
   'start_mission' : ActorMethod<[bigint], Result_1>,
@@ -247,9 +252,9 @@ export type Result = { 'ok' : boolean } |
   { 'err' : string };
 export type Result_1 = { 'ok' : null } |
   { 'err' : string };
-export type Result_2 = { 'ok' : string } |
+export type Result_2 = { 'ok' : bigint } |
   { 'err' : string };
-export type Result_3 = { 'ok' : bigint } |
+export type Result_3 = { 'ok' : string } |
   { 'err' : string };
 export type Result__1 = { 'ok' : bigint } |
   { 'err' : string };

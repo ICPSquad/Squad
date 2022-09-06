@@ -40,7 +40,7 @@ const avatarID = process.env.NODE_ENV === "production" ? canisters.avatar.ic : c
 const accessoriesID = process.env.NODE_ENV === "production" ? canisters.accessories.ic : canisters.accessories.local;
 const hubID = process.env.NODE_ENV === "production" ? canisters.hub.ic : canisters.hub.local;
 const invoiceID = process.env.NODE_ENV === "production" ? canisters.invoice.ic : canisters.invoice.local;
-const ledgerID = process.env.NODE_ENV === "production" ? "ryjl3-tyaaa-aaaaa-aaaba-cai	" : canisters.ledger.local;
+const ledgerID = process.env.NODE_ENV === "production" ? "ryjl3-tyaaa-aaaaa-aaaba-cai" : canisters.ledger.local;
 
 export function avatarActor(identity?: Identity): ActorSubclass<Avatar> {
   return createActor(avatarID, idlFactoryAvatar, {

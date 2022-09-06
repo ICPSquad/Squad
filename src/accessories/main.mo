@@ -549,19 +549,18 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
   // REWARDS //
   ////////////
 
-  // public type Reward = Rewards.Reward;
-  // public type Airdrop = Rewards.Airdrop;
+  public type Reward = Rewards.Reward;
 
-  // stable var _RewardsUD : ?Rewards.UpgradeData = null;
-  // let _Rewards = Rewards.Factory(
-  //   {
-  //     _Logs;
-  //     _Ext;
-  //     _Items;
-  //     _Cap;
-  //     cid;
-  //   },
-  // );
+  stable var _RewardsUD : ?Rewards.UpgradeData = null;
+  let _Rewards = Rewards.Factory(
+    {
+      _Logs;
+      _Ext;
+      _Items;
+      _Cap;
+      cid;
+    },
+  );
 
   // public shared ({ caller }) func airdrop_rewards(
   //   data : [(AccountIdentifier, Airdrop)],
@@ -571,11 +570,20 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
   //   _Rewards.airdropRewards(data);
   // };
 
-  // public query func get_recorded_rewards(
-  //   p : Principal,
-  // ) : async ?[Reward] {
-  //   _Rewards.getRecordedRewards(p);
-  // };
+  public shared ({ caller }) func record_icps(
+    account : AccountIdentifier,
+    amount_e8s : Nat,
+  ) : () {
+    assert (_Admins.isAdmin(caller));
+    _Monitor.collectMetrics();
+    _Rewards.recordICP(account, amount_e8s);
+  };
+
+  public query func get_recorded_rewards(
+    p : Principal,
+  ) : async ?[Reward] {
+    _Rewards.getRecordedRewards(p);
+  };
 
   // public query func get_all_recorded_rewards() : async [(AccountIdentifier, [Reward])] {
   //   _Rewards.getAllRecordedRewards();
@@ -773,6 +781,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     _ExtUD := ?_Ext.preupgrade();
     _EntrepotUD := ?_Entrepot.preupgrade();
     _CapUD := ?_Cap.preupgrade();
+    _RewardsUD := ?_Rewards.preupgrade();
   };
 
   system func postupgrade() {
@@ -790,6 +799,8 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     _CapUD := null;
     _Entrepot.postupgrade(_EntrepotUD);
     _EntrepotUD := null;
+    _Rewards.postupgrade(_RewardsUD);
+    _RewardsUD := null;
     _Logs.logMessage("POSTUPGRADE :: accessory");
   };
 };

@@ -9,7 +9,6 @@ export interface AccessoryInventory {
 export type AccountIdentifier = string;
 export type AccountIdentifier__1 = string;
 export type AccountIdentifier__2 = string;
-export type Airdrop = Array<string>;
 export type Balance = bigint;
 export interface BalanceRequest { 'token' : TokenIdentifier__1, 'user' : User }
 export type BalanceResponse = { 'ok' : Balance } |
@@ -106,10 +105,6 @@ export interface ICPSquadNFT {
   'acceptCycles' : ActorMethod<[], undefined>,
   'add_admin' : ActorMethod<[Principal], undefined>,
   'add_template' : ActorMethod<[string, Template], Result_7>,
-  'airdrop_rewards' : ActorMethod<
-    [Array<[AccountIdentifier__2, Airdrop]>],
-    undefined,
-  >,
   'availableCycles' : ActorMethod<[], bigint>,
   'balance' : ActorMethod<[BalanceRequest], BalanceResponse>,
   'bearer' : ActorMethod<[TokenIdentifier], Result_6>,
@@ -153,7 +148,6 @@ export interface ICPSquadNFT {
     Array<[TokenIndex, Transaction]>,
   >,
   'get_recipes' : ActorMethod<[], Array<[string, Recipe__1]>>,
-  'get_recorded_rewards' : ActorMethod<[Principal], [] | [Array<Reward>]>,
   'get_stats_items' : ActorMethod<[], Array<[string, Supply, [] | [Floor]]>>,
   'get_templates' : ActorMethod<[], Array<[string, Template]>>,
   'http_request' : ActorMethod<[Request], Response>,
@@ -170,6 +164,7 @@ export interface ICPSquadNFT {
   'payments' : ActorMethod<[], [] | [Array<SubAccount__2>]>,
   'purge_pending_transactions' : ActorMethod<[], undefined>,
   'read_disbursements' : ActorMethod<[], Array<Disbursement>>,
+  'record_icps' : ActorMethod<[AccountIdentifier__2, bigint], undefined>,
   'remove_accessory' : ActorMethod<
     [TokenIdentifier, TokenIdentifier],
     Result__1,
@@ -288,14 +283,6 @@ export type Result__1_1 = { 'ok' : TokenIdentifier } |
   { 'err' : string };
 export type Result__1_2 = { 'ok' : null } |
   { 'err' : CommonError__1 };
-export interface Reward {
-  'collection' : Principal,
-  'date' : Time,
-  'name' : string,
-  'category' : TypeReward,
-  'identifier' : [] | [string],
-  'amount' : bigint,
-}
 export type StreamingCallback = ActorMethod<
   [StreamingCallbackToken],
   StreamingCallbackResponse,
@@ -364,9 +351,6 @@ export type TransferResponse = { 'ok' : Balance } |
       { 'Unauthorized' : AccountIdentifier } |
       { 'Other' : string }
   };
-export type TypeReward = { 'NFT' : null } |
-  { 'Token' : null } |
-  { 'Other' : null };
 export type UpdateCallsAggregatedData = Array<bigint>;
 export type User = { 'principal' : Principal } |
   { 'address' : AccountIdentifier };
