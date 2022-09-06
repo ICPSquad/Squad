@@ -119,7 +119,6 @@
 
   async function getRewards() {
     rewards = await getRecordedRewards(userProfile.principal);
-    console.log("Rewards : ", rewards);
   }
 </script>
 

@@ -2,9 +2,13 @@
   import RewardCard from "./RewardCard.svelte";
   import type { Reward } from "@canisters/accessories/accessories.did.d";
   export let received_rewards: [Array<Reward>] | [];
+
+  $: rewards = received_rewards[0].sort((a, b) => {
+    return Number(b.date) - Number(a.date);
+  });
 </script>
 
-{#if received_rewards.length > 0}
+{#if rewards.length > 0}
   <h2>Received airdrop</h2>
   <div class="title">
     <div class="reward" />
@@ -13,7 +17,7 @@
     <div class="amount hide-on-mobile">Amount</div>
     <div class="time">Date</div>
   </div>
-  {#each received_rewards[0] as reward}
+  {#each rewards as reward}
     <RewardCard {reward} />
   {/each}
 {:else}
