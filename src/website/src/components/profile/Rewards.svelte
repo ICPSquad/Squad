@@ -7,13 +7,14 @@
 {#if received_rewards.length > 0}
   <h2>Received airdrop</h2>
   <div class="title">
-    <div class="name">Name</div>
-    <div class="collection">Collection</div>
-    <div class="url">URL</div>
+    <div class="reward" />
+    <div class="type hide-on-mobile">Type</div>
+    <div class="collection hide-on-mobile">Collection</div>
+    <div class="amount hide-on-mobile">Amount</div>
     <div class="time">Date</div>
   </div>
   {#each received_rewards[0] as reward}
-    <RewardCard name={reward.name} collection={reward.collection.toString()} url={`https://${reward.collection.toString()}.raw.ic0.app/?&tokenid=${reward.identifier[0]}`} time={Number(reward.date)} />
+    <RewardCard {reward} />
   {/each}
 {:else}
   <h2>You have not received any airdrop</h2>
@@ -29,7 +30,7 @@
 
   .title {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 120px;
+    grid-template-columns: 80px 1fr 1fr 1fr 120px;
     padding: 10px 20px;
     align-items: center;
     font-size: large;
@@ -41,5 +42,15 @@
   .header-time {
     font-size: large;
     font-weight: bold;
+  }
+
+  @media (max-width: 768px) {
+    .hide-on-mobile {
+      display: none;
+    }
+
+    .title {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
   }
 </style>

@@ -148,6 +148,7 @@ export interface ICPSquadNFT {
     Array<[TokenIndex, Transaction]>,
   >,
   'get_recipes' : ActorMethod<[], Array<[string, Recipe__1]>>,
+  'get_recorded_rewards' : ActorMethod<[Principal], [] | [Array<Reward>]>,
   'get_stats_items' : ActorMethod<[], Array<[string, Supply, [] | [Floor]]>>,
   'get_templates' : ActorMethod<[], Array<[string, Template]>>,
   'http_request' : ActorMethod<[Request], Response>,
@@ -237,6 +238,12 @@ export type Metadata__1 = {
   { 'nonfungible' : { 'metadata' : [] | [Array<number>] } };
 export type MetricsGranularity = { 'hourly' : null } |
   { 'daily' : null };
+export interface NFT {
+  'icon' : [] | [URL],
+  'name' : string,
+  'identifier' : string,
+  'symbol' : string,
+}
 export type Nanos = bigint;
 export interface NumericEntity {
   'avg' : bigint,
@@ -283,6 +290,12 @@ export type Result__1_1 = { 'ok' : TokenIdentifier } |
   { 'err' : string };
 export type Result__1_2 = { 'ok' : null } |
   { 'err' : CommonError__1 };
+export interface Reward {
+  'collection' : Principal,
+  'date' : Time,
+  'category' : TypeReward,
+  'amount' : bigint,
+}
 export type StreamingCallback = ActorMethod<
   [StreamingCallbackToken],
   StreamingCallbackResponse,
@@ -316,6 +329,11 @@ export type Template = {
   { 'LegendaryAccessory' : Array<number> } |
   { 'Material' : Array<number> };
 export type Time = bigint;
+export interface Token {
+  'decimals' : number,
+  'icon' : [] | [URL],
+  'name' : string,
+}
 export type TokenIdentifier = string;
 export type TokenIdentifier__1 = string;
 export type TokenIdentifier__2 = string;
@@ -351,6 +369,11 @@ export type TransferResponse = { 'ok' : Balance } |
       { 'Unauthorized' : AccountIdentifier } |
       { 'Other' : string }
   };
+export type TypeReward = { 'NFT' : NFT } |
+  { 'Token' : Token } |
+  { 'Other' : null } |
+  { 'Material' : string };
+export type URL = string;
 export type UpdateCallsAggregatedData = Array<bigint>;
 export type User = { 'principal' : Principal } |
   { 'address' : AccountIdentifier };

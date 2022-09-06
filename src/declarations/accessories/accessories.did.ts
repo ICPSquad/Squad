@@ -181,6 +181,30 @@ export const idlFactory = ({ IDL }) => {
     'price' : IDL.Nat64,
   });
   const Recipe__1 = IDL.Vec(IDL.Text);
+  const URL = IDL.Text;
+  const NFT = IDL.Record({
+    'icon' : IDL.Opt(URL),
+    'name' : IDL.Text,
+    'identifier' : IDL.Text,
+    'symbol' : IDL.Text,
+  });
+  const Token = IDL.Record({
+    'decimals' : IDL.Nat8,
+    'icon' : IDL.Opt(URL),
+    'name' : IDL.Text,
+  });
+  const TypeReward = IDL.Variant({
+    'NFT' : NFT,
+    'Token' : Token,
+    'Other' : IDL.Null,
+    'Material' : IDL.Text,
+  });
+  const Reward = IDL.Record({
+    'collection' : IDL.Principal,
+    'date' : Time,
+    'category' : TypeReward,
+    'amount' : IDL.Nat,
+  });
   const Supply = IDL.Nat;
   const Floor = IDL.Nat64;
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
@@ -369,6 +393,11 @@ export const idlFactory = ({ IDL }) => {
     'get_recipes' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Text, Recipe__1))],
+        ['query'],
+      ),
+    'get_recorded_rewards' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(IDL.Vec(Reward))],
         ['query'],
       ),
     'get_stats_items' : IDL.Func(

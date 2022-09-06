@@ -4,6 +4,8 @@
   import FooterNav from "./FooterNav.svelte";
   import { user } from "@src/store/user";
   import { disconnectWallet } from "@utils/connection";
+  import LinkButton from "./LinkButton.svelte";
+
   import ConnectButton from "@src/components/shared/ConnectButton.svelte";
   export let closeMenu;
 
@@ -19,7 +21,10 @@
       {#if !$user.loggedIn}
         <ConnectButton />
       {:else}
-        <button on:click={disconnect}> Sign out </button>
+        <LinkButton to="/profile">
+          <button> Profile </button>
+        </LinkButton>
+        <button on:click={disconnect}>Sign out</button>
       {/if}
     </div>
     <FooterNav textAlignCenter {closeMenu} />
@@ -53,14 +58,17 @@
   }
 
   .connexion {
-    margin: 35px auto;
+    margin: 40px auto;
     width: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    row-gap: 20px;
   }
 
   .menu-nav-container {
-    margin: 140px auto 0;
+    margin: 80px auto 0;
     width: 1200px;
     max-width: 100%;
     height: calc(100vh - 200px);
