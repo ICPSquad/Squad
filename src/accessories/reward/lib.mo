@@ -69,6 +69,26 @@ module {
       _record(account, reward);
     };
 
+    public func recordNFT(
+      account : AccountIdentifier,
+      collection : Principal,
+      name : Text,
+      identifier : Text,
+    ) : () {
+      let reward : Reward = {
+        collection;
+        category = #NFT(
+          {
+            name = name;
+            identifier = identifier;
+          },
+        );
+        date = Time.now();
+        amount = 1;
+      };
+      _record(account, reward);
+    };
+
     // 1 : Create the token (with EXT)
     // 2 : Assign the corresponding material to the token
     // 3 : Report event to CAP
@@ -96,7 +116,12 @@ module {
           };
           let reward : Reward = {
             collection = Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai");
-            category = #Material(name);
+            category = #NFT(
+              {
+                name;
+                identifier = tokenIdentifier;
+              },
+            );
             date = Time.now();
             amount = 1;
           };

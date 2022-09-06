@@ -181,18 +181,8 @@ export const idlFactory = ({ IDL }) => {
     'price' : IDL.Nat64,
   });
   const Recipe__1 = IDL.Vec(IDL.Text);
-  const URL = IDL.Text;
-  const NFT = IDL.Record({
-    'icon' : IDL.Opt(URL),
-    'name' : IDL.Text,
-    'identifier' : IDL.Text,
-    'symbol' : IDL.Text,
-  });
-  const Token = IDL.Record({
-    'decimals' : IDL.Nat8,
-    'icon' : IDL.Opt(URL),
-    'name' : IDL.Text,
-  });
+  const NFT = IDL.Record({ 'name' : IDL.Text, 'identifier' : IDL.Text });
+  const Token = IDL.Record({ 'decimals' : IDL.Nat8, 'name' : IDL.Text });
   const TypeReward = IDL.Variant({
     'NFT' : NFT,
     'Token' : Token,
@@ -430,6 +420,11 @@ export const idlFactory = ({ IDL }) => {
     'purge_pending_transactions' : IDL.Func([], [], ['oneway']),
     'read_disbursements' : IDL.Func([], [IDL.Vec(Disbursement)], ['query']),
     'record_icps' : IDL.Func([AccountIdentifier__2, IDL.Nat], [], ['oneway']),
+    'record_nft' : IDL.Func(
+        [AccountIdentifier__2, IDL.Principal, IDL.Text, IDL.Text],
+        [],
+        ['oneway'],
+      ),
     'remove_accessory' : IDL.Func(
         [TokenIdentifier, TokenIdentifier],
         [Result__1],

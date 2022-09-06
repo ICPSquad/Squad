@@ -2,6 +2,7 @@
   import type { Reward } from "@canisters/accessories/accessories.did";
   import Carat from "@icons/Carat.svelte";
   import { getCanisterInfo } from "@psychedelic/dab-js";
+  import { decodeTokenIdentifier } from "@utils/tools/ext";
 
   export let reward: Reward;
   let open: boolean = false;
@@ -13,9 +14,13 @@
     return date.toLocaleDateString();
   }
 
+  function getTokenIdentitfier(reward: Reward): string {
+    //@ts-ignore
+    return reward.category.NFT.identifier;
+  }
+
   function rewardToType(reward: Reward): string {
     let keys = Object.keys(reward.category);
-    console.log("keys", keys);
     switch (keys[0]) {
       case "NFT":
         return "NFT";
@@ -25,6 +30,40 @@
         return "Material";
       default:
         return "Unknown";
+    }
+  }
+
+  function rewardToIcon(reward: Reward): string {
+    let canisterId = reward.collection.toString();
+    // ICP Ledger
+    if (canisterId === "ryjl3-tyaaa-aaaaa-aaaba-cai") {
+      return "./icp.svg";
+    }
+    // ICPunk & Wrapped ICPunk
+    if (canisterId === "bxdf4-baaaa-aaaah-qaruq-cai") {
+      let tokenid = decodeTokenIdentifier(getTokenIdentitfier(reward)).index;
+      return `https://cache.icpunks.com/icpunks//Token/${tokenid}`;
+    }
+    let keys = Object.keys(reward.category);
+    switch (keys[0]) {
+      case "NFT":
+        return `https://${reward.collection.toString()}.raw.ic0.app/?tokenid=${getTokenIdentitfier(reward)}`;
+    }
+  }
+
+  function rewardToLink(reward: Reward): string {
+    let canisterId = reward.collection.toString();
+    let keys = Object.keys(reward.category);
+    // ICPunk & Wrapped ICPunk
+    if (canisterId === "bxdf4-baaaa-aaaah-qaruq-cai") {
+      let tokenid = decodeTokenIdentifier(getTokenIdentitfier(reward)).index;
+      return `https://cache.icpunks.com/icpunks//Token/${tokenid}.png`;
+    }
+    switch (keys[0]) {
+      case "Token":
+        return `https://icscan.io/canister/${reward.collection.toString()}`;
+      default:
+        return `https://${reward.collection.toString()}.raw.ic0.app/tokenid=${getTokenIdentitfier(reward)}`;
     }
   }
 
@@ -38,8 +77,12 @@
     if (canisterId === "po6n2-uiaaa-aaaaj-qaiua-cai") {
       return "dSquad";
     }
-    updateName();
-    return "...";
+    let keys = Object.keys(reward.category);
+    switch (keys[0]) {
+      case "NFT":
+        //@ts-ignore
+        return reward.category.NFT.name;
+    }
   }
 
   function rewardToAmount(reward: Reward): number {
@@ -51,21 +94,13 @@
     }
     return amount;
   }
-
-  async function updateName() {
-    if (name !== "dSquad" && name !== "ICP Ledger") {
-      const canisterId = reward.collection.toString();
-      const metadata = await getCanisterInfo({ canisterId });
-      if (metadata) {
-        name = metadata.name;
-      }
-    }
-  }
 </script>
 
 <div class="grid-row">
   <div class="icon">
-    <img src="arun-logo.jpeg" alt="" />
+    <a href={rewardToLink(reward)} target="_blank">
+      <img src={rewardToIcon(reward)} alt="icon" />
+    </a>
   </div>
   <div class="type hide-on-mobile">{rewardToType(reward)}</div>
   <div class="collection hide-on-mobile">{rewardToCollection(reward)}</div>
@@ -130,7 +165,7 @@
 
     .carat {
       display: flex;
-      justify-content: center;
+      justify-content: right;
     }
   }
 </style>

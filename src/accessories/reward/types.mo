@@ -20,7 +20,7 @@ module {
   };
 
   public type TypeReward = {
-    #Material : Text;
+    #Material : NFT;
     #NFT : NFT;
     #Token : Token;
     #Other;
@@ -30,14 +30,11 @@ module {
   public type Token = {
     name : Text;
     decimals : Nat8;
-    icon : ?URL;
   };
 
   public type NFT = {
     name : Text;
-    symbol : Text;
     identifier : Text;
-    icon : ?URL;
   };
 
   public type UpgradeData = {

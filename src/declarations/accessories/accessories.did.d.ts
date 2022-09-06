@@ -166,6 +166,10 @@ export interface ICPSquadNFT {
   'purge_pending_transactions' : ActorMethod<[], undefined>,
   'read_disbursements' : ActorMethod<[], Array<Disbursement>>,
   'record_icps' : ActorMethod<[AccountIdentifier__2, bigint], undefined>,
+  'record_nft' : ActorMethod<
+    [AccountIdentifier__2, Principal, string, string],
+    undefined,
+  >,
   'remove_accessory' : ActorMethod<
     [TokenIdentifier, TokenIdentifier],
     Result__1,
@@ -238,12 +242,7 @@ export type Metadata__1 = {
   { 'nonfungible' : { 'metadata' : [] | [Array<number>] } };
 export type MetricsGranularity = { 'hourly' : null } |
   { 'daily' : null };
-export interface NFT {
-  'icon' : [] | [URL],
-  'name' : string,
-  'identifier' : string,
-  'symbol' : string,
-}
+export interface NFT { 'name' : string, 'identifier' : string }
 export type Nanos = bigint;
 export interface NumericEntity {
   'avg' : bigint,
@@ -329,11 +328,7 @@ export type Template = {
   { 'LegendaryAccessory' : Array<number> } |
   { 'Material' : Array<number> };
 export type Time = bigint;
-export interface Token {
-  'decimals' : number,
-  'icon' : [] | [URL],
-  'name' : string,
-}
+export interface Token { 'decimals' : number, 'name' : string }
 export type TokenIdentifier = string;
 export type TokenIdentifier__1 = string;
 export type TokenIdentifier__2 = string;
@@ -373,7 +368,6 @@ export type TypeReward = { 'NFT' : NFT } |
   { 'Token' : Token } |
   { 'Other' : null } |
   { 'Material' : string };
-export type URL = string;
 export type UpdateCallsAggregatedData = Array<bigint>;
 export type User = { 'principal' : Principal } |
   { 'address' : AccountIdentifier };

@@ -579,6 +579,17 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     _Rewards.recordICP(account, amount_e8s);
   };
 
+  public shared ({ caller }) func record_nft(
+    account : AccountIdentifier,
+    collection : Principal,
+    name : Text,
+    identifier : Text,
+  ) : () {
+    assert (_Admins.isAdmin(caller));
+    _Monitor.collectMetrics();
+    _Rewards.recordNFT(account, collection, name, identifier);
+  };
+
   public query func get_recorded_rewards(
     p : Principal,
   ) : async ?[Reward] {
