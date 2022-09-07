@@ -1,6 +1,7 @@
 <script lang="ts">
   import MissionCard from "./MissionCard.svelte";
   import type { Mission } from "@canisters/hub/hub.did.d";
+  import LinkButton from "../shared/LinkButton.svelte";
   export let completed: [Mission, bigint][];
 </script>
 
@@ -14,6 +15,11 @@
   {#each completed as [mission, time]}
     <MissionCard name={mission.title} reward={Number(mission.points)} time={Number(time)} />
   {/each}
+{:else}
+  <h2>You have not completed any mission yet.</h2>
+  <LinkButton to="/mission">
+    <button> Mission </button>
+  </LinkButton>
 {/if}
 
 <style lang="scss">

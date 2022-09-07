@@ -3,9 +3,12 @@
   import type { Reward } from "@canisters/accessories/accessories.did.d";
   export let received_rewards: [Array<Reward>] | [];
 
-  $: rewards = received_rewards[0].sort((a, b) => {
-    return Number(b.date) - Number(a.date);
-  });
+  $: rewards =
+    received_rewards.length > 0
+      ? received_rewards[0].sort((a, b) => {
+          return Number(b.date) - Number(a.date);
+        })
+      : [];
 </script>
 
 {#if rewards.length > 0}
@@ -21,7 +24,7 @@
     <RewardCard {reward} />
   {/each}
 {:else}
-  <h2>You have not received any airdrop</h2>
+  <h2>You have not received any airdrop yet. <br /> Keep engaging to start earning rewards !</h2>
 {/if}
 
 <style lang="scss">
