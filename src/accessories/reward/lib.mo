@@ -127,17 +127,17 @@ module {
           };
           r.add(reward);
           // Report the mint event to CAP
-          let event : Cap.IndefiniteEvent = {
-            operation = "mint";
-            details = [
-              ("token", #Text(tokenIdentifier)),
-              ("name", #Text(name)),
-              ("to", #Text(account)),
-              ("airdrop", #Text("")),
-            ];
-            caller = cid;
-          };
-          ignore (_Cap.registerEvent(event));
+          // let event : Cap.IndefiniteEvent = {
+          //   operation = "mint";
+          //   details = [
+          //     ("token", #Text(tokenIdentifier)),
+          //     ("name", #Text(name)),
+          //     ("to", #Text(account)),
+          //     ("airdrop", #Text("")),
+          //   ];
+          //   caller = cid;
+          // };
+          // ignore (_Cap.registerEvent(event));
         };
         // Record the events into the TrieMap
         switch (recordedRewards.get(account)) {

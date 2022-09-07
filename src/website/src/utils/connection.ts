@@ -161,7 +161,7 @@ export function disconnectWallet(): void {
 }
 
 export async function persistConnexion(): Promise<void> {
-  const promises = [window.ic.plug.isConnected(), StoicIdentity.load(), window.ic.infinityWallet.isConnected()];
+  const promises = [window.ic?.plug.isConnected(), StoicIdentity.load(), window.ic?.infinityWallet.isConnected()];
   const [plugConnected, stoicConnected, infinityConnected] = await Promise.all(promises);
   if (plugConnected) {
     // Initialize and stores the actor

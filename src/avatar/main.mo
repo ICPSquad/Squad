@@ -58,13 +58,17 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     _Admins.isAdmin(p);
   };
 
+  public query func get_admins() : async [Principal] {
+    _Admins.getAdmins();
+  };
+
   public shared ({ caller }) func add_admin(p : Principal) : async () {
     _Admins.addAdmin(p, caller);
     _Monitor.collectMetrics();
     _Logs.logMessage("CONFIG :: Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
   };
 
-  public shared ({ caller }) func delete_admin(p : Principal) : async () {
+  public shared ({ caller }) func remove_admin(p : Principal) : async () {
     assert (caller == master);
     _Monitor.collectMetrics();
     _Admins.removeAdmin(p, caller);

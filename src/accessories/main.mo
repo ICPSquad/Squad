@@ -61,6 +61,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     _Admins.isAdmin(p);
   };
 
+  public query func get_admins() : async [Principal] {
+    _Admins.getAdmins();
+  };
+
   public shared ({ caller }) func add_admin(p : Principal) : async () {
     _Admins.addAdmin(p, caller);
     _Monitor.collectMetrics();
