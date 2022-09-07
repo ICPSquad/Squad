@@ -9,6 +9,7 @@ export interface AccessoryInventory {
 export type AccountIdentifier = string;
 export type AccountIdentifier__1 = string;
 export type AccountIdentifier__2 = string;
+export type Airdrop = Array<string>;
 export type Balance = bigint;
 export interface BalanceRequest { 'token' : TokenIdentifier__1, 'user' : User }
 export type BalanceResponse = { 'ok' : Balance } |
@@ -105,6 +106,10 @@ export interface ICPSquadNFT {
   'acceptCycles' : ActorMethod<[], undefined>,
   'add_admin' : ActorMethod<[Principal], undefined>,
   'add_template' : ActorMethod<[string, Template], Result_7>,
+  'airdrop_rewards' : ActorMethod<
+    [Array<[AccountIdentifier__2, Airdrop]>],
+    undefined,
+  >,
   'availableCycles' : ActorMethod<[], bigint>,
   'balance' : ActorMethod<[BalanceRequest], BalanceResponse>,
   'bearer' : ActorMethod<[TokenIdentifier], Result_6>,
@@ -118,6 +123,7 @@ export interface ICPSquadNFT {
   'cron_settlements' : ActorMethod<[], undefined>,
   'cron_verification' : ActorMethod<[], undefined>,
   'delete_item' : ActorMethod<[string], Result>,
+  'delete_recorded_rewards' : ActorMethod<[Principal], undefined>,
   'details' : ActorMethod<[TokenIdentifier], DetailsResponse>,
   'disbursement_pending_count' : ActorMethod<[], bigint>,
   'disbursement_queue_size' : ActorMethod<[], bigint>,
@@ -367,7 +373,7 @@ export type TransferResponse = { 'ok' : Balance } |
 export type TypeReward = { 'NFT' : NFT } |
   { 'Token' : Token } |
   { 'Other' : null } |
-  { 'Material' : string };
+  { 'Material' : NFT };
 export type UpdateCallsAggregatedData = Array<bigint>;
 export type User = { 'principal' : Principal } |
   { 'address' : AccountIdentifier };

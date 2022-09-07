@@ -137,7 +137,7 @@ module {
             ];
             caller = cid;
           };
-          // ignore(_Cap.registerEvent(event));
+          ignore (_Cap.registerEvent(event));
         };
         // Record the events into the TrieMap
         switch (recordedRewards.get(account)) {

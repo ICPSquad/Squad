@@ -10,6 +10,8 @@ export const idlFactory = ({ IDL }) => {
     'Material' : IDL.Vec(IDL.Nat8),
   });
   const Result_7 = IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text });
+  const AccountIdentifier__2 = IDL.Text;
+  const Airdrop = IDL.Vec(IDL.Text);
   const TokenIdentifier__1 = IDL.Text;
   const AccountIdentifier = IDL.Text;
   const User = IDL.Variant({
@@ -30,7 +32,6 @@ export const idlFactory = ({ IDL }) => {
     'err' : CommonError__1,
   });
   const TokenIdentifier = IDL.Text;
-  const AccountIdentifier__2 = IDL.Text;
   const CommonError = IDL.Variant({
     'InvalidToken' : TokenIdentifier__1,
     'Other' : IDL.Text,
@@ -187,7 +188,7 @@ export const idlFactory = ({ IDL }) => {
     'NFT' : NFT,
     'Token' : Token,
     'Other' : IDL.Null,
-    'Material' : IDL.Text,
+    'Material' : NFT,
   });
   const Reward = IDL.Record({
     'collection' : IDL.Principal,
@@ -317,6 +318,11 @@ export const idlFactory = ({ IDL }) => {
     'acceptCycles' : IDL.Func([], [], []),
     'add_admin' : IDL.Func([IDL.Principal], [], []),
     'add_template' : IDL.Func([IDL.Text, Template], [Result_7], []),
+    'airdrop_rewards' : IDL.Func(
+        [IDL.Vec(IDL.Tuple(AccountIdentifier__2, Airdrop))],
+        [],
+        [],
+      ),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
     'bearer' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
@@ -334,6 +340,7 @@ export const idlFactory = ({ IDL }) => {
     'cron_settlements' : IDL.Func([], [], []),
     'cron_verification' : IDL.Func([], [], []),
     'delete_item' : IDL.Func([IDL.Text], [Result], []),
+    'delete_recorded_rewards' : IDL.Func([IDL.Principal], [], ['oneway']),
     'details' : IDL.Func([TokenIdentifier], [DetailsResponse], ['query']),
     'disbursement_pending_count' : IDL.Func([], [IDL.Nat], ['query']),
     'disbursement_queue_size' : IDL.Func([], [IDL.Nat], ['query']),
