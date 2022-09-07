@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Reward } from "@canisters/accessories/accessories.did";
+  import type { Reward } from "@canisters/accessories/accessories.did.d";
   import Carat from "@icons/Carat.svelte";
   import { getCanisterInfo } from "@psychedelic/dab-js";
   import { decodeTokenIdentifier } from "@utils/tools/ext";
@@ -47,17 +47,17 @@
     let keys = Object.keys(reward.category);
     switch (keys[0]) {
       case "NFT":
-        return `https://${reward.collection.toString()}.raw.ic0.app/?tokenid=${getTokenIdentitfier(reward)}`;
+        return `https://${reward.collection.toString()}.raw.ic0.app/?type=thumbnail&tokenid=${getTokenIdentitfier(reward)}`;
     }
   }
 
   function rewardToLink(reward: Reward): string {
     let canisterId = reward.collection.toString();
     let keys = Object.keys(reward.category);
+    let tokenid = decodeTokenIdentifier(getTokenIdentitfier(reward)).index;
     // ICPunk & Wrapped ICPunk
     if (canisterId === "bxdf4-baaaa-aaaah-qaruq-cai") {
-      let tokenid = decodeTokenIdentifier(getTokenIdentitfier(reward)).index;
-      return `https://cache.icpunks.com/icpunks//Token/${tokenid}.png`;
+      return `https://cache.icpunks.com/icpunks//Token/${tokenid}`;
     }
     switch (keys[0]) {
       case "Token":
@@ -151,7 +151,7 @@
   img {
     width: 50px;
     height: 50px;
-    border-radius: 50%;
+    border-radius: 10px;
   }
   @media (max-width: 768px) {
     .grid-row {
