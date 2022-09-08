@@ -1,15 +1,10 @@
 <script lang="ts">
   import Carat from "@icons/Carat.svelte";
+  import { unixTimeToDate } from "@utils/time";
   export let name: string | null;
   export let reward: number | null;
   export let time: number | null;
   let open: boolean = false;
-
-  function unixTimeToDate(unixTime: number): string {
-    // Convert nanoseconds to milliseconds
-    const date = new Date(unixTime / 1000 / 1000);
-    return date.toLocaleDateString();
-  }
 </script>
 
 <div class="grid-row">

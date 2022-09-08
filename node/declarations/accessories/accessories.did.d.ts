@@ -139,6 +139,7 @@ export interface ICPSquadNFT {
   'getInventory' : ActorMethod<[], Result_5>,
   'getRegistry' : ActorMethod<[], Array<[TokenIndex, AccountIdentifier__2]>>,
   'getTokens' : ActorMethod<[], Array<[TokenIndex, Metadata]>>,
+  'get_admins' : ActorMethod<[], Array<Principal>>,
   'get_avatar_equipped' : ActorMethod<
     [TokenIdentifier],
     [] | [TokenIdentifier],

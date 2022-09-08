@@ -340,7 +340,6 @@ export const idlFactory = ({ IDL }) => {
     'cron_default_avatar' : IDL.Func([], [], []),
     'cron_events' : IDL.Func([], [], []),
     'cron_scores' : IDL.Func([], [], []),
-    'delete_admin' : IDL.Func([IDL.Principal], [], []),
     'delete_component' : IDL.Func([IDL.Text], [Result], []),
     'delete_file' : IDL.Func([IDL.Text], [Result], []),
     'details' : IDL.Func([TokenIdentifier], [Result_6], ['query']),
@@ -366,6 +365,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(TokenIndex, Metadata))],
         ['query'],
       ),
+    'get_admins' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'get_all_users' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Principal, UserData))],
@@ -450,6 +450,7 @@ export const idlFactory = ({ IDL }) => {
         [Result],
         [],
       ),
+    'remove_admin' : IDL.Func([IDL.Principal], [], []),
     'report_burned_accessory' : IDL.Func(
         [IDL.Text, TokenIdentifier, TokenIndex],
         [Result__1],

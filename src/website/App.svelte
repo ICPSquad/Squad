@@ -14,6 +14,7 @@
   import EquipAccessory from "@src/pages/EquipAccessory.svelte";
   import Profile from "@src/pages/Profile.svelte";
   import Roadmap from "@src/pages/Roadmap.svelte";
+  import Activity from "@src/pages/Activity.svelte";
   import Render from "@src/pages/Render.svelte";
 </script>
 
@@ -32,5 +33,6 @@
   <Route path="leaderboard"><Leaderboard /></Route>
   <Route path="profile"><Profile /></Route>
   <Route path="roadmap"><Roadmap /></Route>
+  <Route path="activity"><Activity /></Route>
   <Route path="render"><Render /></Route>
 </Router>

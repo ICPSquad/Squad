@@ -173,10 +173,12 @@ export interface Invoice {
     [GetAccountIdentifierArgs],
     GetAccountIdentifierResult,
   >,
+  'get_admins' : ActorMethod<[], Array<Principal>>,
   'get_balance' : ActorMethod<[GetBalanceArgs], GetBalanceResult>,
   'get_invoice' : ActorMethod<[GetInvoiceArgs], GetInvoiceResult>,
   'get_invoices_to_check' : ActorMethod<[], Array<[Principal, bigint]>>,
   'is_admin' : ActorMethod<[Principal], boolean>,
+  'remove_admin' : ActorMethod<[Principal], undefined>,
   'transfer' : ActorMethod<[TransferArgs], TransferResult>,
   'transfer_back_invoice' : ActorMethod<[bigint], Result>,
   'verify_invoice_accessory' : ActorMethod<

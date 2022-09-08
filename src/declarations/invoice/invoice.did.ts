@@ -293,6 +293,7 @@ export const idlFactory = ({ IDL }) => {
         [GetAccountIdentifierResult],
         ['query'],
       ),
+    'get_admins' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'get_balance' : IDL.Func([GetBalanceArgs], [GetBalanceResult], []),
     'get_invoice' : IDL.Func([GetInvoiceArgs], [GetInvoiceResult], ['query']),
     'get_invoices_to_check' : IDL.Func(
@@ -301,6 +302,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
+    'remove_admin' : IDL.Func([IDL.Principal], [], []),
     'transfer' : IDL.Func([TransferArgs], [TransferResult], []),
     'transfer_back_invoice' : IDL.Func([IDL.Nat], [Result], []),
     'verify_invoice_accessory' : IDL.Func(

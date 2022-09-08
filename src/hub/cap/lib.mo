@@ -458,6 +458,22 @@ module {
       };
     };
 
+    public func getRecordedEvents(p : Principal, t1 : ?Time.Time, t2 : ?Time.Time) : ?[ExtendedEvent] {
+      let dates = _getDatesBetween(t1, t2);
+      let r = Buffer.Buffer<ExtendedEvent>(0);
+      for (date in dates.vals()) {
+        switch (events.get(date, p)) {
+          case (null) {};
+          case (?some) {
+            for (e in some.vals()) {
+              r.add(e);
+            };
+          };
+        };
+      };
+      return ?r.toArray();
+    };
+
     /////////////////
     //  MISSIONS  //
     ///////////////

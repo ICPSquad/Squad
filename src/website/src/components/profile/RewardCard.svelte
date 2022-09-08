@@ -1,18 +1,11 @@
 <script lang="ts">
   import type { Reward } from "@canisters/accessories/accessories.did.d";
   import Carat from "@icons/Carat.svelte";
-  import { getCanisterInfo } from "@psychedelic/dab-js";
+  import { unixTimeToDate } from "@utils/time";
   import { decodeTokenIdentifier } from "@utils/tools/ext";
 
   export let reward: Reward;
   let open: boolean = false;
-  let name: string = rewardToCollection(reward);
-
-  function unixTimeToDate(unixTime: number): string {
-    // Convert nanoseconds to milliseconds
-    const date = new Date(unixTime / 1000 / 1000);
-    return date.toLocaleDateString();
-  }
 
   function getTokenIdentitfier(reward: Reward): string {
     //@ts-ignore

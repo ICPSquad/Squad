@@ -366,6 +366,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(TokenIndex, Metadata))],
         ['query'],
       ),
+    'get_admins' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'get_avatar_equipped' : IDL.Func(
         [TokenIdentifier],
         [IDL.Opt(TokenIdentifier)],

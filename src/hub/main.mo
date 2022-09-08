@@ -231,6 +231,14 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     return _Cap.getDailyActivity(p, date);
   };
 
+  public query func get_recorded_events(
+    p : Principal,
+    t1 : ?Time.Time,
+    t2 : ?Time.Time,
+  ) : async ?[ExtendedEvent] {
+    _Cap.getRecordedEvents(p, t1, t2);
+  };
+
   ////////////////
   // MISSION ////
   //////////////
