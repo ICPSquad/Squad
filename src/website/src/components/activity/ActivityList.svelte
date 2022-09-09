@@ -5,8 +5,13 @@
   import type { ExtendedEvent } from "@canisters/hub/hub.did.d";
   import type { FormattedMetadata } from "@psychedelic/dab-js/dist/utils/registry";
 
-  let informations: FormattedMetadata[] | null = null;
+  export let extended_events: Array<ExtendedEvent>;
   let registry: NFTRegistry = new NFTRegistry();
+  let informations: FormattedMetadata[] | null = null;
+
+  $: nb_interacted_collection = _getNumberInteractedCollections(extended_events);
+  $: nb_burned_accessories = _getNumberBurnedAccessories(extended_events);
+  $: nb_minted_accessories = _getNumberMintedAccessories(extended_events);
 
   async function updateInformations() {
     let result = await registry.getAll();
@@ -30,7 +35,38 @@
     }
   }
 
-  export let extended_events: Array<ExtendedEvent>;
+  function _getNumberInteractedCollections(list: ExtendedEvent[]): number {
+    let collections: string[] = [];
+    list.forEach((i) => {
+      if (!collections.includes(i.collection.toText())) {
+        collections.push(i.collection.toText());
+      }
+    });
+    console.log("collections", collections);
+    return collections.length;
+  }
+
+  function _getNumberBurnedAccessories(list: ExtendedEvent[]): number {
+    let burned = 0;
+    list.forEach((i) => {
+      if (i.operation === "burn") {
+        burned += 1;
+        console.log("Burn event", i);
+      }
+    });
+    return burned;
+  }
+
+  function _getNumberMintedAccessories(list: ExtendedEvent[]): number {
+    let minted = 0;
+    list.forEach((i) => {
+      if (i.operation === "mint") {
+        minted += 1;
+        console.log("Mint event", i);
+      }
+    });
+    return minted;
+  }
 
   updateInformations();
 </script>
@@ -40,15 +76,15 @@
     <div class="summary-board">
       <div class="board">
         <h4>Interacted collections</h4>
-        <div class="value">{3}</div>
+        <div class="value">{nb_interacted_collection}</div>
       </div>
       <div class="board">
         <h4>Burned accessories</h4>
-        <div class="value">{20}</div>
+        <div class="value">{nb_burned_accessories}</div>
       </div>
       <div class="board">
         <h4>Minted accessories</h4>
-        <div class="value">{0}</div>
+        <div class="value">{nb_minted_accessories}</div>
       </div>
     </div>
 

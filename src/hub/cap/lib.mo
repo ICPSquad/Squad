@@ -146,6 +146,48 @@ module {
     };
 
     ///////////
+    // FIX ///
+    //////////
+
+    public func cronEventsTime(
+      t1 : Time.Time,
+      t2 : ?Time.Time,
+    ) : async Result.Result<(), Text> {
+      var total : Nat = 0;
+      for ((collection, cid) in cids.entries()) {
+        try {
+          let events_collected = await _getEvents(cid, t1, t2);
+          total += events_collected.size();
+          cached_events_per_collection.put(cid, events_collected);
+          _Logs.logMessage("CRON :: STATS :: " # collection.name # " :: " # Nat.toText(events_collected.size()));
+        } catch e {
+          _Logs.logMessage("CRON :: ERR :: " # collection.name # " :: " # Error.message(e));
+          return #err(Error.message(e));
+        };
+      };
+      return #ok();
+    };
+
+    public func calculateScores(date : Date) : async Result.Result<(), Text> {
+      let infos = await AVATAR_ACTOR.get_infos_accounts();
+      let principals : Buffer.Buffer<Principal> = Buffer.Buffer<Principal>(0);
+      for (info in infos.vals()) {
+        principals.add(info.0);
+      };
+      ignore (principals.toArray());
+      for (p in principals.vals()) {
+        switch (events.get(date, p)) {
+          case (null) {};
+          case (?some) {
+            let score = _getScore(some, p);
+            scores.put((date, p), score);
+          };
+        };
+      };
+      return #ok;
+    };
+
+    ///////////
     // CRON //
     //////////
 
@@ -591,49 +633,45 @@ module {
       return _getActivity(all_events, p);
     };
 
-    /////////////////
-    //    FIX     //
-    ///////////////
+    // public func populateEvents(
+    //   p : Principal,
+    //   collected_events : [ExtendedEvent],
+    // ) : Result.Result<(), Text> {
+    //   let r = TrieMap.TrieMap<Date, [ExtendedEvent]>(_dateEqual, _dateHash);
+    //   for (e in collected_events.vals()) {
+    //     let date = _getDate(e);
+    //     switch (r.get(date)) {
+    //       case (null) {
+    //         r.put(date, [e]);
+    //       };
+    //       case (?some) {
+    //         r.put(date, Array.append<ExtendedEvent>(some, [e]));
+    //       };
+    //     };
+    //   };
+    //   for ((date, list_events) in r.entries()) {
+    //     events.put((date, p), list_events);
+    //   };
+    //   return #ok();
+    // };
 
-    public func populateEvents(
-      p : Principal,
-      collected_events : [ExtendedEvent],
-    ) : Result.Result<(), Text> {
-      let r = TrieMap.TrieMap<Date, [ExtendedEvent]>(_dateEqual, _dateHash);
-      for (e in collected_events.vals()) {
-        let date = _getDate(e);
-        switch (r.get(date)) {
-          case (null) {
-            r.put(date, [e]);
-          };
-          case (?some) {
-            r.put(date, Array.append<ExtendedEvent>(some, [e]));
-          };
-        };
-      };
-      for ((date, list_events) in r.entries()) {
-        events.put((date, p), list_events);
-      };
-      return #ok();
-    };
-
-    public func calculateScore(
-      p : Principal,
-      t1 : ?Time.Time,
-      t2 : ?Time.Time,
-    ) : Result.Result<(), Text> {
-      let dates = _getDatesBetween(t1, t2);
-      for (date in dates.vals()) {
-        switch (events.get(date, p)) {
-          case (null) {};
-          case (?some) {
-            let score = _getScore(some, p);
-            scores.put((date, p), score);
-          };
-        };
-      };
-      return #ok();
-    };
+    // public func calculateScorePast(
+    //   p : Principal,
+    //   t1 : ?Time.Time,
+    //   t2 : ?Time.Time,
+    // ) : Result.Result<(), Text> {
+    //   let dates = _getDatesBetween(t1, t2);
+    //   for (date in dates.vals()) {
+    //     switch (events.get(date, p)) {
+    //       case (null) {};
+    //       case (?some) {
+    //         let score = _getScore(some, p);
+    //         scores.put((date, p), score);
+    //       };
+    //     };
+    //   };
+    //   return #ok();
+    // };
 
     public func addBurnEvent(
       p : Principal,
@@ -712,6 +750,57 @@ module {
       let size = await bucket.size();
       let latest_page = Nat64.div(size, 64 : Nat64);
       Nat64.toNat(latest_page);
+    };
+
+    /* Returns a list of the events between T1 & T2 for the specified bucket  */
+    func _getEvents(cid : Principal, t1 : Time.Time, t2 : ?Time.Time) : async [Types.Event] {
+      let latest_page = await _getLatestPage(cid);
+      let bucket : Types.Bucket = actor (Principal.toText(cid));
+      var r : Buffer.Buffer<Types.Event> = Buffer.Buffer(0);
+      var is_over : Bool = false;
+      var count : Nat = 0;
+      label l while (not is_over) {
+        // Verify that the page to query is not under 0.
+        let page_to_query = Int.sub(latest_page, count);
+        _Logs.logMessage("QUERY :: " # "page to query : " # Int.toText(page_to_query));
+        if (page_to_query < 0) {
+          break l;
+        };
+        let result = await bucket.get_transactions(
+          {
+            page = ?Nat32.fromNat(Int.abs(page_to_query));
+            witness = false;
+          },
+        );
+        // Calculate the Time only after the await otherwise we might be too far in the past for some recent events.
+        let start = t1;
+        let end = switch (t2) {
+          case (null) {
+            Time.now();
+          };
+          case (?some) {
+            some;
+          };
+        };
+        let events = result.data;
+        for (event in events.vals()) {
+          // Time for event recorded in CAP are in milliseconds (10^(-3) seconds)
+          let time : Nat = Nat64.toNat(_convertToNano(event.time));
+          // Only keep the events from the past 24 hours BUT only exit the loop if we encounter an event from before yesterday. If we encounter an event "in the future" we do nothing.
+          if (time > start and time <= end) {
+            r.add(event);
+          } else if (time < start) {
+            is_over := true;
+          };
+        };
+        count := count + 1;
+        // Add a security to stop the loop if the page number is too high (ie too many events in one day for one collection).
+        if (count > 10) {
+          is_over := true;
+          _Logs.logMessage("ERR :: getDailyEvents :: " # Principal.toText(cid) # " :: " # "more than 10 pages.");
+        };
+      };
+      return (r.toArray());
     };
 
     /* Returns a list of the daily events for the specified bucket  */

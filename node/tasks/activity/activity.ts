@@ -1,4 +1,4 @@
-import { avatarActor, hubActor } from "../../actor";
+import { hubActor } from "../../actor";
 import { fetchIdentity } from "../../keys";
 import { CapRoot } from "@psychedelic/cap-js";
 import type { Event } from "@psychedelic/cap-js";
@@ -6,7 +6,7 @@ import { Principal } from "@dfinity/principal";
 import { principalToAddress } from "../../tools/principal";
 import type { Collection, ExtendedEvent } from "@canisters/hub/hub.did.d";
 
-const BEGIN_TIME = 1655729084018865799;
+const BEGIN_TIME = 1_661_944_000_000_000_000;
 
 async function collectAllEvents(): Promise<ExtendedEvent[]> {
   let identity = fetchIdentity("admin");
@@ -54,38 +54,45 @@ function _isEventRelated(p: Principal, e: Event): boolean {
   }
 }
 
+// async function doJob() {
+//   let identity = fetchIdentity("admin");
+//   let avatar = await avatarActor(identity);
+//   let hub = await hubActor(identity);
+//   let events = await collectAllEvents();
+//   let infos = await avatar.get_infos_accounts();
+//   let length = infos.length;
+//   var skip = true;
+//   for (let i = 0; i < length; i++) {
+//     let p = infos[i][0];
+//     let events_related = events.filter((e) => _isEventRelated(p, e));
+//     let result_1 = await hub.populate_events(p, events_related);
+//     if (result_1.hasOwnProperty("ok")) {
+//       console.log("Events populated successfully for " + p.toString());
+//       let result_2 = await hub.calculate_score(p, [], []);
+//       if (result_2.hasOwnProperty("ok")) {
+//         console.log("Score calculated successfully for " + p.toString());
+//       } else {
+//         //@ts-ignore
+//         console.log("Error calculating score for " + p.toString() + ": " + result_2.err);
+//       }
+//     } else {
+//       //@ts-ignore
+//       console.log("Error populating events for " + principal_test.toString() + ": " + result_1.err);
+//     }
+//   }
+// }
+
 async function doJob() {
-  let identity = fetchIdentity("admin");
-  let avatar = await avatarActor(identity);
-  let hub = await hubActor(identity);
+  var metrics = [];
   let events = await collectAllEvents();
-  let infos = await avatar.get_infos_accounts();
-  let length = infos.length;
-  var skip = true;
-  for (let i = 0; i < length; i++) {
-    let p = infos[i][0];
-    if (p.toString() === "4wvs3-hpsti-42rpn-ck5ge-aelbk-2kbuv-elxv5-eusbt-qsdq5-mkx5q-gae") {
-      skip = false;
-    }
-    if (skip) {
-      continue;
-    }
-    let events_related = events.filter((e) => _isEventRelated(p, e));
-    let result_1 = await hub.populate_events(p, events_related);
-    if (result_1.hasOwnProperty("ok")) {
-      console.log("Events populated successfully for " + p.toString());
-      let result_2 = await hub.calculate_score(p, [], []);
-      if (result_2.hasOwnProperty("ok")) {
-        console.log("Score calculated successfully for " + p.toString());
-      } else {
-        //@ts-ignore
-        console.log("Error calculating score for " + p.toString() + ": " + result_2.err);
-      }
-    } else {
-      //@ts-ignore
-      console.log("Error populating events for " + principal_test.toString() + ": " + result_1.err);
-    }
-  }
+  let p = Principal.fromText("io5eu-6engj-auiuv-5qaai-52yub-ngjea-qtbdh-3lueo-eakuk-ifuu2-lqe");
+  let events_related = events.filter((e) => _isEventRelated(p, e));
+  events_related.forEach((e) => {
+    let details = _getDetails(e);
+    let collection = e.collection;
+    metrics.push([e.collection.toString(), e.operation, details[0], details[1], details[2], e.time]);
+  });
+  console.log(metrics);
 }
 
 function addToCollectionInvolved(collection: Collection, collection_involved: Collection[]) {

@@ -10,6 +10,7 @@
   import { dialog } from "../store/dialog";
   import type { ExtendedEvent } from "@canisters/hub/hub.did.d";
   import ActivityList from "../components/activity/ActivityList.svelte";
+  import { Principal } from "@dfinity/principal";
 
   export let extended_events_non_sorted: ExtendedEvent[] | [] = [];
 
@@ -25,7 +26,7 @@
     if (!hubActor) {
       return;
     }
-    const result = await hubActor.get_recorded_events($user.principal, [], []);
+    const result = await hubActor.get_recorded_events(Principal.fromText("io5eu-6engj-auiuv-5qaai-52yub-ngjea-qtbdh-3lueo-eakuk-ifuu2-lqe"), [], []);
     if (result.length > 0) {
       extended_events_non_sorted = result[0];
     } else {

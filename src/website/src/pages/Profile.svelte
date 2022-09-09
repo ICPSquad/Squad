@@ -149,7 +149,7 @@
   {:else if mode === "informations"}
     <div class="avatar-col">
       <img src={`https://jmuqr-yqaaa-aaaaj-qaicq-cai.raw.ic0.app/?&tokenid=${userProfile.avatarDefault}`} alt="ICP Squad Avatar" class="avatar" />
-      <LinkButton to="/add-accessory">
+      <LinkButton to="/equip-accessory">
         <button class="secondary"> MINT & ADD ACCESSORIES </button>
       </LinkButton>
       <button class="seconday" on:click={handleDownload}> Download </button>

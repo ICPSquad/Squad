@@ -448,6 +448,22 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
   };
 
+  public shared ({ caller }) func cron_events_time(
+    t1 : Time.Time,
+    t2 : ?Time.Time,
+  ) : async Result.Result<(), Text> {
+    assert (_Admins.isAdmin(caller));
+    _Monitor.collectMetrics();
+    switch (await _Cap.cronEventsTime(t1, t2)) {
+      case (#err(e)) {
+        return #err(e);
+      };
+      case (#ok()) {
+        return #ok();
+      };
+    };
+  };
+
   public shared ({ caller }) func cron_events() : async Result.Result<(), Text> {
     assert (_Admins.isAdmin(caller) or caller == cid);
     _Monitor.collectMetrics();
