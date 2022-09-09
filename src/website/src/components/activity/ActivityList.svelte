@@ -37,6 +37,21 @@
 
 {#if extended_events && extended_events.length > 0 && informations}
   <div class="container">
+    <div class="summary-board">
+      <div class="board">
+        <h4>Interacted collections</h4>
+        <div class="value">{3}</div>
+      </div>
+      <div class="board">
+        <h4>Burned accessories</h4>
+        <div class="value">{20}</div>
+      </div>
+      <div class="board">
+        <h4>Minted accessories</h4>
+        <div class="value">{0}</div>
+      </div>
+    </div>
+
     <div class="title">
       <div />
       <div class="event">Event</div>
@@ -63,7 +78,34 @@
     grid-template-columns: 80px 1fr 1fr 1fr;
     padding: 10px 20px;
     align-items: center;
+    font-weight: bold;
+  }
+
+  .summary-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    padding: 10px 20px;
+    gap: 50px;
+    align-items: center;
     font-size: large;
     font-weight: bold;
+    margin-bottom: 40px;
+  }
+
+  .board {
+    background-color: #{$verydarkgrey};
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-radius: 10px;
+  }
+
+  .value {
+    text-align: center;
+  }
+
+  h4 {
+    text-align: center;
   }
 </style>
