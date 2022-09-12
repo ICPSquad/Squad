@@ -118,6 +118,19 @@ module {
       Iter.toArray(cached_events_per_user.entries());
     };
 
+    public func getCachedEventsUser(
+      p : Principal,
+    ) : [ExtendedEvent] {
+      switch (cached_events_per_user.get(p)) {
+        case (null) {
+          return [];
+        };
+        case (?buf) {
+          return buf.toArray();
+        };
+      };
+    };
+
     public func preupgrade() : UpgradeData {
       return (
         {
@@ -153,19 +166,14 @@ module {
       t1 : Time.Time,
       t2 : ?Time.Time,
     ) : async Result.Result<(), Text> {
-      var total : Nat = 0;
-      for ((collection, cid) in cids.entries()) {
-        try {
-          let events_collected = await _getEvents(cid, t1, t2);
-          total += events_collected.size();
-          cached_events_per_collection.put(cid, events_collected);
-          _Logs.logMessage("CRON :: STATS :: " # collection.name # " :: " # Nat.toText(events_collected.size()));
-        } catch e {
-          _Logs.logMessage("CRON :: ERR :: " # collection.name # " :: " # Error.message(e));
-          return #err(Error.message(e));
-        };
+      try {
+        let events_collected = await _getEvents(Principal.fromText("qfevy-hqaaa-aaaaj-qanda-cai"), t1, t2);
+        cached_events_per_collection.put(Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai"), events_collected);
+        _Logs.logMessage("Events collected " # Nat.toText(events_collected.size()));
+      } catch e {
+        return #err(Error.message(e));
       };
-      return #ok();
+      #ok;
     };
 
     public func calculateScores(date : Date) : async Result.Result<(), Text> {
@@ -197,7 +205,7 @@ module {
         try {
           let daily_events = await _getDailyEvents(cid);
           total += daily_events.size();
-          cached_events_per_collection.put(cid, daily_events);
+          cached_events_per_collection.put(collection.contractId, daily_events);
           _Logs.logMessage("CRON :: STATS :: " # collection.name # " :: " # Nat.toText(daily_events.size()));
         } catch e {
           _Logs.logMessage("CRON :: ERR :: " # collection.name # " :: " # Error.message(e));
@@ -232,9 +240,6 @@ module {
               case (null) {};
               case (?p) {
                 total_operations_recorded += 1;
-                if (Principal.equal(p, Principal.fromText("udmjf-fyc6j-f7dnl-dw5bh-hh4wg-ln7iy-36pgp-mjocm-my4vc-r2irg-2ae"))) {
-                  _Logs.logMessage("1");
-                };
                 _cacheEventUser(p, e);
               };
             };
@@ -257,9 +262,14 @@ module {
             // TODO : hedge case if the burn event comes from our collection!
             if (e.collection == Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai")) {
               let burner = _getBurner(e);
+              if (burner == "") {
+                _Logs.logMessage("WARNING :: " # "no account responsible for burn event was found " # burner);
+              };
               switch (r.get(burner)) {
                 case (null) {
-                  _Logs.logMessage("WARNING :: " # "no account responsible for burn event was found ");
+                  // In that
+                  total_operations_recorded += 1;
+                  _cacheEventUser(Principal.fromText(burner), e);
                 };
                 case (?p) {
                   total_operations_recorded += 1;
@@ -284,7 +294,7 @@ module {
         };
       };
 
-      let events = _getExtendedEventsDaily();
+      let events = _getExtendedEventsCache();
       for (event in events.vals()) {
         f(event);
       };
@@ -302,6 +312,7 @@ module {
               return #err("Unable to parse date : " # Nat64.toText(e.time));
             };
             case (?date_parts) {
+              _Logs.logMessage("INFO :: " # "parsed date " # Nat64.toText(e.time) # " :: " # Nat.toText(date_parts.0) # "-" # Nat.toText(date_parts.1) # "-" # Nat.toText(date_parts.2));
               date_parts;
             };
           };
@@ -795,9 +806,9 @@ module {
         };
         count := count + 1;
         // Add a security to stop the loop if the page number is too high (ie too many events in one day for one collection).
-        if (count > 10) {
+        if (count > 1000) {
           is_over := true;
-          _Logs.logMessage("ERR :: getDailyEvents :: " # Principal.toText(cid) # " :: " # "more than 10 pages.");
+          _Logs.logMessage("ERR :: getEvents :: " # Principal.toText(cid) # " :: " # "more than 1000 pages.");
         };
       };
       return (r.toArray());
@@ -1007,8 +1018,8 @@ module {
       return "";
     };
 
-    /* Returns a list of all the (extended) events of the day */
-    func _getExtendedEventsDaily() : [ExtendedEvent] {
+    /* Returns a list of all the (extended) events from the current cache */
+    func _getExtendedEventsCache() : [ExtendedEvent] {
       let r : Buffer.Buffer<ExtendedEvent> = Buffer.Buffer<ExtendedEvent>(0);
       for ((cid, events) in cached_events_per_collection.entries()) {
         for (event in events.vals()) {
@@ -1137,13 +1148,15 @@ module {
     };
 
     func _isEventContained(e : ExtendedEvent, list : [ExtendedEvent]) : Bool {
-      let time = e.time;
+      let operation = e.operation;
+      let caller = e.caller;
+      let token = _getToken(e);
       for (event in list.vals()) {
-        if (event.time == time) {
+        if (operation == event.operation and caller == event.caller and token == _getToken(event)) {
           return true;
         };
       };
-      false;
+      return false;
     };
 
     func _getDate(e : Event) : Date {
@@ -1176,6 +1189,21 @@ module {
       };
       _Logs.logMessage("WARNING :: name not found for event");
       null;
+    };
+
+    func _getToken(e : Event) : Text {
+      let details = e.details;
+      for ((key, value) in details.vals()) {
+        if (key == "token") {
+          switch (value) {
+            case (#Text(token)) {
+              return token;
+            };
+            case _ {};
+          };
+        };
+      };
+      "";
     };
 
     func _isEventMintAccessory(
@@ -1260,6 +1288,16 @@ module {
           return 0;
         };
       };
+    };
+
+    func _findCollection(p_bucket : Principal) : Principal {
+      for ((collection, cid) in cids.entries()) {
+        if (Principal.equal(p_bucket, cid)) {
+          return collection.contractId;
+        };
+      };
+      assert (false);
+      Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai");
     };
   };
 };

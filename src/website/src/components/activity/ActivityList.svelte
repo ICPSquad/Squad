@@ -2,6 +2,7 @@
   import { NFTRegistry } from "@psychedelic/dab-js";
   import EventCard from "./EventCard.svelte";
   import type { Principal } from "@dfinity/principal";
+  import { _isAccessoryBurnEvent, _isAccessoryMintEvent } from "@utils/event";
   import type { ExtendedEvent } from "@canisters/hub/hub.did.d";
   import type { FormattedMetadata } from "@psychedelic/dab-js/dist/utils/registry";
 
@@ -49,9 +50,8 @@
   function _getNumberBurnedAccessories(list: ExtendedEvent[]): number {
     let burned = 0;
     list.forEach((i) => {
-      if (i.operation === "burn") {
+      if (_isAccessoryBurnEvent(i)) {
         burned += 1;
-        console.log("Burn event", i);
       }
     });
     return burned;
@@ -60,9 +60,8 @@
   function _getNumberMintedAccessories(list: ExtendedEvent[]): number {
     let minted = 0;
     list.forEach((i) => {
-      if (i.operation === "mint") {
+      if (_isAccessoryMintEvent(i)) {
         minted += 1;
-        console.log("Mint event", i);
       }
     });
     return minted;

@@ -1,23 +1,24 @@
-import Admins "admins";
 import Array "mo:base/Array";
-import Canistergeek "mo:canistergeek/canistergeek";
-import Cap "cap";
 import Cycles "mo:base/ExperimentalCycles";
-import Date "mo:canistergeek/dateModule";
 import Error "mo:base/Error";
-import Ext "mo:ext/Ext";
 import Int "mo:base/Int";
-import Jobs "jobs";
-import Leaderboard "leaderboard";
-import Mission "mission";
 import Nat "mo:base/Nat";
 import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
-import Style "style";
-import TIme "mo:base/Float";
 import Time "mo:base/Time";
+
+import Canistergeek "mo:canistergeek/canistergeek";
+import Date "mo:canistergeek/dateModule";
+import Ext "mo:ext/Ext";
+
+import Admins "admins";
+import Cap "cap";
+import Jobs "jobs";
+import Leaderboard "leaderboard";
+import Mission "mission";
+import Style "style";
 
 shared ({ caller = creator }) actor class ICPSquadHub(
   cid : Principal,
@@ -27,11 +28,21 @@ shared ({ caller = creator }) actor class ICPSquadHub(
 ) = this {
 
   ////////////
+  // CONST ///
+  ///////////
+
+  let ONE_DAY_NANO = 24 * 60 * 60 * 1000 * 1000 * 1000;
+  let ONE_HOUR_NANO = 60 * 60 * 1000 * 1000 * 1000;
+
+  ////////////
   // TYPES //
   ///////////
 
+  public type Time = Time.Time;
   public type Result<A, B> = Result.Result<A, B>;
   public type TokenIdentifier = Ext.TokenIdentifier;
+  public type ExtendedEvent = Cap.ExtendedEvent;
+  public type Activity = Cap.Activity;
   public type Collection = Cap.Collection;
   public type Event = Cap.Event;
   public type CapStats = Cap.CapStats;
@@ -46,26 +57,20 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   // TIME ///
   ///////////
 
-  public query func time() : async Time.Time {
+  /**
+   * Returns the current block time in nanoseconds.
+   * @return {Int} 
+   */
+  public query func time() : async Time {
     Time.now();
   };
 
-  public query func time_difference(t1 : Time.Time, t2 : ?Time.Time) : async Time.Time {
-    switch (t2) {
-      case (null) {
-        return Time.now() - t1;
-      };
-      case (?t2) {
-        return t2 - t1;
-      };
-    };
-  };
-
-  public query func nano_to_seconds(t1 : Int) : async Int {
-    Int.div(t1, 1_000_000_000);
-  };
-
-  public query func time_to_date(time : Time.Time) : async Date {
+  /**
+    * Returns the date corresponding to the specified time.
+    * @param {Time} time
+    * @return {Date} Format: (year, month, day)
+    */
+  public query func time_to_date(time : Time) : async Date {
     let date = switch (Date.Date.toDatePartsISO8601(time)) {
       case (null) {
         assert (false);
@@ -78,7 +83,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     date;
   };
 
-  ///////////
+  ////////////
   // ADMIN //
   ///////////
 
@@ -87,20 +92,34 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   stable var _AdminsUD : ?Admins.UpgradeData = null;
   let _Admins = Admins.Admins(creator);
 
+  /**
+    * Returns a boolean indicating if the specified principal is an admin.
+    */
   public query func is_admin(p : Principal) : async Bool {
     _Admins.isAdmin(p);
   };
 
+  /**
+    * Returns a list of all the admins.
+    */
   public query func get_admins() : async [Principal] {
     _Admins.getAdmins();
   };
 
+  /**
+    * Adds the specified principal as an admin.
+    * @auth : admin
+    */
   public shared ({ caller }) func add_admin(p : Principal) : async () {
     _Admins.addAdmin(p, caller);
     _Monitor.collectMetrics();
     _Logs.logMessage("CONFIG :: Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
   };
 
+  /**
+    * Removes the specified principal as an admin.
+    * @auth : master
+    */
   public shared ({ caller }) func remove_admin(p : Principal) : async () {
     assert (caller == master);
     _Monitor.collectMetrics();
@@ -112,12 +131,18 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   // CYCLES  //
   /////////////
 
+  /**
+    * Add the cycles attached to the incoming message to the balance of the canister.
+    */
   public func acceptCycles() : async () {
     let available = Cycles.available();
     let accepted = Cycles.accept(available);
     assert (accepted == available);
   };
 
+  /**
+    * Returns the cycle balance of the canister.
+    */
   public query func availableCycles() : async Nat {
     return Cycles.balance();
   };
@@ -129,11 +154,23 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   stable var _MonitorUD : ?Canistergeek.UpgradeData = null;
   private let _Monitor : Canistergeek.Monitor = Canistergeek.Monitor();
 
-  public query ({ caller }) func getCanisterMetrics(parameters : Canistergeek.GetMetricsParameters) : async ?Canistergeek.CanisterMetrics {
+  /**
+    * Returns collected data based on passed parameters.
+    * Called from browser.
+    * @auth : admin
+    */
+  public query ({ caller }) func getCanisterMetrics(
+    parameters : Canistergeek.GetMetricsParameters,
+  ) : async ?Canistergeek.CanisterMetrics {
     assert (_Admins.isAdmin(caller));
     _Monitor.getMetrics(parameters);
   };
 
+  /**
+    * Force collecting the data at current time.
+    * Called from browser or any canister "update" method.
+    * @auth : admin
+    */
   public shared ({ caller }) func collectCanisterMetrics() : async () {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
@@ -146,11 +183,19 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   stable var _LogsUD : ?Canistergeek.LoggerUpgradeData = null;
   private let _Logs : Canistergeek.Logger = Canistergeek.Logger();
 
+  /**
+    * Returns collected log messages based on passed parameters.
+    * Called from browser.
+    * @auth : admin
+    */
   public query ({ caller }) func getCanisterLog(request : ?Canistergeek.CanisterLogRequest) : async ?Canistergeek.CanisterLogResponse {
     assert (_Admins.isAdmin(caller));
     _Logs.getLog(request);
   };
-
+  /**
+    * Set the maximum number of saved log messages.
+    * @auth : admin
+    */
   public shared ({ caller }) func setMaxMessagesCount(n : Nat) : async () {
     assert (_Admins.isAdmin(caller));
     _Logs.setMaxMessagesCount(n);
@@ -172,16 +217,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   // CAP ///
   //////////
 
-  public type ExtendedEvent = Cap.ExtendedEvent;
-  public type Activity = Cap.Activity;
-
-  /// ADMIN ///
-
-  public shared query ({ caller }) func get_entries_events() : async [((Date, Principal), [ExtendedEvent])] {
-    assert (_Admins.isAdmin(caller));
-    return _Cap.entriesEvents();
-  };
-
   stable var _CapUD : ?Cap.UpgradeData = null;
   let _Cap = Cap.Factory(
     {
@@ -194,22 +229,40 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     },
   );
 
-  public shared ({ caller }) func register_collection(collection : Collection) : async Result.Result<(), Text> {
+  /**
+    * Register a new collection. 
+    * @remarks : This collection needs to be integrate with CAP.
+    * @auth : admin
+    */
+  public shared ({ caller }) func register_collection(collection : Collection) : async Result<(), Text> {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     await _Cap.registerCollection(collection);
   };
 
-  public shared ({ caller }) func register_all_collections() : async Result.Result<(), Text> {
+  /**
+    * Automatically registers all collections by calling DAB.  
+    * @remarks : Collections registered will be collections that are both in the NFT registry of DAB and that have integrate with CAP.
+    * @auth : admin
+    */
+  public shared ({ caller }) func register_all_collections() : async Result<(), Text> {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     await _Cap.registerAllCollections();
   };
 
+  /**
+    * Returns a list of all registered collections.
+    */
   public query func get_registered_cids() : async [(Collection, Principal)] {
     return _Cap.entriesCids();
   };
 
+  /**
+    * Returns a list of all collected events.
+    * @param {Principal} p : The user we want to get the events for.
+    * @param {Date} date : The day we want to target. 
+    */
   public query func get_daily_events(
     p : Principal,
     date : Date,
@@ -217,6 +270,12 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     return _Cap.getDailyEvents(p, date);
   };
 
+  /**
+    * Returns the optional score of an user for a specific day.
+    * @param {Principal} p : The user we want to get the events for.
+    * @param {Date} date : The day we want to target. 
+    * @remark : A return value of null indicates that no event have been collected for this user, for this day. Hence no score was calculated.
+    */
   public query func get_daily_score(
     p : Principal,
     date : Date,
@@ -224,13 +283,12 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     return _Cap.getDailyScore(p, date);
   };
 
-  public query func get_daily_activity(
-    p : Principal,
-    date : Date,
-  ) : async ?Activity {
-    return _Cap.getDailyActivity(p, date);
-  };
-
+  /**
+    * Returns a list of recorded events.
+    * @param {Principal} p : The user we want to get the events for.
+    * @param {Date} t1 : An optional start date (if null default to BEGIN TIME)
+    * @param {Date} t2 : An optional start date (if null default to TIME NOW)
+    */
   public query func get_recorded_events(
     p : Principal,
     t1 : ?Time.Time,
@@ -243,8 +301,6 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   // MISSION ////
   //////////////
 
-  let ONE_DAY_NANO = 24 * 60 * 60 * 1000 * 1000 * 1000;
-
   stable var _MissionUD : ?Mission.UpgradeData = null;
   let _Mission = Mission.Center(
     {
@@ -255,53 +311,94 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     },
   );
 
+  /**
+    * Add a mission into the registry.
+    * @auth : admin
+    * @return : {ok} The mission id.
+    * @return : {err} An error message.
+    */
   public shared ({ caller }) func create_mission(mission : Mission.CreateMission) : async Result.Result<Nat, Text> {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     return _Mission.createMission(mission, caller);
   };
 
+  /**
+    * Start the mission with the given id.
+    * @auth : admin
+    * @return : {ok}.
+    * @return : {err} An error message.
+    */
   public shared ({ caller }) func start_mission(id : Nat) : async Result.Result<(), Text> {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     return _Mission.startMission(id);
   };
 
+  /**
+    * Stop the mission with the given id.
+    * @auth : admin
+    * @return : {ok}.
+    * @return : {err} An error message.
+    */
   public shared ({ caller }) func stop_mission(id : Nat) : async Result.Result<(), Text> {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     return _Mission.stopMission(id);
   };
 
+  /**
+    * Verify the mission with the given id against the caller.
+    * @return : {ok} A boolean indicating if the user has completed the mission.
+    * @return : {err} An error message.
+    */
   public shared ({ caller }) func verify_mission(id : Nat) : async Result.Result<Bool, Text> {
     _Monitor.collectMetrics();
     return await _Mission.verifyMission(id, caller, Principal.toBlob(caller));
   };
 
-  public query func get_completed_missions(p : Principal) : async [(Mission.Mission, Time.Time)] {
-    _Monitor.collectMetrics();
+  /**
+    * Returns a list of all completed mission & their time of completion for the given user.
+    */
+  public query func get_completed_missions(p : Principal) : async [(Mission.Mission, Time)] {
     return _Mission.getCompletedMissions(p);
   };
 
+  /**
+    * Returns the list of all completed mission & their time of completion for the caller.
+    */
   public query ({ caller }) func my_completed_missions() : async [(Nat, Time.Time)] {
-    _Monitor.collectMetrics();
     return _Mission.myCompletedMissions(caller);
   };
 
+  /**
+    * Delete the mission with the given id.
+    * @auth : admin
+    */
   public shared ({ caller }) func delete_mission(id : Nat) : async Result.Result<(), Text> {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     return _Mission.deleteMission(id);
   };
 
+  /**
+    * Get the list of all missions.
+    */
   public query func get_missions() : async [Mission] {
     return _Mission.getMissions();
   };
 
-  public shared ({ caller }) func manually_add_winners(id : Nat, principals : [Principal]) : async Result.Result<(), Text> {
+  /**
+    * Add of list of winners for the missions that needs it (ie manual verification).
+    * @auth : admin
+    */
+  public shared ({ caller }) func manually_add_winners(
+    id : Nat,
+    winners : [Principal],
+  ) : async Result.Result<(), Text> {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
-    return _Mission.manuallyAddWinners(id, principals);
+    return _Mission.manuallyAddWinners(id, winners);
   };
 
   ////////////////////
@@ -320,6 +417,12 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     },
   );
 
+  /**
+    * Start a new round.
+    * @auth : admin
+    * @return : {ok} The round id.
+    * @return : {err} An error message.
+    */
   public shared ({ caller }) func start_round() : async Result<Nat, Text> {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
@@ -334,6 +437,12 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
   };
 
+  /**
+    * Stop the running round.
+    * @auth : admin
+    * @return : {ok} The round id.
+    * @return : {err} An error message.
+    */
   public shared ({ caller }) func stop_round() : async Result<Nat, Text> {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
@@ -348,18 +457,30 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
   };
 
+  /**
+    * Get the round corresponding to the given id.
+    */
   public query func get_round(n : Nat) : async ?Round {
     _Leaderboard.getRound(n);
   };
 
+  /**
+    * Get the current leaderboard
+    */
   public query func get_leaderboard() : async ?Leaderboard {
     _Leaderboard.getCurrentLeaderboard();
   };
 
+  /**
+    * Get the leaderboard corresponding to the given round id.
+    */
   public query func get_specified_leaderboard(id : Nat) : async ?Leaderboard {
     _Leaderboard.getLeaderboard(id);
   };
 
+  /**
+    * Get the simplified version of the leaderboard corresponding to the given round id.
+  */
   public query func get_leaderboard_simplified(n : Nat) : async ?[(Principal, Nat, Nat, Nat)] {
     let leaderboard_opt : ?Leaderboard = _Leaderboard.getLeaderboard(n);
     switch (leaderboard_opt) {
@@ -376,9 +497,9 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
   };
 
-  ///////////////////////
-  //  CRONIC JOBS //////
-  /////////////////////
+  /////////////
+  // JOBS ////
+  ///////////
 
   stable var _JobsUD : ?Jobs.UpgradeData = null;
   let _Jobs : Jobs.Factory = Jobs.Factory(
@@ -387,6 +508,13 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     },
   );
 
+  /**
+    * Add a new job.
+    * @auth : admin
+    * @param: {Principal} canister The principal id of the canister that will be called.
+    * @param: {Text} method The method that will be called.
+    * @param: {Int} interval The period in nanoseconds at which we should call the method.
+    */
   public shared ({ caller }) func add_job(
     canister : Principal,
     method : Text,
@@ -398,6 +526,10 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     _Jobs.addJob(canister, method, interval);
   };
 
+  /**
+    * Remove the job corresponding to the given id.
+    * @auth : admin
+    */
   public shared ({ caller }) func delete_job(
     id : Nat,
   ) : async () {
@@ -407,11 +539,17 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     _Jobs.deleteJob(id);
   };
 
+  /**
+    * Get the list of all jobs.
+    */
   public query ({ caller }) func get_jobs() : async [(Nat, Job)] {
     assert (_Admins.isAdmin(caller));
     return _Jobs.getJobs();
   };
 
+  /**
+    * Turn on or off all the jobs.
+    */
   public shared ({ caller }) func set_job_status(bool : Bool) : async () {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
@@ -424,9 +562,14 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   };
 
   /////////////
-  // Cronic //
+  // CRONIC //
   ///////////
 
+  /**
+    * Update the internal style scores by querying the Avatar canister.
+    * @auth : admin or hub
+    * @cronic : 1 hour
+    */
   public shared ({ caller }) func cron_style_score() : async () {
     assert (_Admins.isAdmin(caller) or caller == cid);
     _Monitor.collectMetrics();
@@ -434,6 +577,11 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     _Logs.logMessage("CRON :: Style scores (hub)");
   };
 
+  /**  
+    * Update the currently running rounds if one is running.  
+    * @auth : admin or hub
+    * @cronic : Every hour.
+    */
   public shared ({ caller }) func cron_round() : async Result<(), Text> {
     assert (_Admins.isAdmin(caller) or caller == cid);
     _Monitor.collectMetrics();
@@ -448,22 +596,10 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
   };
 
-  public shared ({ caller }) func cron_events_time(
-    t1 : Time.Time,
-    t2 : ?Time.Time,
-  ) : async Result.Result<(), Text> {
-    assert (_Admins.isAdmin(caller));
-    _Monitor.collectMetrics();
-    switch (await _Cap.cronEventsTime(t1, t2)) {
-      case (#err(e)) {
-        return #err(e);
-      };
-      case (#ok()) {
-        return #ok();
-      };
-    };
-  };
-
+  /** 
+    * Query all the buckets from all the registered collections on the IC and cache the event of the last 24 hours.
+    * @auth : admin or hub
+    */
   public shared ({ caller }) func cron_events() : async Result.Result<(), Text> {
     assert (_Admins.isAdmin(caller) or caller == cid);
     _Monitor.collectMetrics();
@@ -479,22 +615,72 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     };
   };
 
+  /**
+    * Assign cached events to users.
+    * @auth : admin or hub
+    */
   public shared ({ caller }) func cron_users() : async Result.Result<(), Text> {
     assert (_Admins.isAdmin(caller) or caller == cid);
     _Monitor.collectMetrics();
     await _Cap.cronUsers();
   };
 
+  /**
+    * Clean cached events & add them into the permanent database.
+    * @auth : admin or hub
+    */
   public shared ({ caller }) func cron_clean() : async Result.Result<(), Text> {
     assert (_Admins.isAdmin(caller) or caller == cid);
     _Monitor.collectMetrics();
     _Cap.cronClean();
   };
 
+  /**
+    * Calculate the daily score based on collected events.
+    * @auth : admin or hub
+    */
   public shared ({ caller }) func cron_scores() : async Result.Result<(), Text> {
     assert (_Admins.isAdmin(caller) or caller == cid);
     _Monitor.collectMetrics();
     await _Cap.cronScores();
+  };
+
+  /**
+    * Perfomns all necessary cronic events for engagement tracking in a row (events, user, clean, clean).
+    * @auth : admin or hub
+    * @cronic : 2 hours.
+    */
+  public shared ({ caller }) func cron_stats() : async Result.Result<(), Text> {
+    assert (_Admins.isAdmin(caller) or caller == cid);
+    switch (await cron_events()) {
+      case (#ok) {
+        switch (await cron_users()) {
+          case (#ok) {
+            switch (await cron_clean()) {
+              case (#ok) {
+                switch (await cron_scores()) {
+                  case (#ok) {
+                    return #ok;
+                  };
+                  case (#err(e)) {
+                    return #err(e);
+                  };
+                };
+              };
+              case (#err(e)) {
+                return #err(e);
+              };
+            };
+          };
+          case (#err(e)) {
+            return #err(e);
+          };
+        };
+      };
+      case (#err(e)) {
+        return #err(e);
+      };
+    };
   };
 
   //////////////

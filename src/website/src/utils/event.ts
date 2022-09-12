@@ -43,9 +43,11 @@ export function _isAccessoryMintEvent(event: Event): boolean {
   if (event.operation != "mint" || event.collection.toString() != Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai")) {
     return false;
   }
+  console.log("Event", event);
   let name = _getName(event);
+  console.log("Name: " + name);
   if (name === "") {
-    return false;
+    return true;
   }
   for (let material of materials) {
     if (name.includes(material)) {

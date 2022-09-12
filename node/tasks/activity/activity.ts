@@ -5,8 +5,9 @@ import type { Event } from "@psychedelic/cap-js";
 import { Principal } from "@dfinity/principal";
 import { principalToAddress } from "../../tools/principal";
 import type { Collection, ExtendedEvent } from "@canisters/hub/hub.did.d";
+import { writeFileSync } from "fs";
 
-const BEGIN_TIME = 1_661_944_000_000_000_000;
+const BEGIN_TIME = 1661685851081831478;
 
 async function collectAllEvents(): Promise<ExtendedEvent[]> {
   let identity = fetchIdentity("admin");
@@ -84,15 +85,19 @@ function _isEventRelated(p: Principal, e: Event): boolean {
 
 async function doJob() {
   var metrics = [];
-  let events = await collectAllEvents();
-  let p = Principal.fromText("io5eu-6engj-auiuv-5qaai-52yub-ngjea-qtbdh-3lueo-eakuk-ifuu2-lqe");
+  let events = await collectEvents(BEGIN_TIME, Principal.fromText("qfevy-hqaaa-aaaaj-qanda-cai"));
+  let p = Principal.fromText("yjyao-2xjnf-5yb7g-rdxfk-ktryb-ofb3h-fcwv5-fpruj-zoyrw-hba2r-eae");
   let events_related = events.filter((e) => _isEventRelated(p, e));
-  events_related.forEach((e) => {
+  let length = events_related.length;
+  console.log("Found " + length + " events related to " + p.toString());
+  for (let i = 0; i < length; i++) {
+    let e = events_related[i];
+    console.log(`Event - ${i}`, e);
     let details = _getDetails(e);
-    let collection = e.collection;
-    metrics.push([e.collection.toString(), e.operation, details[0], details[1], details[2], e.time]);
-  });
-  console.log(metrics);
+    metrics.push([e.caller.toString(), e.operation, details[0], details[1], details[2], e.time]);
+  }
+  writeFileSync("metrics.csv", metrics.join("\n"));
+  console.log("Metrics", metrics);
 }
 
 function addToCollectionInvolved(collection: Collection, collection_involved: Collection[]) {
