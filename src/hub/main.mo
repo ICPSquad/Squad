@@ -58,9 +58,9 @@ shared ({ caller = creator }) actor class ICPSquadHub(
   ///////////
 
   /**
-   * Returns the current block time in nanoseconds.
-   * @return {Int} 
-   */
+    * Returns the current block time in nanoseconds.
+    * @return {Int} 
+  */
   public query func time() : async Time {
     Time.now();
   };
@@ -69,7 +69,7 @@ shared ({ caller = creator }) actor class ICPSquadHub(
     * Returns the date corresponding to the specified time.
     * @param {Time} time
     * @return {Date} Format: (year, month, day)
-    */
+  */
   public query func time_to_date(time : Time) : async Date {
     let date = switch (Date.Date.toDatePartsISO8601(time)) {
       case (null) {

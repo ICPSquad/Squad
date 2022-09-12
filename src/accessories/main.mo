@@ -32,6 +32,7 @@ import Invoice "invoice";
 import Items "items";
 import NNS "nns";
 import Rewards "reward";
+
 shared ({ caller = creator }) actor class ICPSquadNFT(
   cid : Principal,
   cid_avatar : Principal,
@@ -57,20 +58,34 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
   stable var _AdminsUD : ?Admins.UpgradeData = null;
   let _Admins = Admins.Admins(creator);
 
+  /**
+    * Returns a boolean indicating if the specified principal is an admin.
+    */
   public query func is_admin(p : Principal) : async Bool {
     _Admins.isAdmin(p);
   };
 
+  /**
+    * Returns a list of all the admins.
+    */
   public query func get_admins() : async [Principal] {
     _Admins.getAdmins();
   };
 
+  /**
+    * Adds the specified principal as an admin.
+    * @auth : admin
+    */
   public shared ({ caller }) func add_admin(p : Principal) : async () {
     _Admins.addAdmin(p, caller);
     _Monitor.collectMetrics();
     _Logs.logMessage("CONFIG :: Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
   };
 
+  /**
+    * Removes the specified principal as an admin.
+    * @auth : master
+    */
   public shared ({ caller }) func remove_admin(p : Principal) : async () {
     assert (caller == master);
     _Monitor.collectMetrics();
@@ -82,12 +97,18 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
   // CYCLES  //
   /////////////
 
+  /**
+    * Add the cycles attached to the incoming message to the balance of the canister.
+    */
   public func acceptCycles() : async () {
     let available = Cycles.available();
     let accepted = Cycles.accept(available);
     assert (accepted == available);
   };
 
+  /**
+    * Returns the cycle balance of the canister.
+    */
   public query func availableCycles() : async Nat {
     return Cycles.balance();
   };
@@ -99,11 +120,21 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
   stable var _MonitorUD : ?Canistergeek.UpgradeData = null;
   private let _Monitor : Canistergeek.Monitor = Canistergeek.Monitor();
 
+  /**
+    * Returns collected data based on passed parameters.
+    * Called from browser.
+    * @auth : admin
+    */
   public query ({ caller }) func getCanisterMetrics(parameters : Canistergeek.GetMetricsParameters) : async ?Canistergeek.CanisterMetrics {
     assert (_Admins.isAdmin(caller));
     _Monitor.getMetrics(parameters);
   };
 
+  /**
+    * Force collecting the data at current time.
+    * Called from browser or any canister "update" method.
+    * @auth : admin
+    */
   public shared ({ caller }) func collectCanisterMetrics() : async () {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
@@ -116,11 +147,20 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
   stable var _LogsUD : ?Canistergeek.LoggerUpgradeData = null;
   private let _Logs : Canistergeek.Logger = Canistergeek.Logger();
 
+  /**
+    * Returns collected log messages based on passed parameters.
+    * Called from browser.
+    * @auth : admin
+    */
   public query ({ caller }) func getCanisterLog(request : ?Canistergeek.CanisterLogRequest) : async ?Canistergeek.CanisterLogResponse {
     assert (_Admins.isAdmin(caller));
     _Logs.getLog(request);
   };
 
+  /**
+    * Set the maximum number of saved log messages.
+    * @auth : admin
+    */
   public shared ({ caller }) func setMaxMessagesCount(n : Nat) : async () {
     assert (_Admins.isAdmin(caller));
     _Logs.setMaxMessagesCount(n);
@@ -163,6 +203,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     },
   );
 
+  /**
+    * Transfer a token and register the event into CAP.
+    */
   public shared ({ caller }) func transfer(request : TransferRequest) : async TransferResponse {
     _Monitor.collectMetrics();
     switch (_Ext.transfer(caller, request)) {
@@ -186,39 +229,58 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     };
   };
 
-  public func tokenId(index : TokenIndex) : async Text {
-    _Monitor.collectMetrics();
-    Ext.TokenIdentifier.encode(Principal.fromActor(this), index);
-  };
-
+  /**
+    * Returns the list of extensions supported by this EXT implemnentation.
+    */
   public query func extensions() : async [Extension] {
     _Ext.extensions();
   };
 
+  /**
+    * Returns the registry.
+    */
   public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
     _Ext.getRegistry();
   };
 
+  /**
+    * Returns the list of all tokens associated with their metadata.
+    */
   public query func getTokens() : async [(TokenIndex, Ext.Common.Metadata)] {
     _Ext.getTokens();
   };
 
-  public query func metadata(tokenId : TokenIdentifier) : async Result<Ext.Common.Metadata, Ext.CommonError> {
+  /**
+    * Returns the metadata associated with the specified tokenIdentifier.
+    */
+  */ public query func metadata(tokenId : TokenIdentifier) : async Result<Ext.Common.Metadata, Ext.CommonError> {
     _Ext.metadata(tokenId);
   };
 
+  /**
+    * Returns the list of tokens owned by the specified account.
+    */
   public query func tokens(aid : AccountIdentifier) : async Result<[TokenIndex], CommonError> {
     _Ext.tokens(aid);
   };
 
+  /**
+    * Returns the list of tokens owned the specified account associatwith their metadata and listing status.
+    */
   public query func tokens_ext(aid : AccountIdentifier) : async Result<[(TokenIndex, ?ExtModule.Listing, ?Blob)], CommonError> {
     _Ext.tokens_ext(aid);
   };
 
+  /**
+    * Returns the balance.
+    */
   public query func balance(request : BalanceRequest) : async BalanceResponse {
     _Ext.balance(request);
   };
 
+  /**
+    * Returns the bearer of the specified tokenIdentifier.
+    */
   public query func bearer(tokenId : TokenIdentifier) : async Result<AccountIdentifier, CommonError> {
     _Ext.bearer(tokenId);
   };
@@ -272,6 +334,12 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     },
   );
 
+  /**
+    * Adds a template.
+    * @param {Text} name : the item name corresponding to the template.    
+    * @param {Template} template : the template.
+    * @auth : admin
+    */
   public shared ({ caller }) func add_template(
     name : Text,
     template : Template,
@@ -290,26 +358,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     };
   };
 
-  public query ({ caller }) func get_items() : async [(Text, [TokenIndex])] {
-    assert (_Admins.isAdmin(caller));
-    _Monitor.collectMetrics();
-    _Items.getItems();
-  };
-
-  public query func get_templates() : async [(Text, Template)] {
-    _Items.getTemplates();
-  };
-
-  public query func get_recipes() : async [(Text, Recipe)] {
-    _Items.getRecipes();
-  };
-
-  public shared ({ caller }) func delete_item(name : Text) : async Result<(), Text> {
-    assert (_Admins.isAdmin(caller));
-    _Monitor.collectMetrics();
-    _Items.deleteItem(name);
-  };
-
+  /**
+    * Wear an accessory.
+    * @param {TokenIdentifier} accessory : the token identifier of the accessory to wear.
+    * @param {TokenIdentifier} avatar : the token identifier of the avatar to wear the accessory.
+    */
   public shared ({ caller }) func wear_accessory(
     accessory : TokenIdentifier,
     avatar : TokenIdentifier,
@@ -342,6 +395,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     await _Items.wearAccessory(accessory, avatar, caller);
   };
 
+  /**
+    * Unwear an accessory.
+    * @param {TokenIdentifier} accessory : the token identifier of the accessory to unwear.
+    * @param {TokenIdentifier} avatar : the token identifier of the avatar to unwear the accessory.
+    */
   public shared ({ caller }) func remove_accessory(
     accessory : TokenIdentifier,
     avatar : TokenIdentifier,
@@ -374,6 +432,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     await _Items.removeAccessory(accessory, avatar, caller);
   };
 
+  /**
+    * Creates an accessory.
+    * @param {Text} name : the name of the accessory to create.
+    * @param {Nat} invoice_id : the id of the invoice corresponding to the accessory fee.
+    */
   public shared ({ caller }) func create_accessory(
     name : Text,
     invoice_id : Nat,
@@ -469,42 +532,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     };
   };
 
-  public shared ({ caller }) func mint(
-    name : Text,
-    receiver : Principal,
-  ) : async Result<(), Text> {
-    assert (_Admins.isAdmin(caller));
-    _Monitor.collectMetrics();
-    switch (_Ext.mint({ to = #principal(receiver); metadata = null })) {
-      case (#err(#Other(e))) return #err(e);
-      case (#err(#InvalidToken(e))) return #err(e);
-      case (#ok(index)) {
-        switch (_Items.mint(name, index)) {
-          case (#err(e)) {
-            //  Revert all state changes since the beggining of this message (ie the token created is reverted).
-            assert (false);
-            return #err("Unreacheable");
-          };
-          case (#ok) {
-            _Logs.logMessage(name # " has been minted by " # Principal.toText(caller) # " for " # Principal.toText(receiver));
-            return #ok;
-          };
-        };
-      };
-    };
-  };
-
-  public query func get_name(index : TokenIndex) : async ?Text {
-    _Items.getName(index);
-  };
-
-  /* 
-        Returns the optional avatar on which the provided accessory is equipped.
+  /**
+    * Decrease the wear value of all accessories and burn them if they reach 0.
+    * @auth : admin or hub
     */
-  public query func get_avatar_equipped(tokenId : TokenIdentifier) : async ?TokenIdentifier {
-    _Items.getAvatarEquipped(tokenId);
-  };
-
   public shared ({ caller }) func update_accessories() : async () {
     assert (_Admins.isAdmin(caller) or caller == cid_hub);
     _Monitor.collectMetrics();
@@ -513,23 +544,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     return;
   };
 
+  /**
+    * Returns the inventory of the caller.
+    */
   public query ({ caller }) func getInventory() : async Result<Inventory, Text> {
     _Items.getInventory(caller);
-  };
-
-  public query func checkInventory(p : Principal) : async Result<Inventory, Text> {
-    _Items.getInventory(p);
-  };
-
-  let DAY_NANO_RAW = 86400000000 * 1000;
-
-  public query func get_materials(p : Principal, available : Bool) : async [(TokenIndex, Text)] {
-    let materials = _Items.getMaterials(p);
-    if (available) {
-      return (Array.filter<(TokenIndex, Text)>(materials, func(x) { not _Entrepot.isLocked(x.0) }));
-    } else {
-      return (materials);
-    };
   };
 
   //////////
@@ -545,6 +564,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     },
   );
 
+  /**
+    * HTTP entry point.
+    */
   public query func http_request(request : Http.Request) : async Http.Response {
     _HttpHandler.request(request);
   };
@@ -567,6 +589,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     },
   );
 
+  /**
+    * Send outs the monthly rewards.
+    * @auth : admin
+    */
   public shared ({ caller }) func airdrop_rewards(
     data : [(AccountIdentifier, Airdrop)],
   ) : async () {
@@ -575,6 +601,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     _Rewards.airdropRewards(data);
   };
 
+  /**
+    * Record an ICP reward sent out to a user
+    * @auth : admin
+    */
   public shared ({ caller }) func record_icps(
     account : AccountIdentifier,
     amount_e8s : Nat,
@@ -584,6 +614,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     _Rewards.recordICP(account, amount_e8s);
   };
 
+  /**
+    * Record an NFT reward sent out to a user
+    * @auth : admin
+    */
   public shared ({ caller }) func record_nft(
     account : AccountIdentifier,
     collection : Principal,
@@ -595,14 +629,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     _Rewards.recordNFT(account, collection, name, identifier);
   };
 
-  public shared ({ caller }) func delete_recorded_rewards(
-    p : Principal,
-  ) : () {
-    assert (_Admins.isAdmin(caller));
-    _Monitor.collectMetrics();
-    _Rewards.deleteRecordedRewards(p);
-  };
-
+  /**
+    * Returns the list of recorded rewards for the specified user.
+    * @auth : admin
+    */
   public query func get_recorded_rewards(
     p : Principal,
   ) : async ?[Reward] {
@@ -617,6 +647,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
   public type Supply = Nat;
   public type Floor = Nat64;
 
+  /**
+    * Returns the current supply of all accessory along with their floor price.
+    */
   public query func get_stats_items() : async [(Text, Supply, ?Floor)] {
     let items = _Items.getItems();
     let buffer = Buffer.Buffer<(Text, Supply, ?Floor)>(items.size());
@@ -646,14 +679,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     },
   );
 
-  public shared ({ caller }) func is_owner_account(
-    account : AccountIdentifier,
-    token : TokenIndex,
-  ) : async Bool {
-    assert (_Admins.isAdmin(caller));
-    return _Ext.isOwnerAccount(account, token);
-  };
-
+  /**
+    * List a NFT for sale.
+    */
   public shared ({ caller }) func list(
     request : Entrepot.ListRequest,
   ) : async Entrepot.ListResponse {
@@ -661,6 +689,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     await _Entrepot.list(caller, request);
   };
 
+  /**
+    * Unlist a NFT.
+    */
   public shared ({ caller }) func can_settle(
     p : Principal,
     token : Ext.TokenIdentifier,
@@ -669,6 +700,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     await _Entrepot.canSettle(p, token);
   };
 
+  /**
+    * Locks an NFT that is for sale.
+    */
   public shared ({ caller }) func lock(
     token : TokenIdentifier,
     price : Nat64,
@@ -679,6 +713,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     await _Entrepot.lock(caller, token, price, buyer, bytes);
   };
 
+  /**
+    * Settles a transaction.
+    */
   public shared ({ caller }) func settle(
     token : TokenIdentifier,
   ) : async Result<(), CommonError> {
@@ -686,6 +723,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     await _Entrepot.settle(caller, token);
   };
 
+  /**
+    * Returns the stats of the collection.
+    */
   public query func stats() : async (
     Nat64,
     // Total volumes
@@ -705,83 +745,97 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     _Entrepot.stats();
   };
 
+  /**
+    * Returns the details of a tokenIdentifier.
+    */
   public query func details(token : TokenIdentifier) : async Entrepot.DetailsResponse {
     _Entrepot.details(token);
   };
 
+  /**
+    * Returns all listings.
+    */
   public query func listings() : async Entrepot.ListingResponse {
     _Entrepot.getListings();
   };
 
+  /**
+    * Returns the list of all sales.
+    */
   public query func get_pending_transactions() : async [(TokenIndex, Entrepot.Transaction)] {
     _Entrepot.getPendingTransactions();
   };
 
-  public shared ({ caller }) func purge_pending_transactions() : () {
-    assert (_Admins.isAdmin(caller));
-    _Monitor.collectMetrics();
-    _Entrepot.purgePendingTransactions();
-  };
-
+  /**
+    * Returns a list of all performed transactions.
+    */
   public query func transactions() : async [Entrepot.EntrepotTransaction] {
     _Entrepot.readTransactions();
   };
 
-  public query func transactions_new() : async [(Nat, Entrepot.Transaction)] {
-    _Entrepot.readTransactionsNew();
-  };
-
-  public query func transactions_new_size() : async Nat {
-    _Entrepot.transactionsSize();
-  };
-
+  /**
+    * Returns the list of all SubAccount used for payments.
+    */
   public query ({ caller }) func payments() : async ?[SubAccount] {
     _Entrepot.payments(caller);
   };
 
+  /**
+  * Returns the list of all disbursements
+  */
   public query ({ caller }) func read_disbursements() : async [Disbursement] {
     assert (_Admins.isAdmin(caller));
     _Entrepot.disbursements();
-  };
-
-  public query ({ caller }) func disbursement_queue_size() : async Nat {
-    assert (_Admins.isAdmin(caller));
-    _Entrepot.disbursementQueueSize();
-  };
-
-  public query ({ caller }) func disbursement_pending_count() : async Nat {
-    assert (_Admins.isAdmin(caller));
-    _Entrepot.disbursementPendingCount();
   };
 
   //////////////
   // Cronic ///
   /////////////
 
+  /** 
+    * Process disbursements jobs (send ICPs from fees and sales) 
+    * @cronic : 5 seconds
+    */
   public shared ({ caller }) func cron_verification() : async () {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     await _Entrepot.cronVerification();
   };
 
+  /** 
+    * Process disbursements jobs (send ICPs from fees and sales) 
+    * @cronic : 5 seconds
+    */
   public shared ({ caller }) func cron_disbursements() : async () {
     assert (_Admins.isAdmin(caller) or caller == cid_hub);
     _Monitor.collectMetrics();
     await _Entrepot.cronDisbursements();
   };
 
+  /**
+    * Settle all transactions that can be settled
+    * @cronic : 10 seconds
+    */
   public shared ({ caller }) func cron_settlements() : async () {
     assert (_Admins.isAdmin(caller) or caller == cid_hub);
     _Monitor.collectMetrics();
     await _Entrepot.cronSettlements();
   };
 
+  /** 
+    * Checks that all events have been reported to the CAP bucket
+    * @cronic : 1 minutes
+    */
   public shared ({ caller }) func cron_events() : async () {
     assert (_Admins.isAdmin(caller) or caller == cid_hub);
     _Monitor.collectMetrics();
     await _Cap.cronEvents();
   };
 
+  /** 
+    * Report all burned accessories to the Avatar canister so it can automatically desequip them  
+    * @cronic : 1 minute
+    */
   public shared ({ caller }) func cron_burned() : async () {
     assert (_Admins.isAdmin(caller) or caller == cid_hub);
     _Monitor.collectMetrics();
@@ -824,4 +878,3 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     _Logs.logMessage("POSTUPGRADE :: accessory");
   };
 };
-
