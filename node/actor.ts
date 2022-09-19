@@ -1,9 +1,9 @@
 import "isomorphic-fetch";
+import { readFileSync } from "fs";
 import { Actor, HttpAgent } from "@dfinity/agent";
 import type { ActorSubclass, HttpAgentOptions, Identity } from "@dfinity/agent";
 import type { IDL } from "@dfinity/candid";
 import type { Principal } from "@dfinity/principal";
-import { readFileSync } from "fs";
 import { idlFactory as idlFactoryAvatar } from "./declarations/avatar/avatar.did";
 import type { ICPSquadNFT as Avatar } from "./declarations/avatar/avatar.did.d";
 import { idlFactory as idlFactoryAccessories } from "./declarations/accessories/accessories.did";

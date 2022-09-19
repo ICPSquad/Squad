@@ -33,6 +33,10 @@ import Users "users";
 
 shared ({ caller = creator }) actor class ICPSquadNFT() = this {
 
+  ////////////
+  // CONST ///
+  ////////////
+
   let cid = Principal.fromText("jmuqr-yqaaa-aaaaj-qaicq-cai");
   let accessory_cid = Principal.fromText("po6n2-uiaaa-aaaaj-qaiua-cai");
   let invoice_cid = Principal.fromText("if27l-eyaaa-aaaaj-qaq5a-cai");
@@ -44,6 +48,28 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
 
   public type Time = Time.Time;
   public type Result<A, B> = Result.Result<A, B>;
+  public type FilePath = Assets.FilePath;
+  public type File = Assets.File;
+  public type MintInformation = Avatar.MintInformation;
+  public type Colors = Avatar.Colors;
+  public type MintResult = Result<TokenIdentifier, Text>;
+  public type AvatarRendering = Avatar.AvatarRendering;
+  public type Stats = Scores.Stats;
+  public type Stars = Scores.Stars;
+  public type StyleScore = Scores.StyleScore;
+
+  type AccountIdentifier = Ext.AccountIdentifier;
+  type SubAccount = Ext.SubAccount;
+  type User = Ext.User;
+  type Balance = Ext.Balance;
+  type TokenIdentifier = Ext.TokenIdentifier;
+  type TokenIndex = Ext.TokenIndex;
+  type Extension = Ext.Extension;
+  type CommonError = Ext.CommonError;
+  type BalanceRequest = Ext.Core.BalanceRequest;
+  type BalanceResponse = Ext.Core.BalanceResponse;
+  type TransferRequest = Ext.Core.TransferRequest;
+  type TransferResponse = Ext.Core.TransferResponse;
 
   ///////////
   // ADMIN //
@@ -54,20 +80,34 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
   stable var _AdminsUD : ?Admins.UpgradeData = null;
   let _Admins = Admins.Admins(creator);
 
+  /**
+    * Returns a boolean indicating if the specified principal is an admin
+    */
   public query func is_admin(p : Principal) : async Bool {
     _Admins.isAdmin(p);
   };
 
+  /**
+    * Returns a list of all the admins
+    */
   public query func get_admins() : async [Principal] {
     _Admins.getAdmins();
   };
 
+  /**
+    * Adds the specified principal as an admin
+    * @auth : admin
+    */
   public shared ({ caller }) func add_admin(p : Principal) : async () {
     _Admins.addAdmin(p, caller);
     _Monitor.collectMetrics();
     _Logs.logMessage("CONFIG :: Added admin : " # Principal.toText(p) # " by " # Principal.toText(caller));
   };
 
+  /**
+    * Removes the specified principal from the admin list
+    * @auth : master
+    */
   public shared ({ caller }) func remove_admin(p : Principal) : async () {
     assert (caller == master);
     _Monitor.collectMetrics();
@@ -79,12 +119,18 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
   // CYCLES  //
   /////////////
 
+  /**
+    * Add the cycles attached to the incoming message to the balance of the canister.
+    */
   public func acceptCycles() : async () {
     let available = Cycles.available();
     let accepted = Cycles.accept(available);
     assert (accepted == available);
   };
 
+  /**
+    * Returns the cycle balance of the canister.
+    */
   public query func availableCycles() : async Nat {
     return Cycles.balance();
   };
@@ -133,6 +179,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     _Logs.getLog(request);
   };
 
+  /**
+    * Set the maximum number of saved log messages.
+    * @auth : admin
+    */
   public shared ({ caller }) func setMaxMessagesCount(n : Nat) : async () {
     assert (_Admins.isAdmin(caller));
     _Logs.setMaxMessagesCount(n);
@@ -142,12 +192,13 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
   // ASSET //
   ///////////
 
-  public type FilePath = Assets.FilePath;
-  public type File = Assets.File;
-
   stable var _AssetsUD : ?Assets.UpgradeData = null;
   let _Assets = Assets.Assets();
 
+  /**
+    * Upload bytes into the buffer to upload a file.
+    * @auth : admin
+    */
   public shared ({ caller }) func upload(
     bytes : [Nat8],
   ) : async () {
@@ -156,6 +207,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     _Assets.upload(bytes);
   };
 
+  /**
+    * Finalize the upload of a file.
+    * @auth : admin
+    */
   public shared ({ caller }) func uploadFinalize(
     contentType : Text,
     meta : Assets.Meta,
@@ -175,12 +230,20 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     };
   };
 
+  /**
+    * Clears the buffer to upload a file. To call before uploading a new file.
+    * @auth : admin
+    */
   public shared ({ caller }) func uploadClear() : async () {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     _Assets.uploadClear();
   };
 
+  /**
+    * Deletes the file with the specified path.
+    * @auth : admin
+    */
   public shared ({ caller }) func delete_file(
     filePath : Text,
   ) : async Result<(), Text> {
@@ -193,11 +256,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
   // Avatar ////
   /////////////
 
-  public type MintInformation = Avatar.MintInformation;
-  public type Colors = Avatar.Colors;
-  public type MintResult = Result<TokenIdentifier, Text>;
-  public type AvatarRendering = Avatar.AvatarRendering;
-
   stable var _AvatarUD : ?Avatar.UpgradeData = null;
   let _Avatar = Avatar.Factory(
     {
@@ -207,6 +265,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     },
   );
 
+  /**
+    * Registers a component 
+    * @auth : admin
+    */
   public shared ({ caller }) func registerComponent(
     name : Text,
     component : Avatar.Component,
@@ -225,6 +287,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     };
   };
 
+  /**
+    * Deletes a component 
+    * @auth : admin
+    */
   public shared ({ caller }) func delete_component(
     name : Text,
   ) : async Result<(), Text> {
@@ -233,12 +299,20 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     _Avatar.deleteComponent(name);
   };
 
+  /**
+    * Gets all registered components
+    * @auth : admin
+    */
   public shared ({ caller }) func get_components() : async [(Text, Avatar.Component)] {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     return _Avatar.getComponents();
   };
 
+  /**
+    * Change the <style> tag appearing at the top of all avatars.
+    * @auth : admin
+    */
   public shared ({ caller }) func changeStyle(
     style : Text,
   ) : async () {
@@ -248,6 +322,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     _Logs.logMessage("CONFIG :: Changed CSS");
   };
 
+  /**
+    * Update the avatar rendering of the specified tokenIdentifier.
+    * @auth : admin
+    */
   public shared ({ caller }) func draw(
     tokenId : TokenIdentifier,
   ) : async Result<(), Text> {
@@ -256,10 +334,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     _Avatar.drawAvatar(tokenId);
   };
 
-  /* 
-        Associate a legendary avatar artwork with the given tokenIdentifier. Do NOT create the token 
-        @auth : admin
-     */
+  /** 
+    * Associate a legendary avatar artwork with the given tokenIdentifier. Do NOT create the token 
+    * @auth : admin
+    */
   public shared ({ caller }) func associate_legendary(
     name : Text,
     token : TokenIdentifier,
@@ -278,6 +356,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     };
   };
 
+  /**
+    * Burns the specified tokenIdentifier.
+    * @auth : admin
+    */
   public shared ({ caller }) func burn(
     token : TokenIdentifier,
   ) : async Result<(), Text> {
@@ -304,6 +386,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     };
   };
 
+  /**
+    * Verify the invoice has been paid and mints a new avatar.
+    */
   public shared ({ caller }) func mint(
     info : MintInformation,
     invoice_id : ?Nat,
@@ -366,6 +451,10 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     };
   };
 
+  /**
+    * Mints a legendary avatar.
+    * @auth : admin
+    */
   public shared ({ caller }) func mint_legendary(
     name : Text,
     recipient : Principal,
@@ -400,6 +489,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     };
   };
 
+  /**
+    * Equip the specified tokenIdentifier with the given item. P is the initial caller.
+    * @auth : admin
+    * @caller : accessory canister 
+    */
   public shared ({ caller }) func wearAccessory(
     tokenId : TokenIdentifier,
     name : Text,
@@ -428,6 +522,12 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     };
   };
 
+  /**
+    * Removes the item of the given avatar (identified by tokenIdentifier) from the given item. 
+    * P is the principal of the initial caller.
+    * @auth : admin
+    * @caller : accessory canister 
+    */
   public shared ({ caller }) func removeAccessory(
     tokenId : TokenIdentifier,
     name : Text,
@@ -456,17 +556,28 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     };
   };
 
+  /**
+    * Returns the slot of the given avatar (identified by tokenIdentifier).
+    * @auth : admin
+    * @caller : accessory canister 
+    */
   public shared ({ caller }) func get_slot(token : TokenIdentifier) : async ?Avatar.Slots {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     return _Avatar.getSlot(token);
   };
 
+  /**
+    * Sets the default avatar for the given user
+    */
   public shared ({ caller }) func set_default_avatar(tokenId : TokenIdentifier) : async Result<(), Text> {
     _Monitor.collectMetrics();
     _Users.setDefaultAvatar(caller, tokenId);
   };
 
+  /**
+    * Returns informations on the avatar of the caller.
+    */
   public shared query ({ caller }) func get_avatar_infos() : async (?TokenIdentifier, ?AvatarRendering) {
     switch (_Users.getDefaultAvatar(caller)) {
       case (null) {
@@ -480,25 +591,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
             return (?tokenIdentifier, rendering);
           };
         };
-      };
-      case (?tokenId) {
-        let avatar_rendering = _Avatar.getAvatarRendering(tokenId);
-        return (?tokenId, avatar_rendering);
-      };
-    };
-  };
-
-  public shared ({ caller }) func inspect_avatar(tokenId : TokenIdentifier) : async ?Avatar.Avatar {
-    assert (_Admins.isAdmin(caller));
-    _Monitor.collectMetrics();
-    return _Avatar.getAvatar(tokenId);
-  };
-
-  public shared query ({ caller }) func check_avatar_infos(p : Principal) : async (?TokenIdentifier, ?AvatarRendering) {
-    assert (_Admins.isAdmin(caller));
-    switch (_Users.getDefaultAvatar(p)) {
-      case (null) {
-        return (null, null);
       };
       case (?tokenId) {
         let avatar_rendering = _Avatar.getAvatarRendering(tokenId);
@@ -530,19 +622,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
   // EXT - ERC721 //
   /////////////////
 
-  type AccountIdentifier = Ext.AccountIdentifier;
-  type SubAccount = Ext.SubAccount;
-  type User = Ext.User;
-  type Balance = Ext.Balance;
-  type TokenIdentifier = Ext.TokenIdentifier;
-  type TokenIndex = Ext.TokenIndex;
-  type Extension = Ext.Extension;
-  type CommonError = Ext.CommonError;
-  type BalanceRequest = Ext.Core.BalanceRequest;
-  type BalanceResponse = Ext.Core.BalanceResponse;
-  type TransferRequest = Ext.Core.TransferRequest;
-  type TransferResponse = Ext.Core.TransferResponse;
-
   stable var _ExtUD : ?ExtModule.UpgradeData = null;
   let _Ext = ExtModule.Factory(
     {
@@ -552,6 +631,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     },
   );
 
+  /**
+    * Transfers a token and register the event into CAP.
+    */
   public shared ({ caller }) func transfer(request : TransferRequest) : async TransferResponse {
     _Monitor.collectMetrics();
     switch (_Ext.transfer(caller, request)) {
@@ -575,6 +657,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     };
   };
 
+  /**
+    * Returns the list of extensions supported by this EXT implemnentation.
+    */
   public query func extensions() : async [Extension] {
     _Ext.extensions();
   };
@@ -583,22 +668,37 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     _Ext.size();
   };
 
+  /**
+    * Returns the registry.
+    */
   public query func getRegistry() : async [(TokenIndex, AccountIdentifier)] {
     _Ext.getRegistry();
   };
 
+  /**
+    * Returns the list of all tokens associated with their metadata.
+    */
   public query func getTokens() : async [(TokenIndex, Ext.Common.Metadata)] {
     _Ext.getTokens();
   };
 
+  /**
+    * Returns the metadata associated with the specified tokenIdentifier.
+    */
   public query func metadata(tokenId : TokenIdentifier) : async Result<Ext.Common.Metadata, Ext.CommonError> {
     _Ext.metadata(tokenId);
   };
 
+  /**
+    * Returns the list of tokens owned by the specified account.
+    */
   public query func tokens(aid : AccountIdentifier) : async Result<[TokenIndex], CommonError> {
     _Ext.tokens(aid);
   };
 
+  /**
+    * Returns the list of tokens owned the specified account associatwith their metadata and listing status.
+    */
   public query func tokens_ext(aid : AccountIdentifier) : async Result<[(TokenIndex, ?ExtModule.Listing, ?Blob)], CommonError> {
     _Ext.tokens_ext(aid);
   };
@@ -617,10 +717,16 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     return Array.map<(TokenIndex, AccountIdentifier), TokenIdentifier>(registry, func(x) { Ext.TokenIdentifier.encode(cid, x.0) });
   };
 
+  /**
+    * Returns the balance.
+    */
   public query func balance(request : BalanceRequest) : async BalanceResponse {
     _Ext.balance(request);
   };
 
+  /**
+    * Returns the bearer of the specified tokenIdentifier.
+    */
   public query func bearer(tokenId : TokenIdentifier) : async Result<AccountIdentifier, CommonError> {
     _Ext.bearer(tokenId);
   };
@@ -656,6 +762,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     },
   );
 
+  /**
+    * HTTP entry point.
+    */
   public query func http_request(request : Http.Request) : async Http.Response {
     _HttpHandler.request(request);
   };
@@ -677,6 +786,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     },
   );
 
+  /**
+    * Registers a new user profile.
+    */
   public shared ({ caller }) func create_profile(
     username : ?Text,
     email : ?Text,
@@ -715,21 +827,16 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     _Users.createUser(caller, username, email, discord, twitter, default_avatar);
   };
 
+  /**
+    * Returns the user profile of the caller.
+    */
   public shared query ({ caller }) func get_user() : async ?UserData {
     _Users.getUser(caller);
   };
 
-  public shared query ({ caller }) func get_avatars() : async [TokenIdentifier] {
-    let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
-    switch (_Ext.tokens(account)) {
-      case (#err(e)) return [];
-      case (#ok(tokenIds)) {
-        let tokenIdentifier = Array.map<TokenIndex, TokenIdentifier>(tokenIds, func(x) { Ext.TokenIdentifier.encode(cid, x) });
-        return tokenIdentifier;
-      };
-    };
-  };
-
+  /**
+    * Modify the user profile of the caller.
+    */
   public shared ({ caller }) func modify_profile(
     username : ?Text,
     email : ?Text,
@@ -741,34 +848,57 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     _Users.modifyProfile(username, email, discord, twitter, default_avatar, caller);
   };
 
-  public shared ({ caller }) func add_user(p : Principal) : async Result<(), Text> {
-    assert (_Admins.isAdmin(caller));
-    _Monitor.collectMetrics();
-    _Users.register(p);
+  /**
+    * Returns all the avatars (ie TokenIdentifier) owned by the caller
+    */
+  public shared query ({ caller }) func get_avatars() : async [TokenIdentifier] {
+    let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+    switch (_Ext.tokens(account)) {
+      case (#err(e)) return [];
+      case (#ok(tokenIds)) {
+        let tokenIdentifier = Array.map<TokenIndex, TokenIdentifier>(tokenIds, func(x) { Ext.TokenIdentifier.encode(cid, x) });
+        return tokenIdentifier;
+      };
+    };
   };
 
+  /**
+    * Returns all the registered users.
+    */
   public shared ({ caller }) func get_all_users() : async [(Principal, UserData)] {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     _Users.getUsers();
   };
 
+  /**
+    * Returns the number of registered users.
+    */
   public query func get_number_users() : async Nat {
     _Users.getNumberUsers();
   };
 
+  /**
+    * Returns the infos of the leaderboard.
+    */
   public shared query ({ caller }) func get_infos_leaderboard() : async [(Principal, ?Name, ?TokenIdentifier)] {
     assert (_Admins.isAdmin(caller) or caller == cid_hub);
     _Monitor.collectMetrics();
     _Users.getInfosLeaderboard();
   };
 
+  /**
+    * Returns the list of Principal / Account Identifier for all registered users.
+    */
   public shared query ({ caller }) func get_infos_accounts() : async [(Principal, AccountIdentifier)] {
     assert (_Admins.isAdmin(caller) or caller == cid_hub);
     _Monitor.collectMetrics();
     _Users.getInfosAccounts();
   };
 
+  /**
+    * Returns a list of informations for all registered users.
+    */
   public shared query ({ caller }) func get_infos_holders() : async [(Principal, ?AccountIdentifier, ?Text, ?Text, ?TokenIdentifier)] {
     assert (_Admins.isAdmin(caller) or caller == cid_hub);
     _Monitor.collectMetrics();
@@ -778,10 +908,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
   /////////////
   // SCORES ///
   /////////////
-
-  public type Stats = Scores.Stats;
-  public type Stars = Scores.Stars;
-  public type StyleScore = Scores.StyleScore;
 
   stable var _ScoresUD : ?Scores.UpgradeData = null;
   let _Scores = Scores.Factory(
@@ -794,6 +920,9 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     },
   );
 
+  /**
+    * Upload stats for items. (ie daily style score per item)
+    */
   public shared ({ caller }) func upload_stats(
     stats : Stats,
   ) : () {
@@ -802,20 +931,32 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     _Scores.uploadStats(stats);
   };
 
+  /**
+    * Returns currently registered stats for items. 
+    */
   public query func get_stats() : async [(Scores.Name, Stars)] {
     _Scores.getStats();
   };
 
+  /**
+    * Calculate the daily style score of avatar based on equipped items & stats.
+    */
   public shared ({ caller }) func calculate_style_score() : () {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     _Scores.calculateStyleScores();
   };
 
+  /**
+    * Returns the daily style score of an avatar (identified by tokenIdentifier) 
+    */
   public query func get_score(tokenId : TokenIdentifier) : async ?Nat {
     _Scores.getScore(tokenId);
   };
 
+  /**
+    * Returns the daily style score of all avatars.
+    */
   public shared query ({ caller }) func get_style_score() : async [(TokenIdentifier, StyleScore)] {
     assert (_Admins.isAdmin(caller) or caller == cid_hub);
     _Scores.getStyleScores();
@@ -834,10 +975,17 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     },
   );
 
+  /**
+    * Returns a boolen indicating if the specified principal has a ticket.
+    */
   public query func has_ticket(p : Principal) : async Bool {
     _Tickets.hasTicket(p);
   };
 
+  /**
+    * Mints a ticket for the specified principal.
+    * @auth : admin
+    */
   public shared ({ caller }) func mint_ticket(p : Principal) : async Result<TokenIndex, Text> {
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
@@ -859,24 +1007,36 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
   // CRONIC ///
   /////////////
 
+  /** 
+    * Checks that all events have been reported to the CAP bucket
+    * @cronic : 1 minutes
+    */
   public shared ({ caller }) func cron_events() : async () {
     assert (_Admins.isAdmin(caller) or caller == cid_hub);
     _Monitor.collectMetrics();
     await _Cap.cronEvents();
   };
 
+  /** 
+    * Updates the daily style score for avatars based on currently equipped accessories & stats.
+    * @cronic : 1 hour
+    */
   public shared ({ caller }) func cron_scores() : async () {
     assert (_Admins.isAdmin(caller) or caller == cid_hub);
     _Monitor.collectMetrics();
     _Scores.calculateStyleScores();
-    _Logs.logMessage(" CRON : : Update style scores ");
+    _Logs.logMessage("CRON : : Update style scores ");
   };
 
+  /** 
+    * Updates the associated default avatar for all users.
+    * @cronic : 1 hour
+    */
   public shared ({ caller }) func cron_default_avatar() : async () {
     assert (_Admins.isAdmin(caller) or caller == cid_hub);
     _Monitor.collectMetrics();
     _Users.cronDefaultAvatar();
-    _Logs.logMessage(" CRON : : Update default avatar ");
+    _Logs.logMessage("CRON : : Update default avatar ");
   };
 
   /////////////
@@ -884,7 +1044,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
   /////////////
 
   system func preupgrade() {
-    _Logs.logMessage(" PREUPGRADE : : avatar ");
+    _Logs.logMessage(" PREUPGRADE : avatar ");
     _MonitorUD := ?_Monitor.preupgrade();
     _LogsUD := ?_Logs.preupgrade();
     _AdminsUD := ?_Admins.preupgrade();
@@ -918,6 +1078,6 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     _CapUD := null;
     _Tickets.postupgrade(_TicketsUD);
     _TicketsUD := null;
-    _Logs.logMessage(" POSTUPGRADE : : avatar ");
+    _Logs.logMessage("POSTUPGRADE : avatar ");
   };
 };

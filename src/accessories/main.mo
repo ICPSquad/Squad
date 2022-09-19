@@ -59,21 +59,21 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
   let _Admins = Admins.Admins(creator);
 
   /**
-    * Returns a boolean indicating if the specified principal is an admin.
+    * Returns a boolean indicating if the specified principal is an admin
     */
   public query func is_admin(p : Principal) : async Bool {
     _Admins.isAdmin(p);
   };
 
   /**
-    * Returns a list of all the admins.
+    * Returns a list of all the admins
     */
   public query func get_admins() : async [Principal] {
     _Admins.getAdmins();
   };
 
   /**
-    * Adds the specified principal as an admin.
+    * Adds the specified principal as an admin
     * @auth : admin
     */
   public shared ({ caller }) func add_admin(p : Principal) : async () {
@@ -83,7 +83,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
   };
 
   /**
-    * Removes the specified principal as an admin.
+    * Removes the specified principal from the admin list
     * @auth : master
     */
   public shared ({ caller }) func remove_admin(p : Principal) : async () {
