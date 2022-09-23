@@ -26,8 +26,8 @@
         await stoicConnexion();
         close();
       } catch (e) {
+        alert("Failed to connect with Stoic.");
         console.log("Error connecting to Stoic", e);
-        alert(e.message);
       }
     } else if (name === "Plug") {
       if (mobileCheck()) {
@@ -38,7 +38,8 @@
         await plugConnection();
         close();
       } catch (e) {
-        alert(e.message);
+        alert("Failed to connect with Plug. Make sure you have the corresponding extension installed.");
+        console.log("Error connecting to Plug", e);
       }
     } else if (name === "Infinity") {
       if (mobileCheck()) {
@@ -49,7 +50,8 @@
         await infinityConnection();
         close();
       } catch (e) {
-        alert(e.message);
+        alert("Failed to connect with this wallet. Make sure you have the corresponding extension installed.");
+        console.log("Error connecting to InfinityWallet", e);
       }
     }
   }

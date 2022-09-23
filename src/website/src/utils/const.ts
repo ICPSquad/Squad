@@ -12,7 +12,6 @@ const hubID = "p4y2d-yyaaa-aaaaj-qaixa-cai";
 const AMOUNT_MINT = { e8s: BigInt(10_000_000) };
 const AMOUNT_FEE = { e8s: BigInt(10_000) };
 
-// const HOST = process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000";
-const HOST = "https://mainnet.dfinity.network";
+const HOST = "https://ic0.app";
 
 export { avatarID, accessoriesID, invoiceID, ledgerID, hubID, AMOUNT_MINT, AMOUNT_FEE, HOST };

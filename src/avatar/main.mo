@@ -1044,7 +1044,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
   /////////////
 
   system func preupgrade() {
-    _Logs.logMessage(" PREUPGRADE : avatar ");
+    _Logs.logMessage("PREUPGRADE : avatar ");
     _MonitorUD := ?_Monitor.preupgrade();
     _LogsUD := ?_Logs.preupgrade();
     _AdminsUD := ?_Admins.preupgrade();

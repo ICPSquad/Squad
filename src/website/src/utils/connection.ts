@@ -84,7 +84,7 @@ export async function stoicConnexion(): Promise<void> {
             user.update((u) => ({ ...u, wallet: "stoic", loggedIn: true, principal: identity.getPrincipal() }));
             const agent = new HttpAgent({
               identity: identity,
-              host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
+              host: process.env.NODE_ENV === "production" ? "https://ic0.app" : "http://127.0.0.1:8000",
             });
             const avatarActor = Actor.createActor<Avatar>(idlFactoryAvatar, {
               agent,
@@ -115,7 +115,7 @@ export async function stoicConnexion(): Promise<void> {
         user.update((u) => ({ ...u, wallet: "stoic", loggedIn: true, principal: identity.getPrincipal() }));
         const agent = new HttpAgent({
           identity: identity,
-          host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
+          host: process.env.NODE_ENV === "production" ? "https://ic0.app" : "http://127.0.0.1:8000",
         });
         const avatarActor = Actor.createActor<Avatar>(idlFactoryAvatar, {
           agent,
@@ -190,7 +190,7 @@ export async function persistConnexion(): Promise<void> {
       const principal = stoicConnected.getPrincipal();
       let agent = new HttpAgent({
         identity: stoicConnected,
-        host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
+        host: process.env.NODE_ENV === "production" ? "https://ic0.app" : "http://127.0.0.1:8000",
       });
       const avatarActor = Actor.createActor<Avatar>(idlFactoryAvatar, {
         agent,

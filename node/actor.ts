@@ -17,7 +17,7 @@ import type { _SERVICE as Ledger } from "./declarations/ledger/ledger.did.d";
 
 function createActor<T>(canisterId: string | Principal, idlFactory: IDL.InterfaceFactory, options: HttpAgentOptions): ActorSubclass<T> {
   const agent = new HttpAgent({
-    host: process.env.NODE_ENV === "production" ? "https://mainnet.dfinity.network" : "http://127.0.0.1:8000",
+    host: process.env.NODE_ENV === "production" ? "https://ic0.app" : "http://127.0.0.1:8000",
     ...options,
   });
   if (process.env.NODE_ENV == "development") {
