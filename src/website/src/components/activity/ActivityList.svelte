@@ -91,10 +91,10 @@
       <div />
       <div class="event">Event</div>
       <div class="collection">Collection</div>
-      <div class="date ">Date</div>
+      <div class="date hide-on-mobile">Date</div>
     </div>
     {#each extended_events as event}
-      <EventCard collection={principalToName(event.collection)} unix_time={event.time} operation={event.operation} />
+      <EventCard collection={principalToName(event.collection)} {event} />
     {/each}
   </div>
 {/if}
@@ -142,5 +142,21 @@
 
   h4 {
     text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    .summary-board {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .title {
+      grid-template-columns: 80px 1fr 1fr;
+      font-size: small;
+    }
+
+    .hide-on-mobile {
+      display: none;
+    }
   }
 </style>

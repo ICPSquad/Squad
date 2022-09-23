@@ -67,6 +67,10 @@
           label: "Mission",
           url: "/mission",
         },
+        {
+          label: "Activity",
+          url: "/activity",
+        },
       ],
     },
     {

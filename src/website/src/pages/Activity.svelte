@@ -26,7 +26,7 @@
     if (!hubActor) {
       return;
     }
-    const result = await hubActor.get_recorded_events(Principal.fromText("io5eu-6engj-auiuv-5qaai-52yub-ngjea-qtbdh-3lueo-eakuk-ifuu2-lqe"), [], []);
+    const result = await hubActor.get_recorded_events($user.principal, [], []);
     if (result.length > 0) {
       extended_events_non_sorted = result[0];
     } else {

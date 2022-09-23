@@ -1,8 +1,13 @@
 <script lang="ts">
   import type { ExtendedEvent } from "@canisters/hub/hub.did.d";
-  export let operation: string;
+  import Carat from "@icons/Carat.svelte";
+  import ActivityDetails from "./ActivityDetails.svelte";
+  import { _getNameOpt, _getFromOpt, _getToOpt, _getPriceOpt, _getTokenIdOpt } from "@utils/event";
+
   export let collection: string;
-  export let unix_time: bigint;
+  export let event: ExtendedEvent;
+
+  let open: Boolean = false;
 
   function unixTimeToLocalTime(unix_time: bigint): string {
     let date = new Date(Number(unix_time));
@@ -21,19 +26,27 @@
 
 <div class="grid-row">
   <div class="icon">
-    <img src={`./assets/icons_activity/${operation}.svg`} alt="Activity icon" />
+    <img src={`./assets/icons_activity/${event.operation}.svg`} alt="Activity icon" />
   </div>
-  <div class="operation">{capitalizeString(operation)}</div>
+  <div class="operation">{capitalizeString(event.operation)}</div>
   <div class="collection">{collection}</div>
-  <div class="date">{unixTimeToLocalDate(unix_time)} - {unixTimeToLocalTime(unix_time)}</div>
+  <div class="date hide-on-mobile">
+    {unixTimeToLocalDate(event.time)} - {unixTimeToLocalTime(event.time)}
+  </div>
+  <div on:click={() => (open = !open)} class="details-header">
+    <Carat rotate={open ? -90 : 90} />
+  </div>
 </div>
+{#if open}
+  <ActivityDetails operation={event.operation} tokenIdentifier={_getTokenIdOpt(event)} name={_getNameOpt(event)} from={_getFromOpt(event)} to={_getToOpt(event)} price={_getPriceOpt(event)} />
+{/if}
 
 <style lang="scss">
   @use "../../styles" as *;
   .grid-row {
     width: 100%;
     display: grid;
-    grid-template-columns: 80px 1fr 1fr 1fr;
+    grid-template-columns: 80px 1fr 1fr 1fr 20px;
     padding: 10px 20px;
     align-items: center;
     background-color: $verydarkgrey;
@@ -41,27 +54,27 @@
     margin-bottom: 5px;
   }
 
-  .carat {
-    cursor: pointer;
-    display: none;
-  }
-
-  .details {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    background-color: $verydarkgrey;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    padding: 10px 20px;
-    border-radius: 10px;
-  }
-
   img {
     width: 50px;
     height: 50px;
     border-radius: 10px;
+  }
+
+  .details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
+    .grid-row {
+      grid-template-columns: 80px 1fr 1fr 20px;
+      font-size: small;
+    }
+
+    .hide-on-mobile {
+      display: none;
+    }
   }
 </style>
