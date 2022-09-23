@@ -206,7 +206,6 @@ module {
           let daily_events = await _getDailyEvents(cid);
           total += daily_events.size();
           cached_events_per_collection.put(collection.contractId, daily_events);
-          _Logs.logMessage("CRON :: STATS :: " # collection.name # " :: " # Nat.toText(daily_events.size()));
         } catch e {
           _Logs.logMessage("CRON :: ERR :: " # collection.name # " :: " # Error.message(e));
           return #err(Error.message(e));
@@ -312,7 +311,6 @@ module {
               return #err("Unable to parse date : " # Nat64.toText(e.time));
             };
             case (?date_parts) {
-              _Logs.logMessage("INFO :: " # "parsed date " # Nat64.toText(e.time) # " :: " # Nat.toText(date_parts.0) # "-" # Nat.toText(date_parts.1) # "-" # Nat.toText(date_parts.2));
               date_parts;
             };
           };
@@ -773,7 +771,6 @@ module {
       label l while (not is_over) {
         // Verify that the page to query is not under 0.
         let page_to_query = Int.sub(latest_page, count);
-        _Logs.logMessage("QUERY :: " # "page to query : " # Int.toText(page_to_query));
         if (page_to_query < 0) {
           break l;
         };
@@ -824,7 +821,6 @@ module {
       label l while (not is_over) {
         // Verify that the page to query is not under 0.
         let page_to_query = Int.sub(latest_page, count);
-        _Logs.logMessage("QUERY :: " # "page to query : " # Int.toText(page_to_query));
         if (page_to_query < 0) {
           break l;
         };
