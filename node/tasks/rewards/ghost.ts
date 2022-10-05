@@ -12,9 +12,13 @@ async function distributeGhost(data: any) {
   let identity = fetchIdentity("admin");
   let ghost = ghostActor(identity);
   let accessories = accessoriesActor(identity);
+  let skip = true;
   for (let i = 0; i < data.length; i++) {
     const address = principalToAddress(Principal.fromText(data[i].Principal), null);
-    if (address == "7fb01a5e86b5919923ab518656c85e361d878e7395b32f7f05a66b5b94ae8cf3") {
+    if (address === "ebdb2741d815cc87b0f5fd71198b44705a0f740fa9d868b89c8c28b002d7e9c5") {
+      skip = false;
+    }
+    if (skip) {
       continue;
     }
     const amount = BigInt(Number(data[i].GHOST) * 100_000_000);
@@ -33,7 +37,7 @@ async function distributeGhost(data: any) {
   }
 }
 
-createReadStream(`${__dirname}/csv/September/Ghost.csv`)
+createReadStream(`${__dirname}/csv/September/September_rewards.csv`)
   .pipe(csvParser())
   .on("data", (data) => results.push(data))
   .on("end", () => {
