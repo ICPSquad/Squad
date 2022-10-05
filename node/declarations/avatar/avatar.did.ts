@@ -1,6 +1,6 @@
 export const idlFactory = ({ IDL }) => {
-  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const TokenIdentifier = IDL.Text;
+  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const TokenIdentifier__1 = IDL.Text;
   const AccountIdentifier = IDL.Text;
   const User = IDL.Variant({
@@ -28,28 +28,6 @@ export const idlFactory = ({ IDL }) => {
   const Result_7 = IDL.Variant({
     'ok' : AccountIdentifier__1,
     'err' : CommonError,
-  });
-  const Slots = IDL.Record({
-    'Hat' : IDL.Opt(IDL.Text),
-    'Body' : IDL.Opt(IDL.Text),
-    'Eyes' : IDL.Opt(IDL.Text),
-    'Face' : IDL.Opt(IDL.Text),
-    'Misc' : IDL.Opt(IDL.Text),
-  });
-  const Color = IDL.Tuple(IDL.Nat8, IDL.Nat8, IDL.Nat8, IDL.Nat8);
-  const Colors = IDL.Vec(IDL.Record({ 'color' : Color, 'spot' : IDL.Text }));
-  const Style = IDL.Variant({ 'Old' : IDL.Text, 'Colors' : Colors });
-  const AvatarRendering = IDL.Record({
-    'mouth' : IDL.Text,
-    'background' : IDL.Text,
-    'ears' : IDL.Text,
-    'eyes' : IDL.Text,
-    'hair' : IDL.Text,
-    'cloth' : IDL.Text,
-    'nose' : IDL.Text,
-    'slots' : Slots,
-    'style' : Style,
-    'profile' : IDL.Text,
   });
   const SubAccount = IDL.Vec(IDL.Nat8);
   const Time = IDL.Int;
@@ -170,6 +148,28 @@ export const idlFactory = ({ IDL }) => {
     'account_identifier' : IDL.Opt(IDL.Text),
     'discord' : IDL.Opt(IDL.Text),
   });
+  const Slots__1 = IDL.Record({
+    'Hat' : IDL.Opt(IDL.Text),
+    'Body' : IDL.Opt(IDL.Text),
+    'Eyes' : IDL.Opt(IDL.Text),
+    'Face' : IDL.Opt(IDL.Text),
+    'Misc' : IDL.Opt(IDL.Text),
+  });
+  const Color = IDL.Tuple(IDL.Nat8, IDL.Nat8, IDL.Nat8, IDL.Nat8);
+  const Colors = IDL.Vec(IDL.Record({ 'color' : Color, 'spot' : IDL.Text }));
+  const Style = IDL.Variant({ 'Old' : IDL.Text, 'Colors' : Colors });
+  const AvatarRendering = IDL.Record({
+    'mouth' : IDL.Text,
+    'background' : IDL.Text,
+    'ears' : IDL.Text,
+    'eyes' : IDL.Text,
+    'hair' : IDL.Text,
+    'cloth' : IDL.Text,
+    'nose' : IDL.Text,
+    'slots' : Slots__1,
+    'style' : Style,
+    'profile' : IDL.Text,
+  });
   const ComponentCategory = IDL.Variant({
     'Avatar' : IDL.Null,
     'Accessory' : IDL.Null,
@@ -181,7 +181,7 @@ export const idlFactory = ({ IDL }) => {
     'category' : ComponentCategory,
   });
   const Name__3 = IDL.Text;
-  const Slots__1 = IDL.Record({
+  const Slots = IDL.Record({
     'Hat' : IDL.Opt(IDL.Text),
     'Body' : IDL.Opt(IDL.Text),
     'Eyes' : IDL.Opt(IDL.Text),
@@ -223,26 +223,6 @@ export const idlFactory = ({ IDL }) => {
     'headers' : IDL.Vec(HeaderField),
     'streaming_strategy' : IDL.Opt(StreamingStrategy),
     'status_code' : IDL.Nat16,
-  });
-  const Level = IDL.Variant({
-    'Level1' : IDL.Null,
-    'Level2' : IDL.Null,
-    'Level3' : IDL.Null,
-    'Legendary' : IDL.Null,
-  });
-  const Avatar = IDL.Record({
-    'mouth' : IDL.Text,
-    'background' : IDL.Text,
-    'blob' : IDL.Vec(IDL.Nat8),
-    'ears' : IDL.Text,
-    'eyes' : IDL.Text,
-    'hair' : IDL.Text,
-    'cloth' : IDL.Text,
-    'nose' : IDL.Text,
-    'level' : Level,
-    'slots' : Slots,
-    'style' : Style,
-    'profile' : IDL.Text,
   });
   const Result_5 = IDL.Variant({ 'ok' : Metadata, 'err' : CommonError__1 });
   const MintInformation = IDL.Record({
@@ -312,7 +292,6 @@ export const idlFactory = ({ IDL }) => {
   const ICPSquadNFT = IDL.Service({
     'acceptCycles' : IDL.Func([], [], []),
     'add_admin' : IDL.Func([IDL.Principal], [], []),
-    'add_user' : IDL.Func([IDL.Principal], [Result], []),
     'associate_legendary' : IDL.Func([IDL.Text, TokenIdentifier], [Result], []),
     'availableCycles' : IDL.Func([], [IDL.Nat], ['query']),
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
@@ -320,11 +299,6 @@ export const idlFactory = ({ IDL }) => {
     'burn' : IDL.Func([TokenIdentifier], [Result], []),
     'calculate_style_score' : IDL.Func([], [], ['oneway']),
     'changeStyle' : IDL.Func([IDL.Text], [], []),
-    'check_avatar_infos' : IDL.Func(
-        [IDL.Principal],
-        [IDL.Opt(TokenIdentifier), IDL.Opt(AvatarRendering)],
-        ['query'],
-      ),
     'collectCanisterMetrics' : IDL.Func([], [], []),
     'create_profile' : IDL.Func(
         [
@@ -413,7 +387,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_number_users' : IDL.Func([], [IDL.Nat], ['query']),
     'get_score' : IDL.Func([TokenIdentifier], [IDL.Opt(IDL.Nat)], ['query']),
-    'get_slot' : IDL.Func([TokenIdentifier], [IDL.Opt(Slots__1)], []),
+    'get_slot' : IDL.Func([TokenIdentifier], [IDL.Opt(Slots)], []),
     'get_stats' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(Name__2, Stars__1))],
@@ -427,7 +401,6 @@ export const idlFactory = ({ IDL }) => {
     'get_user' : IDL.Func([], [IDL.Opt(UserData)], ['query']),
     'has_ticket' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'http_request' : IDL.Func([Request], [Response], ['query']),
-    'inspect_avatar' : IDL.Func([TokenIdentifier], [IDL.Opt(Avatar)], []),
     'is_admin' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'metadata' : IDL.Func([TokenIdentifier], [Result_5], ['query']),
     'mint' : IDL.Func([MintInformation, IDL.Opt(IDL.Nat)], [MintResult], []),
@@ -458,6 +431,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'setMaxMessagesCount' : IDL.Func([IDL.Nat], [], []),
     'set_default_avatar' : IDL.Func([TokenIdentifier], [Result], []),
+    'show_user' : IDL.Func([IDL.Principal], [IDL.Opt(UserData)], ['query']),
     'supply' : IDL.Func([], [IDL.Nat], ['query']),
     'tokens' : IDL.Func([AccountIdentifier__1], [Result_3], ['query']),
     'tokens_ext' : IDL.Func([AccountIdentifier__1], [Result_2], ['query']),

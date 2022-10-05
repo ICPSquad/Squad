@@ -1,15 +1,24 @@
 <script lang="ts">
   import type { Reward } from "@canisters/accessories/accessories.did.d";
   import Carat from "@icons/Carat.svelte";
+  import NFT from "@psychedelic/dab-js/dist/standard_wrappers/nft_standards/default";
   import { unixTimeToDate } from "@utils/time";
   import { decodeTokenIdentifier } from "@utils/tools/ext";
 
   export let reward: Reward;
   let open: boolean = false;
 
-  function getTokenIdentitfier(reward: Reward): string {
+  function getTokenIdentifier(reward: Reward): string {
     //@ts-ignore
-    return reward.category.NFT.identifier;
+    if (reward.category.hasOwnProperty("NFT")) {
+      //@ts-ignore
+      return reward.category.NFT.identifier;
+    }
+    if (reward.category.hasOwnProperty("Material")) {
+      //@ts-ignore
+      return reward.category.Material.identifier;
+    }
+    return "";
   }
 
   function rewardToType(reward: Reward): string {
@@ -32,22 +41,29 @@
     if (canisterId === "ryjl3-tyaaa-aaaaa-aaaba-cai") {
       return "./icp.svg";
     }
-    // ICPunk & Wrapped ICPunk
+    // Ghost
+    if (canisterId === "fjbi2-fyaaa-aaaan-qanjq-cai") {
+      return "https://pbs.twimg.com/profile_images/1547142380276822017/4X81Ckp4_400x400.jpg";
+    }
     if (canisterId === "bxdf4-baaaa-aaaah-qaruq-cai") {
-      let tokenid = decodeTokenIdentifier(getTokenIdentitfier(reward)).index;
+      // ICPunk & Wrapped ICPunk
+      let tokenid = decodeTokenIdentifier(getTokenIdentifier(reward)).index;
       return `https://cache.icpunks.com/icpunks//Token/${tokenid}`;
     }
     let keys = Object.keys(reward.category);
     switch (keys[0]) {
       case "NFT":
-        return `https://${reward.collection.toString()}.raw.ic0.app/?type=thumbnail&tokenid=${getTokenIdentitfier(reward)}`;
+        return `https://${reward.collection.toString()}.raw.ic0.app/?type=thumbnail&tokenid=${getTokenIdentifier(reward)}`;
     }
   }
 
   function rewardToLink(reward: Reward): string {
     let canisterId = reward.collection.toString();
     let keys = Object.keys(reward.category);
-    let tokenid = decodeTokenIdentifier(getTokenIdentitfier(reward)).index;
+    if (getTokenIdentifier(reward) == "") {
+      return `https://ic.rocks/canister/${canisterId}`;
+    }
+    let tokenid = decodeTokenIdentifier(getTokenIdentifier(reward)).index;
     // ICPunk & Wrapped ICPunk
     if (canisterId === "bxdf4-baaaa-aaaah-qaruq-cai") {
       return `https://cache.icpunks.com/icpunks//Token/${tokenid}`;
@@ -56,7 +72,7 @@
       case "Token":
         return `https://icscan.io/canister/${reward.collection.toString()}`;
       default:
-        return `https://${reward.collection.toString()}.raw.ic0.app/tokenid=${getTokenIdentitfier(reward)}`;
+        return `https://${reward.collection.toString()}.raw.ic0.app/tokenid=${getTokenIdentifier(reward)}`;
     }
   }
 
@@ -65,6 +81,9 @@
     // ICP Ledger
     if (canisterId === "ryjl3-tyaaa-aaaaa-aaaba-cai") {
       return "ICP Ledger";
+    }
+    if (canisterId === "fjbi2-fyaaa-aaaan-qanjq-cai") {
+      return "Ghost";
     }
     // Accessories
     if (canisterId === "po6n2-uiaaa-aaaaj-qaiua-cai") {

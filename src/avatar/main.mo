@@ -834,6 +834,11 @@ shared ({ caller = creator }) actor class ICPSquadNFT() = this {
     _Users.getUser(caller);
   };
 
+  public shared query ({ caller }) func show_user(p : Principal) : async ?UserData {
+    assert (_Admins.isAdmin(caller));
+    _Users.getUser(p);
+  };
+
   /**
     * Modify the user profile of the caller.
     */

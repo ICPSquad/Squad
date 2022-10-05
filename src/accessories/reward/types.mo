@@ -3,9 +3,9 @@ import Time "mo:base/Time";
 
 import Canistergeek "mo:canistergeek/canistergeek";
 
-import Cap "../Cap";
-import Ext "../Ext";
-import Items "../Items";
+import Cap "../cap";
+import Ext "../ext";
+import Items "../items";
 
 module {
 

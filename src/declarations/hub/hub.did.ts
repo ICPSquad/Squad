@@ -114,28 +114,23 @@ export const idlFactory = ({ IDL }) => {
     'Running' : IDL.Null,
     'Pending' : IDL.Null,
   });
-  const Time = IDL.Int;
+  const Time__1 = IDL.Int;
   const Mission__1 = IDL.Record({
     'id' : IDL.Nat,
     'status' : MissionStatus,
     'title' : IDL.Text,
     'tags' : IDL.Vec(IDL.Text),
     'description' : IDL.Text,
-    'created_at' : Time,
+    'created_at' : Time__1,
     'restricted' : IDL.Opt(IDL.Vec(IDL.Principal)),
     'url_icon' : IDL.Text,
-    'ended_at' : IDL.Opt(Time),
+    'ended_at' : IDL.Opt(Time__1),
     'validation' : MissionValidation,
-    'started_at' : IDL.Opt(Time),
+    'started_at' : IDL.Opt(Time__1),
     'points' : IDL.Nat,
   });
+  const Time = IDL.Int;
   const Date = IDL.Tuple(IDL.Nat, IDL.Nat, IDL.Nat);
-  const Activity = IDL.Record({
-    'buy' : IDL.Tuple(IDL.Nat, IDL.Nat),
-    'burn' : IDL.Nat,
-    'mint' : IDL.Nat,
-    'sell' : IDL.Tuple(IDL.Nat, IDL.Nat),
-  });
   DetailValue.fill(
     IDL.Variant({
       'I64' : IDL.Int64,
@@ -183,12 +178,12 @@ export const idlFactory = ({ IDL }) => {
     'title' : IDL.Text,
     'tags' : IDL.Vec(IDL.Text),
     'description' : IDL.Text,
-    'created_at' : Time,
+    'created_at' : Time__1,
     'restricted' : IDL.Opt(IDL.Vec(IDL.Principal)),
     'url_icon' : IDL.Text,
-    'ended_at' : IDL.Opt(Time),
+    'ended_at' : IDL.Opt(Time__1),
     'validation' : MissionValidation,
-    'started_at' : IDL.Opt(Time),
+    'started_at' : IDL.Opt(Time__1),
     'points' : IDL.Nat,
   });
   const Collection = IDL.Record({
@@ -208,8 +203,8 @@ export const idlFactory = ({ IDL }) => {
   const Round = IDL.Record({
     'id' : IDL.Nat,
     'leaderboard' : IDL.Opt(Leaderboard__1),
-    'end_date' : IDL.Opt(Time),
-    'start_date' : Time,
+    'end_date' : IDL.Opt(Time__1),
+    'start_date' : Time__1,
   });
   const Result__1 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text });
   const Result = IDL.Variant({ 'ok' : IDL.Bool, 'err' : IDL.Text });
@@ -224,6 +219,7 @@ export const idlFactory = ({ IDL }) => {
     'cron_events' : IDL.Func([], [Result_1], []),
     'cron_round' : IDL.Func([], [Result__1_1], []),
     'cron_scores' : IDL.Func([], [Result_1], []),
+    'cron_stats' : IDL.Func([], [Result_1], []),
     'cron_style_score' : IDL.Func([], [], []),
     'cron_users' : IDL.Func([], [Result_1], []),
     'delete_job' : IDL.Func([IDL.Nat], [], []),
@@ -244,11 +240,6 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(Mission__1, Time))],
         ['query'],
       ),
-    'get_daily_activity' : IDL.Func(
-        [IDL.Principal, Date],
-        [IDL.Opt(Activity)],
-        ['query'],
-      ),
     'get_daily_events' : IDL.Func(
         [IDL.Principal, Date],
         [IDL.Opt(IDL.Vec(ExtendedEvent))],
@@ -257,15 +248,6 @@ export const idlFactory = ({ IDL }) => {
     'get_daily_score' : IDL.Func(
         [IDL.Principal, Date],
         [IDL.Opt(IDL.Nat)],
-        ['query'],
-      ),
-    'get_entries_events' : IDL.Func(
-        [],
-        [
-          IDL.Vec(
-            IDL.Tuple(IDL.Tuple(Date, IDL.Principal), IDL.Vec(ExtendedEvent))
-          ),
-        ],
         ['query'],
       ),
     'get_jobs' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Nat, Job))], ['query']),
@@ -277,7 +259,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'get_missions' : IDL.Func([], [IDL.Vec(Mission)], ['query']),
     'get_recorded_events' : IDL.Func(
-        [IDL.Principal, IDL.Opt(Time), IDL.Opt(Time)],
+        [IDL.Principal, IDL.Opt(Time__1), IDL.Opt(Time__1)],
         [IDL.Opt(IDL.Vec(ExtendedEvent))],
         ['query'],
       ),
@@ -300,12 +282,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'my_completed_missions' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(IDL.Nat, Time))],
+        [IDL.Vec(IDL.Tuple(IDL.Nat, Time__1))],
         ['query'],
       ),
-    'nano_to_seconds' : IDL.Func([IDL.Int], [IDL.Int], ['query']),
-    'register_all_collections' : IDL.Func([], [Result_1], []),
-    'register_collection' : IDL.Func([Collection], [Result_1], []),
+    'register_all_collections' : IDL.Func([], [Result__1_1], []),
+    'register_collection' : IDL.Func([Collection], [Result__1_1], []),
     'remove_admin' : IDL.Func([IDL.Principal], [], []),
     'setMaxMessagesCount' : IDL.Func([IDL.Nat], [], []),
     'set_job_status' : IDL.Func([IDL.Bool], [], []),
@@ -314,7 +295,6 @@ export const idlFactory = ({ IDL }) => {
     'stop_mission' : IDL.Func([IDL.Nat], [Result_1], []),
     'stop_round' : IDL.Func([], [Result__1], []),
     'time' : IDL.Func([], [Time], ['query']),
-    'time_difference' : IDL.Func([Time, IDL.Opt(Time)], [Time], ['query']),
     'time_to_date' : IDL.Func([Time], [Date], ['query']),
     'verify_mission' : IDL.Func([IDL.Nat], [Result], []),
   });

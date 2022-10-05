@@ -253,7 +253,7 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
   /**
     * Returns the metadata associated with the specified tokenIdentifier.
     */
-  */ public query func metadata(tokenId : TokenIdentifier) : async Result<Ext.Common.Metadata, Ext.CommonError> {
+  public query func metadata(tokenId : TokenIdentifier) : async Result<Ext.Common.Metadata, Ext.CommonError> {
     _Ext.metadata(tokenId);
   };
 
@@ -276,6 +276,17 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     */
   public query func balance(request : BalanceRequest) : async BalanceResponse {
     _Ext.balance(request);
+  };
+
+  /**
+    * Returns the number of tokens.
+    */
+  public query func size() : async Nat {
+    _Ext.size();
+  };
+
+  public query func tokenId(tokenIndex : TokenIndex) : async TokenIdentifier {
+    Ext.TokenIdentifier.encode(cid, tokenIndex);
   };
 
   /**
@@ -627,6 +638,27 @@ shared ({ caller = creator }) actor class ICPSquadNFT(
     assert (_Admins.isAdmin(caller));
     _Monitor.collectMetrics();
     _Rewards.recordNFT(account, collection, name, identifier);
+  };
+
+  public shared ({ caller }) func record_token(
+    account : AccountIdentifier,
+    amount : Nat,
+    name : Text,
+    decimals : Nat8,
+    collection : Principal,
+  ) : () {
+    assert (_Admins.isAdmin(caller));
+    _Monitor.collectMetrics();
+    _Rewards.recordToken(account, amount, name, decimals, collection);
+  };
+
+  public shared ({ caller }) func remove_record_nft(
+    account : AccountIdentifier,
+    identifier : Text,
+  ) : () {
+    assert (_Admins.isAdmin(caller));
+    _Monitor.collectMetrics();
+    _Rewards.removeRecordNFT(account, identifier);
   };
 
   /**

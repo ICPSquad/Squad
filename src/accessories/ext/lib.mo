@@ -16,362 +16,367 @@ import Types "types";
 
 module {
 
+  ////////////
+  // Types //
+  //////////
+
+  public type UpgradeData = Types.UpgradeData;
+  public type Listing = Types.Listing;
+  public type TokenIndex = Types.TokenIndex;
+  public type TokenIdentifier = Types.TokenIdentifier;
+  public type AccountIdentifier = Types.AccountIdentifier;
+  public type CommonError = Types.CommonError;
+
+  public class Factory(dependencies : Types.Dependencies) {
+
     ////////////
-    // Types //
-    //////////
-    
-    public type UpgradeData = Types.UpgradeData;
-    public type Listing = Types.Listing;
-    public type TokenIndex = Types.TokenIndex;
-    public type TokenIdentifier = Types.TokenIdentifier;
-    public type AccountIdentifier = Types.AccountIdentifier;
-    public type CommonError = Types.CommonError;
+    // State //
+    ///////////
 
-    public class Factory(dependencies : Types.Dependencies) {
+    type Result<A, B> = Result.Result<A, B>;
+    type TokenIdentifier = Types.TokenIdentifier;
+    type Extension = Types.Extension;
+    type Balance = Types.Balance;
+    type BalanceRequest = Types.BalanceRequest;
+    type BalanceResponse = Types.BalanceResponse;
+    type TransferRequest = Types.TransferRequest;
+    type TransferResponse = Types.TransferResponse;
+    type Metadata = Types.Metadata;
+    type MintRequest = Types.MintRequest;
 
-        ////////////
-        // State //
-        ///////////
+    let CANISTER_ID = dependencies.cid;
+    private var _nextIndex : TokenIndex = 0;
+    private let _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.HashMap<TokenIndex, AccountIdentifier>(0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
 
-        type Result<A,B> = Result.Result<A,B>;
-        type TokenIdentifier = Types.TokenIdentifier;
-        type Extension = Types.Extension;
-        type Balance = Types.Balance;
-        type BalanceRequest = Types.BalanceRequest;
-        type BalanceResponse = Types.BalanceResponse;
-        type TransferRequest = Types.TransferRequest;
-        type TransferResponse = Types.TransferResponse;
-        type Metadata = Types.Metadata;
-        type MintRequest = Types.MintRequest;
+    let _Logs = dependencies._Logs;
 
-        let CANISTER_ID = dependencies.cid;
-        private var _nextIndex : TokenIndex  = 0;
-        private let _registry : HashMap.HashMap<TokenIndex, AccountIdentifier> = HashMap.HashMap<TokenIndex,AccountIdentifier>(0, Ext.TokenIndex.equal, Ext.TokenIndex.hash);
+    public func preupgrade() : UpgradeData {
+      {
+        registry = Iter.toArray(_registry.entries());
+        nextIndex = _nextIndex;
+      };
+    };
 
-        let _Logs = dependencies._Logs;
-
-        public func preupgrade() : UpgradeData {
-            {
-                registry = Iter.toArray(_registry.entries());
-                nextIndex = _nextIndex;
-            }
+    public func postupgrade(ud : ?UpgradeData) : () {
+      switch (ud) {
+        case (?ud) {
+          for ((tokenIndex, accountId) in ud.registry.vals()) {
+            _registry.put(tokenIndex, accountId);
+          };
+          _nextIndex := ud.nextIndex;
         };
+        case _ {};
+      };
+    };
 
-        public func postupgrade(ud : ?UpgradeData) : () {
-            switch(ud){
-                case(? ud){
-                    for((tokenIndex, accountId) in ud.registry.vals()){
-                        _registry.put(tokenIndex, accountId);
-                    };
-                    _nextIndex := ud.nextIndex;
-                };
-                case _ {};
-            };
+    public func removeTokens(n : TokenIndex) : () {
+      for ((tokenIndex, item) in _registry.entries()) {
+        if (tokenIndex > n) {
+          _registry.delete(tokenIndex);
         };
+      };
+    };
 
-        ////////////////
-        // @ext:core //
-        //////////////
+    ////////////////
+    // @ext:core //
+    //////////////
 
-        // Returns the balance of an user for a specific token. Returns 1 if the user has the Token. Returns 0 is the user doesn't have the token. Returns an error if the token is invalid.
-        // @param request.user : The user to get the balance of can be an AccountIdentifier or a principal (default to subaccount 0).
-        // @param request.token : The token identifier to check the balance of. Need to be a valid token.
-        public func balance(request : Ext.Core.BalanceRequest) : Ext.Core.BalanceResponse {
-            let index = switch(Ext.TokenIdentifier.decode(request.token)){
-                case(#err(_)) {
-                    _Logs.logMessage("Ext/lib/balance/line78. Token identifier : " # request.token);
-                    return #err(#InvalidToken(request.token))
-                };
-                case(#ok(canisterId, tokenIndex)) {
-                    if(canisterId != CANISTER_ID){
-                        return #err(#InvalidToken(request.token));
-                    };
-                    tokenIndex;
-                };
-            };
-            let userId = Ext.User.toAccountIdentifier(request.user);
-            switch (_registry.get(index)) {
-                case (null) { #err(#InvalidToken(request.token)); };
-                case (? owner) {
-                    if (Ext.AccountIdentifier.equal(userId, owner)) {
-                        #ok(1);
-                    } else {
-                        #ok(0);
-                    };
-                };
-            };
+    // Returns the balance of an user for a specific token. Returns 1 if the user has the Token. Returns 0 is the user doesn't have the token. Returns an error if the token is invalid.
+    // @param request.user : The user to get the balance of can be an AccountIdentifier or a principal (default to subaccount 0).
+    // @param request.token : The token identifier to check the balance of. Need to be a valid token.
+    public func balance(request : Ext.Core.BalanceRequest) : Ext.Core.BalanceResponse {
+      let index = switch (Ext.TokenIdentifier.decode(request.token)) {
+        case (#err(_)) {
+          _Logs.logMessage("Ext/lib/balance/line78. Token identifier : " # request.token);
+          return #err(#InvalidToken(request.token));
         };
-
-        // Returns a list of EXT extensions that this canister supports.
-        public func extensions() : [Ext.Extension] {
-            ["@ext/common", "@ext/nonfungible"];
+        case (#ok(canisterId, tokenIndex)) {
+          if (canisterId != CANISTER_ID) {
+            return #err(#InvalidToken(request.token));
+          };
+          tokenIndex;
         };
-
-        // Transfers the ownership of an NFT from one address to another address
-        // @params request.from (EXT.User) The current owner of the NFT
-        // @params request.to (EXT.User) The new owner
-        // @params request.token (EXT.TokenIdentifier) The nft to transfer 
-        // @params request.amount (Nat) Number of tokens to transfer (must be 1)
-        // @params request.memo (Blob) Additional data with no specified format
-        // @params request.notify (Boolean) If true will attempt to notify recipient
-        // @params request.subaccount (?[Nat8]) Subaccount of the caller
-        // @dev : Throws unless `msg.caller` is the current owner. Throws if `request.from` is not the current owner. Throws if a valid token index cannot be decoded from `request.token`. Throws if `request.token` is not a valid NFT. 
-        public func transfer(
-            caller : Principal,
-            request : Ext.Core.TransferRequest
-        ) : Ext.Core.TransferResponse {
-            if(request.amount != 1) {
-                return #err(#Other("Must use amount of 1"));
-            };
-            let index = switch(Ext.TokenIdentifier.decode(request.token)){
-                case(#err(msg)) {
-                    _Logs.logMessage("Ext/lib/transfer/line125. Token identifier : " # request.token);
-                    return #err(#Other(msg));
-                };
-                case(#ok(canisterId, tokenIndex)) {
-                    if(canisterId != CANISTER_ID) {
-                        _Logs.logMessage("Ext/lib/transfer/line130. Canister id : " # Principal.toText(canisterId) # " and CANISTER_ID : " # Principal.toText(CANISTER_ID));
-                        return #err(#InvalidToken(request.token));
-                    };
-                    tokenIndex
-                };
-            };
-            let owner = switch (_registry.get(index)) {
-                case (?t) t;
-                case _ return #err(#Other("Token owner doesn't exist."));
-            };
-            let caller_account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, request.subaccount), Prim.charToLower);
-            let from = Text.map(Ext.User.toAccountIdentifier(request.from), Prim.charToLower);
-            let to = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
-            if(owner != from) {
-                _Logs.logMessage("Ext/lib/transfer/line144. Owner : " # owner # " Caller : " # caller_account);
-                return #err(#Unauthorized("This user \"" # from # "\" doesn't own this token \"" # request.token # "\""));
-            };
-            if(from != caller_account) {
-                _Logs.logMessage("Ext/lib/transfer/line148. From : " # from # " Caller : " # caller_account);
-                return #err(#Unauthorized("Only the owner can do that."));
-            };
-            _registry.put(index, to);
-            return #ok(Nat32.toNat(index));
+      };
+      let userId = Ext.User.toAccountIdentifier(request.user);
+      switch (_registry.get(index)) {
+        case (null) { #err(#InvalidToken(request.token)) };
+        case (?owner) {
+          if (Ext.AccountIdentifier.equal(userId, owner)) {
+            #ok(1);
+          } else {
+            #ok(0);
+          };
         };
+      };
+    };
 
-        //////////////////
-        // @ext:common //
-        ////////////////
+    // Returns a list of EXT extensions that this canister supports.
+    public func extensions() : [Ext.Extension] {
+      ["@ext/common", "@ext/nonfungible"];
+    };
 
-        public func metadata(
-            tokenId : Ext.TokenIdentifier,
-        ) : Ext.Common.MetadataResponse {
-            let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
-                case (#err(_)) { return #err(#InvalidToken(tokenId)); };
-                case (#ok(_, tokenIndex)) { tokenIndex; };
-            };
-            switch (_registry.get(index)) {
-                case (null) { #err(#InvalidToken(tokenId)); };
-                case (?token) { #ok(#nonfungible({metadata = ?Text.encodeUtf8("ICPSquad")})); };
-            };
+    // Transfers the ownership of an NFT from one address to another address
+    // @params request.from (EXT.User) The current owner of the NFT
+    // @params request.to (EXT.User) The new owner
+    // @params request.token (EXT.TokenIdentifier) The nft to transfer
+    // @params request.amount (Nat) Number of tokens to transfer (must be 1)
+    // @params request.memo (Blob) Additional data with no specified format
+    // @params request.notify (Boolean) If true will attempt to notify recipient
+    // @params request.subaccount (?[Nat8]) Subaccount of the caller
+    // @dev : Throws unless `msg.caller` is the current owner. Throws if `request.from` is not the current owner. Throws if a valid token index cannot be decoded from `request.token`. Throws if `request.token` is not a valid NFT.
+    public func transfer(
+      caller : Principal,
+      request : Ext.Core.TransferRequest,
+    ) : Ext.Core.TransferResponse {
+      if (request.amount != 1) {
+        return #err(#Other("Must use amount of 1"));
+      };
+      let index = switch (Ext.TokenIdentifier.decode(request.token)) {
+        case (#err(msg)) {
+          _Logs.logMessage("Ext/lib/transfer/line125. Token identifier : " # request.token);
+          return #err(#Other(msg));
         };
-
-        public func supply(
-            tokenId : Ext.TokenIdentifier,
-        ) : Ext.Common.SupplyResponse {
-            let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
-                case (#err(_)) { return #err(#InvalidToken(tokenId)); };
-                case (#ok(_, tokenIndex)) { tokenIndex; };
-            };
-            switch (_registry.get(index)) {
-                case (null) { #ok(0); };
-                case (? _)  { #ok(1); };
-            };
+        case (#ok(canisterId, tokenIndex)) {
+          if (canisterId != CANISTER_ID) {
+            _Logs.logMessage("Ext/lib/transfer/line130. Canister id : " # Principal.toText(canisterId) # " and CANISTER_ID : " # Principal.toText(CANISTER_ID));
+            return #err(#InvalidToken(request.token));
+          };
+          tokenIndex;
         };
+      };
+      let owner = switch (_registry.get(index)) {
+        case (?t) t;
+        case _ return #err(#Other("Token owner doesn't exist."));
+      };
+      let caller_account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, request.subaccount), Prim.charToLower);
+      let from = Text.map(Ext.User.toAccountIdentifier(request.from), Prim.charToLower);
+      let to = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
+      if (owner != from) {
+        _Logs.logMessage("Ext/lib/transfer/line144. Owner : " # owner # " Caller : " # caller_account);
+        return #err(#Unauthorized("This user \"" # from # "\" doesn't own this token \"" # request.token # "\""));
+      };
+      if (from != caller_account) {
+        _Logs.logMessage("Ext/lib/transfer/line148. From : " # from # " Caller : " # caller_account);
+        return #err(#Unauthorized("Only the owner can do that."));
+      };
+      _registry.put(index, to);
+      return #ok(Nat32.toNat(index));
+    };
 
+    //////////////////
+    // @ext:common //
+    ////////////////
 
-        ///////////////////////
-        // @ext:nonfungible //
-        /////////////////////
+    public func metadata(
+      tokenId : Ext.TokenIdentifier,
+    ) : Ext.Common.MetadataResponse {
+      let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
+        case (#err(_)) { return #err(#InvalidToken(tokenId)) };
+        case (#ok(_, tokenIndex)) { tokenIndex };
+      };
+      switch (_registry.get(index)) {
+        case (null) { #err(#InvalidToken(tokenId)) };
+        case (?token) { #ok(#nonfungible({ metadata = ?Text.encodeUtf8("ICPSquad") })) };
+      };
+    };
 
-        public func bearer(
-            tokenId : Ext.TokenIdentifier,
-        ) : Ext.NonFungible.BearerResponse {
-            let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
-                case (#err(_)) { return #err(#InvalidToken(tokenId)); };
-                case (#ok(_, tokenIndex)) { tokenIndex; };
-            };
-            switch (_registry.get(index)) {
-                case (null)    { #err(#InvalidToken(tokenId)); };
-                case (? owner) { #ok(owner); };
-            };
+    public func supply(
+      tokenId : Ext.TokenIdentifier,
+    ) : Ext.Common.SupplyResponse {
+      let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
+        case (#err(_)) { return #err(#InvalidToken(tokenId)) };
+        case (#ok(_, tokenIndex)) { tokenIndex };
+      };
+      switch (_registry.get(index)) {
+        case (null) { #ok(0) };
+        case (?_) { #ok(1) };
+      };
+    };
+
+    ///////////////////////
+    // @ext:nonfungible //
+    /////////////////////
+
+    public func bearer(
+      tokenId : Ext.TokenIdentifier,
+    ) : Ext.NonFungible.BearerResponse {
+      let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
+        case (#err(_)) { return #err(#InvalidToken(tokenId)) };
+        case (#ok(_, tokenIndex)) { tokenIndex };
+      };
+      switch (_registry.get(index)) {
+        case (null) { #err(#InvalidToken(tokenId)) };
+        case (?owner) { #ok(owner) };
+      };
+    };
+
+    public func mint(
+      request : MintRequest,
+    ) : Ext.NonFungible.MintResponse {
+      let account_identifier = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
+      let index = _nextIndex;
+      switch (_registry.get(index)) {
+        case (null) {
+          _registry.put(index, account_identifier);
+          _nextIndex += 1;
+          _Logs.logMessage("Minted token : " # Nat.toText(Nat32.toNat(index)) # " for account : " # account_identifier);
+          return #ok(index);
         };
-
-        public func mint(
-            request : MintRequest
-        ) : Ext.NonFungible.MintResponse {
-            let account_identifier = Text.map(Ext.User.toAccountIdentifier(request.to), Prim.charToLower);
-            let index = _nextIndex;
-            switch(_registry.get(index)) {
-                case (null) {
-                    _registry.put(index, account_identifier);
-                    _nextIndex += 1;
-                    _Logs.logMessage("Minted token : " # Nat.toText(Nat32.toNat(index)) # " for account : " # account_identifier);
-                    return #ok(index);
-                };
-                case (? _) {
-                    _Logs.logMessage("Ext/lib/mint/line214. Index : " # Nat.toText(Nat32.toNat(index)));
-                    return #err(#Other("Token already exists."));
-                };
-            };
+        case (?_) {
+          _Logs.logMessage("Ext/lib/mint/line214. Index : " # Nat.toText(Nat32.toNat(index)));
+          return #err(#Other("Token already exists."));
         };
+      };
+    };
 
-        public func getRegistry() : [(TokenIndex, AccountIdentifier)] {
-            Iter.toArray(_registry.entries());
+    public func getRegistry() : [(TokenIndex, AccountIdentifier)] {
+      Iter.toArray(_registry.entries());
+    };
+
+    /////////////////////////////
+    // @ext:stoic integration //
+    ///////////////////////////
+
+    public func tokens(
+      accountId : Ext.AccountIdentifier,
+    ) : Result.Result<[Ext.TokenIndex], Ext.CommonError> {
+      var tokens : Buffer.Buffer<Ext.TokenIndex> = Buffer.Buffer(0);
+      for ((index, owner) in _registry.entries()) {
+        if (Text.equal(accountId, owner)) {
+          tokens.add(index);
         };
+      };
+      #ok(tokens.toArray());
+    };
 
-        /////////////////////////////
-        // @ext:stoic integration //
-        ///////////////////////////
-
-        public func tokens(
-            accountId : Ext.AccountIdentifier
-        ) : Result.Result<[Ext.TokenIndex], Ext.CommonError> {
-            var tokens : Buffer.Buffer<Ext.TokenIndex> = Buffer.Buffer(0);
-            for ((index, owner) in _registry.entries()) {
-                if (Text.equal(accountId, owner)) {
-                    tokens.add(index);
-                };
-            };
-            #ok(tokens.toArray());
+    public func tokens_ext(
+      accountId : Ext.AccountIdentifier,
+    ) : Result.Result<[(Ext.TokenIndex, ?Types.Listing, ?Blob)], CommonError> {
+      var tokens : Buffer.Buffer<(Ext.TokenIndex, ?Types.Listing, ?Blob)> = Buffer.Buffer(0);
+      for ((index, owner) in _registry.entries()) {
+        if (Text.equal(accountId, owner)) {
+          tokens.add((index, null, ?Text.encodeUtf8("ICPSquad")));
         };
+      };
+      #ok(tokens.toArray());
+    };
 
-        public func tokens_ext(
-            accountId : Ext.AccountIdentifier
-        ) : Result.Result<[(Ext.TokenIndex, ?Types.Listing, ?Blob)], CommonError> {
-            var tokens : Buffer.Buffer<(Ext.TokenIndex, ?Types.Listing, ?Blob)> = Buffer.Buffer(0);
-            for ((index, owner) in _registry.entries()) {
-                if (Text.equal(accountId, owner)) {
-                    tokens.add((index, null, ?Text.encodeUtf8("ICPSquad")));
-                };
-            };
-            #ok(tokens.toArray());
+    ////////////////////////////////
+    // @ext:entrepot integration //
+    ///////////////////////////////
+
+    public func details(
+      tokenId : TokenIdentifier,
+    ) : Result.Result<(AccountIdentifier, ?Types.Listing), CommonError> {
+      let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
+        case (#err(_)) {
+          _Logs.logMessage("Ext/lib/details/line262. TokenId : " # tokenId);
+          return #err(#InvalidToken(tokenId));
         };
+        case (#ok(_, tokenIndex)) { tokenIndex };
+      };
+      switch (_registry.get(index)) {
+        case (null) { #err(#InvalidToken(tokenId)) };
+        case (?owner) { #ok(owner, null) };
+      };
+    };
 
-        ////////////////////////////////
-        // @ext:entrepot integration //
-        ///////////////////////////////
+    ////////////////////////////////
+    // @ext: ?????   integration //
+    ///////////////////////////////
 
-        public func details(
-            tokenId : TokenIdentifier
-        ) : Result.Result<(AccountIdentifier, ?Types.Listing), CommonError> {
-            let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
-                case (#err(_)) { 
-                    _Logs.logMessage("Ext/lib/details/line262. TokenId : " # tokenId);
-                    return #err(#InvalidToken(tokenId)); 
-                };
-                case (#ok(_, tokenIndex)) { tokenIndex; };
-            };
-            switch (_registry.get(index)) {
-                case (null)    { #err(#InvalidToken(tokenId)); };
-                case (? owner) { #ok(owner, null)};
-            };
+    public func getTokens() : [(TokenIndex, Metadata)] {
+      let r = Buffer.Buffer<(TokenIndex, Metadata)>(0);
+      for (index in _registry.keys()) {
+        r.add(index, #nonfungible({ metadata = null }));
+      };
+      r.toArray();
+    };
+
+    public func size() : Nat {
+      _registry.size();
+    };
+
+    ///////////////
+    //  custom  //
+    /////////////
+
+    public func mintAccount(account : AccountIdentifier) : TokenIndex {
+      let index = _nextIndex;
+      switch (_registry.get(index)) {
+        case (null) {
+          _registry.put(index, account);
+          _nextIndex += 1;
         };
-
-        ////////////////////////////////
-        // @ext: ?????   integration //
-        ///////////////////////////////
-
-        public func getTokens() : [(TokenIndex, Metadata)] {
-            let r = Buffer.Buffer<(TokenIndex, Metadata)>(0);
-            for(index in _registry.keys()) {
-                r.add(index, #nonfungible({metadata = null}));
-            };
-            r.toArray();
+        case (?some) {
+          assert (false);
         };
+      };
+      return index;
+    };
 
-        public func size() : Nat {
-            _registry.size();
+    public func putOwner(
+      index : TokenIndex,
+      account : AccountIdentifier,
+    ) : () {
+      _registry.put(index, account);
+    };
+
+    public func getOwner(
+      index : TokenIndex,
+    ) : ?AccountIdentifier {
+      _registry.get(index);
+    };
+
+    public func isOwner(
+      caller : Principal,
+      tokenId : TokenIdentifier,
+    ) : Result<(), Text> {
+      let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null), Prim.charToLower);
+      let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
+        case (#err(e)) { return #err(e) };
+        case (#ok(_, tokenIndex)) { tokenIndex };
+      };
+      switch (_registry.get(index)) {
+        case (null) {
+          return #err("This token doesn't exist.");
         };
-
-
-        ///////////////
-        //  custom  //
-        /////////////
-
-        public func mintAccount(account : AccountIdentifier) : TokenIndex {
-            let index = _nextIndex;
-            switch(_registry.get(index)){
-                case(null){
-                    _registry.put(index, account);
-                    _nextIndex += 1;
-                };
-                case(? some){
-                    assert(false);
-                };
-            };
-            return index;
+        case (?account) {
+          if (Text.equal(account, account)) {
+            return #ok(());
+          } else {
+            return #err("This token doesn't belong to : " # Principal.toText(caller));
+          };
         };
-        
-        public func putOwner(
-            index : TokenIndex,
-            account : AccountIdentifier
-        ) : () {
-            _registry.put(index, account);
-        };
+      };
+    };
 
-        public func getOwner(
-            index : TokenIndex
-        ) : ?AccountIdentifier {
-            _registry.get(index);
-        };
+    public func isOwnerAccount(
+      account : AccountIdentifier,
+      index : TokenIndex,
+    ) : Bool {
+      let owner = Option.get<AccountIdentifier>(_registry.get(index), "");
+      if (Text.equal(account, owner)) {
+        return true;
+      } else {
+        return false;
+      };
+    };
 
-        public func isOwner(
-            caller : Principal,
-            tokenId : TokenIdentifier
-        ) : Result<(), Text> {
-            let account = Text.map(Ext.AccountIdentifier.fromPrincipal(caller, null),Prim.charToLower); 
-            let index = switch (Ext.TokenIdentifier.decode(tokenId)) {
-                case (#err(e)) { return #err(e) };
-                case (#ok(_, tokenIndex)) { tokenIndex; };
-            };
-            switch(_registry.get(index)){
-                case(null) {
-                    return #err("This token doesn't exist.");
-                };
-                case(? account){
-                    if (Text.equal(account, account)) {
-                        return #ok(());
-                    } else {
-                        return #err("This token doesn't belong to : " # Principal.toText(caller));
-                    };
-                };
-            };
-        };
+    public func transferSale(
+      index : TokenIndex,
+      from : AccountIdentifier,
+      to : AccountIdentifier,
+    ) : () {
+      assert (isOwnerAccount(from, index));
+      _registry.put(index, to);
+    };
 
-        public func isOwnerAccount(
-            account : AccountIdentifier,
-            index : TokenIndex
-        ) : Bool {
-            let owner = Option.get<AccountIdentifier>(_registry.get(index), "");
-            if (Text.equal(account, owner)) {
-                return true;
-            } else {
-                return false;
-            };
-        };
+    public func burn(
+      index : TokenIndex,
+    ) : () {
+      _registry.delete(index);
+    };
 
-        public func transferSale(
-            index : TokenIndex,
-            from : AccountIdentifier,
-            to : AccountIdentifier
-        ) : () {
-            assert(isOwnerAccount(from, index)); 
-            _registry.put(index, to);
-        };
-
-       public func burn(
-            index : TokenIndex
-        ) : () {
-            _registry.delete(index);
-        };
-
-
-    };    
-}
+  };
+};

@@ -3,20 +3,6 @@ import type { ActorMethod } from '@dfinity/agent';
 
 export type AccountIdentifier = string;
 export type AccountIdentifier__1 = string;
-export interface Avatar {
-  'mouth' : string,
-  'background' : string,
-  'blob' : Array<number>,
-  'ears' : string,
-  'eyes' : string,
-  'hair' : string,
-  'cloth' : string,
-  'nose' : string,
-  'level' : Level,
-  'slots' : Slots,
-  'style' : Style,
-  'profile' : string,
-}
 export interface AvatarRendering {
   'mouth' : string,
   'background' : string,
@@ -25,7 +11,7 @@ export interface AvatarRendering {
   'hair' : string,
   'cloth' : string,
   'nose' : string,
-  'slots' : Slots,
+  'slots' : Slots__1,
   'style' : Style,
   'profile' : string,
 }
@@ -112,7 +98,6 @@ export interface HourlyMetricsData {
 export interface ICPSquadNFT {
   'acceptCycles' : ActorMethod<[], undefined>,
   'add_admin' : ActorMethod<[Principal], undefined>,
-  'add_user' : ActorMethod<[Principal], Result>,
   'associate_legendary' : ActorMethod<[string, TokenIdentifier], Result>,
   'availableCycles' : ActorMethod<[], bigint>,
   'balance' : ActorMethod<[BalanceRequest], BalanceResponse>,
@@ -120,10 +105,6 @@ export interface ICPSquadNFT {
   'burn' : ActorMethod<[TokenIdentifier], Result>,
   'calculate_style_score' : ActorMethod<[], undefined>,
   'changeStyle' : ActorMethod<[string], undefined>,
-  'check_avatar_infos' : ActorMethod<
-    [Principal],
-    [[] | [TokenIdentifier], [] | [AvatarRendering]],
-  >,
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
   'create_profile' : ActorMethod<
     [
@@ -183,13 +164,12 @@ export interface ICPSquadNFT {
   >,
   'get_number_users' : ActorMethod<[], bigint>,
   'get_score' : ActorMethod<[TokenIdentifier], [] | [bigint]>,
-  'get_slot' : ActorMethod<[TokenIdentifier], [] | [Slots__1]>,
+  'get_slot' : ActorMethod<[TokenIdentifier], [] | [Slots]>,
   'get_stats' : ActorMethod<[], Array<[Name__2, Stars__1]>>,
   'get_style_score' : ActorMethod<[], Array<[TokenIdentifier, StyleScore]>>,
   'get_user' : ActorMethod<[], [] | [UserData]>,
   'has_ticket' : ActorMethod<[Principal], boolean>,
   'http_request' : ActorMethod<[Request], Response>,
-  'inspect_avatar' : ActorMethod<[TokenIdentifier], [] | [Avatar]>,
   'is_admin' : ActorMethod<[Principal], boolean>,
   'metadata' : ActorMethod<[TokenIdentifier], Result_5>,
   'mint' : ActorMethod<[MintInformation, [] | [bigint]], MintResult>,
@@ -214,6 +194,7 @@ export interface ICPSquadNFT {
   >,
   'setMaxMessagesCount' : ActorMethod<[bigint], undefined>,
   'set_default_avatar' : ActorMethod<[TokenIdentifier], Result>,
+  'show_user' : ActorMethod<[Principal], [] | [UserData]>,
   'supply' : ActorMethod<[], bigint>,
   'tokens' : ActorMethod<[AccountIdentifier__1], Result_3>,
   'tokens_ext' : ActorMethod<[AccountIdentifier__1], Result_2>,
@@ -226,10 +207,6 @@ export interface ICPSquadNFT {
   'upload_stats' : ActorMethod<[Stats], undefined>,
   'wearAccessory' : ActorMethod<[TokenIdentifier, string, Principal], Result>,
 }
-export type Level = { 'Level1' : null } |
-  { 'Level2' : null } |
-  { 'Level3' : null } |
-  { 'Legendary' : null };
 export interface Listing {
   'subaccount' : [] | [SubAccount],
   'locked' : [] | [Time],

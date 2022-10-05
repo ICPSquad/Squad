@@ -114,7 +114,6 @@ export interface ICPSquadNFT {
   'balance' : ActorMethod<[BalanceRequest], BalanceResponse>,
   'bearer' : ActorMethod<[TokenIdentifier], Result_6>,
   'can_settle' : ActorMethod<[Principal, TokenIdentifier__1], Result__1_2>,
-  'checkInventory' : ActorMethod<[Principal], Result_5>,
   'collectCanisterMetrics' : ActorMethod<[], undefined>,
   'create_accessory' : ActorMethod<[string, bigint], Result__1_1>,
   'cron_burned' : ActorMethod<[], undefined>,
@@ -122,11 +121,7 @@ export interface ICPSquadNFT {
   'cron_events' : ActorMethod<[], undefined>,
   'cron_settlements' : ActorMethod<[], undefined>,
   'cron_verification' : ActorMethod<[], undefined>,
-  'delete_item' : ActorMethod<[string], Result>,
-  'delete_recorded_rewards' : ActorMethod<[Principal], undefined>,
   'details' : ActorMethod<[TokenIdentifier], DetailsResponse>,
-  'disbursement_pending_count' : ActorMethod<[], bigint>,
-  'disbursement_queue_size' : ActorMethod<[], bigint>,
   'extensions' : ActorMethod<[], Array<Extension>>,
   'getCanisterLog' : ActorMethod<
     [[] | [CanisterLogRequest]],
@@ -140,27 +135,14 @@ export interface ICPSquadNFT {
   'getRegistry' : ActorMethod<[], Array<[TokenIndex, AccountIdentifier__2]>>,
   'getTokens' : ActorMethod<[], Array<[TokenIndex, Metadata]>>,
   'get_admins' : ActorMethod<[], Array<Principal>>,
-  'get_avatar_equipped' : ActorMethod<
-    [TokenIdentifier],
-    [] | [TokenIdentifier],
-  >,
-  'get_items' : ActorMethod<[], Array<[string, Array<TokenIndex>]>>,
-  'get_materials' : ActorMethod<
-    [Principal, boolean],
-    Array<[TokenIndex, string]>,
-  >,
-  'get_name' : ActorMethod<[TokenIndex], [] | [string]>,
   'get_pending_transactions' : ActorMethod<
     [],
     Array<[TokenIndex, Transaction]>,
   >,
-  'get_recipes' : ActorMethod<[], Array<[string, Recipe__1]>>,
   'get_recorded_rewards' : ActorMethod<[Principal], [] | [Array<Reward>]>,
   'get_stats_items' : ActorMethod<[], Array<[string, Supply, [] | [Floor]]>>,
-  'get_templates' : ActorMethod<[], Array<[string, Template]>>,
   'http_request' : ActorMethod<[Request], Response>,
   'is_admin' : ActorMethod<[Principal], boolean>,
-  'is_owner_account' : ActorMethod<[AccountIdentifier__2, TokenIndex], boolean>,
   'list' : ActorMethod<[ListRequest], ListResponse>,
   'listings' : ActorMethod<[], ListingResponse>,
   'lock' : ActorMethod<
@@ -168,13 +150,15 @@ export interface ICPSquadNFT {
     LockResponse,
   >,
   'metadata' : ActorMethod<[TokenIdentifier], Result_4>,
-  'mint' : ActorMethod<[string, Principal], Result>,
   'payments' : ActorMethod<[], [] | [Array<SubAccount__2>]>,
-  'purge_pending_transactions' : ActorMethod<[], undefined>,
   'read_disbursements' : ActorMethod<[], Array<Disbursement>>,
   'record_icps' : ActorMethod<[AccountIdentifier__2, bigint], undefined>,
   'record_nft' : ActorMethod<
     [AccountIdentifier__2, Principal, string, string],
+    undefined,
+  >,
+  'record_token' : ActorMethod<
+    [AccountIdentifier__2, bigint, string, number, Principal],
     undefined,
   >,
   'remove_accessory' : ActorMethod<
@@ -182,18 +166,18 @@ export interface ICPSquadNFT {
     Result__1,
   >,
   'remove_admin' : ActorMethod<[Principal], undefined>,
+  'remove_record_nft' : ActorMethod<[AccountIdentifier__2, string], undefined>,
   'setMaxMessagesCount' : ActorMethod<[bigint], undefined>,
   'settle' : ActorMethod<[TokenIdentifier], Result_3>,
+  'size' : ActorMethod<[], bigint>,
   'stats' : ActorMethod<
     [],
     [bigint, bigint, bigint, bigint, bigint, bigint, bigint],
   >,
-  'tokenId' : ActorMethod<[TokenIndex], string>,
+  'tokenId' : ActorMethod<[TokenIndex], TokenIdentifier>,
   'tokens' : ActorMethod<[AccountIdentifier__2], Result_2>,
   'tokens_ext' : ActorMethod<[AccountIdentifier__2], Result_1>,
   'transactions' : ActorMethod<[], Array<EntrepotTransaction>>,
-  'transactions_new' : ActorMethod<[], Array<[bigint, Transaction]>>,
-  'transactions_new_size' : ActorMethod<[], bigint>,
   'transfer' : ActorMethod<[TransferRequest], TransferResponse>,
   'update_accessories' : ActorMethod<[], undefined>,
   'wear_accessory' : ActorMethod<[TokenIdentifier, TokenIdentifier], Result>,
@@ -259,7 +243,6 @@ export interface NumericEntity {
   'last' : bigint,
 }
 export type Recipe = Array<string>;
-export type Recipe__1 = Array<string>;
 export interface Request {
   'url' : string,
   'method' : string,

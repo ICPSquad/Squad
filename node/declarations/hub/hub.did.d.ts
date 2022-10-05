@@ -1,12 +1,6 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
-export interface Activity {
-  'buy' : [bigint, bigint],
-  'burn' : bigint,
-  'mint' : bigint,
-  'sell' : [bigint, bigint],
-}
 export interface AutomaticValidation { 'canister' : Principal }
 export type CanisterCyclesAggregatedData = Array<bigint>;
 export type CanisterHeapMemoryAggregatedData = Array<bigint>;
@@ -109,6 +103,7 @@ export interface ICPSquadHub {
   'cron_events' : ActorMethod<[], Result_1>,
   'cron_round' : ActorMethod<[], Result__1_1>,
   'cron_scores' : ActorMethod<[], Result_1>,
+  'cron_stats' : ActorMethod<[], Result_1>,
   'cron_style_score' : ActorMethod<[], undefined>,
   'cron_users' : ActorMethod<[], Result_1>,
   'delete_job' : ActorMethod<[bigint], undefined>,
@@ -126,16 +121,11 @@ export interface ICPSquadHub {
     [Principal],
     Array<[Mission__1, Time]>,
   >,
-  'get_daily_activity' : ActorMethod<[Principal, Date], [] | [Activity]>,
   'get_daily_events' : ActorMethod<
     [Principal, Date],
     [] | [Array<ExtendedEvent>],
   >,
   'get_daily_score' : ActorMethod<[Principal, Date], [] | [bigint]>,
-  'get_entries_events' : ActorMethod<
-    [],
-    Array<[[Date, Principal], Array<ExtendedEvent>]>,
-  >,
   'get_jobs' : ActorMethod<[], Array<[bigint, Job]>>,
   'get_leaderboard' : ActorMethod<[], [] | [Leaderboard]>,
   'get_leaderboard_simplified' : ActorMethod<
@@ -144,7 +134,7 @@ export interface ICPSquadHub {
   >,
   'get_missions' : ActorMethod<[], Array<Mission>>,
   'get_recorded_events' : ActorMethod<
-    [Principal, [] | [Time], [] | [Time]],
+    [Principal, [] | [Time__1], [] | [Time__1]],
     [] | [Array<ExtendedEvent>],
   >,
   'get_registered_cids' : ActorMethod<[], Array<[Collection, Principal]>>,
@@ -152,10 +142,9 @@ export interface ICPSquadHub {
   'get_specified_leaderboard' : ActorMethod<[bigint], [] | [Leaderboard]>,
   'is_admin' : ActorMethod<[Principal], boolean>,
   'manually_add_winners' : ActorMethod<[bigint, Array<Principal>], Result_1>,
-  'my_completed_missions' : ActorMethod<[], Array<[bigint, Time]>>,
-  'nano_to_seconds' : ActorMethod<[bigint], bigint>,
-  'register_all_collections' : ActorMethod<[], Result_1>,
-  'register_collection' : ActorMethod<[Collection], Result_1>,
+  'my_completed_missions' : ActorMethod<[], Array<[bigint, Time__1]>>,
+  'register_all_collections' : ActorMethod<[], Result__1_1>,
+  'register_collection' : ActorMethod<[Collection], Result__1_1>,
   'remove_admin' : ActorMethod<[Principal], undefined>,
   'setMaxMessagesCount' : ActorMethod<[bigint], undefined>,
   'set_job_status' : ActorMethod<[boolean], undefined>,
@@ -164,7 +153,6 @@ export interface ICPSquadHub {
   'stop_mission' : ActorMethod<[bigint], Result_1>,
   'stop_round' : ActorMethod<[], Result__1>,
   'time' : ActorMethod<[], Time>,
-  'time_difference' : ActorMethod<[Time, [] | [Time]], Time>,
   'time_to_date' : ActorMethod<[Time], Date>,
   'verify_mission' : ActorMethod<[bigint], Result>,
 }
@@ -204,12 +192,12 @@ export interface Mission {
   'title' : string,
   'tags' : Array<string>,
   'description' : string,
-  'created_at' : Time,
+  'created_at' : Time__1,
   'restricted' : [] | [Array<Principal>],
   'url_icon' : string,
-  'ended_at' : [] | [Time],
+  'ended_at' : [] | [Time__1],
   'validation' : MissionValidation,
-  'started_at' : [] | [Time],
+  'started_at' : [] | [Time__1],
   'points' : bigint,
 }
 export type MissionStatus = { 'Ended' : null } |
@@ -225,12 +213,12 @@ export interface Mission__1 {
   'title' : string,
   'tags' : Array<string>,
   'description' : string,
-  'created_at' : Time,
+  'created_at' : Time__1,
   'restricted' : [] | [Array<Principal>],
   'url_icon' : string,
-  'ended_at' : [] | [Time],
+  'ended_at' : [] | [Time__1],
   'validation' : MissionValidation,
-  'started_at' : [] | [Time],
+  'started_at' : [] | [Time__1],
   'points' : bigint,
 }
 export type Name = string;
@@ -255,11 +243,12 @@ export type Result__1_1 = { 'ok' : null } |
 export interface Round {
   'id' : bigint,
   'leaderboard' : [] | [Leaderboard__1],
-  'end_date' : [] | [Time],
-  'start_date' : Time,
+  'end_date' : [] | [Time__1],
+  'start_date' : Time__1,
 }
 export type StyleScore = bigint;
 export type Time = bigint;
+export type Time__1 = bigint;
 export type TokenIdentifier = string;
 export type TotalScore = bigint;
 export type UpdateCallsAggregatedData = Array<bigint>;

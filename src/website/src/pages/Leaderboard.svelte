@@ -51,11 +51,11 @@
 <div class="container skinny">
   <div class="stats-container">
     <div>
-      <div class="stat">1 September 22</div>
+      <div class="stat">1 October 22</div>
       <div class="label">START DATE</div>
     </div>
     <div>
-      <div class="stat">30 September 22</div>
+      <div class="stat"> ? </div>
       <div class="label">END DATE</div>
     </div>
   </div>

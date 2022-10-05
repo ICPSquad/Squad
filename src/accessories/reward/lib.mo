@@ -11,7 +11,7 @@ import TrieMap "mo:base/TrieMap";
 
 import Ext "mo:ext/Ext";
 
-import Cap "../Cap";
+import Cap "../cap";
 import Types "types";
 
 module {
@@ -87,6 +87,40 @@ module {
         amount = 1;
       };
       _record(account, reward);
+    };
+
+    public func recordToken(
+      account : AccountIdentifier,
+      amount : Nat,
+      name : Text,
+      decimals : Nat8,
+      collection : Principal,
+    ) : () {
+      let reward : Reward = {
+        collection;
+        category = #Token(
+          {
+            name;
+            decimals;
+          },
+        );
+        date = Time.now();
+        amount;
+      };
+      _record(account, reward);
+    };
+
+    public func removeRecordNFT(
+      account : AccountIdentifier,
+      identifier : Text,
+    ) : () {
+      switch (recordedRewards.get(account)) {
+        case (null) {};
+        case (?rewards) {
+          let new_rewards = Array.filter<Reward>(rewards, func(x) { _getIdentifier(x) == identifier });
+          recordedRewards.put(account, new_rewards);
+        };
+      };
     };
 
     // 1 : Create the token (with EXT)
@@ -183,6 +217,22 @@ module {
         };
         case (?some) {
           recordedRewards.put(account, Array.append<Reward>(some, [reward]));
+        };
+      };
+    };
+
+    func _getIdentifier(
+      reward : Reward,
+    ) : Text {
+      switch (reward.category) {
+        case (#Material(nft)) {
+          return (nft.identifier);
+        };
+        case (#NFT(nft)) {
+          return (nft.identifier);
+        };
+        case _ {
+          return ("");
         };
       };
     };

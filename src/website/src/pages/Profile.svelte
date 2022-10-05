@@ -16,6 +16,7 @@
   import { getCompletedMissions, getRecordedRewards } from "@utils/activity";
   import MissionComponent from "@src/components/profile/Mission.svelte";
   import RewardsComponent from "@src/components/profile/Rewards.svelte";
+  import { Principal } from "@dfinity/principal";
 
   let editing = false;
   let mode = "informations";
